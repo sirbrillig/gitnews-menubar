@@ -1,6 +1,6 @@
 /* globals window */
 require( 'dotenv' ).config();
-const { shell } = require( 'electron' );
+const { shell, ipcRenderer } = require( 'electron' );
 const { getNotifications } = require( 'gitnews' );
 const Conf = require( 'conf' );
 const config = new Conf();
@@ -60,6 +60,7 @@ class App extends React.Component {
 	}
 
 	render() {
+		ipcRenderer.send( 'unread-notifications-count', this.state.notes.length );
 		return el( NotificationsArea, { notes: this.state.notes } );
 	}
 }
