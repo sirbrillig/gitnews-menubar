@@ -21,5 +21,14 @@
     "electron-packager": "^8.7.0",
     "gitnews": "^1.0.0",
     "menubar": "^5.2.3"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sirbrillig/gitnews-menubar.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sirbrillig/gitnews-menubar/issues"
+  },
+  "homepage": "https://github.com/sirbrillig/gitnews-menubar#readme"
 }
