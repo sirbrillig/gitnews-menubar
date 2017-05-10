@@ -29,11 +29,28 @@ function NotificationsArea( { notes } ) {
 class App extends React.Component {
 	constructor( props ) {
 		super( props );
+		this.fetchInterval = 600000; // 10 minutes in ms
+		this.fetcher = null; // The fetch interval object
 		this.state = { notes: [] };
+		this.fetchNotifications = this.fetchNotifications.bind( this );
 	}
 
 	componentDidMount() {
-		getNotifications( getToken() )
+		this.fetchNotifications();
+		if ( this.fetcher ) {
+			window.clearInterval( this.fetcher );
+		}
+		this.fetcher = window.setInterval( () => this.fetchNotifications(), this.fetchInterval );
+	}
+
+	componentWillUnmount() {
+		if ( this.fetcher ) {
+			window.clearInterval( this.fetcher );
+		}
+	}
+
+	fetchNotifications() {
+		this.props.getNotifications( getToken() )
 			.then( notes => {
 				this.setState( { notes } );
 			} )
@@ -53,7 +70,7 @@ function runApp() {
 		console.error( 'Could not find main element' );
 		return;
 	}
-	ReactDOM.render( el( App ), main );
+	ReactDOM.render( el( App, { getNotifications } ), main );
 }
 
 runApp();
