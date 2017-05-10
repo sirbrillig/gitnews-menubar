@@ -12,8 +12,11 @@ function getToken() {
 	return process.env.GITNEWS_TOKEN || config.get( 'gitnews-token' );
 }
 
-function Notification( { note } ) {
-	const onClick = () => shell.openExternal( note.html_url );
+function Notification( { note, fetchNotifications } ) {
+	const onClick = () => {
+		fetchNotifications();
+		shell.openExternal( note.html_url );
+	};
 	return el( 'div', { className: 'notification', onClick }, [
 		el( 'span', { className: 'notification__repo', key: 'notification__repo' }, note.repository.full_name ),
 		': ',
@@ -21,8 +24,8 @@ function Notification( { note } ) {
 	] );
 }
 
-function NotificationsArea( { notes } ) {
-	const content = notes.length ? notes.map( note => el( Notification, { note, key: note.id } ) ) : 'No Notifications!';
+function NotificationsArea( { notes, fetchNotifications } ) {
+	const content = notes.length ? notes.map( note => el( Notification, { note, key: note.id, fetchNotifications } ) ) : 'No Notifications!';
 	return el( 'div', { className: 'notifications-area' }, content );
 }
 
@@ -61,7 +64,7 @@ class App extends React.Component {
 
 	render() {
 		ipcRenderer.send( 'unread-notifications-count', this.state.notes.length );
-		return el( NotificationsArea, { notes: this.state.notes } );
+		return el( NotificationsArea, { notes: this.state.notes, fetchNotifications: this.fetchNotifications } );
 	}
 }
 
