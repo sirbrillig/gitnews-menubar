@@ -1,3 +1,4 @@
+/* globals window */
 require( 'dotenv' ).config();
 const { getNotifications } = require( 'gitnews' );
 const Conf = require( 'conf' );
@@ -22,10 +23,12 @@ function showNoNotifications( target ) {
 
 function runApp() {
 	const main = window.document.querySelector( '.main' );
-	if ( ! main ) return;
+	if ( ! main ) {
+		return;
+	}
 	main.innerHTML = 'this is javascript';
 	const showNote = bindToTarget( main, showNotification );
-	const noNotes = bindToTarget( main, showNoNotifications )
+	const noNotes = bindToTarget( main, showNoNotifications );
 	getNotifications( getToken() )
 		.then( function( notifications ) {
 			if ( notifications.length < 1 ) {
