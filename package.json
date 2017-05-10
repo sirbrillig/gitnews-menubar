@@ -20,7 +20,9 @@
     "electron": "^1.6.6",
     "electron-packager": "^8.7.0",
     "gitnews": "^1.0.0",
-    "menubar": "^5.2.3"
+    "menubar": "^5.2.3",
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4"
   },
   "devDependencies": {},
   "repository": {
