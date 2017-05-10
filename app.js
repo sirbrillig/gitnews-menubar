@@ -1,5 +1,6 @@
 /* globals window */
 require( 'dotenv' ).config();
+const { shell } = require( 'electron' );
 const { getNotifications } = require( 'gitnews' );
 const Conf = require( 'conf' );
 const config = new Conf();
@@ -12,7 +13,8 @@ function getToken() {
 }
 
 function Notification( { note } ) {
-	return el( 'div', { className: 'notification' }, [
+	const onClick = () => shell.openExternal( note.html_url );
+	return el( 'div', { className: 'notification', onClick }, [
 		el( 'span', { className: 'notification__repo', key: 'notification__repo' }, note.repository.full_name ),
 		': ',
 		el( 'span', { className: 'notification__title', key: 'notification__title' }, note.subject.title ),
