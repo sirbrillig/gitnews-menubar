@@ -28,13 +28,15 @@ function Notification( { note, openUrl, markRead } ) {
 }
 
 function NoNotificationsIcon() {
-	return el( 'img', { className: 'no-notifications', src: 'no-notifications.svg' } );
+	return el( 'img', { className: 'no-notifications-icon', src: 'no-notifications.svg' } );
 }
 
 function NoNotifications() {
-	return el( 'div', null, [
-		el( NoNotificationsIcon ),
-		'No Notifications!',
+	return el( 'div', { className: 'no-notifications' }, [
+		el( 'div', null, [
+			el( NoNotificationsIcon ),
+			'No Notifications!',
+		] ),
 	] );
 }
 
