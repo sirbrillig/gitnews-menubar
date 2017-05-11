@@ -14,11 +14,11 @@ function getToken() {
 	return process.env.GITNEWS_TOKEN || config.get( 'gitnews-token' );
 }
 
-function Notification( { note, fetchNotifications } ) {
+function Notification( { note, openNotification, markRead } ) {
 	const onClick = () => {
 		debug( 'clicked on notification', note );
-		fetchNotifications();
-		shell.openExternal( note.html_url );
+		markRead( note );
+		openNotification( note );
 	};
 	return el( 'div', { className: 'notification', onClick }, [
 		el( 'span', { className: 'notification__repo', key: 'notification__repo' }, note.repository.full_name ),
@@ -27,8 +27,8 @@ function Notification( { note, fetchNotifications } ) {
 	] );
 }
 
-function NotificationsArea( { notes, fetchNotifications } ) {
-	const content = notes.length ? notes.map( note => el( Notification, { note, key: note.id, fetchNotifications } ) ) : 'No Notifications!';
+function NotificationsArea( { notes, markRead, openNotification } ) {
+	const content = notes.length ? notes.map( note => el( Notification, { note, key: note.id, markRead, openNotification } ) ) : 'No Notifications!';
 	return el( 'div', { className: 'notifications-area' }, content );
 }
 
@@ -39,6 +39,8 @@ class App extends React.Component {
 		this.fetcher = null; // The fetch interval object
 		this.state = { notes: [] };
 		this.fetchNotifications = this.fetchNotifications.bind( this );
+		this.markRead = this.markRead.bind( this );
+		this.openNotification = this.openNotification.bind( this );
 	}
 
 	componentDidMount() {
@@ -67,9 +69,22 @@ class App extends React.Component {
 			} );
 	}
 
+	openNotification( note ) {
+		shell.openExternal( note.html_url );
+	}
+
+	markRead( readNote ) {
+		this.setState( { notes: this.state.notes.filter( note => note.id === readNote.id ).map( note => note.unread = false ) } );
+	}
+
+	getUnreadNotifications() {
+		return this.state.notes.filter( note => note.unread );
+	}
+
 	render() {
-		ipcRenderer.send( 'unread-notifications-count', this.state.notes.length );
-		return el( NotificationsArea, { notes: this.state.notes, fetchNotifications: this.fetchNotifications } );
+		const notes = this.getUnreadNotifications();
+		ipcRenderer.send( 'unread-notifications-count', notes.length );
+		return el( NotificationsArea, { notes, markRead: this.markRead, openNotification: this.openNotification } );
 	}
 }
 
