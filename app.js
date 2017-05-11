@@ -1,6 +1,6 @@
 /* globals window */
 require( 'dotenv' ).config();
-const { shell, ipcRenderer } = require( 'electron' );
+const { shell, ipcRenderer, remote } = require( 'electron' );
 const { getNotifications } = require( 'gitnews' );
 const Conf = require( 'conf' );
 const config = new Conf();
@@ -37,6 +37,9 @@ function Footer( { openUrl } ) {
 		event.preventDefault();
 		openUrl( event.target.href );
 	};
+	const quit = () => {
+		remote.app.quit();
+	};
 	return el( 'footer', null, [
 		'Icons made by ',
 		el( 'a', { onClick: openLink, href: 'http://www.freepik.com', title: 'Freepik' }, 'Freepik' ),
@@ -44,7 +47,8 @@ function Footer( { openUrl } ) {
 		el( 'a', { onClick: openLink, href: 'http://www.flaticon.com', title: 'Flaticon' }, 'Flaticon' ),
 		' (',
 		el( 'a', { onClick: openLink, href: 'http://creativecommons.org/licenses/by/3.0/', title: 'Creative Commons BY 3.0' }, 'CC 3 BY' ),
-		')',
+		') ',
+		el( 'button', { className: 'footer__quit', onClick: quit }, 'Quit' ),
 	] );
 }
 
