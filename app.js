@@ -27,8 +27,19 @@ function Notification( { note, openUrl, markRead } ) {
 	] );
 }
 
+function NoNotificationsIcon() {
+	return el( 'img', { className: 'no-notifications', src: 'no-notifications.svg' } );
+}
+
+function NoNotifications() {
+	return el( 'div', null, [
+		el( NoNotificationsIcon ),
+		'No Notifications!',
+	] );
+}
+
 function NotificationsArea( { notes, markRead, openUrl } ) {
-	const content = notes.length ? notes.map( note => el( Notification, { note, key: note.id, markRead, openUrl } ) ) : 'No Notifications!';
+	const content = notes.length ? notes.map( note => el( Notification, { note, key: note.id, markRead, openUrl } ) ) : el( NoNotifications );
 	return el( 'div', { className: 'notifications-area' }, content );
 }
 
