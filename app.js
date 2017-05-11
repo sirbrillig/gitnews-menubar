@@ -35,7 +35,7 @@ function NotificationsArea( { notes, fetchNotifications } ) {
 class App extends React.Component {
 	constructor( props ) {
 		super( props );
-		this.fetchInterval = 600000; // 10 minutes in ms
+		this.fetchInterval = 300000; // 5 minutes in ms
 		this.fetcher = null; // The fetch interval object
 		this.state = { notes: [] };
 		this.fetchNotifications = this.fetchNotifications.bind( this );
