@@ -16,6 +16,7 @@
   "license": "MIT",
   "dependencies": {
     "conf": "^1.0.0",
+    "debug": "^2.6.6",
     "dotenv": "^4.0.0",
     "electron": "^1.6.6",
     "electron-packager": "^8.7.0",
