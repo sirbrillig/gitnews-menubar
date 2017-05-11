@@ -52,13 +52,17 @@ function Footer( { openUrl } ) {
 		remote.app.quit();
 	};
 	return el( 'footer', null, [
-		'Icons made by ',
-		el( 'a', { onClick: openLink, href: 'http://www.freepik.com', title: 'Freepik' }, 'Freepik' ),
-		' from ',
-		el( 'a', { onClick: openLink, href: 'http://www.flaticon.com', title: 'Flaticon' }, 'Flaticon' ),
-		' (',
-		el( 'a', { onClick: openLink, href: 'http://creativecommons.org/licenses/by/3.0/', title: 'Creative Commons BY 3.0' }, 'CC 3 BY' ),
-		') ',
+		el( 'span', { className: 'footer__attribution' }, [
+			'Icons made by ',
+			el( 'a', { onClick: openLink, href: 'http://www.flaticon.com/authors/daniel-bruce', title: 'Daniel Bruce' }, 'Daniel Bruce' ),
+			' and ',
+			el( 'a', { onClick: openLink, href: 'http://www.flaticon.com/authors/gregor-cresnar', title: 'Gregor Cresnar' }, 'Gregor Cresnar' ),
+			' from ',
+			el( 'a', { onClick: openLink, href: 'http://www.flaticon.com', title: 'Flaticon' }, 'Flaticon' ),
+			' (',
+			el( 'a', { onClick: openLink, href: 'http://creativecommons.org/licenses/by/3.0/', title: 'Creative Commons BY 3.0' }, 'CC 3 BY' ),
+			') ',
+		] ),
 		el( 'button', { className: 'footer__quit', onClick: quit }, 'Quit' ),
 	] );
 }
