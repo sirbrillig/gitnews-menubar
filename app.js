@@ -7,6 +7,8 @@ const config = new Conf();
 const React = require( 'react' );
 const ReactDOM = require( 'react-dom' );
 const el = React.createElement;
+const debugFactory = require( 'debug' );
+const debug = debugFactory( 'gitnews-menubar' );
 
 function getToken() {
 	return process.env.GITNEWS_TOKEN || config.get( 'gitnews-token' );
@@ -14,6 +16,7 @@ function getToken() {
 
 function Notification( { note, fetchNotifications } ) {
 	const onClick = () => {
+		debug( 'clicked on notification', note );
 		fetchNotifications();
 		shell.openExternal( note.html_url );
 	};
@@ -53,8 +56,10 @@ class App extends React.Component {
 	}
 
 	fetchNotifications() {
+		debug( 'fetching notifications' );
 		this.props.getNotifications( getToken() )
 			.then( notes => {
+				debug( 'notifications retrieved', notes );
 				this.setState( { notes } );
 			} )
 			.catch( function( err ) {
