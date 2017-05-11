@@ -14,11 +14,11 @@ function getToken() {
 	return process.env.GITNEWS_TOKEN || config.get( 'gitnews-token' );
 }
 
-function Notification( { note, openNotification, markRead } ) {
+function Notification( { note, openUrl, markRead } ) {
 	const onClick = () => {
 		debug( 'clicked on notification', note );
 		markRead( note );
-		openNotification( note );
+		openUrl( note.html_url );
 	};
 	return el( 'div', { className: 'notification', onClick }, [
 		el( 'span', { className: 'notification__repo', key: 'notification__repo' }, note.repository.full_name ),
@@ -27,9 +27,25 @@ function Notification( { note, openNotification, markRead } ) {
 	] );
 }
 
-function NotificationsArea( { notes, markRead, openNotification } ) {
-	const content = notes.length ? notes.map( note => el( Notification, { note, key: note.id, markRead, openNotification } ) ) : 'No Notifications!';
+function NotificationsArea( { notes, markRead, openUrl } ) {
+	const content = notes.length ? notes.map( note => el( Notification, { note, key: note.id, markRead, openUrl } ) ) : 'No Notifications!';
 	return el( 'div', { className: 'notifications-area' }, content );
+}
+
+function Footer( { openUrl } ) {
+	const openLink = ( event ) => {
+		event.preventDefault();
+		openUrl( event.target.href );
+	};
+	return el( 'footer', null, [
+		'Icons made by ',
+		el( 'a', { onClick: openLink, href: 'http://www.freepik.com', title: 'Freepik' }, 'Freepik' ),
+		' from ',
+		el( 'a', { onClick: openLink, href: 'http://www.flaticon.com', title: 'Flaticon' }, 'Flaticon' ),
+		' (',
+		el( 'a', { onClick: openLink, href: 'http://creativecommons.org/licenses/by/3.0/', title: 'Creative Commons BY 3.0' }, 'CC 3 BY' ),
+		')',
+	] );
 }
 
 class App extends React.Component {
@@ -40,7 +56,7 @@ class App extends React.Component {
 		this.state = { notes: [] };
 		this.fetchNotifications = this.fetchNotifications.bind( this );
 		this.markRead = this.markRead.bind( this );
-		this.openNotification = this.openNotification.bind( this );
+		this.openUrl = this.openUrl.bind( this );
 	}
 
 	componentDidMount() {
@@ -69,8 +85,8 @@ class App extends React.Component {
 			} );
 	}
 
-	openNotification( note ) {
-		shell.openExternal( note.html_url );
+	openUrl( url ) {
+		shell.openExternal( url );
 	}
 
 	markRead( readNote ) {
@@ -84,7 +100,10 @@ class App extends React.Component {
 	render() {
 		const notes = this.getUnreadNotifications();
 		ipcRenderer.send( 'unread-notifications-count', notes.length );
-		return el( NotificationsArea, { notes, markRead: this.markRead, openNotification: this.openNotification } );
+		return el( 'main', null, [
+			el( NotificationsArea, { notes, markRead: this.markRead, openUrl: this.openUrl } ),
+			el( Footer, { openUrl: this.openUrl } ),
+		] );
 	}
 }
 
