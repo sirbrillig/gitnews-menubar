@@ -2,8 +2,17 @@
 	<head>
 		<title>gitnews</title>
 		<style type="text/css">
+.notifications-area {
+	height: 320px;
+	overflow: scroll;
+}
+
 .notification {
 	margin: 20px 5px;
+}
+
+.notification__read {
+	opacity: 0.4;
 }
 
 .notification__repo {
@@ -43,7 +52,8 @@
 footer {
 	border-top: 1px solid #ccc;
 	padding: 10px 5px;
-	position: absolute;
+	position: fixed;
+	background-color: #fff;
 	bottom: 0;
 	width: 100%;
 }

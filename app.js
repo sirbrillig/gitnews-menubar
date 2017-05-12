@@ -24,7 +24,8 @@ function Notification( { note, openUrl, markRead } ) {
 		markRead( note );
 		openUrl( note.html_url );
 	};
-	return el( 'div', { className: 'notification', onClick }, [
+	const noteClass = note.unread ? ' notification__unread' : ' notification__read';
+	return el( 'div', { className: 'notification' + noteClass, onClick }, [
 		el( 'span', { className: 'notification__repo', key: 'notification__repo' }, note.repository.full_name ),
 		': ',
 		el( 'span', { className: 'notification__title', key: 'notification__title' }, note.subject.title ),
@@ -152,7 +153,7 @@ class App extends React.Component {
 
 	fetchNotifications( token = null ) {
 		debug( 'fetching notifications' );
-		this.props.getNotifications( token || this.state.token )
+		this.props.getNotifications( token || this.state.token, { all: true } )
 			.then( notes => {
 				debug( 'notifications retrieved', notes );
 				this.setState( { notes } );
@@ -194,6 +195,15 @@ class App extends React.Component {
 		return this.state.notes.filter( note => note.unread );
 	}
 
+	getSortedNotifications() {
+		return this.state.notes.sort( ( a ) => {
+			if ( a.unread ) {
+				return 0;
+			}
+			return 1;
+		} );
+	}
+
 	render() {
 		if ( ! this.state.token ) {
 			return el( 'main', null, [
@@ -202,8 +212,8 @@ class App extends React.Component {
 				el( Footer, { openUrl: this.openUrl, clearAuth: this.clearAuth } ),
 			] );
 		}
-		const notes = this.getUnreadNotifications();
-		ipcRenderer.send( 'unread-notifications-count', notes.length );
+		const notes = this.getSortedNotifications();
+		ipcRenderer.send( 'unread-notifications-count', this.getUnreadNotifications().length );
 		return el( 'main', null, [
 			el( ErrorsArea, { errors: this.state.errors, clearErrors: this.clearErrors } ),
 			el( NotificationsArea, { notes, markRead: this.markRead, openUrl: this.openUrl } ),
