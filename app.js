@@ -181,7 +181,13 @@ class App extends React.Component {
 	}
 
 	markRead( readNote ) {
-		this.setState( { notes: this.state.notes.filter( note => note.id === readNote.id ).map( note => note.unread = false ) } );
+		const notes = this.state.notes.map( note => {
+			if ( note.id === readNote.id ) {
+				note.unread = false;
+			}
+			return note;
+		} );
+		this.setState( { notes } );
 	}
 
 	getUnreadNotifications() {
