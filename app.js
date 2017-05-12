@@ -74,12 +74,19 @@ function Footer( { openUrl, clearAuth } ) {
 	] );
 }
 
+function ClearErrorsButton( { clearErrors } ) {
+	return el( 'button', { className: 'clear-errors-button', onClick: clearErrors }, 'Clear Errors' );
+}
+
 function ErrorMessage( { error } ) {
 	return el( 'div', { className: 'error-message' }, error );
 }
 
-function ErrorsArea( { errors } ) {
-	return el( 'div', { className: 'errors-area' }, errors.map( error => el( ErrorMessage, { error, key: error } ) ) );
+function ErrorsArea( { errors, clearErrors } ) {
+	return el( 'div', { className: 'errors-area' }, [
+		errors.length > 0 ? el( ClearErrorsButton, { clearErrors } ) : null,
+		errors.map( error => el( ErrorMessage, { error, key: error } ) ),
+	] );
 }
 
 function AddTokenForm( { openUrl, writeToken } ) {
@@ -119,6 +126,7 @@ class App extends React.Component {
 		this.openUrl = this.openUrl.bind( this );
 		this.writeToken = this.writeToken.bind( this );
 		this.clearAuth = this.clearAuth.bind( this );
+		this.clearErrors = this.clearErrors.bind( this );
 	}
 
 	componentDidMount() {
@@ -137,12 +145,14 @@ class App extends React.Component {
 
 	writeToken( token ) {
 		setToken( token );
+		this.clearErrors();
 		this.setState( { token } );
+		this.fetchNotifications( token );
 	}
 
-	fetchNotifications() {
+	fetchNotifications( token = null ) {
 		debug( 'fetching notifications' );
-		this.props.getNotifications( this.state.token )
+		this.props.getNotifications( token || this.state.token )
 			.then( notes => {
 				debug( 'notifications retrieved', notes );
 				this.setState( { notes } );
@@ -155,6 +165,11 @@ class App extends React.Component {
 				console.error( errorString );
 				this.setState( { errors: [ ...this.state.errors, errorString ] } );
 			} );
+	}
+
+	clearErrors() {
+		debug( 'clearing errors' );
+		this.setState( { errors: [] } );
 	}
 
 	clearAuth() {
@@ -176,7 +191,7 @@ class App extends React.Component {
 	render() {
 		if ( ! this.state.token ) {
 			return el( 'main', null, [
-				el( ErrorsArea, { errors: this.state.errors } ),
+				el( ErrorsArea, { errors: this.state.errors, clearErrors: this.clearErrors } ),
 				el( AddTokenForm, { openUrl: this.openUrl, writeToken: this.writeToken } ),
 				el( Footer, { openUrl: this.openUrl, clearAuth: this.clearAuth } ),
 			] );
@@ -184,7 +199,7 @@ class App extends React.Component {
 		const notes = this.getUnreadNotifications();
 		ipcRenderer.send( 'unread-notifications-count', notes.length );
 		return el( 'main', null, [
-			el( ErrorsArea, { errors: this.state.errors } ),
+			el( ErrorsArea, { errors: this.state.errors, clearErrors: this.clearErrors } ),
 			el( NotificationsArea, { notes, markRead: this.markRead, openUrl: this.openUrl } ),
 			el( Footer, { openUrl: this.openUrl, clearAuth: this.clearAuth } ),
 		] );
