@@ -14,6 +14,10 @@ function getToken() {
 	return process.env.GITNEWS_TOKEN || config.get( 'gitnews-token' );
 }
 
+function setToken( token ) {
+	config.set( 'gitnews-token', token );
+}
+
 function Notification( { note, openUrl, markRead } ) {
 	const onClick = () => {
 		debug( 'clicked on notification', note );
@@ -45,7 +49,7 @@ function NotificationsArea( { notes, markRead, openUrl } ) {
 	return el( 'div', { className: 'notifications-area' }, content );
 }
 
-function Footer( { openUrl } ) {
+function Footer( { openUrl, clearAuth } ) {
 	const openLink = ( event ) => {
 		event.preventDefault();
 		openUrl( event.target.href );
@@ -65,6 +69,7 @@ function Footer( { openUrl } ) {
 			el( 'a', { onClick: openLink, href: 'http://creativecommons.org/licenses/by/3.0/', title: 'Creative Commons BY 3.0' }, 'CC 3 BY' ),
 			') ',
 		] ),
+		el( 'button', { className: 'footer__clear-auth', onClick: clearAuth }, 'Change authentication token' ),
 		el( 'button', { className: 'footer__quit', onClick: quit }, 'Quit' ),
 	] );
 }
@@ -77,15 +82,43 @@ function ErrorsArea( { errors } ) {
 	return el( 'div', { className: 'errors-area' }, errors.map( error => el( ErrorMessage, { error, key: error } ) ) );
 }
 
+function AddTokenForm( { openUrl, writeToken } ) {
+	const openLink = ( event ) => {
+		event.preventDefault();
+		openUrl( event.target.href );
+	};
+	let tokenField = null;
+	const saveTokenField = ( field ) => {
+		tokenField = field;
+	};
+	const saveToken = () => {
+		if ( tokenField ) {
+			writeToken( tokenField.value );
+		}
+	};
+	return el( 'div', { className: 'add-token-form' }, [
+		el( 'p', null, [
+			'You must generate a GitHub authentication token so this app can see your notifications. It will need the `notifications` and `repo` scopes. You can generate a token ',
+			el( 'a', { href: 'https://github.com/settings/tokens', onClick: openLink }, 'here' ),
+			'.',
+		] ),
+		el( 'label', { htmlFor: 'add-token-form__input' }, 'Token:' ),
+		el( 'input', { type: 'password', className: 'add-token-form__input', id: 'add-token-form__input', ref: saveTokenField } ),
+		el( 'button', { className: 'add-token-form__save-button', onClick: saveToken }, 'Save Token' ),
+	] );
+}
+
 class App extends React.Component {
 	constructor( props ) {
 		super( props );
 		this.fetchInterval = 300000; // 5 minutes in ms
 		this.fetcher = null; // The fetch interval object
-		this.state = { notes: [], errors: [] };
+		this.state = { token: getToken(), notes: [], errors: [] };
 		this.fetchNotifications = this.fetchNotifications.bind( this );
 		this.markRead = this.markRead.bind( this );
 		this.openUrl = this.openUrl.bind( this );
+		this.writeToken = this.writeToken.bind( this );
+		this.clearAuth = this.clearAuth.bind( this );
 	}
 
 	componentDidMount() {
@@ -102,18 +135,30 @@ class App extends React.Component {
 		}
 	}
 
+	writeToken( token ) {
+		setToken( token );
+		this.setState( { token } );
+	}
+
 	fetchNotifications() {
 		debug( 'fetching notifications' );
-		this.props.getNotifications( getToken() )
+		this.props.getNotifications( this.state.token )
 			.then( notes => {
 				debug( 'notifications retrieved', notes );
 				this.setState( { notes } );
 			} )
 			.catch( err => {
+				if ( err === 'GitHub token is not available' ) {
+					return; // This is handled in render
+				}
 				const errorString = 'Error fetching notifications: ' + err;
 				console.error( errorString );
 				this.setState( { errors: [ ...this.state.errors, errorString ] } );
 			} );
+	}
+
+	clearAuth() {
+		this.setState( { token: null } );
 	}
 
 	openUrl( url ) {
@@ -129,12 +174,19 @@ class App extends React.Component {
 	}
 
 	render() {
+		if ( ! this.state.token ) {
+			return el( 'main', null, [
+				el( ErrorsArea, { errors: this.state.errors } ),
+				el( AddTokenForm, { openUrl: this.openUrl, writeToken: this.writeToken } ),
+				el( Footer, { openUrl: this.openUrl, clearAuth: this.clearAuth } ),
+			] );
+		}
 		const notes = this.getUnreadNotifications();
 		ipcRenderer.send( 'unread-notifications-count', notes.length );
 		return el( 'main', null, [
 			el( ErrorsArea, { errors: this.state.errors } ),
 			el( NotificationsArea, { notes, markRead: this.markRead, openUrl: this.openUrl } ),
-			el( Footer, { openUrl: this.openUrl } ),
+			el( Footer, { openUrl: this.openUrl, clearAuth: this.clearAuth } ),
 		] );
 	}
 }
