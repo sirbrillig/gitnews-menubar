@@ -69,12 +69,20 @@ function Footer( { openUrl } ) {
 	] );
 }
 
+function ErrorMessage( { error } ) {
+	return el( 'div', { className: 'error-message' }, error );
+}
+
+function ErrorsArea( { errors } ) {
+	return el( 'div', { className: 'errors-area' }, errors.map( error => el( ErrorMessage, { error, key: error } ) ) );
+}
+
 class App extends React.Component {
 	constructor( props ) {
 		super( props );
 		this.fetchInterval = 300000; // 5 minutes in ms
 		this.fetcher = null; // The fetch interval object
-		this.state = { notes: [] };
+		this.state = { notes: [], errors: [] };
 		this.fetchNotifications = this.fetchNotifications.bind( this );
 		this.markRead = this.markRead.bind( this );
 		this.openUrl = this.openUrl.bind( this );
@@ -101,8 +109,10 @@ class App extends React.Component {
 				debug( 'notifications retrieved', notes );
 				this.setState( { notes } );
 			} )
-			.catch( function( err ) {
-				console.error( err );
+			.catch( err => {
+				const errorString = 'Error fetching notifications: ' + err;
+				console.error( errorString );
+				this.setState( { errors: [ ...this.state.errors, errorString ] } );
 			} );
 	}
 
@@ -122,6 +132,7 @@ class App extends React.Component {
 		const notes = this.getUnreadNotifications();
 		ipcRenderer.send( 'unread-notifications-count', notes.length );
 		return el( 'main', null, [
+			el( ErrorsArea, { errors: this.state.errors } ),
 			el( NotificationsArea, { notes, markRead: this.markRead, openUrl: this.openUrl } ),
 			el( Footer, { openUrl: this.openUrl } ),
 		] );
