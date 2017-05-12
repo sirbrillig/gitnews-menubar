@@ -11,7 +11,7 @@ const debugFactory = require( 'debug' );
 const debug = debugFactory( 'gitnews-menubar' );
 
 function getToken() {
-	return process.env.GITNEWS_TOKEN || config.get( 'gitnews-token' );
+	return config.get( 'gitnews-token' ) || process.env.GITNEWS_TOKEN;
 }
 
 function setToken( token ) {
