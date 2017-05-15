@@ -2,9 +2,11 @@
   "name": "gitnews-menubar",
   "version": "1.0.0",
   "description": "GitHub notifications in your menu bar",
+  "productName": "Gitnews",
   "main": "index.js",
   "scripts": {
     "start": "electron .",
+    "package": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=gitnews-menubar.icns --prune=true --out=release-builds",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
