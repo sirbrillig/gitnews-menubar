@@ -30,11 +30,11 @@ function Notification( { note, openUrl, markRead } ) {
 		openUrl( note.html_url );
 	};
 	const noteClass = note.unread ? ' notification__unread' : ' notification__read';
-	return el( 'div', { className: 'notification' + noteClass, onClick }, [
-		el( 'span', { className: 'notification__repo', key: 'notification__repo' }, note.repository.full_name ),
+	return el( 'div', { className: 'notification' + noteClass, onClick },
+		el( 'span', { className: 'notification__repo' }, note.repository.full_name ),
 		': ',
-		el( 'span', { className: 'notification__title', key: 'notification__title' }, note.subject.title ),
-	] );
+		el( 'span', { className: 'notification__title' }, note.subject.title )
+	);
 }
 
 function NoNotificationsIcon() {
