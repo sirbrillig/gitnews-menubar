@@ -41,21 +41,21 @@ function NoNotificationsIcon() {
 }
 
 function NoNotifications() {
-	return el( 'div', { className: 'no-notifications' }, [
-		el( 'div', null, [
+	return el( 'div', { className: 'no-notifications' },
+		el( 'div', null,
 			el( NoNotificationsIcon ),
-			'No new notifications!',
-		] ),
-	] );
+			'No new notifications!'
+		)
+	);
 }
 
 function NotificationsArea( { newNotes, readNotes, markRead, openUrl } ) {
 	const noteRows = newNotes.length ? newNotes.map( note => el( Notification, { note, key: note.id, markRead, openUrl } ) ) : el( NoNotifications );
 	const readNoteRows = readNotes.map( note => el( Notification, { note, key: note.id, markRead, openUrl } ) );
-	return el( 'div', { className: 'notifications-area' }, [
+	return el( 'div', { className: 'notifications-area' },
 		noteRows,
-		readNoteRows,
-	] );
+		readNoteRows
+	);
 }
 
 function Footer( { openUrl, clearAuth } ) {
@@ -66,8 +66,8 @@ function Footer( { openUrl, clearAuth } ) {
 	const quit = () => {
 		remote.app.quit();
 	};
-	return el( 'footer', null, [
-		el( 'span', { className: 'footer__attribution' }, [
+	return el( 'footer', null,
+		el( 'span', { className: 'footer__attribution' },
 			'Icons made by ',
 			el( 'a', { onClick: openLink, href: 'http://www.flaticon.com/authors/daniel-bruce', title: 'Daniel Bruce' }, 'Daniel Bruce' ),
 			' and ',
@@ -76,11 +76,11 @@ function Footer( { openUrl, clearAuth } ) {
 			el( 'a', { onClick: openLink, href: 'http://www.flaticon.com', title: 'Flaticon' }, 'Flaticon' ),
 			' (',
 			el( 'a', { onClick: openLink, href: 'http://creativecommons.org/licenses/by/3.0/', title: 'Creative Commons BY 3.0' }, 'CC 3 BY' ),
-			') ',
-		] ),
+			') '
+		),
 		el( 'button', { className: 'footer__clear-auth', onClick: clearAuth }, 'Change authentication token' ),
-		el( 'button', { className: 'footer__quit', onClick: quit }, 'Quit' ),
-	] );
+		el( 'button', { className: 'footer__quit', onClick: quit }, 'Quit' )
+	);
 }
 
 function ClearErrorsButton( { clearErrors } ) {
@@ -218,11 +218,11 @@ class App extends React.Component {
 		const newNotes = this.getUnreadNotifications();
 		const readNotes = this.getReadNotifications();
 		ipcRenderer.send( 'unread-notifications-count', newNotes.length );
-		return el( 'main', null, [
+		return el( 'main', null,
 			el( ErrorsArea, { errors: this.state.errors, clearErrors: this.clearErrors } ),
 			el( NotificationsArea, { newNotes, readNotes, markRead: this.markRead, openUrl: this.openUrl } ),
-			el( Footer, { openUrl: this.openUrl, clearAuth: this.clearAuth } ),
-		] );
+			el( Footer, { openUrl: this.openUrl, clearAuth: this.clearAuth } )
+		);
 	}
 }
 
