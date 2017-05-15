@@ -200,11 +200,14 @@ class App extends React.Component {
 	}
 
 	getSortedNotifications() {
-		return this.state.notes.sort( ( a ) => {
+		return this.state.notes.sort( ( a, b ) => {
 			if ( a.unread ) {
-				return 0;
+				return -1;
 			}
-			return 1;
+			if ( b.unread ) {
+				return 1;
+			}
+			return 0;
 		} );
 	}
 
