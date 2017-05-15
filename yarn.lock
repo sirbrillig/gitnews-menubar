@@ -137,6 +137,10 @@ chromium-pickle-js@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/chromium-pickle-js/-/chromium-pickle-js-0.2.0.tgz#04a106672c18b085ab774d983dfa3ea138f22205"
 
+clean-stack@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/clean-stack/-/clean-stack-1.2.0.tgz#a465128d62c31fb1a3606d00abfe59dcf652f568"
+
 co@^4.6.0:
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/co/-/co-4.6.0.tgz#6ea6bdf3d853ae54ccb8e47bfa0bf3f9031fb184"
@@ -326,6 +330,12 @@ electron-packager@^8.7.0:
 electron-positioner@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/electron-positioner/-/electron-positioner-3.0.0.tgz#1a3b75c9cc1e29dd37c663b23fd876d4ffab9996"
+
+electron-unhandled@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/electron-unhandled/-/electron-unhandled-0.1.1.tgz#ff26ec781cccb130b295d43bf406c1ebc05fe1d5"
+  dependencies:
+    clean-stack "^1.2.0"
 
 electron@^1.6.6:
   version "1.7.0"

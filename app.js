@@ -9,6 +9,10 @@ const ReactDOM = require( 'react-dom' );
 const el = React.createElement;
 const debugFactory = require( 'debug' );
 const debug = debugFactory( 'gitnews-menubar' );
+const unhandled = require( 'electron-unhandled' );
+
+// Catch unhandled Promise rejections
+unhandled();
 
 function getToken() {
 	return config.get( 'gitnews-token' ) || process.env.GITNEWS_TOKEN;
