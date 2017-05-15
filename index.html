@@ -37,6 +37,7 @@ header a {
 .last-checked {
   margin-left: auto;
   font-size: 0.85em;
+  opacity: 0.4;
 }
 
 .notifications-area {
@@ -45,7 +46,11 @@ header a {
 }
 
 .notification {
-	margin: 20px 5px;
+	padding: 10px 5px;
+}
+
+.notification:nth-child(odd) {
+  background-color: #d8d8d8;
 }
 
 .notification__read {
