@@ -78,13 +78,13 @@ function Footer( { openUrl, clearAuth } ) {
 			el( 'a', { onClick: openLink, href: 'http://creativecommons.org/licenses/by/3.0/', title: 'Creative Commons BY 3.0' }, 'CC 3 BY' ),
 			') '
 		),
-		el( 'button', { className: 'footer__clear-auth', onClick: clearAuth }, 'Change authentication token' ),
-		el( 'button', { className: 'footer__quit', onClick: quit }, 'Quit' )
+		el( 'button', { className: 'footer__clear-auth btn', onClick: clearAuth }, 'Change authentication token' ),
+		el( 'button', { className: 'footer__quit btn', onClick: quit }, 'Quit' )
 	);
 }
 
 function ClearErrorsButton( { clearErrors } ) {
-	return el( 'button', { className: 'clear-errors-button', onClick: clearErrors }, 'Clear Errors' );
+	return el( 'button', { className: 'clear-errors-button btn', onClick: clearErrors }, 'Clear Errors' );
 }
 
 function ErrorMessage( { error } ) {
@@ -112,7 +112,7 @@ function AddTokenForm( { openUrl, writeToken } ) {
 			writeToken( tokenField.value );
 		}
 	};
-	return el( 'div', { className: 'add-token-form' }, [
+	return el( 'div', { className: 'add-token-form' },
 		el( 'p', null, [
 			'You must generate a GitHub authentication token so this app can see your notifications. It will need the `notifications` and `repo` scopes. You can generate a token ',
 			el( 'a', { href: 'https://github.com/settings/tokens', onClick: openLink }, 'here' ),
@@ -120,8 +120,16 @@ function AddTokenForm( { openUrl, writeToken } ) {
 		] ),
 		el( 'label', { htmlFor: 'add-token-form__input' }, 'Token:' ),
 		el( 'input', { type: 'password', className: 'add-token-form__input', id: 'add-token-form__input', ref: saveTokenField } ),
-		el( 'button', { className: 'add-token-form__save-button', onClick: saveToken }, 'Save Token' ),
-	] );
+		el( 'button', { className: 'add-token-form__save-button btn', onClick: saveToken }, 'Save Token' )
+	);
+}
+
+function Header( { openUrl } ) {
+	const openLink = ( event ) => {
+		event.preventDefault();
+		openUrl( event.target.href );
+	};
+	return el( 'header', null, el( 'h1', null, el( 'a', { href: 'https://github.com/sirbrillig/gitnews-menubar', onClick: openLink }, 'Gitnews' ) ) );
 }
 
 class App extends React.Component {
@@ -219,6 +227,7 @@ class App extends React.Component {
 		const readNotes = this.getReadNotifications();
 		ipcRenderer.send( 'unread-notifications-count', newNotes.length );
 		return el( 'main', null,
+			el( Header, { openUrl: this.openUrl } ),
 			el( ErrorsArea, { errors: this.state.errors, clearErrors: this.clearErrors } ),
 			el( NotificationsArea, { newNotes, readNotes, markRead: this.markRead, openUrl: this.openUrl } ),
 			el( Footer, { openUrl: this.openUrl, clearAuth: this.clearAuth } )
