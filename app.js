@@ -44,14 +44,18 @@ function NoNotifications() {
 	return el( 'div', { className: 'no-notifications' }, [
 		el( 'div', null, [
 			el( NoNotificationsIcon ),
-			'No Notifications!',
+			'No new notifications!',
 		] ),
 	] );
 }
 
-function NotificationsArea( { notes, markRead, openUrl } ) {
-	const content = notes.length ? notes.map( note => el( Notification, { note, key: note.id, markRead, openUrl } ) ) : el( NoNotifications );
-	return el( 'div', { className: 'notifications-area' }, content );
+function NotificationsArea( { newNotes, readNotes, markRead, openUrl } ) {
+	const noteRows = newNotes.length ? newNotes.map( note => el( Notification, { note, key: note.id, markRead, openUrl } ) ) : el( NoNotifications );
+	const readNoteRows = readNotes.map( note => el( Notification, { note, key: note.id, markRead, openUrl } ) );
+	return el( 'div', { className: 'notifications-area' }, [
+		noteRows,
+		readNoteRows,
+	] );
 }
 
 function Footer( { openUrl, clearAuth } ) {
@@ -195,20 +199,12 @@ class App extends React.Component {
 		this.setState( { notes } );
 	}
 
-	getUnreadNotifications() {
-		return this.state.notes.filter( note => note.unread );
+	getReadNotifications() {
+		return this.state.notes.filter( note => ! note.unread );
 	}
 
-	getSortedNotifications() {
-		return this.state.notes.sort( ( a, b ) => {
-			if ( a.unread ) {
-				return -1;
-			}
-			if ( b.unread ) {
-				return 1;
-			}
-			return 0;
-		} );
+	getUnreadNotifications() {
+		return this.state.notes.filter( note => note.unread );
 	}
 
 	render() {
@@ -219,11 +215,12 @@ class App extends React.Component {
 				el( Footer, { openUrl: this.openUrl, clearAuth: this.clearAuth } ),
 			] );
 		}
-		const notes = this.getSortedNotifications();
-		ipcRenderer.send( 'unread-notifications-count', this.getUnreadNotifications().length );
+		const newNotes = this.getUnreadNotifications();
+		const readNotes = this.getReadNotifications();
+		ipcRenderer.send( 'unread-notifications-count', newNotes.length );
 		return el( 'main', null, [
 			el( ErrorsArea, { errors: this.state.errors, clearErrors: this.clearErrors } ),
-			el( NotificationsArea, { notes, markRead: this.markRead, openUrl: this.openUrl } ),
+			el( NotificationsArea, { newNotes, readNotes, markRead: this.markRead, openUrl: this.openUrl } ),
 			el( Footer, { openUrl: this.openUrl, clearAuth: this.clearAuth } ),
 		] );
 	}
