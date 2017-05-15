@@ -7,6 +7,7 @@ const config = new Conf();
 const React = require( 'react' );
 const ReactDOM = require( 'react-dom' );
 const el = React.createElement;
+const date = require( 'date-fns' );
 const debugFactory = require( 'debug' );
 const debug = debugFactory( 'gitnews-menubar' );
 const unhandled = require( 'electron-unhandled' );
@@ -124,12 +125,26 @@ function AddTokenForm( { openUrl, writeToken } ) {
 	);
 }
 
-function Header( { openUrl } ) {
+function LastChecked( { lastChecked } ) {
+	const lastCheckedString = lastChecked ? date.distanceInWords( Date.now(), date.parse( lastChecked ), { addSuffix: true } ) : 'never';
+	return el( 'div', { className: 'last-checked' },
+		'last checked: ' + lastCheckedString
+	);
+}
+
+function Header( { openUrl, lastChecked } ) {
 	const openLink = ( event ) => {
 		event.preventDefault();
 		openUrl( event.target.href );
 	};
-	return el( 'header', null, el( 'h1', null, el( 'a', { href: 'https://github.com/sirbrillig/gitnews-menubar', onClick: openLink }, 'Gitnews' ) ) );
+	return el( 'header', null,
+		el( 'h1', null,
+			el( 'a', { href: 'https://github.com/sirbrillig/gitnews-menubar', onClick: openLink },
+				'Gitnews'
+			)
+		),
+		el( LastChecked, { lastChecked } )
+	);
 }
 
 class App extends React.Component {
@@ -137,7 +152,7 @@ class App extends React.Component {
 		super( props );
 		this.fetchInterval = 300000; // 5 minutes in ms
 		this.fetcher = null; // The fetch interval object
-		this.state = { token: getToken(), notes: [], errors: [] };
+		this.state = { token: getToken(), notes: [], errors: [], lastChecked: false };
 		this.fetchNotifications = this.fetchNotifications.bind( this );
 		this.markRead = this.markRead.bind( this );
 		this.openUrl = this.openUrl.bind( this );
@@ -172,7 +187,7 @@ class App extends React.Component {
 		this.props.getNotifications( token || this.state.token, { all: true } )
 			.then( notes => {
 				debug( 'notifications retrieved', notes );
-				this.setState( { notes } );
+				this.setState( { notes, lastChecked: Date.now() } );
 			} )
 			.catch( err => {
 				if ( err === 'GitHub token is not available' ) {
@@ -227,7 +242,7 @@ class App extends React.Component {
 		const readNotes = this.getReadNotifications();
 		ipcRenderer.send( 'unread-notifications-count', newNotes.length );
 		return el( 'main', null,
-			el( Header, { openUrl: this.openUrl } ),
+			el( Header, { openUrl: this.openUrl, lastChecked: this.state.lastChecked } ),
 			el( ErrorsArea, { errors: this.state.errors, clearErrors: this.clearErrors } ),
 			el( NotificationsArea, { newNotes, readNotes, markRead: this.markRead, openUrl: this.openUrl } ),
 			el( Footer, { openUrl: this.openUrl, clearAuth: this.clearAuth } )
