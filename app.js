@@ -31,7 +31,7 @@ function Notification( { note, openUrl, markRead } ) {
 	};
 	const noteClass = note.unread ? ' notification__unread' : ' notification__read';
 	return el( 'div', { className: 'notification' + noteClass, onClick },
-		el( 'span', { className: 'notification__repo' }, note.repository.full_name + ':' ),
+		el( 'span', { className: 'notification__repo' }, note.repository.full_name + ': ' ),
 		el( 'span', { className: 'notification__title' }, note.subject.title )
 	);
 }

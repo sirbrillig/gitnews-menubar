@@ -54,6 +54,7 @@ header a {
 .notification {
 	padding: 10px;
 	cursor: pointer;
+	border-top: 1px solid #eee;
 }
 
 .notification:nth-child(odd) {
@@ -66,6 +67,10 @@ header a {
 
 .notification__repo {
 	color: #f57023;
+}
+
+.notification__unread .notification__repo {
+    font-weight: 800;
 }
 
 .error-message {
