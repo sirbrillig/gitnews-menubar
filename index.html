@@ -2,6 +2,11 @@
 	<head>
 		<title>gitnews</title>
 		<style type="text/css">
+body {
+  margin: 0;
+  padding: 0;
+}
+
 .btn {
 	border: none;
   border-radius: 40px;
@@ -23,10 +28,11 @@ a {
 
 header {
   display: flex;
+  margin: 10px;
 }
 
 header h1 {
-  font-size: 1.6em;
+  font-size: 1.4em;
   margin: 0;
 }
 
@@ -46,25 +52,29 @@ header a {
 }
 
 .notification {
-	padding: 10px 5px;
+	padding: 10px;
 	cursor: pointer;
 }
 
 .notification:nth-child(odd) {
-  background-color: #d8d8d8;
+  background-color: rgba(208, 208, 208, 0.18);
 }
 
-.notification__read {
+.notification__read span {
 	opacity: 0.4;
 }
 
 .notification__repo {
-	color: green;
+	color: #f57023;
 }
 
 .error-message {
 	font-size: 1.2em;
 	color: #d60000;
+}
+
+.add-token-form {
+  padding: 10px;
 }
 
 .add-token-form__input {

@@ -31,8 +31,7 @@ function Notification( { note, openUrl, markRead } ) {
 	};
 	const noteClass = note.unread ? ' notification__unread' : ' notification__read';
 	return el( 'div', { className: 'notification' + noteClass, onClick },
-		el( 'span', { className: 'notification__repo' }, note.repository.full_name ),
-		': ',
+		el( 'span', { className: 'notification__repo' }, note.repository.full_name + ':' ),
 		el( 'span', { className: 'notification__title' }, note.subject.title )
 	);
 }
@@ -114,11 +113,10 @@ function AddTokenForm( { openUrl, writeToken } ) {
 		}
 	};
 	return el( 'div', { className: 'add-token-form' },
-		el( 'p', null, [
+		el( 'p', null,
 			'You must generate a GitHub authentication token so this app can see your notifications. It will need the `notifications` and `repo` scopes. You can generate a token ',
-			el( 'a', { href: 'https://github.com/settings/tokens', onClick: openLink }, 'here' ),
-			'.',
-		] ),
+			el( 'a', { href: 'https://github.com/settings/tokens', onClick: openLink }, 'here.' )
+		),
 		el( 'label', { htmlFor: 'add-token-form__input' }, 'Token:' ),
 		el( 'input', { type: 'password', className: 'add-token-form__input', id: 'add-token-form__input', ref: saveTokenField } ),
 		el( 'button', { className: 'add-token-form__save-button btn', onClick: saveToken }, 'Save Token' )
@@ -155,7 +153,10 @@ class LastChecked extends React.Component {
 
 	render() {
 		const lastChecked = this.props.lastChecked;
-		const lastCheckedString = lastChecked ? date.distanceInWords( Date.now(), date.parse( lastChecked ), { addSuffix: true } ) : 'never';
+		if ( ! lastChecked ) {
+			return null;
+		}
+		const lastCheckedString = date.distanceInWords( Date.now(), date.parse( lastChecked ), { addSuffix: true } );
 		debug( 'updating LastChecked display for', lastChecked, lastCheckedString );
 		return el( 'div', { className: 'last-checked' },
 			'last checked: ' + lastCheckedString
@@ -263,11 +264,12 @@ class App extends React.Component {
 
 	render() {
 		if ( ! this.state.token ) {
-			return el( 'main', null, [
+			return el( 'main', null,
+				el( Header, { openUrl: this.openUrl, lastChecked: this.state.lastChecked } ),
 				el( ErrorsArea, { errors: this.state.errors, clearErrors: this.clearErrors } ),
 				el( AddTokenForm, { openUrl: this.openUrl, writeToken: this.writeToken } ),
-				el( Footer, { openUrl: this.openUrl, clearAuth: this.clearAuth } ),
-			] );
+				el( Footer, { openUrl: this.openUrl, clearAuth: this.clearAuth } )
+			);
 		}
 		const newNotes = this.getUnreadNotifications();
 		const readNotes = this.getReadNotifications();
