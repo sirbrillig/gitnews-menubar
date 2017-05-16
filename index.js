@@ -1,6 +1,7 @@
 const { ipcMain, nativeImage, app } = require( 'electron' );
 const path = require( 'path' );
 const menubar = require( 'menubar' );
+const isDev = require( 'electron-is-dev' );
 
 const unhandled = require( 'electron-unhandled' );
 
@@ -18,6 +19,10 @@ const bar = menubar( {
 	preloadWindow: true,
 	width: 400,
 	height: 435,
+} );
+
+bar.on( 'ready', () => {
+	isDev || bar.window.setResizable( false );
 } );
 
 ipcMain.on( 'unread-notifications-count', ( event, arg ) => {
