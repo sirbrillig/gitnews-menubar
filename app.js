@@ -125,11 +125,42 @@ function AddTokenForm( { openUrl, writeToken } ) {
 	);
 }
 
-function LastChecked( { lastChecked } ) {
-	const lastCheckedString = lastChecked ? date.distanceInWords( Date.now(), date.parse( lastChecked ), { addSuffix: true } ) : 'never';
-	return el( 'div', { className: 'last-checked' },
-		'last checked: ' + lastCheckedString
-	);
+class LastChecked extends React.Component {
+	constructor( props ) {
+		super( props );
+		this.lastCheckedUpdater = null;
+		this.updateInterval = 30000; // 30 seconds in ms
+		this.updateTimestamp = this.updateTimestamp.bind( this );
+		this.state = { lastUpdated: 0 };
+	}
+
+	componentDidMount() {
+		if ( this.lastCheckedUpdater ) {
+			window.clearInterval( this.lastCheckedUpdater );
+		}
+		this.lastCheckedUpdater = window.setInterval( () => this.updateTimestamp(), this.updateInterval );
+	}
+
+	componentWillUnmount() {
+		if ( this.lastCheckedUpdater ) {
+			window.clearInterval( this.lastCheckedUpdater );
+		}
+	}
+
+	updateTimestamp() {
+		debug( 'updating LastChecked timestamp', this.state );
+		// Just a hack to force re-rendering
+		this.setState( { lastUpdated: Date.now() } );
+	}
+
+	render() {
+		const lastChecked = this.props.lastChecked;
+		const lastCheckedString = lastChecked ? date.distanceInWords( Date.now(), date.parse( lastChecked ), { addSuffix: true } ) : 'never';
+		debug( 'updating LastChecked display for', lastChecked, lastCheckedString );
+		return el( 'div', { className: 'last-checked' },
+			'last checked: ' + lastCheckedString
+		);
+	}
 }
 
 function Header( { openUrl, lastChecked } ) {
