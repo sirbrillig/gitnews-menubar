@@ -21,7 +21,7 @@ body {
   background: #f57023;
   padding: 5px 10px 5px 10px;
   text-decoration: none;
-  margin: 5px 10px 0 0;
+  text-transform: uppercase;
 }
 
 .btn:hover {
@@ -36,6 +36,21 @@ a {
 header {
   display: flex;
   margin: 10px;
+  flex-wrap: wrap;
+}
+
+.header__primary {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.header__secondary {
+  width: 100%;
+}
+
+.header__buttons {
+  margin-left: auto;
 }
 
 header h1 {
@@ -48,8 +63,7 @@ header a {
 }
 
 .last-checked {
-  margin-left: auto;
-  font-size: 0.85em;
+  font-size: 0.7em;
   opacity: 0.4;
 }
 

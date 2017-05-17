@@ -77,9 +77,7 @@ function Footer( { openUrl, clearAuth } ) {
 		event.preventDefault();
 		openUrl( event.target.href );
 	};
-	const quit = () => {
-		remote.app.quit();
-	};
+	const quit = () => remote.app.quit();
 	return el( 'footer', null,
 		el( 'span', { className: 'footer__attribution' },
 			'Icons made by ',
@@ -178,18 +176,30 @@ class LastChecked extends React.Component {
 	}
 }
 
+function Logo( { onClick } ) {
+	return el( 'h1', null,
+		el( 'a', { href: 'https://github.com/sirbrillig/gitnews-menubar', onClick },
+			'Gitnews'
+		)
+	);
+}
+
 function Header( { openUrl, lastChecked } ) {
 	const openLink = ( event ) => {
 		event.preventDefault();
 		openUrl( event.target.href );
 	};
+	const quit = () => remote.app.quit();
 	return el( 'header', null,
-		el( 'h1', null,
-			el( 'a', { href: 'https://github.com/sirbrillig/gitnews-menubar', onClick: openLink },
-				'Gitnews'
+		el( 'div', { className: 'header__primary' },
+			el( Logo, { onClick: openLink } ),
+			el( 'div', { className: 'header__buttons' },
+				el( 'button', { className: 'btn', onClick: quit }, 'Quit' )
 			)
 		),
-		el( LastChecked, { lastChecked } )
+		el( 'div', { className: 'header__secondary' },
+			el( LastChecked, { lastChecked } )
+		)
 	);
 }
 
