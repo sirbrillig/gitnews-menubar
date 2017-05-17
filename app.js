@@ -72,12 +72,11 @@ function NotificationsArea( { newNotes, readNotes, markRead, openUrl } ) {
 	);
 }
 
-function Footer( { openUrl, clearAuth } ) {
+function Footer( { openUrl } ) {
 	const openLink = ( event ) => {
 		event.preventDefault();
 		openUrl( event.target.href );
 	};
-	const quit = () => remote.app.quit();
 	return el( 'footer', null,
 		el( 'span', { className: 'footer__attribution' },
 			'Icons made by ',
@@ -89,9 +88,7 @@ function Footer( { openUrl, clearAuth } ) {
 			' (',
 			el( 'a', { onClick: openLink, href: 'http://creativecommons.org/licenses/by/3.0/', title: 'Creative Commons BY 3.0' }, 'CC 3 BY' ),
 			') '
-		),
-		el( 'button', { className: 'footer__clear-auth btn', onClick: clearAuth }, 'Change authentication token' ),
-		el( 'button', { className: 'footer__quit btn', onClick: quit }, 'Quit' )
+		)
 	);
 }
 
@@ -293,7 +290,7 @@ class App extends React.Component {
 				el( Header, { openUrl: this.openUrl, lastChecked: this.state.lastChecked, clearAuth: this.clearAuth } ),
 				el( ErrorsArea, { errors: this.state.errors, clearErrors: this.clearErrors } ),
 				el( AddTokenForm, { openUrl: this.openUrl, writeToken: this.writeToken } ),
-				el( Footer, { openUrl: this.openUrl, clearAuth: this.clearAuth } )
+				el( Footer, { openUrl: this.openUrl } )
 			);
 		}
 		const newNotes = this.getUnreadNotifications();
@@ -303,7 +300,7 @@ class App extends React.Component {
 			el( Header, { openUrl: this.openUrl, lastChecked: this.state.lastChecked, clearAuth: this.clearAuth } ),
 			el( ErrorsArea, { errors: this.state.errors, clearErrors: this.clearErrors } ),
 			el( NotificationsArea, { newNotes, readNotes, markRead: this.markRead, openUrl: this.openUrl } ),
-			el( Footer, { openUrl: this.openUrl, clearAuth: this.clearAuth } )
+			el( Footer, { openUrl: this.openUrl } )
 		);
 	}
 }
