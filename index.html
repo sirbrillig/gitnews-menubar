@@ -5,16 +5,23 @@
 body {
   margin: 0;
   padding: 0;
+  font-family: sans-serif;
+  font-size: 14px;
+  color: #4e4e4e;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 .btn {
-	border: none;
+  border: none;
   border-radius: 40px;
   color: #ffffff;
   background: #f57023;
   padding: 5px 10px 5px 10px;
   text-decoration: none;
-	margin: 5px 10px 0 0;
+  margin: 5px 10px 0 0;
 }
 
 .btn:hover {
@@ -47,35 +54,56 @@ header a {
 }
 
 .notifications-area {
-	height: 320px;
-	overflow: scroll;
+  height: 320px;
+  overflow: scroll;
 }
 
 .notification {
-	padding: 10px;
-	cursor: pointer;
-	border-top: 1px solid #eee;
+  padding: 12px 8px;
+  cursor: pointer;
+  border-top: 1px solid #eee;
+  display: flex;
 }
 
-.notification:nth-child(odd) {
-  background-color: rgba(208, 208, 208, 0.18);
+.notification__unread {
+  background-color: rgba(245, 112, 35, 0.1);
 }
 
-.notification__read span {
-	opacity: 0.4;
+.notification__dot {
+  margin-right: 10px;
+  min-width: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.notification__image img {
+  width: 32px;
+  border-radius: 50%;
+}
+
+.notification__image {
+  margin-right: 10px;
+  padding-top: 5px;
+}
+
+.notification__time {
+  font-size: 0.7em;
+  color: rgb(146, 146, 146);
 }
 
 .notification__repo {
-	color: #f57023;
+  font-weight: 800;
+  margin-bottom: 5px;
 }
 
-.notification__unread .notification__repo {
-    font-weight: 800;
+.notification__title {
+  margin-bottom: 5px;
 }
 
 .error-message {
-	font-size: 1.2em;
-	color: #d60000;
+  font-size: 1.2em;
+  color: #d60000;
 }
 
 .add-token-form {
@@ -83,45 +111,45 @@ header a {
 }
 
 .add-token-form__input {
-	display: block;
-	font-size: 1.5em;
+  display: block;
+  font-size: 1.5em;
 }
 
 .add-token-form__save-button {
-	margin: 5px 0;
-	display: block;
-	font-size: 1.2em;
+  margin: 5px 0;
+  display: block;
+  font-size: 1.2em;
 }
 
 .no-notifications {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2em;
 }
 
 .no-notifications-icon {
-	height: 2em;
-	vertical-align: middle;
-	margin: 0.5em;
+  height: 2em;
+  vertical-align: middle;
+  margin: 0.5em;
 }
 
 footer {
-	border-top: 1px solid #ccc;
-	padding: 10px 5px;
-	position: fixed;
-	background-color: #fff;
-	bottom: 0;
-	width: 100%;
+  border-top: 1px solid #ccc;
+  padding: 10px 5px;
+  position: fixed;
+  background-color: #fff;
+  bottom: 0;
+  width: 100%;
 }
 
 .footer__attribution {
-	font-size: 0.7em;
+  font-size: 0.7em;
 }
 		</style>
 	</head>
 	<body>
-		<div class="main">loading...</div>
-		<script defer type="text/javascript" src="./app.js"></script>
+	  <div class="main">loading...</div>
+	  <script defer type="text/javascript" src="./app.js"></script>
 	</body>
 </html>
