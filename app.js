@@ -184,7 +184,7 @@ function Logo( { onClick } ) {
 	);
 }
 
-function Header( { openUrl, lastChecked } ) {
+function Header( { openUrl, lastChecked, clearAuth } ) {
 	const openLink = ( event ) => {
 		event.preventDefault();
 		openUrl( event.target.href );
@@ -194,6 +194,7 @@ function Header( { openUrl, lastChecked } ) {
 		el( 'div', { className: 'header__primary' },
 			el( Logo, { onClick: openLink } ),
 			el( 'div', { className: 'header__buttons' },
+				el( 'button', { className: 'btn', onClick: clearAuth }, 'Config' ),
 				el( 'button', { className: 'btn', onClick: quit }, 'Quit' )
 			)
 		),
@@ -289,7 +290,7 @@ class App extends React.Component {
 	render() {
 		if ( ! this.state.token ) {
 			return el( 'main', null,
-				el( Header, { openUrl: this.openUrl, lastChecked: this.state.lastChecked } ),
+				el( Header, { openUrl: this.openUrl, lastChecked: this.state.lastChecked, clearAuth: this.clearAuth } ),
 				el( ErrorsArea, { errors: this.state.errors, clearErrors: this.clearErrors } ),
 				el( AddTokenForm, { openUrl: this.openUrl, writeToken: this.writeToken } ),
 				el( Footer, { openUrl: this.openUrl, clearAuth: this.clearAuth } )
@@ -299,7 +300,7 @@ class App extends React.Component {
 		const readNotes = this.getReadNotifications();
 		ipcRenderer.send( 'unread-notifications-count', newNotes.length );
 		return el( 'main', null,
-			el( Header, { openUrl: this.openUrl, lastChecked: this.state.lastChecked } ),
+			el( Header, { openUrl: this.openUrl, lastChecked: this.state.lastChecked, clearAuth: this.clearAuth } ),
 			el( ErrorsArea, { errors: this.state.errors, clearErrors: this.clearErrors } ),
 			el( NotificationsArea, { newNotes, readNotes, markRead: this.markRead, openUrl: this.openUrl } ),
 			el( Footer, { openUrl: this.openUrl, clearAuth: this.clearAuth } )
