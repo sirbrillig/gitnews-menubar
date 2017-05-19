@@ -181,7 +181,7 @@ function Logo( { onClick } ) {
 	);
 }
 
-function Header( { openUrl, lastChecked, clearAuth } ) {
+function Header( { openUrl, lastChecked, showConfig } ) {
 	const openLink = ( event ) => {
 		event.preventDefault();
 		openUrl( event.target.href );
@@ -191,28 +191,39 @@ function Header( { openUrl, lastChecked, clearAuth } ) {
 		el( 'div', { className: 'header__primary' },
 			el( Logo, { onClick: openLink } ),
 			el( 'div', { className: 'header__buttons' },
-				el( 'button', { className: 'btn', onClick: clearAuth }, 'Config' ),
+				showConfig && el( 'button', { className: 'btn', onClick: showConfig }, 'Config' ),
 				el( 'button', { className: 'btn', onClick: quit }, 'Quit' )
 			)
 		),
 		el( 'div', { className: 'header__secondary' },
-			el( LastChecked, { lastChecked } )
+			lastChecked && el( LastChecked, { lastChecked } )
 		)
+	);
+}
+
+function ConfigPage( { clearAuth, hideConfig } ) {
+	return el( 'div', { className: 'config-page' },
+		el( 'p', null, 'Would you like to change your authentication token?' ),
+		el( 'button', { className: 'btn', onClick: clearAuth }, 'Change token' ),
+		el( 'a', { href: '#', onClick: hideConfig }, 'Cancel' )
 	);
 }
 
 class App extends React.Component {
 	constructor( props ) {
 		super( props );
+		this.state = { token: getToken(), notes: [], errors: [], lastChecked: false, showingConfig: false };
+
 		this.fetchInterval = 300000; // 5 minutes in ms
 		this.fetcher = null; // The fetch interval object
-		this.state = { token: getToken(), notes: [], errors: [], lastChecked: false };
 		this.fetchNotifications = this.fetchNotifications.bind( this );
 		this.markRead = this.markRead.bind( this );
 		this.openUrl = this.openUrl.bind( this );
 		this.writeToken = this.writeToken.bind( this );
 		this.clearAuth = this.clearAuth.bind( this );
 		this.clearErrors = this.clearErrors.bind( this );
+		this.showConfig = this.showConfig.bind( this );
+		this.hideConfig = this.hideConfig.bind( this );
 	}
 
 	componentDidMount() {
@@ -284,12 +295,27 @@ class App extends React.Component {
 		return this.state.notes.filter( note => note.unread );
 	}
 
+	showConfig() {
+		this.setState( { showingConfig: true } );
+	}
+
+	hideConfig() {
+		this.setState( { showingConfig: false } );
+	}
+
 	render() {
 		if ( ! this.state.token ) {
 			return el( 'main', null,
-				el( Header, { openUrl: this.openUrl, lastChecked: this.state.lastChecked, clearAuth: this.clearAuth } ),
+				el( Header, { openUrl: this.openUrl } ),
 				el( ErrorsArea, { errors: this.state.errors, clearErrors: this.clearErrors } ),
 				el( AddTokenForm, { openUrl: this.openUrl, writeToken: this.writeToken } ),
+				el( Footer, { openUrl: this.openUrl } )
+			);
+		}
+		if ( this.state.showingConfig ) {
+			return el( 'main', null,
+				el( Header, { openUrl: this.openUrl } ),
+				el( ConfigPage, { hideConfig: this.hideConfig, clearAuth: this.clearAuth } ),
 				el( Footer, { openUrl: this.openUrl } )
 			);
 		}
@@ -297,7 +323,7 @@ class App extends React.Component {
 		const readNotes = this.getReadNotifications();
 		ipcRenderer.send( 'unread-notifications-count', newNotes.length );
 		return el( 'main', null,
-			el( Header, { openUrl: this.openUrl, lastChecked: this.state.lastChecked, clearAuth: this.clearAuth } ),
+			el( Header, { openUrl: this.openUrl, lastChecked: this.state.lastChecked, showConfig: this.showConfig } ),
 			el( ErrorsArea, { errors: this.state.errors, clearErrors: this.clearErrors } ),
 			el( NotificationsArea, { newNotes, readNotes, markRead: this.markRead, openUrl: this.openUrl } ),
 			el( Footer, { openUrl: this.openUrl } )
