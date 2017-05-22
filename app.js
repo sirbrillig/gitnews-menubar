@@ -209,13 +209,32 @@ function ConfigPage( { clearAuth, hideConfig } ) {
 	);
 }
 
+function UncheckedNotice() {
+	return el( 'div', { className: 'unchecked-notice' },
+		el( 'h2', null, 'Checking for notifications...' )
+	);
+}
+
+function OfflineNotice() {
+	return el( 'div', { className: 'unchecked-notice' },
+		el( 'h2', null, 'You seem to be offline.' )
+	);
+}
+
 class App extends React.Component {
 	constructor( props ) {
 		super( props );
-		this.state = { token: getToken(), notes: [], errors: [], lastChecked: false, showingConfig: false };
+		this.state = {
+			token: getToken(),
+			notes: [],
+			errors: [],
+			lastChecked: false,
+			showingConfig: false,
+		};
 
-		this.fetchInterval = 300000; // 5 minutes in ms
+		this.fetchInterval = 120000; // 2 minutes in ms
 		this.fetcher = null; // The fetch interval object
+
 		this.fetchNotifications = this.fetchNotifications.bind( this );
 		this.markRead = this.markRead.bind( this );
 		this.openUrl = this.openUrl.bind( this );
@@ -248,6 +267,10 @@ class App extends React.Component {
 	}
 
 	fetchNotifications( token = null ) {
+		if ( ! window.navigator.onLine ) {
+			debug( 'skipping notifications check because we are offline' );
+			return;
+		}
 		debug( 'fetching notifications' );
 		this.props.getNotifications( token || this.state.token, { all: true } )
 			.then( notes => {
@@ -304,6 +327,14 @@ class App extends React.Component {
 	}
 
 	render() {
+		if ( this.state.offline ) {
+			return el( 'main', null,
+				el( Header, { openUrl: this.openUrl } ),
+				el( ErrorsArea, { errors: this.state.errors, clearErrors: this.clearErrors } ),
+				el( OfflineNotice ),
+				el( Footer, { openUrl: this.openUrl } )
+			);
+		}
 		if ( ! this.state.token ) {
 			return el( 'main', null,
 				el( Header, { openUrl: this.openUrl } ),
@@ -316,6 +347,14 @@ class App extends React.Component {
 			return el( 'main', null,
 				el( Header, { openUrl: this.openUrl } ),
 				el( ConfigPage, { hideConfig: this.hideConfig, clearAuth: this.clearAuth } ),
+				el( Footer, { openUrl: this.openUrl } )
+			);
+		}
+		if ( ! this.state.lastChecked ) {
+			return el( 'main', null,
+				el( Header, { openUrl: this.openUrl } ),
+				el( ErrorsArea, { errors: this.state.errors, clearErrors: this.clearErrors } ),
+				el( UncheckedNotice ),
 				el( Footer, { openUrl: this.openUrl } )
 			);
 		}
