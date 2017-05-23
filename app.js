@@ -58,8 +58,10 @@ function NotificationsArea( { newNotes, readNotes, markRead, openUrl } ) {
 	const noteRows = newNotes.length ? newNotes.map( note => el( Notification, { note, key: note.id, markRead, openUrl } ) ) : el( NoNotifications );
 	const readNoteRows = readNotes.map( note => el( Notification, { note, key: note.id, markRead, openUrl } ) );
 	return el( 'div', { className: 'notifications-area' },
-		noteRows,
-		readNoteRows
+		el( 'div', { className: 'notifications-area__inner' },
+			noteRows,
+			readNoteRows
+		)
 	);
 }
 
