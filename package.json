@@ -30,7 +30,10 @@
     "react-dom": "^15.5.4"
   },
   "devDependencies": {
-    "electron-packager": "^8.7.0"
+    "electron-packager": "^8.7.0",
+    "eslint": "^3.19.0",
+    "eslint-config-wpcalypso": "^0.8.0",
+    "eslint-plugin-wpcalypso": "^3.2.0"
   },
   "repository": {
     "type": "git",
