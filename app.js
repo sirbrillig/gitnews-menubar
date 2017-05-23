@@ -63,23 +63,22 @@ function NotificationsArea( { newNotes, readNotes, markRead, openUrl } ) {
 	);
 }
 
-function Footer( { openUrl } ) {
+function Attributions( { openUrl } ) {
 	const openLink = ( event ) => {
 		event.preventDefault();
 		openUrl( event.target.href );
 	};
-	return el( 'footer', null,
-		el( 'span', { className: 'footer__attribution' },
-			'Icons made by ',
-			el( 'a', { onClick: openLink, href: 'http://www.flaticon.com/authors/daniel-bruce', title: 'Daniel Bruce' }, 'Daniel Bruce' ),
-			' and ',
-			el( 'a', { onClick: openLink, href: 'http://www.flaticon.com/authors/gregor-cresnar', title: 'Gregor Cresnar' }, 'Gregor Cresnar' ),
-			' from ',
-			el( 'a', { onClick: openLink, href: 'http://www.flaticon.com', title: 'Flaticon' }, 'Flaticon' ),
-			' (',
-			el( 'a', { onClick: openLink, href: 'http://creativecommons.org/licenses/by/3.0/', title: 'Creative Commons BY 3.0' }, 'CC 3 BY' ),
-			') '
-		)
+	return el( 'div', { className: 'attributions' },
+		el( 'h3', null, 'Attribution' ),
+		'Icons made by ',
+		el( 'a', { onClick: openLink, href: 'http://www.flaticon.com/authors/daniel-bruce', title: 'Daniel Bruce' }, 'Daniel Bruce' ),
+		' and ',
+		el( 'a', { onClick: openLink, href: 'http://www.flaticon.com/authors/gregor-cresnar', title: 'Gregor Cresnar' }, 'Gregor Cresnar' ),
+		' from ',
+		el( 'a', { onClick: openLink, href: 'http://www.flaticon.com', title: 'Flaticon' }, 'Flaticon' ),
+		' (',
+		el( 'a', { onClick: openLink, href: 'http://creativecommons.org/licenses/by/3.0/', title: 'Creative Commons BY 3.0' }, 'CC 3 BY' ),
+		') '
 	);
 }
 
@@ -193,11 +192,14 @@ function Header( { openUrl, lastChecked, showConfig, offline, fetchNotifications
 	);
 }
 
-function ConfigPage( { clearAuth, hideConfig } ) {
+function ConfigPage( { clearAuth, hideConfig, openUrl } ) {
 	return el( 'div', { className: 'config-page' },
-		el( 'p', null, 'Would you like to change your authentication token?' ),
+		el( 'h2', { className: 'config-page__title' }, 'Configuration' ),
+		el( 'a', { href: '#', onClick: hideConfig }, '< Back' ),
+		el( 'h3', null, 'Token' ),
+		el( 'span', null, 'Would you like to change your authentication token?' ),
 		el( 'button', { className: 'btn', onClick: clearAuth }, 'Change token' ),
-		el( 'a', { href: '#', onClick: hideConfig }, 'Cancel' )
+		el( Attributions, { openUrl } )
 	);
 }
 
@@ -333,40 +335,37 @@ class App extends React.Component {
 	}
 
 	render() {
-		const { offline } = this.state;
+		const { offline, errors, showingConfig, token, lastChecked } = this.state;
+		const { openUrl, clearAuth, clearErrors, hideConfig, showConfig, writeToken, markRead } = this;
 		// We have to have a closure because otherwise it will treat the event param as a token.
 		const fetchNotifications = () => this.fetchNotifications();
-		if ( ! this.state.token ) {
+		if ( ! token ) {
 			return el( 'main', null,
-				el( Header, { offline, fetchNotifications, openUrl: this.openUrl } ),
-				el( ErrorsArea, { errors: this.state.errors, clearErrors: this.clearErrors } ),
-				el( AddTokenForm, { openUrl: this.openUrl, writeToken: this.writeToken } ),
-				el( Footer, { openUrl: this.openUrl } )
+				el( Header, { offline, fetchNotifications, openUrl } ),
+				el( ErrorsArea, { errors, clearErrors } ),
+				el( AddTokenForm, { openUrl, writeToken } )
 			);
 		}
-		if ( this.state.showingConfig ) {
+		if ( showingConfig ) {
 			return el( 'main', null,
-				el( Header, { offline, fetchNotifications, openUrl: this.openUrl } ),
-				el( ConfigPage, { hideConfig: this.hideConfig, clearAuth: this.clearAuth } ),
-				el( Footer, { openUrl: this.openUrl } )
+				el( Header, { offline, fetchNotifications, openUrl } ),
+				el( ConfigPage, { openUrl, hideConfig, clearAuth } )
 			);
 		}
-		if ( ! this.state.lastChecked ) {
+		if ( ! lastChecked ) {
 			return el( 'main', null,
-				el( Header, { offline, fetchNotifications, openUrl: this.openUrl } ),
-				el( ErrorsArea, { errors: this.state.errors, clearErrors: this.clearErrors } ),
-				el( UncheckedNotice ),
-				el( Footer, { openUrl: this.openUrl } )
+				el( Header, { offline, fetchNotifications, openUrl } ),
+				el( ErrorsArea, { errors, clearErrors } ),
+				el( UncheckedNotice )
 			);
 		}
 		const newNotes = this.getUnreadNotifications();
 		const readNotes = this.getReadNotifications();
 		ipcRenderer.send( 'unread-notifications-count', newNotes.length );
 		return el( 'main', null,
-			el( Header, { offline, fetchNotifications, openUrl: this.openUrl, lastChecked: this.state.lastChecked, showConfig: this.showConfig } ),
-			el( ErrorsArea, { errors: this.state.errors, clearErrors: this.clearErrors } ),
-			el( NotificationsArea, { newNotes, readNotes, markRead: this.markRead, openUrl: this.openUrl } ),
-			el( Footer, { openUrl: this.openUrl } )
+			el( Header, { offline, fetchNotifications, openUrl, lastChecked, showConfig } ),
+			el( ErrorsArea, { errors, clearErrors } ),
+			el( NotificationsArea, { newNotes, readNotes, markRead, openUrl } )
 		);
 	}
 }
