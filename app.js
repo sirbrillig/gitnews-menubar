@@ -23,14 +23,6 @@ function setToken( token ) {
 	config.set( 'gitnews-token', token );
 }
 
-function UnreadDot() {
-	return el(
-		'svg',
-		{ width: '10', height: '10' },
-		el( 'circle', { cx: '5', cy: '5', r: '5', fill: 'orange' } )
-	);
-}
-
 function Notification( { note, openUrl, markRead } ) {
 	const onClick = () => {
 		debug( 'clicked on notification', note );
@@ -40,7 +32,6 @@ function Notification( { note, openUrl, markRead } ) {
 	const timeString = date.distanceInWords( Date.now(), date.parse( note.updated_at ), { addSuffix: true } );
 	const noteClass = note.unread ? ' notification__unread' : ' notification__read';
 	return el( 'div', { className: 'notification' + noteClass, onClick },
-		el( 'div', { className: 'notification__dot' }, note.unread ? el( UnreadDot ) : null ),
 		el( 'div', { className: 'notification__image' }, el( 'img', { src: note.repository.owner.avatar_url } ) ),
 		el( 'div', { className: 'notification__body' },
 			el( 'div', { className: 'notification__repo' }, note.repository.full_name ),
