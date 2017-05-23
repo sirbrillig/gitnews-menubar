@@ -278,8 +278,13 @@ class App extends React.Component {
 				this.setState( { notes, lastChecked: Date.now() } );
 			} )
 			.catch( err => {
+				debug( 'fetching notifications failed with the error', err );
 				if ( err === 'GitHub token is not available' ) {
 					return; // This is handled in render
+				}
+				if ( err.code === 'ENOTFOUND' ) {
+					debug( 'notifications check failed because we are offline' );
+					return; // We must be offline
 				}
 				const errorString = 'Error fetching notifications: ' + err;
 				console.error( errorString );
