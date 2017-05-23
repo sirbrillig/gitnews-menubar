@@ -282,7 +282,7 @@ class App extends React.Component {
 					this.setState( { offline: true } );
 					return;
 				}
-				if ( err.code === 'ETIMEDOUT' ) {
+				if ( err.code === 'ETIMEDOUT' || err.code === 'ECONNABORTED' ) {
 					debug( 'notifications check failed because of a timeout' );
 					this.setState( { offline: true } );
 					return;
