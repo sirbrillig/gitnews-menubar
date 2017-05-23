@@ -172,7 +172,7 @@ function Logo( { onClick } ) {
 	);
 }
 
-function Header( { openUrl, lastChecked, showConfig, offline } ) {
+function Header( { openUrl, lastChecked, showConfig, offline, fetchNotifications } ) {
 	const openLink = ( event ) => {
 		event.preventDefault();
 		openUrl( event.target.href );
@@ -189,7 +189,7 @@ function Header( { openUrl, lastChecked, showConfig, offline } ) {
 		el( 'div', { className: 'header__secondary' },
 			lastChecked && el( LastChecked, { lastChecked } )
 		),
-		offline && el( OfflineNotice )
+		offline && el( OfflineNotice, { fetchNotifications } )
 	);
 }
 
@@ -207,9 +207,10 @@ function UncheckedNotice() {
 	);
 }
 
-function OfflineNotice() {
+function OfflineNotice( { fetchNotifications } ) {
 	return el( 'div', { className: 'offline-notice' },
-		el( 'span', null, 'I\'m having trouble connecting. Retrying shortly.' )
+		el( 'span', null, 'I\'m having trouble connecting. Retrying shortly. ' ),
+		el( 'a', { href: '#', onClick: fetchNotifications }, 'Retry now' )
 	);
 }
 
@@ -333,9 +334,11 @@ class App extends React.Component {
 
 	render() {
 		const { offline } = this.state;
+		// We have to have a closure because otherwise it will treat the event param as a token.
+		const fetchNotifications = () => this.fetchNotifications();
 		if ( ! this.state.token ) {
 			return el( 'main', null,
-				el( Header, { offline, openUrl: this.openUrl } ),
+				el( Header, { offline, fetchNotifications, openUrl: this.openUrl } ),
 				el( ErrorsArea, { errors: this.state.errors, clearErrors: this.clearErrors } ),
 				el( AddTokenForm, { openUrl: this.openUrl, writeToken: this.writeToken } ),
 				el( Footer, { openUrl: this.openUrl } )
@@ -343,14 +346,14 @@ class App extends React.Component {
 		}
 		if ( this.state.showingConfig ) {
 			return el( 'main', null,
-				el( Header, { offline, openUrl: this.openUrl } ),
+				el( Header, { offline, fetchNotifications, openUrl: this.openUrl } ),
 				el( ConfigPage, { hideConfig: this.hideConfig, clearAuth: this.clearAuth } ),
 				el( Footer, { openUrl: this.openUrl } )
 			);
 		}
 		if ( ! this.state.lastChecked ) {
 			return el( 'main', null,
-				el( Header, { offline, openUrl: this.openUrl } ),
+				el( Header, { offline, fetchNotifications, openUrl: this.openUrl } ),
 				el( ErrorsArea, { errors: this.state.errors, clearErrors: this.clearErrors } ),
 				el( UncheckedNotice ),
 				el( Footer, { openUrl: this.openUrl } )
@@ -360,7 +363,7 @@ class App extends React.Component {
 		const readNotes = this.getReadNotifications();
 		ipcRenderer.send( 'unread-notifications-count', newNotes.length );
 		return el( 'main', null,
-			el( Header, { offline, openUrl: this.openUrl, lastChecked: this.state.lastChecked, showConfig: this.showConfig } ),
+			el( Header, { offline, fetchNotifications, openUrl: this.openUrl, lastChecked: this.state.lastChecked, showConfig: this.showConfig } ),
 			el( ErrorsArea, { errors: this.state.errors, clearErrors: this.clearErrors } ),
 			el( NotificationsArea, { newNotes, readNotes, markRead: this.markRead, openUrl: this.openUrl } ),
 			el( Footer, { openUrl: this.openUrl } )
