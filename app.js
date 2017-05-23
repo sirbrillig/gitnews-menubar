@@ -270,7 +270,7 @@ class App extends React.Component {
 		this.props.getNotifications( token || this.state.token, { all: true } )
 			.then( notes => {
 				debug( 'notifications retrieved', notes );
-				this.setState( { notes, lastChecked: Date.now() } );
+				this.setState( { notes, offline: false, lastChecked: Date.now() } );
 			} )
 			.catch( err => {
 				debug( 'fetching notifications failed with the error', err );
