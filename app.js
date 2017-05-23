@@ -172,7 +172,7 @@ function Logo( { onClick } ) {
 	);
 }
 
-function Header( { openUrl, lastChecked, showConfig } ) {
+function Header( { openUrl, lastChecked, showConfig, offline } ) {
 	const openLink = ( event ) => {
 		event.preventDefault();
 		openUrl( event.target.href );
@@ -188,7 +188,8 @@ function Header( { openUrl, lastChecked, showConfig } ) {
 		),
 		el( 'div', { className: 'header__secondary' },
 			lastChecked && el( LastChecked, { lastChecked } )
-		)
+		),
+		offline && el( OfflineNotice )
 	);
 }
 
@@ -207,8 +208,8 @@ function UncheckedNotice() {
 }
 
 function OfflineNotice() {
-	return el( 'div', { className: 'unchecked-notice' },
-		el( 'h2', null, 'You seem to be offline.' )
+	return el( 'div', { className: 'offline-notice' },
+		el( 'span', null, 'I\'m having trouble connecting. Retrying shortly.' )
 	);
 }
 
@@ -221,6 +222,7 @@ class App extends React.Component {
 			errors: [],
 			lastChecked: false,
 			showingConfig: false,
+			offline: false,
 		};
 
 		this.fetchInterval = 120000; // 2 minutes in ms
@@ -260,6 +262,7 @@ class App extends React.Component {
 	fetchNotifications( token = null ) {
 		if ( ! window.navigator.onLine ) {
 			debug( 'skipping notifications check because we are offline' );
+			this.setState( { offline: true } );
 			return;
 		}
 		debug( 'fetching notifications' );
@@ -275,7 +278,13 @@ class App extends React.Component {
 				}
 				if ( err.code === 'ENOTFOUND' ) {
 					debug( 'notifications check failed because we are offline' );
-					return; // We must be offline
+					this.setState( { offline: true } );
+					return;
+				}
+				if ( err.code === 'ETIMEDOUT' ) {
+					debug( 'notifications check failed because of a timeout' );
+					this.setState( { offline: true } );
+					return;
 				}
 				const errorString = 'Error fetching notifications: ' + err;
 				console.error( errorString );
@@ -323,17 +332,10 @@ class App extends React.Component {
 	}
 
 	render() {
-		if ( this.state.offline ) {
-			return el( 'main', null,
-				el( Header, { openUrl: this.openUrl } ),
-				el( ErrorsArea, { errors: this.state.errors, clearErrors: this.clearErrors } ),
-				el( OfflineNotice ),
-				el( Footer, { openUrl: this.openUrl } )
-			);
-		}
+		const { offline } = this.state;
 		if ( ! this.state.token ) {
 			return el( 'main', null,
-				el( Header, { openUrl: this.openUrl } ),
+				el( Header, { offline, openUrl: this.openUrl } ),
 				el( ErrorsArea, { errors: this.state.errors, clearErrors: this.clearErrors } ),
 				el( AddTokenForm, { openUrl: this.openUrl, writeToken: this.writeToken } ),
 				el( Footer, { openUrl: this.openUrl } )
@@ -341,14 +343,14 @@ class App extends React.Component {
 		}
 		if ( this.state.showingConfig ) {
 			return el( 'main', null,
-				el( Header, { openUrl: this.openUrl } ),
+				el( Header, { offline, openUrl: this.openUrl } ),
 				el( ConfigPage, { hideConfig: this.hideConfig, clearAuth: this.clearAuth } ),
 				el( Footer, { openUrl: this.openUrl } )
 			);
 		}
 		if ( ! this.state.lastChecked ) {
 			return el( 'main', null,
-				el( Header, { openUrl: this.openUrl } ),
+				el( Header, { offline, openUrl: this.openUrl } ),
 				el( ErrorsArea, { errors: this.state.errors, clearErrors: this.clearErrors } ),
 				el( UncheckedNotice ),
 				el( Footer, { openUrl: this.openUrl } )
@@ -358,7 +360,7 @@ class App extends React.Component {
 		const readNotes = this.getReadNotifications();
 		ipcRenderer.send( 'unread-notifications-count', newNotes.length );
 		return el( 'main', null,
-			el( Header, { openUrl: this.openUrl, lastChecked: this.state.lastChecked, showConfig: this.showConfig } ),
+			el( Header, { offline, openUrl: this.openUrl, lastChecked: this.state.lastChecked, showConfig: this.showConfig } ),
 			el( ErrorsArea, { errors: this.state.errors, clearErrors: this.clearErrors } ),
 			el( NotificationsArea, { newNotes, readNotes, markRead: this.markRead, openUrl: this.openUrl } ),
 			el( Footer, { openUrl: this.openUrl } )
