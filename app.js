@@ -16,6 +16,10 @@ const Gridicon = require( 'gridicons' );
 // Catch unhandled Promise rejections
 unhandled();
 
+const PANE_NOTIFICATIONS = 'notifications-pane';
+const PANE_CONFIG = 'config-pane';
+const PANE_TOKEN = 'token-pane';
+
 function getToken() {
 	return config.get( 'gitnews-token' ) || process.env.GITNEWS_TOKEN;
 }
@@ -100,7 +104,7 @@ function ErrorsArea( { errors, clearErrors } ) {
 	] );
 }
 
-function AddTokenForm( { openUrl, writeToken } ) {
+function AddTokenForm( { openUrl, writeToken, hideEditToken } ) {
 	const openLink = ( event ) => {
 		event.preventDefault();
 		openUrl( event.target.href );
@@ -121,7 +125,8 @@ function AddTokenForm( { openUrl, writeToken } ) {
 		),
 		el( 'label', { htmlFor: 'add-token-form__input' }, 'GitHub Token:' ),
 		el( 'input', { type: 'password', className: 'add-token-form__input', id: 'add-token-form__input', ref: saveTokenField } ),
-		el( 'button', { className: 'add-token-form__save-button btn', onClick: saveToken }, 'Save Token' )
+		el( 'button', { className: 'add-token-form__save-button btn', onClick: saveToken }, 'Save Token' ),
+		hideEditToken && el( 'a', { href: '#', onClick: hideEditToken }, 'Cancel' )
 	);
 }
 
@@ -193,13 +198,13 @@ function Header( { openUrl, lastChecked, showConfig, offline, fetchNotifications
 	);
 }
 
-function ConfigPage( { clearAuth, hideConfig, openUrl } ) {
+function ConfigPage( { showEditToken, hideConfig, openUrl } ) {
 	return el( 'div', { className: 'config-page' },
 		el( 'h2', { className: 'config-page__title' }, 'Configuration' ),
 		el( 'a', { href: '#', onClick: hideConfig }, '< Back' ),
 		el( 'h3', null, 'Token' ),
-		el( 'span', null, 'Would you like to change your authentication token?' ),
-		el( 'a', { href: '#', onClick: clearAuth }, 'Change token' ),
+		el( 'div', null, 'Would you like to change your authentication token?' ),
+		el( 'a', { href: '#', onClick: showEditToken }, 'Edit token' ),
 		el( Attributions, { openUrl } )
 	);
 }
@@ -225,8 +230,8 @@ class App extends React.Component {
 			notes: [],
 			errors: [],
 			lastChecked: false,
-			showingConfig: false,
 			offline: false,
+			currentPane: PANE_NOTIFICATIONS,
 		};
 
 		this.fetchInterval = 120000; // 2 minutes in ms
@@ -236,10 +241,11 @@ class App extends React.Component {
 		this.markRead = this.markRead.bind( this );
 		this.openUrl = this.openUrl.bind( this );
 		this.writeToken = this.writeToken.bind( this );
-		this.clearAuth = this.clearAuth.bind( this );
 		this.clearErrors = this.clearErrors.bind( this );
 		this.showConfig = this.showConfig.bind( this );
 		this.hideConfig = this.hideConfig.bind( this );
+		this.showEditToken = this.showEditToken.bind( this );
+		this.hideEditToken = this.hideEditToken.bind( this );
 	}
 
 	componentDidMount() {
@@ -301,10 +307,6 @@ class App extends React.Component {
 		this.setState( { errors: [] } );
 	}
 
-	clearAuth() {
-		this.setState( { token: null } );
-	}
-
 	openUrl( url ) {
 		shell.openExternal( url );
 	}
@@ -328,29 +330,37 @@ class App extends React.Component {
 	}
 
 	showConfig() {
-		this.setState( { showingConfig: true } );
+		this.setState( { currentPane: PANE_CONFIG } );
 	}
 
 	hideConfig() {
-		this.setState( { showingConfig: false } );
+		this.setState( { currentPane: PANE_NOTIFICATIONS } );
+	}
+
+	showEditToken() {
+		this.setState( { currentPane: PANE_TOKEN } );
+	}
+
+	hideEditToken() {
+		this.setState( { currentPane: PANE_CONFIG } );
 	}
 
 	render() {
-		const { offline, errors, showingConfig, token, lastChecked } = this.state;
-		const { openUrl, clearAuth, clearErrors, hideConfig, showConfig, writeToken, markRead } = this;
+		const { offline, errors, currentPane, token, lastChecked } = this.state;
+		const { openUrl, clearErrors, hideConfig, showConfig, writeToken, markRead, showEditToken, hideEditToken } = this;
 		// We have to have a closure because otherwise it will treat the event param as a token.
 		const fetchNotifications = () => this.fetchNotifications();
-		if ( ! token ) {
+		if ( ! token || currentPane === PANE_TOKEN ) {
 			return el( 'main', null,
 				el( Header, { offline, fetchNotifications, openUrl } ),
 				el( ErrorsArea, { errors, clearErrors } ),
-				el( AddTokenForm, { openUrl, writeToken } )
+				el( AddTokenForm, { openUrl, writeToken, hideEditToken: currentPane === PANE_TOKEN && hideEditToken } )
 			);
 		}
-		if ( showingConfig ) {
+		if ( currentPane === PANE_CONFIG ) {
 			return el( 'main', null,
 				el( Header, { offline, fetchNotifications, openUrl } ),
-				el( ConfigPage, { openUrl, hideConfig, clearAuth } )
+				el( ConfigPage, { openUrl, hideConfig, showEditToken } )
 			);
 		}
 		if ( ! lastChecked ) {
