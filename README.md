@@ -16,3 +16,7 @@ Well, for me, there were two reasons:
 ## Attributions
 
 The icons were made by <a href="http://www.flaticon.com/authors/daniel-bruce">Daniel Bruce</a> and <a href="http://www.flaticon.com/authors/gregor-cresnar">Gregor Cresnar</a> from <a href="http://www.flaticon.com">Flaticon</a> (<a href="http://creativecommons.org/licenses/by/3.0/">CC 3.0 BY</a>).
+
+## Development
+
+gitnews-menubar is built using [Electron](https://electron.atom.io/), [React](https://facebook.github.io/react/), and [gitnews](https://github.com/sirbrillig/gitnews).
