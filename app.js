@@ -43,7 +43,7 @@ function Notification( { note, openUrl, markRead } ) {
 }
 
 function NoNotificationsIcon() {
-	return el( 'img', { className: 'no-notifications-icon', src: 'no-notifications.svg' } );
+	return el( Gridicon, { icon: 'checkmark-circle', size: 36, className: 'no-notifications-icon' } );
 }
 
 function NoNotifications() {
