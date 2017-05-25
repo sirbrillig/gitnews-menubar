@@ -119,7 +119,7 @@ function AddTokenForm( { openUrl, writeToken } ) {
 			'You must generate a GitHub authentication token so this app can see your notifications. It will need the `notifications` and `repo` scopes. You can generate a token ',
 			el( 'a', { href: 'https://github.com/settings/tokens', onClick: openLink }, 'here.' )
 		),
-		el( 'label', { htmlFor: 'add-token-form__input' }, 'Token:' ),
+		el( 'label', { htmlFor: 'add-token-form__input' }, 'GitHub Token:' ),
 		el( 'input', { type: 'password', className: 'add-token-form__input', id: 'add-token-form__input', ref: saveTokenField } ),
 		el( 'button', { className: 'add-token-form__save-button btn', onClick: saveToken }, 'Save Token' )
 	);
@@ -199,7 +199,7 @@ function ConfigPage( { clearAuth, hideConfig, openUrl } ) {
 		el( 'a', { href: '#', onClick: hideConfig }, '< Back' ),
 		el( 'h3', null, 'Token' ),
 		el( 'span', null, 'Would you like to change your authentication token?' ),
-		el( 'button', { className: 'btn', onClick: clearAuth }, 'Change token' ),
+		el( 'a', { href: '#', onClick: clearAuth }, 'Change token' ),
 		el( Attributions, { openUrl } )
 	);
 }
