@@ -11,6 +11,7 @@ const date = require( 'date-fns' );
 const debugFactory = require( 'debug' );
 const debug = debugFactory( 'gitnews-menubar' );
 const unhandled = require( 'electron-unhandled' );
+const Gridicon = require( 'gridicons' );
 
 // Catch unhandled Promise rejections
 unhandled();
@@ -181,9 +182,9 @@ function Header( { openUrl, lastChecked, showConfig, offline, fetchNotifications
 	const quit = () => remote.app.quit();
 	return el( 'header', null,
 		el( 'div', { className: 'header__primary' },
-			el( 'button', { className: 'btn', onClick: quit }, 'Quit' ),
+			el( 'a', { className: 'quit-button', onClick: quit, href: '#', title: 'Quit' }, el( Gridicon, { icon: 'cross-small' } ) ),
 			el( Logo, { onClick: openLink } ),
-			showConfig ? el( 'button', { className: 'btn', onClick: showConfig }, 'Config' ) : el( 'span', { className: 'spacer' } )
+			showConfig ? el( 'a', { className: 'config-button', onClick: showConfig, href: '#', title: 'Configuration' }, el( Gridicon, { icon: 'cog' } ) ) : el( 'span', { className: 'config-spacer' } )
 		),
 		el( 'div', { className: 'header__secondary' },
 			lastChecked && el( LastChecked, { lastChecked } )

@@ -17,6 +17,7 @@
   "author": "Payton Swick <payton@foolord.com>",
   "license": "MIT",
   "dependencies": {
+    "babel-runtime": "^6.23.0",
     "conf": "^1.0.0",
     "date-fns": "^1.28.4",
     "debug": "^2.6.6",
@@ -25,6 +26,7 @@
     "electron-is-dev": "^0.1.2",
     "electron-unhandled": "^0.1.1",
     "gitnews": "^1.0.0",
+    "gridicons": "^1.0.0",
     "menubar": "^5.2.3",
     "react": "^15.5.4",
     "react-dom": "^15.5.4"
