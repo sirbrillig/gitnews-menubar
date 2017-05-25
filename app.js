@@ -204,7 +204,20 @@ function ConfigPage( { showEditToken, hideConfig, openUrl } ) {
 		el( 'h3', null, 'Token' ),
 		el( 'div', null, 'Would you like to change your authentication token?' ),
 		el( 'a', { href: '#', onClick: showEditToken }, 'Edit token' ),
-		el( Attributions, { openUrl } )
+		el( Attributions, { openUrl } ),
+		el( Copyright, { openUrl } )
+	);
+}
+
+function Copyright( { openUrl } ) {
+	const openLink = ( event ) => {
+		event.preventDefault();
+		openUrl( event.target.href );
+	};
+	return el( 'div', { className: 'copyright' },
+		el( 'a', { href: 'https://github.com/sirbrillig/gitnews-menubar', onClick: openLink }, 'gitnews-menubar' ),
+		' - ',
+		el( 'span', null, 'copyright 2017 Payton Swick' )
 	);
 }
 
