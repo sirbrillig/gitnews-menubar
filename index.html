@@ -41,10 +41,16 @@ header {
 }
 
 .header__primary {
-  margin: 10px 10px 0 10px;
+  margin: 10px 10px 5px 10px;
   display: flex;
-  flex-wrap: wrap;
+  justify-content: space-between;
   width: 100%;
+}
+
+.header__primary a,
+.header__primary a:visited {
+  text-decoration: none;
+  color: #000;
 }
 
 .header__secondary {
@@ -52,17 +58,9 @@ header {
   width: 100%;
 }
 
-.header__buttons {
-  margin-left: auto;
-}
-
 header h1 {
   font-size: 1.4em;
   margin: 0;
-}
-
-header a {
-  text-decoration: none;
 }
 
 .last-checked {

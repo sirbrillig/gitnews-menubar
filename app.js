@@ -181,11 +181,9 @@ function Header( { openUrl, lastChecked, showConfig, offline, fetchNotifications
 	const quit = () => remote.app.quit();
 	return el( 'header', null,
 		el( 'div', { className: 'header__primary' },
+			el( 'button', { className: 'btn', onClick: quit }, 'Quit' ),
 			el( Logo, { onClick: openLink } ),
-			el( 'div', { className: 'header__buttons' },
-				showConfig && el( 'button', { className: 'btn', onClick: showConfig }, 'Config' ),
-				el( 'button', { className: 'btn', onClick: quit }, 'Quit' )
-			)
+			showConfig ? el( 'button', { className: 'btn', onClick: showConfig }, 'Config' ) : el( 'span', { className: 'spacer' } )
 		),
 		el( 'div', { className: 'header__secondary' },
 			lastChecked && el( LastChecked, { lastChecked } )
