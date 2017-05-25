@@ -104,7 +104,7 @@ function ErrorsArea( { errors, clearErrors } ) {
 	] );
 }
 
-function AddTokenForm( { openUrl, writeToken, hideEditToken } ) {
+function AddTokenForm( { token, openUrl, writeToken, hideEditToken } ) {
 	const openLink = ( event ) => {
 		event.preventDefault();
 		openUrl( event.target.href );
@@ -124,7 +124,7 @@ function AddTokenForm( { openUrl, writeToken, hideEditToken } ) {
 			el( 'a', { href: 'https://github.com/settings/tokens', onClick: openLink }, 'here.' )
 		),
 		el( 'label', { htmlFor: 'add-token-form__input' }, 'GitHub Token:' ),
-		el( 'input', { type: 'password', className: 'add-token-form__input', id: 'add-token-form__input', ref: saveTokenField } ),
+		el( 'input', { type: 'text', className: 'add-token-form__input', id: 'add-token-form__input', defaultValue: token, ref: saveTokenField } ),
 		el( 'button', { className: 'add-token-form__save-button btn', onClick: saveToken }, 'Save Token' ),
 		hideEditToken && el( 'a', { href: '#', onClick: hideEditToken }, 'Cancel' )
 	);
@@ -354,7 +354,7 @@ class App extends React.Component {
 			return el( 'main', null,
 				el( Header, { offline, fetchNotifications, openUrl } ),
 				el( ErrorsArea, { errors, clearErrors } ),
-				el( AddTokenForm, { openUrl, writeToken, hideEditToken: currentPane === PANE_TOKEN && hideEditToken } )
+				el( AddTokenForm, { token, openUrl, writeToken, hideEditToken: currentPane === PANE_TOKEN && hideEditToken } )
 			);
 		}
 		if ( currentPane === PANE_CONFIG ) {
