@@ -48,8 +48,10 @@ function Notification( { note, openUrl, markRead, sendMarkRead } ) {
 }
 
 function MarkReadButton( { note, sendMarkRead, markRead } ) {
-	const onClick = () => {
+	const onClick = ( event ) => {
 		debug( 'clicked to mark notification as read', note );
+		event.preventDefault();
+		event.stopPropagation();
 		sendMarkRead( note );
 		markRead( note );
 	};
@@ -368,7 +370,15 @@ class App extends React.Component {
 	}
 
 	sendMarkRead( readNote ) {
-		// TODO: make API request to mark as read
+		const getFetchInit = ( token ) => {
+			return {
+				method: 'PATCH',
+				headers: {
+					Authorization: 'token ' + token,
+				},
+			};
+		};
+		window.fetch( readNote.url, getFetchInit( getToken() ) );
 	}
 
 	render() {
