@@ -42,7 +42,8 @@ function Notification( { note, openUrl, markRead } ) {
 			el( 'div', { className: 'notification__repo' }, note.repository.full_name ),
 			el( 'div', { className: 'notification__title' }, note.subject.title ),
 			el( 'div', { className: 'notification__time' }, timeString )
-		)
+		),
+		el( 'div', { className: 'notification__mark-read' }, el( Gridicon, { icon: 'checkmark' } ) )
 	);
 }
 
