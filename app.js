@@ -38,7 +38,7 @@ function mergeNotifications( prevNotes, nextNotes ) {
 	const newNotes = nextNotes
 		.filter( note => ! mergedNoteIds.includes( note.id ) );
 	// merge remaining current notes and remaining new notes
-	return [ ...mergedNotes, newNotes ];
+	return mergedNotes.concat( newNotes );
 }
 
 function Notification( { note, openUrl, markRead } ) {
@@ -271,6 +271,7 @@ class App extends React.Component {
 		this.hideConfig = this.hideConfig.bind( this );
 		this.showEditToken = this.showEditToken.bind( this );
 		this.hideEditToken = this.hideEditToken.bind( this );
+		this.markAllNotesSeen = this.markAllNotesSeen.bind( this );
 	}
 
 	componentDidMount() {
@@ -279,12 +280,22 @@ class App extends React.Component {
 			window.clearInterval( this.fetcher );
 		}
 		this.fetcher = window.setInterval( () => this.fetchNotifications(), this.fetchInterval );
+		ipcRenderer.on( 'menubar-click', this.markAllNotesSeen );
 	}
 
 	componentWillUnmount() {
 		if ( this.fetcher ) {
 			window.clearInterval( this.fetcher );
 		}
+	}
+
+	markAllNotesSeen() {
+		const notes = this.state.notes.map( note => {
+			note.gitnewsSeen = true;
+			return note;
+		} );
+		debug( 'marking all notes as seen', notes );
+		this.setState( { notes } );
 	}
 
 	writeToken( token ) {
@@ -357,6 +368,10 @@ class App extends React.Component {
 		return this.state.notes.filter( note => note.unread );
 	}
 
+	getUnseenNotifications() {
+		return this.state.notes.filter( note => ! note.gitnewsSeen );
+	}
+
 	showConfig() {
 		this.setState( { currentPane: PANE_CONFIG } );
 	}
@@ -400,7 +415,8 @@ class App extends React.Component {
 		}
 		const newNotes = this.getUnreadNotifications();
 		const readNotes = this.getReadNotifications();
-		ipcRenderer.send( 'unread-notifications-count', newNotes.map( note => note.gitnewsUnseen ).length );
+		const unseenNotes = this.getUnseenNotifications();
+		ipcRenderer.send( 'unread-notifications-count', unseenNotes.length );
 		return el( 'main', null,
 			el( Header, { offline, fetchNotifications, openUrl, lastChecked, showConfig } ),
 			el( ErrorsArea, { errors, clearErrors } ),

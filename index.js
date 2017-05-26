@@ -25,6 +25,10 @@ bar.on( 'ready', () => {
 	isDev || bar.window.setResizable( false );
 } );
 
+bar.on( 'hide', () => {
+	bar.window.webContents.send( 'menubar-click', true );
+} );
+
 ipcMain.on( 'unread-notifications-count', ( event, arg ) => {
 	const image = arg > 0 ? alertIcon : normalIcon;
 	bar.tray.setImage( image );
