@@ -29,16 +29,14 @@ function setToken( token ) {
 }
 
 function mergeNotifications( prevNotes, nextNotes ) {
-	const nextNoteIds = nextNotes.map( note => note.id );
-	// for each current note, if it is not in the new notes, remove it
-	const mergedNotes = prevNotes
-		.filter( note => nextNoteIds.includes( note.id ) );
-	// for each new note, if it is already in the notes, remove it
-	const mergedNoteIds = mergedNotes.map( note => note.id );
-	const newNotes = nextNotes
-		.filter( note => ! mergedNoteIds.includes( note.id ) );
-	// merge remaining current notes and remaining new notes
-	return mergedNotes.concat( newNotes );
+	const getMatchingPrevNote = note => {
+		const found = prevNotes.filter( prevNote => prevNote.id === note.id );
+		return found.length ? found[ 0 ] : {};
+	};
+	return nextNotes.map( note => {
+		note.gitnewsSeen = getMatchingPrevNote( note ).gitnewsSeen;
+		return note;
+	} );
 }
 
 function Notification( { note, openUrl, markRead } ) {
