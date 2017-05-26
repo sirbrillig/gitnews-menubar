@@ -12,6 +12,7 @@ const debugFactory = require( 'debug' );
 const debug = debugFactory( 'gitnews-menubar' );
 const unhandled = require( 'electron-unhandled' );
 const Gridicon = require( 'gridicons' );
+const md5Hex = require( 'md5-hex' );
 
 // Catch unhandled Promise rejections
 unhandled();
@@ -28,9 +29,13 @@ function setToken( token ) {
 	config.set( 'gitnews-token', token );
 }
 
+function getNoteId( note ) {
+	return md5Hex( note.id + note.updated_at );
+}
+
 function mergeNotifications( prevNotes, nextNotes ) {
 	const getMatchingPrevNote = note => {
-		const found = prevNotes.filter( prevNote => prevNote.id === note.id );
+		const found = prevNotes.filter( prevNote => getNoteId( prevNote ) === getNoteId( note ) );
 		return found.length ? found[ 0 ] : {};
 	};
 	return nextNotes.map( note => {
@@ -71,8 +76,8 @@ function NoNotifications() {
 }
 
 function NotificationsArea( { newNotes, readNotes, markRead, openUrl } ) {
-	const noteRows = newNotes.length ? newNotes.map( note => el( Notification, { note, key: note.id, markRead, openUrl } ) ) : el( NoNotifications );
-	const readNoteRows = readNotes.map( note => el( Notification, { note, key: note.id, markRead, openUrl } ) );
+	const noteRows = newNotes.length ? newNotes.map( note => el( Notification, { note, key: getNoteId( note ), markRead, openUrl } ) ) : el( NoNotifications );
+	const readNoteRows = readNotes.map( note => el( Notification, { note, key: getNoteId( note ), markRead, openUrl } ) );
 	return el( 'div', { className: 'notifications-area' },
 		el( 'div', { className: 'notifications-area__inner' },
 			noteRows,
@@ -350,7 +355,7 @@ class App extends React.Component {
 
 	markRead( readNote ) {
 		const notes = this.state.notes.map( note => {
-			if ( note.id === readNote.id ) {
+			if ( getNoteId( note ) === getNoteId( readNote ) ) {
 				note.unread = false;
 			}
 			return note;

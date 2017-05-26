@@ -26,6 +26,7 @@
     "electron-unhandled": "^0.1.1",
     "gitnews": "^1.0.0",
     "gridicons": "1.1.0",
+    "md5-hex": "^2.0.0",
     "menubar": "^5.2.3",
     "react": "^15.5.4",
     "react-dom": "^15.5.4"
