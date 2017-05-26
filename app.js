@@ -28,6 +28,19 @@ function setToken( token ) {
 	config.set( 'gitnews-token', token );
 }
 
+function mergeNotifications( prevNotes, nextNotes ) {
+	const nextNoteIds = nextNotes.map( note => note.id );
+	// for each current note, if it is not in the new notes, remove it
+	const mergedNotes = prevNotes
+		.filter( note => nextNoteIds.includes( note.id ) );
+	// for each new note, if it is already in the notes, remove it
+	const mergedNoteIds = mergedNotes.map( note => note.id );
+	const newNotes = nextNotes
+		.filter( note => ! mergedNoteIds.includes( note.id ) );
+	// merge remaining current notes and remaining new notes
+	return [ ...mergedNotes, newNotes ];
+}
+
 function Notification( { note, openUrl, markRead } ) {
 	const onClick = () => {
 		debug( 'clicked on notification', note );
@@ -291,7 +304,10 @@ class App extends React.Component {
 		this.props.getNotifications( token || this.state.token, { all: true } )
 			.then( notes => {
 				debug( 'notifications retrieved', notes );
-				this.setState( { notes, offline: false, lastChecked: Date.now() } );
+				debug( 'old notifications', this.state.notes );
+				const mergedNotes = mergeNotifications( this.state.notes, notes );
+				debug( 'merged notifications', mergedNotes );
+				this.setState( { notes: mergedNotes, offline: false, lastChecked: Date.now() } );
 			} )
 			.catch( err => {
 				debug( 'fetching notifications failed with the error', err );
@@ -384,7 +400,7 @@ class App extends React.Component {
 		}
 		const newNotes = this.getUnreadNotifications();
 		const readNotes = this.getReadNotifications();
-		ipcRenderer.send( 'unread-notifications-count', newNotes.length );
+		ipcRenderer.send( 'unread-notifications-count', newNotes.map( note => note.gitnewsUnseen ).length );
 		return el( 'main', null,
 			el( Header, { offline, fetchNotifications, openUrl, lastChecked, showConfig } ),
 			el( ErrorsArea, { errors, clearErrors } ),
