@@ -28,7 +28,7 @@ function setToken( token ) {
 	config.set( 'gitnews-token', token );
 }
 
-function Notification( { note, openUrl, markRead } ) {
+function Notification( { note, openUrl, markRead, sendMarkRead } ) {
 	const onClick = () => {
 		debug( 'clicked on notification', note );
 		markRead( note );
@@ -43,8 +43,17 @@ function Notification( { note, openUrl, markRead } ) {
 			el( 'div', { className: 'notification__title' }, note.subject.title ),
 			el( 'div', { className: 'notification__time' }, timeString )
 		),
-		el( 'div', { className: 'notification__mark-read' }, el( Gridicon, { icon: 'checkmark' } ) )
+		sendMarkRead && el( MarkReadButton, { note, markRead, sendMarkRead } )
 	);
+}
+
+function MarkReadButton( { note, sendMarkRead, markRead } ) {
+	const onClick = () => {
+		debug( 'clicked to mark notification as read', note );
+		sendMarkRead( note );
+		markRead( note );
+	};
+	return el( 'a', { className: 'notification__mark-read', href: '#', title: 'Mark as read', onClick }, el( Gridicon, { icon: 'checkmark' } ) );
 }
 
 function NoNotificationsIcon() {
@@ -60,8 +69,8 @@ function NoNotifications() {
 	);
 }
 
-function NotificationsArea( { newNotes, readNotes, markRead, openUrl } ) {
-	const noteRows = newNotes.length ? newNotes.map( note => el( Notification, { note, key: note.id, markRead, openUrl } ) ) : el( NoNotifications );
+function NotificationsArea( { newNotes, readNotes, markRead, openUrl, sendMarkRead } ) {
+	const noteRows = newNotes.length ? newNotes.map( note => el( Notification, { note, key: note.id, markRead, openUrl, sendMarkRead } ) ) : el( NoNotifications );
 	const readNoteRows = readNotes.map( note => el( Notification, { note, key: note.id, markRead, openUrl } ) );
 	return el( 'div', { className: 'notifications-area' },
 		el( 'div', { className: 'notifications-area__inner' },
@@ -358,9 +367,14 @@ class App extends React.Component {
 		this.setState( { currentPane: PANE_CONFIG } );
 	}
 
+	sendMarkRead( readNote ) {
+		// TODO: make API request to mark as read
+	}
+
 	render() {
 		const { offline, errors, currentPane, token, lastChecked } = this.state;
-		const { openUrl, clearErrors, hideConfig, showConfig, writeToken, markRead, showEditToken, hideEditToken } = this;
+		// These are actions
+		const { openUrl, clearErrors, hideConfig, showConfig, writeToken, markRead, showEditToken, hideEditToken, sendMarkRead } = this;
 		// We have to have a closure because otherwise it will treat the event param as a token.
 		const fetchNotifications = () => this.fetchNotifications();
 		if ( ! token || currentPane === PANE_TOKEN ) {
@@ -389,7 +403,7 @@ class App extends React.Component {
 		return el( 'main', null,
 			el( Header, { offline, fetchNotifications, openUrl, lastChecked, showConfig } ),
 			el( ErrorsArea, { errors, clearErrors } ),
-			el( NotificationsArea, { newNotes, readNotes, markRead, openUrl } )
+			el( NotificationsArea, { newNotes, readNotes, markRead, openUrl, sendMarkRead } )
 		);
 	}
 }
