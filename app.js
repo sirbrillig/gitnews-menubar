@@ -369,7 +369,7 @@ class App extends React.Component {
 	}
 
 	getUnseenNotifications() {
-		return this.state.notes.filter( note => ! note.gitnewsSeen );
+		return this.getUnreadNotifications().filter( note => ! note.gitnewsSeen );
 	}
 
 	showConfig() {
