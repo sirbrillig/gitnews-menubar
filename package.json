@@ -24,7 +24,7 @@
     "electron": "^1.6.6",
     "electron-is-dev": "^0.1.2",
     "electron-unhandled": "^0.1.1",
-    "gitnews": "^1.0.0",
+    "gitnews": "^2.0.0",
     "gridicons": "1.1.0",
     "menubar": "^5.2.3",
     "react": "^15.5.4",
