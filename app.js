@@ -12,7 +12,6 @@ const debugFactory = require( 'debug' );
 const debug = debugFactory( 'gitnews-menubar' );
 const unhandled = require( 'electron-unhandled' );
 const Gridicon = require( 'gridicons' );
-const md5Hex = require( 'md5-hex' );
 
 // Catch unhandled Promise rejections
 unhandled();
@@ -30,7 +29,7 @@ function setToken( token ) {
 }
 
 function getNoteId( note ) {
-	return md5Hex( note.id + note.updated_at );
+	return note.id;
 }
 
 function mergeNotifications( prevNotes, nextNotes ) {
@@ -48,15 +47,15 @@ function Notification( { note, openUrl, markRead } ) {
 	const onClick = () => {
 		debug( 'clicked on notification', note );
 		markRead( note );
-		openUrl( note.html_url );
+		openUrl( note.commentUrl );
 	};
-	const timeString = date.distanceInWords( Date.now(), date.parse( note.updated_at ), { addSuffix: true } );
+	const timeString = date.distanceInWords( Date.now(), date.parse( note.updatedAt ), { addSuffix: true } );
 	const noteClass = note.unread ? ' notification__unread' : ' notification__read';
 	return el( 'div', { className: 'notification' + noteClass, onClick },
-		el( 'div', { className: 'notification__image' }, el( 'img', { src: note.repository.owner.avatar_url } ) ),
+		el( 'div', { className: 'notification__image' }, el( 'img', { src: note.commentAvatar } ) ),
 		el( 'div', { className: 'notification__body' },
-			el( 'div', { className: 'notification__repo' }, note.repository.full_name ),
-			el( 'div', { className: 'notification__title' }, note.subject.title ),
+			el( 'div', { className: 'notification__repo' }, note.repositoryFullName ),
+			el( 'div', { className: 'notification__title' }, note.title ),
 			el( 'div', { className: 'notification__time' }, timeString )
 		)
 	);
@@ -315,17 +314,17 @@ class App extends React.Component {
 			return;
 		}
 		debug( 'fetching notifications' );
-		this.props.getNotifications( token || this.state.token, { all: true } )
+		this.props.getNotifications( token || this.state.token )
 			.then( notes => {
 				debug( 'notifications retrieved', notes );
-				debug( 'old notifications', this.state.notes );
+				debug( 'previous notifications', this.state.notes );
 				const mergedNotes = mergeNotifications( this.state.notes, notes );
 				debug( 'merged notifications', mergedNotes );
 				this.setState( { notes: mergedNotes, offline: false, lastChecked: Date.now() } );
 			} )
 			.catch( err => {
 				debug( 'fetching notifications failed with the error', err );
-				if ( err === 'GitHub token is not available' ) {
+				if ( err.code === 'GitHubTokenNotFound' ) {
 					return; // This is handled in render
 				}
 				if ( err.code === 'ENOTFOUND' ) {
