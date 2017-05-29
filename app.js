@@ -1,6 +1,6 @@
 /* globals window */
 require( 'dotenv' ).config();
-const { shell, ipcRenderer } = require( 'electron' );
+const { shell, ipcRenderer, remote } = require( 'electron' );
 const { getNotifications } = require( 'gitnews' );
 const React = require( 'react' );
 const ReactDOM = require( 'react-dom' );
@@ -164,27 +164,31 @@ class App extends React.Component {
 		this.setState( { currentPane: PANE_CONFIG } );
 	}
 
+	quitApp() {
+		remote.app.quit();
+	}
+
 	render() {
 		const { offline, errors, currentPane, token, lastChecked } = this.state;
-		const { openUrl, clearErrors, hideConfig, showConfig, writeToken, markRead, showEditToken, hideEditToken } = this;
+		const { openUrl, clearErrors, hideConfig, showConfig, writeToken, markRead, showEditToken, hideEditToken, quitApp } = this;
 		// We have to have a closure because otherwise it will treat the event param as a token.
 		const fetchNotifications = () => this.fetchNotifications();
 		if ( ! token || currentPane === PANE_TOKEN ) {
 			return el( 'main', null,
-				el( Header, { offline, fetchNotifications, openUrl } ),
+				el( Header, { offline, fetchNotifications, openUrl, quitApp } ),
 				el( ErrorsArea, { errors, clearErrors } ),
 				el( AddTokenForm, { token, openUrl, writeToken, hideEditToken, showCancel: currentPane === PANE_TOKEN } )
 			);
 		}
 		if ( currentPane === PANE_CONFIG ) {
 			return el( 'main', null,
-				el( Header, { offline, fetchNotifications, openUrl } ),
+				el( Header, { offline, fetchNotifications, openUrl, quitApp } ),
 				el( ConfigPage, { openUrl, hideConfig, showEditToken } )
 			);
 		}
 		if ( ! lastChecked ) {
 			return el( 'main', null,
-				el( Header, { offline, fetchNotifications, openUrl } ),
+				el( Header, { offline, fetchNotifications, openUrl, quitApp } ),
 				el( ErrorsArea, { errors, clearErrors } ),
 				el( UncheckedNotice )
 			);
@@ -194,7 +198,7 @@ class App extends React.Component {
 		const unseenNotes = this.getUnseenNotifications();
 		ipcRenderer.send( 'unread-notifications-count', unseenNotes.length );
 		return el( 'main', null,
-			el( Header, { offline, fetchNotifications, openUrl, lastChecked, showConfig } ),
+			el( Header, { offline, fetchNotifications, openUrl, lastChecked, showConfig, quitApp } ),
 			el( ErrorsArea, { errors, clearErrors } ),
 			el( NotificationsArea, { newNotes, readNotes, markRead, openUrl } )
 		);
