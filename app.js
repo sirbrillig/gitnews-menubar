@@ -15,13 +15,10 @@ const Header = require( './components/header' );
 const ErrorsArea = require( './components/errors-area' );
 const AddTokenForm = require( './components/add-token-form' );
 const NotificationsArea = require( './components/notifications-area' );
+const { PANE_NOTIFICATIONS, PANE_CONFIG, PANE_TOKEN } = require( './lib/constants' );
 
 // Catch unhandled Promise rejections
 unhandled();
-
-const PANE_NOTIFICATIONS = 'notifications-pane';
-const PANE_CONFIG = 'config-pane';
-const PANE_TOKEN = 'token-pane';
 
 class App extends React.Component {
 	constructor( props ) {
