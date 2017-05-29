@@ -1,17 +1,20 @@
 /* globals window */
 require( 'dotenv' ).config();
-const { shell, ipcRenderer, remote } = require( 'electron' );
+const { shell, ipcRenderer } = require( 'electron' );
 const { getNotifications } = require( 'gitnews' );
-const Conf = require( 'conf' );
-const config = new Conf();
 const React = require( 'react' );
 const ReactDOM = require( 'react-dom' );
 const el = React.createElement;
-const date = require( 'date-fns' );
 const debugFactory = require( 'debug' );
 const debug = debugFactory( 'gitnews-menubar' );
 const unhandled = require( 'electron-unhandled' );
-const Gridicon = require( 'gridicons' );
+const { getNoteId, getToken, setToken, mergeNotifications } = require( './lib/helpers' );
+const ConfigPage = require( './components/config-page' );
+const UncheckedNotice = require( './components/unchecked-notice' );
+const Header = require( './components/header' );
+const ErrorsArea = require( './components/errors-area' );
+const AddTokenForm = require( './components/add-token-form' );
+const NotificationsArea = require( './components/notifications-area' );
 
 // Catch unhandled Promise rejections
 unhandled();
@@ -19,235 +22,6 @@ unhandled();
 const PANE_NOTIFICATIONS = 'notifications-pane';
 const PANE_CONFIG = 'config-pane';
 const PANE_TOKEN = 'token-pane';
-
-function getToken() {
-	return config.get( 'gitnews-token' ) || process.env.GITNEWS_TOKEN;
-}
-
-function setToken( token ) {
-	config.set( 'gitnews-token', token );
-}
-
-function getNoteId( note ) {
-	return note.id;
-}
-
-function mergeNotifications( prevNotes, nextNotes ) {
-	const getMatchingPrevNote = note => {
-		const found = prevNotes.filter( prevNote => getNoteId( prevNote ) === getNoteId( note ) );
-		return found.length ? found[ 0 ] : {};
-	};
-	return nextNotes.map( note => {
-		note.gitnewsSeen = getMatchingPrevNote( note ).gitnewsSeen;
-		return note;
-	} );
-}
-
-function Notification( { note, openUrl, markRead } ) {
-	const onClick = () => {
-		debug( 'clicked on notification', note );
-		markRead( note );
-		openUrl( note.commentUrl );
-	};
-	const timeString = date.distanceInWords( Date.now(), date.parse( note.updatedAt ), { addSuffix: true } );
-	const noteClass = note.unread ? ' notification__unread' : ' notification__read';
-	return el( 'div', { className: 'notification' + noteClass, onClick },
-		el( 'div', { className: 'notification__image' }, el( 'img', { src: note.commentAvatar } ) ),
-		el( 'div', { className: 'notification__body' },
-			el( 'div', { className: 'notification__repo' }, note.repositoryFullName ),
-			el( 'div', { className: 'notification__title' }, note.title ),
-			el( 'div', { className: 'notification__time' }, timeString )
-		)
-	);
-}
-
-function NoNotificationsIcon() {
-	return el( Gridicon, { icon: 'checkmark-circle', size: 36, className: 'no-notifications-icon' } );
-}
-
-function NoNotifications() {
-	return el( 'div', { className: 'no-notifications' },
-		el( 'div', null,
-			el( NoNotificationsIcon ),
-			'No new notifications!'
-		)
-	);
-}
-
-function NotificationsArea( { newNotes, readNotes, markRead, openUrl } ) {
-	const noteRows = newNotes.length ? newNotes.map( note => el( Notification, { note, key: getNoteId( note ), markRead, openUrl } ) ) : el( NoNotifications );
-	const readNoteRows = readNotes.map( note => el( Notification, { note, key: getNoteId( note ), markRead, openUrl } ) );
-	return el( 'div', { className: 'notifications-area' },
-		el( 'div', { className: 'notifications-area__inner' },
-			noteRows,
-			readNoteRows
-		)
-	);
-}
-
-function Attributions( { openUrl } ) {
-	const openLink = ( event ) => {
-		event.preventDefault();
-		openUrl( event.target.href );
-	};
-	return el( 'div', { className: 'attributions' },
-		el( 'h3', null, 'Attribution' ),
-		'Bell icon made by ',
-		el( 'a', { onClick: openLink, href: 'http://www.flaticon.com/authors/daniel-bruce', title: 'Daniel Bruce' }, 'Daniel Bruce' ),
-		' from ',
-		el( 'a', { onClick: openLink, href: 'http://www.flaticon.com', title: 'Flaticon' }, 'Flaticon' ),
-		' (',
-		el( 'a', { onClick: openLink, href: 'http://creativecommons.org/licenses/by/3.0/', title: 'Creative Commons BY 3.0' }, 'CC 3 BY' ),
-		') '
-	);
-}
-
-function ClearErrorsButton( { clearErrors } ) {
-	return el( 'button', { className: 'clear-errors-button btn', onClick: clearErrors }, 'Clear Errors' );
-}
-
-function ErrorMessage( { error } ) {
-	return el( 'div', { className: 'error-message' }, error );
-}
-
-function ErrorsArea( { errors, clearErrors } ) {
-	return el( 'div', { className: 'errors-area' }, [
-		errors.length > 0 ? el( ClearErrorsButton, { clearErrors } ) : null,
-		errors.map( error => el( ErrorMessage, { error, key: error } ) ),
-	] );
-}
-
-function AddTokenForm( { token, openUrl, writeToken, showCancel, hideEditToken } ) {
-	const openLink = ( event ) => {
-		event.preventDefault();
-		openUrl( event.target.href );
-	};
-	let tokenField = null;
-	const saveTokenField = ( field ) => {
-		tokenField = field;
-	};
-	const saveToken = () => {
-		if ( tokenField ) {
-			writeToken( tokenField.value );
-			hideEditToken();
-		}
-	};
-	return el( 'div', { className: 'add-token-form' },
-		el( 'p', null,
-			'You must generate a GitHub authentication token so this app can see your notifications. It will need the `notifications` and `repo` scopes. You can generate a token ',
-			el( 'a', { href: 'https://github.com/settings/tokens', onClick: openLink }, 'here.' )
-		),
-		el( 'label', { htmlFor: 'add-token-form__input' }, 'GitHub Token:' ),
-		el( 'input', { type: 'text', className: 'add-token-form__input', id: 'add-token-form__input', defaultValue: token, ref: saveTokenField } ),
-		el( 'button', { className: 'add-token-form__save-button btn', onClick: saveToken }, 'Save Token' ),
-		showCancel && el( 'a', { href: '#', onClick: hideEditToken }, 'Cancel' )
-	);
-}
-
-class LastChecked extends React.Component {
-	constructor( props ) {
-		super( props );
-		this.lastCheckedUpdater = null;
-		this.updateInterval = 30000; // 30 seconds in ms
-		this.updateTimestamp = this.updateTimestamp.bind( this );
-		this.state = { lastUpdated: 0 };
-	}
-
-	componentDidMount() {
-		if ( this.lastCheckedUpdater ) {
-			window.clearInterval( this.lastCheckedUpdater );
-		}
-		this.lastCheckedUpdater = window.setInterval( () => this.updateTimestamp(), this.updateInterval );
-	}
-
-	componentWillUnmount() {
-		if ( this.lastCheckedUpdater ) {
-			window.clearInterval( this.lastCheckedUpdater );
-		}
-	}
-
-	updateTimestamp() {
-		debug( 'updating LastChecked timestamp', this.state );
-		// Just a hack to force re-rendering
-		this.setState( { lastUpdated: Date.now() } );
-	}
-
-	render() {
-		const lastChecked = this.props.lastChecked;
-		if ( ! lastChecked ) {
-			return null;
-		}
-		const lastCheckedString = date.distanceInWords( Date.now(), date.parse( lastChecked ), { addSuffix: true } );
-		debug( 'updating LastChecked display for', lastChecked, lastCheckedString );
-		return el( 'div', { className: 'last-checked' },
-			'last checked: ' + lastCheckedString
-		);
-	}
-}
-
-function Logo( { onClick } ) {
-	return el( 'h1', null,
-		el( 'a', { href: 'https://github.com/sirbrillig/gitnews-menubar', onClick },
-			'Gitnews'
-		)
-	);
-}
-
-function Header( { openUrl, lastChecked, showConfig, offline, fetchNotifications } ) {
-	const openLink = ( event ) => {
-		event.preventDefault();
-		openUrl( event.target.href );
-	};
-	const quit = () => remote.app.quit();
-	return el( 'header', null,
-		el( 'div', { className: 'header__primary' },
-			el( 'a', { className: 'quit-button', onClick: quit, href: '#', title: 'Quit' }, el( Gridicon, { icon: 'cross-small' } ) ),
-			el( Logo, { onClick: openLink } ),
-			showConfig ? el( 'a', { className: 'config-button', onClick: showConfig, href: '#', title: 'Configuration' }, el( Gridicon, { icon: 'cog' } ) ) : el( 'span', { className: 'config-spacer' } )
-		),
-		el( 'div', { className: 'header__secondary' },
-			lastChecked && el( LastChecked, { lastChecked } )
-		),
-		offline && el( OfflineNotice, { fetchNotifications } )
-	);
-}
-
-function ConfigPage( { showEditToken, hideConfig, openUrl } ) {
-	return el( 'div', { className: 'config-page' },
-		el( 'h2', { className: 'config-page__title' }, 'Configuration' ),
-		el( 'a', { href: '#', onClick: hideConfig }, '< Back' ),
-		el( 'h3', null, 'Token' ),
-		el( 'div', null, 'Would you like to change your authentication token?' ),
-		el( 'a', { href: '#', onClick: showEditToken }, 'Edit token' ),
-		el( Attributions, { openUrl } ),
-		el( Copyright, { openUrl } )
-	);
-}
-
-function Copyright( { openUrl } ) {
-	const openLink = ( event ) => {
-		event.preventDefault();
-		openUrl( event.target.href );
-	};
-	return el( 'div', { className: 'copyright' },
-		el( 'a', { href: 'https://github.com/sirbrillig/gitnews-menubar', onClick: openLink }, 'gitnews-menubar' ),
-		' - ',
-		el( 'span', null, 'copyright 2017 Payton Swick' )
-	);
-}
-
-function UncheckedNotice() {
-	return el( 'div', { className: 'unchecked-notice' },
-		el( 'h2', null, 'Checking for notifications...' )
-	);
-}
-
-function OfflineNotice( { fetchNotifications } ) {
-	return el( 'div', { className: 'offline-notice' },
-		el( 'span', null, 'I\'m having trouble connecting. Retrying shortly. ' ),
-		el( 'a', { href: '#', onClick: fetchNotifications }, 'Retry now' )
-	);
-}
 
 class App extends React.Component {
 	constructor( props ) {
