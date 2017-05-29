@@ -1,6 +1,6 @@
 /* globals window */
 require( 'dotenv' ).config();
-const { shell, ipcRenderer, remote } = require( 'electron' );
+const { shell, remote } = require( 'electron' );
 const { getNotifications } = require( 'gitnews' );
 const React = require( 'react' );
 const ReactDOM = require( 'react-dom' );
@@ -9,22 +9,17 @@ const debugFactory = require( 'debug' );
 const debug = debugFactory( 'gitnews-menubar' );
 const unhandled = require( 'electron-unhandled' );
 const { getNoteId, getToken, setToken, mergeNotifications } = require( './lib/helpers' );
-const ConfigPage = require( './components/config-page' );
-const UncheckedNotice = require( './components/unchecked-notice' );
-const Header = require( './components/header' );
-const ErrorsArea = require( './components/errors-area' );
-const AddTokenForm = require( './components/add-token-form' );
-const NotificationsArea = require( './components/notifications-area' );
 const { PANE_NOTIFICATIONS, PANE_CONFIG, PANE_TOKEN } = require( './lib/constants' );
+const App = require( './components/app' );
 
 // Catch unhandled Promise rejections
 unhandled();
 
-class App extends React.Component {
+class AppState extends React.Component {
 	constructor( props ) {
 		super( props );
 		this.state = {
-			token: getToken(),
+			token: props.getToken(),
 			notes: [],
 			errors: [],
 			lastChecked: false,
@@ -32,34 +27,16 @@ class App extends React.Component {
 			currentPane: PANE_NOTIFICATIONS,
 		};
 
-		this.fetchInterval = 120000; // 2 minutes in ms
-		this.fetcher = null; // The fetch interval object
-
-		this.fetchNotifications = this.fetchNotifications.bind( this );
+		this.hideEditToken = this.hideEditToken.bind( this );
+		this.showEditToken = this.showEditToken.bind( this );
+		this.hideConfig = this.hideConfig.bind( this );
+		this.showConfig = this.showConfig.bind( this );
 		this.markRead = this.markRead.bind( this );
 		this.openUrl = this.openUrl.bind( this );
-		this.writeToken = this.writeToken.bind( this );
 		this.clearErrors = this.clearErrors.bind( this );
-		this.showConfig = this.showConfig.bind( this );
-		this.hideConfig = this.hideConfig.bind( this );
-		this.showEditToken = this.showEditToken.bind( this );
-		this.hideEditToken = this.hideEditToken.bind( this );
+		this.fetchNotifications = this.fetchNotifications.bind( this );
+		this.writeToken = this.writeToken.bind( this );
 		this.markAllNotesSeen = this.markAllNotesSeen.bind( this );
-	}
-
-	componentDidMount() {
-		this.fetchNotifications();
-		if ( this.fetcher ) {
-			window.clearInterval( this.fetcher );
-		}
-		this.fetcher = window.setInterval( () => this.fetchNotifications(), this.fetchInterval );
-		ipcRenderer.on( 'menubar-click', this.markAllNotesSeen );
-	}
-
-	componentWillUnmount() {
-		if ( this.fetcher ) {
-			window.clearInterval( this.fetcher );
-		}
 	}
 
 	markAllNotesSeen() {
@@ -133,18 +110,6 @@ class App extends React.Component {
 		this.setState( { notes } );
 	}
 
-	getReadNotifications() {
-		return this.state.notes.filter( note => ! note.unread );
-	}
-
-	getUnreadNotifications() {
-		return this.state.notes.filter( note => note.unread );
-	}
-
-	getUnseenNotifications() {
-		return this.getUnreadNotifications().filter( note => ! note.gitnewsSeen );
-	}
-
 	showConfig() {
 		this.setState( { currentPane: PANE_CONFIG } );
 	}
@@ -161,45 +126,18 @@ class App extends React.Component {
 		this.setState( { currentPane: PANE_CONFIG } );
 	}
 
-	quitApp() {
-		remote.app.quit();
+	getActions() {
+		const { hideEditToken, showEditToken, hideConfig, showConfig, markRead, openUrl, clearErrors, fetchNotifications, writeToken, markAllNotesSeen } = this;
+		return { hideEditToken, showEditToken, hideConfig, showConfig, markRead, openUrl, clearErrors, fetchNotifications, writeToken, markAllNotesSeen };
 	}
 
 	render() {
-		const { offline, errors, currentPane, token, lastChecked } = this.state;
-		const { openUrl, clearErrors, hideConfig, showConfig, writeToken, markRead, showEditToken, hideEditToken, quitApp } = this;
-		// We have to have a closure because otherwise it will treat the event param as a token.
-		const fetchNotifications = () => this.fetchNotifications();
-		if ( ! token || currentPane === PANE_TOKEN ) {
-			return el( 'main', null,
-				el( Header, { offline, fetchNotifications, openUrl, quitApp } ),
-				el( ErrorsArea, { errors, clearErrors } ),
-				el( AddTokenForm, { token, openUrl, writeToken, hideEditToken, showCancel: currentPane === PANE_TOKEN } )
-			);
-		}
-		if ( currentPane === PANE_CONFIG ) {
-			return el( 'main', null,
-				el( Header, { offline, fetchNotifications, openUrl, quitApp } ),
-				el( ConfigPage, { openUrl, hideConfig, showEditToken } )
-			);
-		}
-		if ( ! lastChecked ) {
-			return el( 'main', null,
-				el( Header, { offline, fetchNotifications, openUrl, quitApp } ),
-				el( ErrorsArea, { errors, clearErrors } ),
-				el( UncheckedNotice )
-			);
-		}
-		const newNotes = this.getUnreadNotifications();
-		const readNotes = this.getReadNotifications();
-		const unseenNotes = this.getUnseenNotifications();
-		ipcRenderer.send( 'unread-notifications-count', unseenNotes.length );
-		return el( 'main', null,
-			el( Header, { offline, fetchNotifications, openUrl, lastChecked, showConfig, quitApp } ),
-			el( ErrorsArea, { errors, clearErrors } ),
-			el( NotificationsArea, { newNotes, readNotes, markRead, openUrl } )
-		);
+		return el( this.props.children, Object.assign( {}, this.state, this.props, this.getActions() ) );
 	}
+}
+
+function quitApp() {
+	remote.app.quit();
 }
 
 function runApp() {
@@ -208,7 +146,7 @@ function runApp() {
 		console.error( 'Could not find main element' );
 		return;
 	}
-	ReactDOM.render( el( App, { getNotifications } ), main );
+	ReactDOM.render( el( AppState, { getNotifications, quitApp, getToken }, App ), main );
 }
 
 runApp();
