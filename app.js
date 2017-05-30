@@ -8,7 +8,7 @@ const el = React.createElement;
 const debugFactory = require( 'debug' );
 const debug = debugFactory( 'gitnews-menubar' );
 const unhandled = require( 'electron-unhandled' );
-const { getNoteId, getToken, setToken, mergeNotifications } = require( './lib/helpers' );
+const { getNoteId, getToken, setToken, mergeNotifications, msToSecs, secsToMs } = require( './lib/helpers' );
 const { PANE_NOTIFICATIONS, PANE_CONFIG, PANE_TOKEN } = require( './lib/constants' );
 const App = require( './components/app' );
 
@@ -23,6 +23,7 @@ class AppState extends React.Component {
 			notes: [],
 			errors: [],
 			lastChecked: false,
+			fetchInterval: secsToMs( 120 ),
 			offline: false,
 			currentPane: PANE_NOTIFICATIONS,
 		};
@@ -37,6 +38,7 @@ class AppState extends React.Component {
 		this.fetchNotifications = this.fetchNotifications.bind( this );
 		this.writeToken = this.writeToken.bind( this );
 		this.markAllNotesSeen = this.markAllNotesSeen.bind( this );
+		this.getSecondsUntilNextFetch = this.getSecondsUntilNextFetch.bind( this );
 	}
 
 	markAllNotesSeen() {
@@ -53,6 +55,17 @@ class AppState extends React.Component {
 		this.clearErrors();
 		this.setState( { token } );
 		this.fetchNotifications( token );
+	}
+
+	getSecondsUntilNextFetch() {
+		if ( ! this.state.lastChecked ) {
+			return msToSecs( this.state.fetchInterval );
+		}
+		const interval = ( this.state.fetchInterval - ( Date.now() - this.state.lastChecked ) );
+		if ( interval < 0 ) {
+			return 0;
+		}
+		return msToSecs( interval );
 	}
 
 	fetchNotifications( token = null ) {
@@ -127,8 +140,8 @@ class AppState extends React.Component {
 	}
 
 	getActions() {
-		const { hideEditToken, showEditToken, hideConfig, showConfig, markRead, openUrl, clearErrors, fetchNotifications, writeToken, markAllNotesSeen } = this;
-		return { hideEditToken, showEditToken, hideConfig, showConfig, markRead, openUrl, clearErrors, fetchNotifications, writeToken, markAllNotesSeen };
+		const { hideEditToken, showEditToken, hideConfig, showConfig, markRead, openUrl, clearErrors, fetchNotifications, writeToken, markAllNotesSeen, getSecondsUntilNextFetch } = this;
+		return { hideEditToken, showEditToken, hideConfig, showConfig, markRead, openUrl, clearErrors, fetchNotifications, writeToken, markAllNotesSeen, getSecondsUntilNextFetch };
 	}
 
 	render() {
