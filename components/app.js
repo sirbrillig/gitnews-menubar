@@ -46,7 +46,7 @@ class App extends React.Component {
 	}
 
 	render() {
-		const { offline, errors, currentPane, token, lastChecked } = this.props;
+		const { offline, errors, currentPane, token, lastSuccessfulCheck } = this.props;
 		const { openUrl, clearErrors, hideConfig, showConfig, writeToken, markRead, showEditToken, hideEditToken, quitApp, getSecondsUntilNextFetch } = this.props;
 		// We have to have a closure because otherwise it will treat the event param as a token.
 		const fetchNotifications = () => this.fetchNotifications();
@@ -63,7 +63,7 @@ class App extends React.Component {
 				el( ConfigPage, { openUrl, hideConfig, showEditToken } )
 			);
 		}
-		if ( ! lastChecked ) {
+		if ( ! lastSuccessfulCheck ) {
 			return el( 'main', null,
 				el( Header, { offline, fetchNotifications, openUrl, quitApp, getSecondsUntilNextFetch } ),
 				el( ErrorsArea, { errors, clearErrors } ),
@@ -75,7 +75,7 @@ class App extends React.Component {
 		const unseenNotes = this.getUnseenNotifications();
 		ipcRenderer.send( 'unread-notifications-count', unseenNotes.length );
 		return el( 'main', null,
-			el( Header, { offline, fetchNotifications, openUrl, lastChecked, showConfig, quitApp, getSecondsUntilNextFetch } ),
+			el( Header, { offline, fetchNotifications, openUrl, lastSuccessfulCheck, showConfig, quitApp, getSecondsUntilNextFetch } ),
 			el( ErrorsArea, { errors, clearErrors } ),
 			el( NotificationsArea, { newNotes, readNotes, markRead, openUrl } )
 		);

@@ -23,6 +23,7 @@ class AppState extends React.Component {
 			notes: [],
 			errors: [],
 			lastChecked: false,
+			lastSuccessfulCheck: false,
 			fetchInterval: secsToMs( 120 ),
 			offline: false,
 			currentPane: PANE_NOTIFICATIONS,
@@ -81,7 +82,7 @@ class AppState extends React.Component {
 				debug( 'previous notifications', this.state.notes );
 				const mergedNotes = mergeNotifications( this.state.notes, notes );
 				debug( 'merged notifications', mergedNotes );
-				this.setState( { notes: mergedNotes, offline: false, lastChecked: Date.now() } );
+				this.setState( { notes: mergedNotes, offline: false, lastChecked: Date.now(), lastSuccessfulCheck: Date.now() } );
 			} )
 			.catch( err => {
 				debug( 'fetching notifications failed with the error', err );
@@ -90,17 +91,17 @@ class AppState extends React.Component {
 				}
 				if ( err.code === 'ENOTFOUND' ) {
 					debug( 'notifications check failed because we are offline' );
-					this.setState( { offline: true } );
+					this.setState( { offline: true, lastChecked: Date.now() } );
 					return;
 				}
 				if ( err.code === 'ETIMEDOUT' || err.code === 'ECONNABORTED' ) {
 					debug( 'notifications check failed because of a timeout' );
-					this.setState( { offline: true } );
+					this.setState( { offline: true, lastChecked: Date.now() } );
 					return;
 				}
 				const errorString = 'Error fetching notifications: ' + err;
 				console.error( errorString );
-				this.setState( { errors: [ ...this.state.errors, errorString ] } );
+				this.setState( { errors: [ ...this.state.errors, errorString ], lastChecked: Date.now() } );
 			} );
 	}
 

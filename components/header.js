@@ -6,8 +6,9 @@ const LastChecked = require( '../components/last-checked' );
 const OfflineNotice = require( '../components/offline-notice' );
 const createUpdater = require( '../components/updater' );
 const UpdatingLastChecked = createUpdater( LastChecked );
+const UpdatingOfflineNotice = createUpdater( OfflineNotice );
 
-function Header( { openUrl, lastChecked, showConfig, offline, fetchNotifications, quitApp, getSecondsUntilNextFetch } ) {
+function Header( { openUrl, lastSuccessfulCheck, showConfig, offline, fetchNotifications, quitApp, getSecondsUntilNextFetch } ) {
 	const openLink = ( event ) => {
 		event.preventDefault();
 		openUrl( event.target.href );
@@ -19,9 +20,9 @@ function Header( { openUrl, lastChecked, showConfig, offline, fetchNotifications
 			showConfig ? el( 'a', { className: 'config-button', onClick: showConfig, href: '#', title: 'Configuration' }, el( Gridicon, { icon: 'cog' } ) ) : el( 'span', { className: 'config-spacer' } )
 		),
 		el( 'div', { className: 'header__secondary' },
-			lastChecked && el( UpdatingLastChecked, { lastChecked, getSecondsUntilNextFetch } )
+			lastSuccessfulCheck && el( UpdatingLastChecked, { lastSuccessfulCheck } )
 		),
-		offline && el( OfflineNotice, { fetchNotifications } )
+		offline && el( UpdatingOfflineNotice, { fetchNotifications, getSecondsUntilNextFetch } )
 	);
 }
 
