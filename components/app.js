@@ -49,7 +49,7 @@ class App extends React.Component {
 		const { offline, errors, currentPane, token, lastSuccessfulCheck } = this.props;
 		const { openUrl, clearErrors, hideConfig, showConfig, writeToken, markRead, showEditToken, hideEditToken, quitApp, getSecondsUntilNextFetch } = this.props;
 		// We have to have a closure because otherwise it will treat the event param as a token.
-		const fetchNotifications = () => this.fetchNotifications();
+		const fetchNotifications = () => this.props.fetchNotifications();
 		if ( ! token || currentPane === PANE_TOKEN ) {
 			return el( 'main', null,
 				el( Header, { offline, fetchNotifications, openUrl, quitApp, getSecondsUntilNextFetch } ),
