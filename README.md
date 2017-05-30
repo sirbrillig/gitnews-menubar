@@ -20,3 +20,15 @@ Bell icon made by <a href="http://www.flaticon.com/authors/daniel-bruce">Daniel 
 ## Development
 
 gitnews-menubar is built using [Electron](https://electron.atom.io/), [React](https://facebook.github.io/react/), and [gitnews](https://github.com/sirbrillig/gitnews).
+
+To run the development version, first install all dependencies by running `yarn` (you must have [yarn](https://yarnpkg.com/en/) installed for this to work).
+
+Next run the command `npm start`.
+
+## Building
+
+To create a packaged Mac OS App, first install dependencies by running `yarn` (you must have [yarn](https://yarnpkg.com/en/) installed for this to work).
+
+Next run the following command: `npm run package`.
+
+You will then find an executable application in the `release-builds` directory.
