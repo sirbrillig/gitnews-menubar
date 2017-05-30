@@ -12,6 +12,8 @@ const { getNoteId, getToken, setToken, mergeNotifications, msToSecs, secsToMs } 
 const { PANE_NOTIFICATIONS, PANE_CONFIG, PANE_TOKEN } = require( './lib/constants' );
 const App = require( './components/app' );
 
+const defaultFetchInterval = secsToMs( 120 );
+
 // Catch unhandled Promise rejections
 unhandled();
 
@@ -24,7 +26,7 @@ class AppState extends React.Component {
 			errors: [],
 			lastChecked: false,
 			lastSuccessfulCheck: false,
-			fetchInterval: secsToMs( 120 ),
+			fetchInterval: defaultFetchInterval,
 			offline: false,
 			currentPane: PANE_NOTIFICATIONS,
 		};
@@ -72,7 +74,7 @@ class AppState extends React.Component {
 	fetchNotifications( token = null ) {
 		if ( ! window.navigator.onLine ) {
 			debug( 'skipping notifications check because we are offline' );
-			this.setState( { offline: true } );
+			this.setState( { offline: true, lastChecked: Date.now(), fetchInterval: secsToMs( 30 ) } );
 			return;
 		}
 		debug( 'fetching notifications' );
@@ -82,7 +84,7 @@ class AppState extends React.Component {
 				debug( 'previous notifications', this.state.notes );
 				const mergedNotes = mergeNotifications( this.state.notes, notes );
 				debug( 'merged notifications', mergedNotes );
-				this.setState( { notes: mergedNotes, offline: false, lastChecked: Date.now(), lastSuccessfulCheck: Date.now() } );
+				this.setState( { notes: mergedNotes, offline: false, lastChecked: Date.now(), lastSuccessfulCheck: Date.now(), fetchInterval: defaultFetchInterval } );
 			} )
 			.catch( err => {
 				debug( 'fetching notifications failed with the error', err );
@@ -91,12 +93,12 @@ class AppState extends React.Component {
 				}
 				if ( err.code === 'ENOTFOUND' ) {
 					debug( 'notifications check failed because we are offline' );
-					this.setState( { offline: true, lastChecked: Date.now() } );
+					this.setState( { offline: true, lastChecked: Date.now(), fetchInterval: secsToMs( 30 ) } );
 					return;
 				}
 				if ( err.code === 'ETIMEDOUT' || err.code === 'ECONNABORTED' ) {
 					debug( 'notifications check failed because of a timeout' );
-					this.setState( { offline: true, lastChecked: Date.now() } );
+					this.setState( { offline: true, lastChecked: Date.now(), fetchInterval: secsToMs( 30 ) } );
 					return;
 				}
 				const errorString = 'Error fetching notifications: ' + err;
