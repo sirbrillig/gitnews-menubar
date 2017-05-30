@@ -32,7 +32,7 @@ function createUpdater( WrappedComponent ) {
 		}
 
 		render() {
-			return el( WrappedComponent, Object.assign( {}, this.props ) );
+			return el( WrappedComponent, Object.assign( { componentLastUpdated: this.state.lastUpdated }, this.props ) );
 		}
 	};
 }
