@@ -1,4 +1,4 @@
-const { ipcMain, nativeImage, app } = require( 'electron' );
+const { ipcMain, nativeImage, app, Menu } = require( 'electron' );
 const path = require( 'path' );
 const menubar = require( 'menubar' );
 const isDev = require( 'electron-is-dev' );
@@ -23,6 +23,7 @@ const bar = menubar( {
 
 bar.on( 'ready', () => {
 	isDev || bar.window.setResizable( false );
+	attachAppMenu();
 } );
 
 bar.on( 'hide', () => {
@@ -33,3 +34,27 @@ ipcMain.on( 'unread-notifications-count', ( event, arg ) => {
 	const image = arg > 0 ? alertIcon : normalIcon;
 	bar.tray.setImage( image );
 } );
+
+// Create the Application's main menu so it gets copy/paste
+// see: https://pracucci.com/atom-electron-enable-copy-and-paste.html
+function attachAppMenu() {
+	const template = [ {
+		label: 'Application',
+		submenu: [
+			{ label: 'About Gitnews', selector: 'orderFrontStandardAboutPanel:' },
+			{ type: 'separator' },
+			{ label: 'Quit', accelerator: 'Command+Q', click: () => app.quit() }
+		] }, {
+			label: 'Edit',
+			submenu: [
+				{ label: 'Undo', accelerator: 'CmdOrCtrl+Z', selector: 'undo:' },
+				{ label: 'Redo', accelerator: 'Shift+CmdOrCtrl+Z', selector: 'redo:' },
+				{ type: 'separator' },
+				{ label: 'Cut', accelerator: 'CmdOrCtrl+X', selector: 'cut:' },
+				{ label: 'Copy', accelerator: 'CmdOrCtrl+C', selector: 'copy:' },
+				{ label: 'Paste', accelerator: 'CmdOrCtrl+V', selector: 'paste:' },
+				{ label: 'Select All', accelerator: 'CmdOrCtrl+A', selector: 'selectAll:' }
+			] }
+	];
+	Menu.setApplicationMenu( Menu.buildFromTemplate( template ) );
+}
