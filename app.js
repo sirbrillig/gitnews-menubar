@@ -34,9 +34,9 @@ class AppState extends React.Component {
 		super( props );
 		const state = new State( reducer );
 		// TODO: remove callback when unmounting
+		this.state = state.getState();
 		state.addCallback( () => this.setState( state.getState() ) );
 		this.dispatch = state.dispatch;
-		this.state = {};
 
 		this.openUrl = this.openUrl.bind( this );
 		this.fetchNotifications = this.fetchNotifications.bind( this );
