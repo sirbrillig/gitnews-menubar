@@ -94,7 +94,7 @@ class AppState extends React.Component {
 	}
 
 	bindToDispatch( action ) {
-		return ( ...args ) => this.dispatch( action( args ) );
+		return ( ...args ) => this.dispatch( action( ...args ) );
 	}
 
 	getActions() {
