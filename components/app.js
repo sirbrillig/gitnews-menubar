@@ -73,7 +73,7 @@ class App extends React.Component {
 		const newNotes = this.getUnreadNotifications();
 		const readNotes = this.getReadNotifications();
 		const unseenNotes = this.getUnseenNotifications();
-		ipcRenderer.send( 'unread-notifications-count', unseenNotes.length );
+		ipcRenderer.send( 'unread-notifications-count', errors.length || unseenNotes.length );
 		return el( 'main', null,
 			el( Header, { offline, fetchNotifications, openUrl, lastSuccessfulCheck, showConfig, quitApp, getSecondsUntilNextFetch } ),
 			el( ErrorsArea, { errors, clearErrors } ),
