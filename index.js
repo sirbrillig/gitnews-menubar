@@ -23,7 +23,7 @@ const bar = menubar( {
 
 bar.on( 'ready', () => {
 	isDev || bar.window.setResizable( false );
-	attachAppMenu();
+	isDev || attachAppMenu();
 } );
 
 bar.on( 'hide', () => {
