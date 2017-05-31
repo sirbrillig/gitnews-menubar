@@ -91,6 +91,11 @@ class AppState extends React.Component {
 				if ( err.code === 'GitHubTokenNotFound' ) {
 					return; // This is handled in render
 				}
+				if ( err.code === 'ENETDOWN' ) {
+					debug( 'notifications check failed because the network is down' );
+					this.setState( { offline: true, lastChecked: Date.now(), fetchInterval: secsToMs( 30 ) } );
+					return;
+				}
 				if ( err.code === 'ENOTFOUND' ) {
 					debug( 'notifications check failed because we are offline' );
 					this.setState( { offline: true, lastChecked: Date.now(), fetchInterval: secsToMs( 30 ) } );
