@@ -1,5 +1,6 @@
 /* globals describe, it */
 const { reducer } = require( '../lib/reducer' );
+const { secsToMs } = require( '../lib/helpers' );
 const { expect } = require( 'chai' );
 
 describe( 'reducer', function() {
@@ -91,6 +92,48 @@ describe( 'reducer', function() {
 			expect( result.notes.map( note => note.id ) ).to.not.include( 'o1' );
 		} );
 
-		it( 'preserves `seen` state for existing notifications' );
+		it( 'preserves `seen` state for existing notifications', function() {
+			const action = { type: 'NOTES_RETRIEVED', notes };
+			const result = reducer( { notes: [ { id: 'a1', title: 'test note', gitnewsSeen: true } ] }, action );
+			expect( result.notes.filter( note => note.gitnewsSeen ) ).to.have.length( 1 );
+		} );
+	} );
+
+	describe( 'OFFLINE', function() {
+		it( 'sets offline to true', function() {
+			const action = { type: 'OFFLINE' };
+			const result = reducer( { offline: false }, action );
+			expect( result.offline ).to.be.true;
+		} );
+
+		it( 'sets lastChecked date', function() {
+			const action = { type: 'OFFLINE' };
+			const result = reducer( { offline: false }, action );
+			expect( result.lastChecked ).to.exist;
+		} );
+
+		it( 'does not set lastSuccessfulCheck date', function() {
+			const action = { type: 'OFFLINE' };
+			const result = reducer( { offline: false }, action );
+			expect( result.lastSuccessfulCheck ).to.not.exist;
+		} );
+
+		it( 'sets fetchInterval to 60 secs', function() {
+			const action = { type: 'OFFLINE' };
+			const result = reducer( { offline: false, fetchRetryCount: 0 }, action );
+			expect( result.fetchInterval ).to.equal( secsToMs( 60 ) );
+		} );
+
+		it( 'increases fetchRetryCount by 1', function() {
+			const action = { type: 'OFFLINE' };
+			const result = reducer( { offline: false, fetchRetryCount: 4 }, action );
+			expect( result.fetchRetryCount ).to.equal( 5 );
+		} );
+
+		it( 'sets fetchInterval to 60 seconds multiplied by number of tries', function() {
+			const action = { type: 'OFFLINE' };
+			const result = reducer( { offline: false, fetchRetryCount: 2 }, action );
+			expect( result.fetchInterval ).to.equal( secsToMs( 180 ) );
+		} );
 	} );
 } );
