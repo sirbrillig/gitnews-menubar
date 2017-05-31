@@ -8,7 +8,7 @@ const el = React.createElement;
 const debugFactory = require( 'debug' );
 const debug = debugFactory( 'gitnews-menubar' );
 const unhandled = require( 'electron-unhandled' );
-const { getToken, setToken, msToSecs, isOfflineCode } = require( './lib/helpers' );
+const { getToken, setToken, msToSecs, isOfflineCode, bindToDispatch } = require( './lib/helpers' );
 const App = require( './components/app' );
 const State = require( './lib/state' );
 const {
@@ -93,19 +93,15 @@ class AppState extends React.Component {
 		shell.openExternal( url );
 	}
 
-	bindToDispatch( action ) {
-		return ( ...args ) => this.dispatch( action( ...args ) );
-	}
-
 	getActions() {
 		return {
-			hideEditToken: this.bindToDispatch( hideEditToken ),
-			showEditToken: this.bindToDispatch( showEditToken ),
-			hideConfig: this.bindToDispatch( hideConfig ),
-			showConfig: this.bindToDispatch( showConfig ),
-			markRead: this.bindToDispatch( markRead ),
-			clearErrors: this.bindToDispatch( clearErrors ),
-			markAllNotesSeen: this.bindToDispatch( markAllNotesSeen ),
+			hideEditToken: bindToDispatch( this.dispatch, hideEditToken ),
+			showEditToken: bindToDispatch( this.dispatch, showEditToken ),
+			hideConfig: bindToDispatch( this.dispatch, hideConfig ),
+			showConfig: bindToDispatch( this.dispatch, showConfig ),
+			markRead: bindToDispatch( this.dispatch, markRead ),
+			clearErrors: bindToDispatch( this.dispatch, clearErrors ),
+			markAllNotesSeen: bindToDispatch( this.dispatch, markAllNotesSeen ),
 			openUrl: this.openUrl,
 			fetchNotifications: this.fetchNotifications,
 			writeToken: this.writeToken,
