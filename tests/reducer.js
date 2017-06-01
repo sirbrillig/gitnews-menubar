@@ -50,6 +50,12 @@ describe( 'reducer', function() {
 			expect( result.offline ).to.be.false;
 		} );
 
+		it( 'sets fetchingInProgress to false', function() {
+			const action = { type: 'NOTES_RETRIEVED', notes };
+			const result = reducer( { notes: [], fetchingInProgress: true }, action );
+			expect( result.fetchingInProgress ).to.be.false;
+		} );
+
 		it( 'sets lastChecked date', function() {
 			const action = { type: 'NOTES_RETRIEVED', notes };
 			const result = reducer( { notes: [] }, action );
@@ -104,6 +110,12 @@ describe( 'reducer', function() {
 			const action = { type: 'OFFLINE' };
 			const result = reducer( { offline: false }, action );
 			expect( result.offline ).to.be.true;
+		} );
+
+		it( 'sets fetchingInProgress to false', function() {
+			const action = { type: 'OFFLINE' };
+			const result = reducer( { offline: false, fetchingInProgress: true }, action );
+			expect( result.fetchingInProgress ).to.be.false;
 		} );
 
 		it( 'sets lastChecked date', function() {

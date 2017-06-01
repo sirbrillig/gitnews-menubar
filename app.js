@@ -24,6 +24,7 @@ const {
 	clearErrors,
 	markAllNotesSeen,
 	markRead,
+	fetchingInProgress,
 } = require( './lib/reducer' );
 
 // Catch unhandled Promise rejections
@@ -45,6 +46,7 @@ class AppState extends React.Component {
 	}
 
 	writeToken( token ) {
+		debug( 'writing new token' );
 		setToken( token );
 		this.dispatch( changeToken( token ) );
 		this.fetchNotifications( token );
@@ -62,12 +64,17 @@ class AppState extends React.Component {
 	}
 
 	fetchNotifications( token = null ) {
+		if ( this.state.fetchingInProgress ) {
+			debug( 'skipping notifications check because we are already fetching' );
+			return;
+		}
 		if ( ! window.navigator.onLine ) {
 			debug( 'skipping notifications check because we are offline' );
 			this.dispatch( changeToOffline() );
 			return;
 		}
 		debug( 'fetching notifications' );
+		this.dispatch( fetchingInProgress() );
 		this.props.getNotifications( token || this.state.token )
 			.then( notes => {
 				debug( 'notifications retrieved', notes );

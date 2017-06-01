@@ -2,6 +2,8 @@
 const React = require( 'react' );
 const el = React.createElement;
 const { ipcRenderer } = require( 'electron' );
+const debugFactory = require( 'debug' );
+const debug = debugFactory( 'gitnews-menubar' );
 const ConfigPage = require( '../components/config-page' );
 const UncheckedNotice = require( '../components/unchecked-notice' );
 const Header = require( '../components/header' );
@@ -19,11 +21,17 @@ class App extends React.Component {
 	}
 
 	componentDidMount() {
+		debug( 'App mounted' );
 		this.props.fetchNotifications();
 		if ( this.fetcher ) {
 			window.clearInterval( this.fetcher );
 		}
-		this.fetcher = window.setInterval( () => ( this.props.getSecondsUntilNextFetch() || this.props.fetchNotifications() ), this.refreshInterval );
+		this.fetcher = window.setInterval( () => {
+			if ( this.props.getSecondsUntilNextFetch() < 1 ) {
+				debug( 'fetch interval reached' );
+				this.props.fetchNotifications();
+			}
+		}, this.refreshInterval );
 		ipcRenderer.on( 'menubar-click', this.props.markAllNotesSeen );
 	}
 
@@ -49,7 +57,10 @@ class App extends React.Component {
 		const { offline, errors, currentPane, token, lastSuccessfulCheck } = this.props;
 		const { openUrl, clearErrors, hideConfig, showConfig, writeToken, markRead, showEditToken, hideEditToken, quitApp, getSecondsUntilNextFetch } = this.props;
 		// We have to have a closure because otherwise it will treat the event param as a token.
-		const fetchNotifications = () => this.props.fetchNotifications();
+		const fetchNotifications = () => {
+			debug( 'fetchNotifications called manually' );
+			this.props.fetchNotifications();
+		};
 		if ( ! token || currentPane === PANE_TOKEN ) {
 			return el( 'main', null,
 				el( Header, { offline, fetchNotifications, openUrl, quitApp, getSecondsUntilNextFetch } ),
