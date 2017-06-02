@@ -25,6 +25,7 @@ const {
 	markAllNotesSeen,
 	markRead,
 	fetchingInProgress,
+	fetchDone,
 } = require( './lib/reducer' );
 
 // Catch unhandled Promise rejections
@@ -83,6 +84,7 @@ class AppState extends React.Component {
 			.catch( err => {
 				debug( 'fetching notifications failed with the error', err );
 				if ( err.code === 'GitHubTokenNotFound' ) {
+					this.dispatch( fetchDone() );
 					return; // This is handled in render
 				}
 				if ( isOfflineCode( err.code ) ) {
