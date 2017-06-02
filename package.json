@@ -6,7 +6,10 @@
   "main": "index.js",
   "scripts": {
     "start": "electron .",
-    "package": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=gitnews-menubar.icns --prune=true --out=release-builds",
+    "build": "npm run build:osx",
+    "build:osx": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=gitnews-menubar.icns --prune=true --out=dist",
+    "package": "npm run package:osx",
+    "package:osx": "hdiutil create -format UDZO -srcfolder dist/Gitnews-darwin-x64/Gitnews.app dist/Gitnews_Mac.dmg",
     "test": "mocha tests"
   },
   "keywords": [
