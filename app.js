@@ -1,5 +1,6 @@
 /* globals window */
 require( 'dotenv' ).config();
+const config = require( './package.json' );
 const { shell, remote } = require( 'electron' );
 const { getNotifications } = require( 'gitnews' );
 const React = require( 'react' );
@@ -133,7 +134,7 @@ function runApp() {
 		console.error( 'Could not find main element' );
 		return;
 	}
-	ReactDOM.render( el( AppState, { getNotifications, quitApp, getToken }, App ), main );
+	ReactDOM.render( el( AppState, { getNotifications, quitApp, getToken, version: config.version }, App ), main );
 }
 
 runApp();

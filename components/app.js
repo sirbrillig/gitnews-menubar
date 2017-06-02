@@ -54,7 +54,7 @@ class App extends React.Component {
 	}
 
 	render() {
-		const { offline, errors, currentPane, token, lastSuccessfulCheck } = this.props;
+		const { offline, errors, currentPane, token, lastSuccessfulCheck, version } = this.props;
 		const { openUrl, clearErrors, hideConfig, showConfig, writeToken, markRead, showEditToken, hideEditToken, quitApp, getSecondsUntilNextFetch } = this.props;
 		// We have to have a closure because otherwise it will treat the event param as a token.
 		const fetchNotifications = () => {
@@ -71,7 +71,7 @@ class App extends React.Component {
 		if ( currentPane === PANE_CONFIG ) {
 			return el( 'main', null,
 				el( Header, { offline, fetchNotifications, openUrl, quitApp, getSecondsUntilNextFetch } ),
-				el( ConfigPage, { openUrl, hideConfig, showEditToken } )
+				el( ConfigPage, { openUrl, hideConfig, showEditToken, version } )
 			);
 		}
 		if ( ! lastSuccessfulCheck ) {
