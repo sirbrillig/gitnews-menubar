@@ -4,6 +4,7 @@ const Gridicon = require( 'gridicons' );
 const debugFactory = require( 'debug' );
 const debug = debugFactory( 'gitnews-menubar' );
 const date = require( 'date-fns' );
+const CSSTransitionGroup = require( 'react-transition-group/CSSTransitionGroup' );
 const { getNoteId } = require( '../lib/helpers' );
 
 function Notification( { note, openUrl, markRead } ) {
@@ -42,8 +43,18 @@ function NotificationsArea( { newNotes, readNotes, markRead, openUrl } ) {
 	const readNoteRows = readNotes.map( note => el( Notification, { note, key: getNoteId( note ), markRead, openUrl } ) );
 	return el( 'div', { className: 'notifications-area' },
 		el( 'div', { className: 'notifications-area__inner' },
-			noteRows,
-			readNoteRows
+			el( CSSTransitionGroup, {
+				transitionName: 'note',
+				transitionAppear: true,
+				transitionEnter: true,
+				transitionLeave: true,
+				transitionAppearTimeout: 800,
+				transitionEnterTimeout: 800,
+				transitionLeaveTimeout: 800,
+			},
+				noteRows,
+				readNoteRows
+			)
 		)
 	);
 }
