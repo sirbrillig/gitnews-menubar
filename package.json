@@ -7,7 +7,7 @@
   "scripts": {
     "start": "electron .",
     "build": "npm run build:osx",
-    "build:osx": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=gitnews-menubar.icns --prune=true --out=dist",
+    "build:osx": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=gitnews-menubar.icns --prune=true --ignore='^/dist$' --out=dist",
     "package": "npm run package:osx",
     "package:osx": "hdiutil create -format UDZO -srcfolder dist/Gitnews-darwin-x64/Gitnews.app dist/Gitnews_Mac.dmg",
     "test": "mocha tests"
