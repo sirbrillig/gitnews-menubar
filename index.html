@@ -216,6 +216,23 @@ header h1 {
   margin: 0 0 10px 0;
 }
 
+.note-appear,
+.note-enter {
+  opacity: 0.01;
+}
+.note-appear.note-appear-active,
+.note-enter.note-enter-active {
+  opacity: 1;
+  transition: opacity 800ms ease-in;
+}
+.note-leave {
+  opacity: 1;
+}
+.note-leave.note-leave-active {
+  opacity: 0.01;
+  transition: opacity 800ms ease-in;
+}
+
 main {
   display: flex;
   flex-direction: column;
