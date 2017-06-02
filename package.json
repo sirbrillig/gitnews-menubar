@@ -6,7 +6,9 @@
   "main": "index.js",
   "scripts": {
     "start": "electron .",
+    "dist-clean": "rm -rf ./dist",
     "build": "npm run build:osx",
+    "prepare-release": "npm run dist-clean && npm run build && npm run package",
     "build:osx": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=gitnews-menubar.icns --prune=true --ignore='^/dist$' --out=dist",
     "package": "npm run package:osx",
     "package:osx": "hdiutil create -format UDZO -srcfolder dist/Gitnews-darwin-x64/Gitnews.app dist/Gitnews_Mac.dmg",
