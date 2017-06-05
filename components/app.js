@@ -63,20 +63,20 @@ class App extends React.Component {
 		};
 		if ( ! token || currentPane === PANE_TOKEN ) {
 			return el( 'main', null,
-				el( Header, { offline, fetchNotifications, openUrl, quitApp, getSecondsUntilNextFetch } ),
+				el( Header, { offline, fetchNotifications, openUrl, getSecondsUntilNextFetch } ),
 				el( ErrorsArea, { errors, clearErrors } ),
 				el( AddTokenForm, { token, openUrl, writeToken, hideEditToken, showCancel: currentPane === PANE_TOKEN } )
 			);
 		}
 		if ( currentPane === PANE_CONFIG ) {
 			return el( 'main', null,
-				el( Header, { offline, fetchNotifications, openUrl, quitApp, getSecondsUntilNextFetch } ),
-				el( ConfigPage, { openUrl, hideConfig, showEditToken, version } )
+				el( Header, { offline, fetchNotifications, openUrl, getSecondsUntilNextFetch } ),
+				el( ConfigPage, { openUrl, hideConfig, showEditToken, version, quitApp } )
 			);
 		}
 		if ( ! lastSuccessfulCheck ) {
 			return el( 'main', null,
-				el( Header, { offline, fetchNotifications, openUrl, quitApp, getSecondsUntilNextFetch } ),
+				el( Header, { offline, fetchNotifications, openUrl, getSecondsUntilNextFetch } ),
 				el( ErrorsArea, { errors, clearErrors } ),
 				el( UncheckedNotice )
 			);
@@ -86,7 +86,7 @@ class App extends React.Component {
 		const unseenNotes = this.getUnseenNotifications();
 		ipcRenderer.send( 'unread-notifications-count', errors.length || unseenNotes.length );
 		return el( 'main', null,
-			el( Header, { offline, fetchNotifications, openUrl, lastSuccessfulCheck, showConfig, quitApp, getSecondsUntilNextFetch } ),
+			el( Header, { offline, fetchNotifications, openUrl, lastSuccessfulCheck, showConfig, getSecondsUntilNextFetch } ),
 			el( ErrorsArea, { errors, clearErrors } ),
 			el( NotificationsArea, { newNotes, readNotes, markRead, openUrl } )
 		);
