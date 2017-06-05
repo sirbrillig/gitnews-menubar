@@ -76,6 +76,7 @@ class AppState extends React.Component {
 			return;
 		}
 		debug( 'fetching notifications' );
+		// NOTE: After this point, any return action MUST disable fetchingInProgress
 		this.dispatch( fetchingInProgress() );
 		this.props.getNotifications( token || this.state.token )
 			.then( notes => {
