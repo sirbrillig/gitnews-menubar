@@ -10,7 +10,7 @@ const UpdatingOfflineNotice = createUpdater( OfflineNotice );
 
 function LeftButton( { hideConfig, showConfig } ) {
 	if ( hideConfig ) {
-		return el( 'a', { className: 'back-button', href: '#', onClick: hideConfig }, el( Gridicon, { icon: 'chevron-left' } ) );
+		return el( 'a', { className: 'back-button', href: '#', onClick: hideConfig, title: 'Back' }, el( Gridicon, { icon: 'chevron-left' } ) );
 	}
 	if ( showConfig ) {
 		return el( 'a', { className: 'config-button', onClick: showConfig, href: '#', title: 'Configuration' }, el( Gridicon, { icon: 'cog' } ) );
