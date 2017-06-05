@@ -76,7 +76,7 @@ class App extends React.Component {
 		}
 		if ( ! lastSuccessfulCheck ) {
 			return el( 'main', null,
-				el( Header, { offline, fetchNotifications, openUrl, getSecondsUntilNextFetch } ),
+				el( Header, { offline, fetchNotifications, openUrl, getSecondsUntilNextFetch, showConfig } ),
 				el( ErrorsArea, { errors, clearErrors } ),
 				el( UncheckedNotice )
 			);
