@@ -70,8 +70,8 @@ class App extends React.Component {
 		}
 		if ( currentPane === PANE_CONFIG ) {
 			return el( 'main', null,
-				el( Header, { offline, fetchNotifications, openUrl, getSecondsUntilNextFetch } ),
-				el( ConfigPage, { openUrl, hideConfig, showEditToken, version, quitApp } )
+				el( Header, { offline, fetchNotifications, openUrl, getSecondsUntilNextFetch, hideConfig } ),
+				el( ConfigPage, { openUrl, showEditToken, version, quitApp } )
 			);
 		}
 		if ( ! lastSuccessfulCheck ) {

@@ -8,16 +8,26 @@ const createUpdater = require( '../components/updater' );
 const UpdatingLastChecked = createUpdater( LastChecked );
 const UpdatingOfflineNotice = createUpdater( OfflineNotice );
 
-function Header( { openUrl, lastSuccessfulCheck, showConfig, offline, fetchNotifications, getSecondsUntilNextFetch } ) {
+function LeftButton( { hideConfig, showConfig } ) {
+	if ( hideConfig ) {
+		return el( 'a', { className: 'back-button', href: '#', onClick: hideConfig }, el( Gridicon, { icon: 'chevron-left' } ) );
+	}
+	if ( showConfig ) {
+		return el( 'a', { className: 'config-button', onClick: showConfig, href: '#', title: 'Configuration' }, el( Gridicon, { icon: 'cog' } ) );
+	}
+	return el( 'span', { className: 'config-spacer' } );
+}
+
+function Header( { openUrl, lastSuccessfulCheck, showConfig, offline, fetchNotifications, getSecondsUntilNextFetch, hideConfig } ) {
 	const openLink = ( event ) => {
 		event.preventDefault();
 		openUrl( event.target.href );
 	};
 	return el( 'header', null,
 		el( 'div', { className: 'header__primary' },
-			el( 'span', { className: 'config-spacer' } ),
+			el( LeftButton, { hideConfig, showConfig } ),
 			el( Logo, { onClick: openLink } ),
-			showConfig ? el( 'a', { className: 'config-button', onClick: showConfig, href: '#', title: 'Configuration' }, el( Gridicon, { icon: 'cog' } ) ) : el( 'span', { className: 'config-spacer' } )
+			el( 'span', { className: 'config-spacer' } )
 		),
 		el( 'div', { className: 'header__secondary' },
 			lastSuccessfulCheck && el( UpdatingLastChecked, { lastSuccessfulCheck } )
