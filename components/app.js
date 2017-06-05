@@ -75,6 +75,9 @@ class App extends React.Component {
 			);
 		}
 		if ( ! lastSuccessfulCheck ) {
+			const unseenCountForIcon = offline ? 1 : errors.length;
+			debug( 'sending unseenCountForIcon', unseenCountForIcon );
+			ipcRenderer.send( 'unread-notifications-count', unseenCountForIcon );
 			return el( 'main', null,
 				el( Header, { offline, fetchNotifications, openUrl, getSecondsUntilNextFetch, showConfig } ),
 				el( ErrorsArea, { errors, clearErrors } ),
@@ -85,6 +88,7 @@ class App extends React.Component {
 		const readNotes = this.getReadNotifications();
 		const unseenNotes = this.getUnseenNotifications();
 		const unseenCountForIcon = offline ? 1 : ( errors.length || unseenNotes.length );
+		debug( 'sending unseenCountForIcon', unseenCountForIcon );
 		ipcRenderer.send( 'unread-notifications-count', unseenCountForIcon );
 		return el( 'main', null,
 			el( Header, { offline, fetchNotifications, openUrl, lastSuccessfulCheck, showConfig, getSecondsUntilNextFetch } ),
