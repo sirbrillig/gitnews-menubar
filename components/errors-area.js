@@ -10,10 +10,10 @@ function ErrorMessage( { error } ) {
 }
 
 function ErrorsArea( { errors, clearErrors } ) {
-	return el( 'div', { className: 'errors-area' }, [
+	return el( 'div', { className: 'errors-area' },
 		errors.length > 0 ? el( ClearErrorsButton, { clearErrors } ) : null,
-		errors.map( error => el( ErrorMessage, { error, key: error } ) ),
-	] );
+		errors.map( error => el( ErrorMessage, { error, key: error } ) )
+	);
 }
 
 module.exports = ErrorsArea;
