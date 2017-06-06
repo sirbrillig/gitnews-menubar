@@ -50,6 +50,16 @@ class App extends React.Component {
 		return this.getUnreadNotifications().filter( note => ! note.gitnewsSeen );
 	}
 
+	getNextIcon( { offline, errors, unseenNotes } ) {
+		if ( offline || errors.length ) {
+			return 'error';
+		}
+		if ( unseenNotes.length ) {
+			return 'unseen';
+		}
+		return 'normal';
+	}
+
 	render() {
 		const { offline, errors, currentPane, token, lastSuccessfulCheck, version } = this.props;
 		const { openUrl, clearErrors, hideConfig, showConfig, writeToken, markRead, showEditToken, hideEditToken, quitApp, getSecondsUntilNextFetch } = this.props;
@@ -61,10 +71,10 @@ class App extends React.Component {
 		const newNotes = this.getUnreadNotifications();
 		const readNotes = this.getReadNotifications();
 		const unseenNotes = this.getUnseenNotifications();
-		const unseenCountForIcon = offline ? 1 : ( errors.length || unseenNotes.length );
+		const nextIcon = this.getNextIcon( { offline, errors, unseenNotes } );
 
-		debug( 'sending unseenCountForIcon', unseenCountForIcon );
-		ipcRenderer.send( 'unread-notifications-count', unseenCountForIcon );
+		debug( 'sending set-icon', nextIcon );
+		ipcRenderer.send( 'set-icon', nextIcon );
 
 		return el( 'main', null,
 			el( Header, {

@@ -13,8 +13,10 @@ unhandled();
 
 const appDir = app.getAppPath();
 const alertIconPath = path.join( appDir, 'IconTemplateAlert.png' );
+const errorIconPath = path.join( appDir, 'IconTemplateError.png' );
 const normalIconPath = path.join( appDir, 'IconTemplate.png' );
 const alertIcon = nativeImage.createFromPath( alertIconPath );
+const errorIcon = nativeImage.createFromPath( errorIconPath );
 const normalIcon = nativeImage.createFromPath( normalIconPath );
 
 // Create menubar
@@ -34,10 +36,20 @@ bar.on( 'hide', () => {
 	bar.window.webContents.send( 'menubar-click', true );
 } );
 
-ipcMain.on( 'unread-notifications-count', ( event, arg ) => {
-	const image = arg > 0 ? alertIcon : normalIcon;
+ipcMain.on( 'set-icon', ( event, arg ) => {
+	const image = getIcon( arg );
 	bar.tray.setImage( image );
 } );
+
+function getIcon( type ) {
+	switch ( type ) {
+		case 'error':
+			return errorIcon;
+		case 'unseen':
+			return alertIcon;
+	}
+	return normalIcon;
+}
 
 // Create the Application's main menu so it gets copy/paste
 // see: https://pracucci.com/atom-electron-enable-copy-and-paste.html
