@@ -4,13 +4,10 @@ const el = React.createElement;
 const { ipcRenderer } = require( 'electron' );
 const debugFactory = require( 'debug' );
 const debug = debugFactory( 'gitnews-menubar' );
-const ConfigPage = require( '../components/config-page' );
-const UncheckedNotice = require( '../components/unchecked-notice' );
 const Header = require( '../components/header' );
 const ErrorsArea = require( '../components/errors-area' );
-const AddTokenForm = require( '../components/add-token-form' );
-const NotificationsArea = require( '../components/notifications-area' );
-const { PANE_CONFIG, PANE_TOKEN } = require( '../lib/constants' );
+const MainPane = require( '../components/main-pane' );
+const { PANE_CONFIG, PANE_NOTIFICATIONS } = require( '../lib/constants' );
 const { secsToMs } = require( '../lib/helpers' );
 
 class App extends React.Component {
@@ -61,39 +58,39 @@ class App extends React.Component {
 			debug( 'fetchNotifications called manually' );
 			this.props.fetchNotifications();
 		};
-		if ( ! token || currentPane === PANE_TOKEN ) {
-			return el( 'main', null,
-				el( Header, { offline, fetchNotifications, openUrl, getSecondsUntilNextFetch } ),
-				el( ErrorsArea, { errors, clearErrors } ),
-				el( AddTokenForm, { token, openUrl, writeToken, hideEditToken, showCancel: currentPane === PANE_TOKEN } )
-			);
-		}
-		if ( currentPane === PANE_CONFIG ) {
-			return el( 'main', null,
-				el( Header, { offline, fetchNotifications, openUrl, getSecondsUntilNextFetch, hideConfig } ),
-				el( ConfigPage, { openUrl, showEditToken, version, quitApp } )
-			);
-		}
-		if ( ! lastSuccessfulCheck ) {
-			const unseenCountForIcon = offline ? 1 : errors.length;
-			debug( 'sending unseenCountForIcon', unseenCountForIcon );
-			ipcRenderer.send( 'unread-notifications-count', unseenCountForIcon );
-			return el( 'main', null,
-				el( Header, { offline, fetchNotifications, openUrl, getSecondsUntilNextFetch, showConfig } ),
-				el( ErrorsArea, { errors, clearErrors } ),
-				el( UncheckedNotice )
-			);
-		}
 		const newNotes = this.getUnreadNotifications();
 		const readNotes = this.getReadNotifications();
 		const unseenNotes = this.getUnseenNotifications();
 		const unseenCountForIcon = offline ? 1 : ( errors.length || unseenNotes.length );
+
 		debug( 'sending unseenCountForIcon', unseenCountForIcon );
 		ipcRenderer.send( 'unread-notifications-count', unseenCountForIcon );
+
 		return el( 'main', null,
-			el( Header, { offline, fetchNotifications, openUrl, lastSuccessfulCheck, showConfig, getSecondsUntilNextFetch } ),
+			el( Header, {
+				offline,
+				fetchNotifications,
+				openUrl,
+				lastSuccessfulCheck,
+				showConfig: currentPane === PANE_NOTIFICATIONS && showConfig,
+				hideConfig: currentPane === PANE_CONFIG && hideConfig,
+				getSecondsUntilNextFetch,
+			} ),
 			el( ErrorsArea, { errors, clearErrors } ),
-			el( NotificationsArea, { newNotes, readNotes, markRead, openUrl } )
+			el( MainPane, {
+				token,
+				currentPane,
+				openUrl,
+				writeToken,
+				quitApp,
+				hideEditToken,
+				showEditToken,
+				lastSuccessfulCheck,
+				version,
+				newNotes,
+				readNotes,
+				markRead,
+			} )
 		);
 	}
 }
