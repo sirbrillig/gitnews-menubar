@@ -4,7 +4,8 @@ const menubar = require( 'menubar' );
 const isDev = require( 'electron-is-dev' );
 const fetch = require( 'electron-fetch' );
 const semver = require( 'semver' );
-const config = require( './package.json' );
+const { version } = require( './package.json' );
+const { checkForUpdates } = require( './lib/updates' );
 
 const unhandled = require( 'electron-unhandled' );
 
@@ -29,7 +30,24 @@ const bar = menubar( {
 bar.on( 'ready', () => {
 	isDev || bar.window.setResizable( false );
 	isDev || attachAppMenu();
-	autoUpdater();
+	checkForUpdates( { fetch, version, semver } )
+		.then( response => {
+			if ( response.updateAvailable !== true ) {
+				return;
+			}
+			const confirm = dialog.showMessageBox( {
+				type: 'question',
+				message: 'A new version ' + response.newVersion + ' of Gitnews is available.',
+				detail: 'Do you want to download it now?',
+				buttons: [ 'Yes', 'No' ]
+			} );
+			if ( confirm === 0 ) {
+				shell.openExternal( 'https://github.com/sirbrillig/gitnews-menubar/releases' );
+			}
+		} )
+		.catch( err => {
+			console.error( 'Error while checking for updates:', err );
+		} );
 } );
 
 bar.on( 'hide', () => {
@@ -73,42 +91,4 @@ function attachAppMenu() {
 			] }
 	];
 	Menu.setApplicationMenu( Menu.buildFromTemplate( template ) );
-}
-
-// Actual auto updating requires a signed application, so this is the next best thing
-// Modified from: https://github.com/jackd248/temps
-function autoUpdater() {
-	console.log( 'Checking for new version...' );
-	fetch( 'https://raw.githubusercontent.com/sirbrillig/gitnews-menubar/master/package.json' )
-		.then( response => {
-			if ( ! response.ok ) {
-				return Promise.reject( response );
-			}
-			return response;
-		} )
-		.then( response => response.json() )
-		.then( response => {
-			try {
-				const newVersion = response.version;
-				const oldVersion = config.version;
-				console.log( `Comparing old version ${ oldVersion } and new version ${ newVersion }` );
-				if ( ! semver.gt( newVersion, oldVersion ) ) {
-					return;
-				}
-				const confirm = dialog.showMessageBox( {
-					type: 'info',
-					message: 'A new version ' + newVersion + ' of Gitnews is available.',
-					detail: 'Do you want to download it now?',
-					buttons: [ 'Yes', 'No' ]
-				} );
-				if ( confirm === 0 ) {
-					shell.openExternal( 'https://github.com/sirbrillig/gitnews-menubar/releases' );
-				}
-			} catch ( err ) {
-				console.error( 'Error while checking for updates:', err );
-			}
-		} )
-		.catch( err => {
-			console.error( 'Error (caught) while checking for updates:', err );
-		} );
 }

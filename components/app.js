@@ -62,12 +62,26 @@ class App extends React.Component {
 
 	render() {
 		const { offline, errors, currentPane, token, lastSuccessfulCheck, version } = this.props;
-		const { openUrl, clearErrors, hideConfig, showConfig, writeToken, markRead, showEditToken, hideEditToken, quitApp, getSecondsUntilNextFetch } = this.props;
+		// Actions:
+		const {
+			openUrl,
+			clearErrors,
+			hideConfig,
+			showConfig,
+			writeToken,
+			markRead,
+			showEditToken,
+			hideEditToken,
+			quitApp,
+			getSecondsUntilNextFetch,
+			checkForUpdates,
+		} = this.props;
 		// We have to have a closure because otherwise it will treat the event param as a token.
 		const fetchNotifications = () => {
 			debug( 'fetchNotifications called manually' );
 			this.props.fetchNotifications();
 		};
+
 		const newNotes = this.getUnreadNotifications();
 		const readNotes = this.getReadNotifications();
 		const unseenNotes = this.getUnseenNotifications();
@@ -100,6 +114,7 @@ class App extends React.Component {
 				newNotes,
 				readNotes,
 				markRead,
+				checkForUpdates,
 			} )
 		);
 	}

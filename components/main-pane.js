@@ -19,12 +19,13 @@ function MainPane( {
 	newNotes,
 	readNotes,
 	markRead,
+	checkForUpdates,
 } ) {
 	if ( ! token || currentPane === PANE_TOKEN ) {
 		return el( AddTokenForm, { token, openUrl, writeToken, hideEditToken, showCancel: currentPane === PANE_TOKEN } );
 	}
 	if ( currentPane === PANE_CONFIG ) {
-		return el( ConfigPage, { openUrl, showEditToken, version, quitApp } );
+		return el( ConfigPage, { openUrl, showEditToken, version, quitApp, checkForUpdates } );
 	}
 	if ( ! lastSuccessfulCheck ) {
 		return el( UncheckedNotice );

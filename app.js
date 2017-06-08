@@ -1,7 +1,8 @@
 /* globals window */
 require( 'dotenv' ).config();
-const config = require( './package.json' );
+const { version } = require( './package.json' );
 const { shell, remote } = require( 'electron' );
+const semver = require( 'semver' );
 const { getNotifications } = require( 'gitnews' );
 const React = require( 'react' );
 const ReactDOM = require( 'react-dom' );
@@ -10,6 +11,7 @@ const debugFactory = require( 'debug' );
 const debug = debugFactory( 'gitnews-menubar' );
 const unhandled = require( 'electron-unhandled' );
 const { getToken, setToken, msToSecs, isOfflineCode, bindToDispatch } = require( './lib/helpers' );
+const { checkForUpdates } = require( './lib/updates' );
 const App = require( './components/app' );
 const State = require( './lib/state' );
 const {
@@ -104,6 +106,31 @@ class AppState extends React.Component {
 		shell.openExternal( url );
 	}
 
+	checkForUpdates() {
+		checkForUpdates( { fetch: window.fetch, version, semver } )
+			.then( response => {
+				if ( ! response.updateAvailable ) {
+					remote.dialog.showMessageBox( {
+						type: 'info',
+						message: `You have the latest version of Gitnews, ${ response.oldVersion }!`,
+					} );
+					return;
+				}
+				const confirm = remote.dialog.showMessageBox( {
+					type: 'question',
+					message: 'A new version ' + response.newVersion + ' of Gitnews is available.',
+					detail: 'Do you want to download it now?',
+					buttons: [ 'Yes', 'No' ]
+				} );
+				if ( confirm === 0 ) {
+					shell.openExternal( 'https://github.com/sirbrillig/gitnews-menubar/releases' );
+				}
+			} )
+			.catch( err => {
+				console.error( 'Error while checking for updates:', err );
+			} );
+	}
+
 	getActions() {
 		return {
 			hideEditToken: bindToDispatch( this.dispatch, hideEditToken ),
@@ -117,6 +144,7 @@ class AppState extends React.Component {
 			fetchNotifications: this.fetchNotifications,
 			writeToken: this.writeToken,
 			getSecondsUntilNextFetch: this.getSecondsUntilNextFetch,
+			checkForUpdates: this.checkForUpdates,
 		};
 	}
 
@@ -135,7 +163,7 @@ function runApp() {
 		console.error( 'Could not find main element' );
 		return;
 	}
-	ReactDOM.render( el( AppState, { getNotifications, quitApp, getToken, version: config.version }, App ), main );
+	ReactDOM.render( el( AppState, { getNotifications, quitApp, getToken, version }, App ), main );
 }
 
 runApp();
