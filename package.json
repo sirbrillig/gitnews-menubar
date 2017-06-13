@@ -11,7 +11,7 @@
     "prepare-release": "npm run dist-clean && npm run build && npm run package",
     "build:osx": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=gitnews-menubar.icns --prune=true --ignore='^/dist$' --out=dist",
     "package": "npm run package:osx",
-    "package:osx": "hdiutil create -format UDZO -srcfolder dist/Gitnews-darwin-x64/Gitnews.app dist/Gitnews_Mac.dmg",
+    "package:osx": "electron-installer-dmg --out=dist --icon=gitnews-menubar.icns --overwrite dist/Gitnews-darwin-x64/Gitnews.app Gitnews",
     "test": "mocha tests"
   },
   "keywords": [
@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "chai": "^4.0.0",
+    "electron-installer-dmg": "^0.2.1",
     "electron-packager": "^8.7.0",
     "eslint": "^3.19.0",
     "eslint-config-wpcalypso": "^0.8.0",
