@@ -1,10 +1,11 @@
 {
 	"extends": [
-		"wpcalypso"
+		"wpcalypso/react"
 	],
 	"rules": {
 		"max-len": 0,
-		"no-console": 0
+		"no-console": 0,
+		"wpcalypso/jsx-classname-namespace": 0
 	},
 	"globals": {
 		"process": true,
