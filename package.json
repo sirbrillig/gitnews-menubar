@@ -32,6 +32,7 @@
     "electron-unhandled": "^0.1.1",
     "gitnews": "^2.0.0",
     "gridicons": "1.1.0",
+    "import-jsx": "^1.1.1",
     "menubar": "^5.2.3",
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
@@ -43,6 +44,7 @@
     "electron-packager": "^8.7.0",
     "eslint": "^3.19.0",
     "eslint-config-wpcalypso": "^0.8.0",
+    "eslint-plugin-react": "^7.1.0",
     "eslint-plugin-wpcalypso": "^3.2.0",
     "mocha": "^3.4.2"
   },
