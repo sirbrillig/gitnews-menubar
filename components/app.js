@@ -1,12 +1,15 @@
 /* globals window */
+const importJsx = require( 'import-jsx' );
 const React = require( 'react' );
 const el = React.createElement;
 const { ipcRenderer } = require( 'electron' );
 const debugFactory = require( 'debug' );
 const debug = debugFactory( 'gitnews-menubar' );
-const Header = require( '../components/header' );
-const ErrorsArea = require( '../components/errors-area' );
-const MainPane = require( '../components/main-pane' );
+
+const Header = importJsx( '../components/header' );
+const ErrorsArea = importJsx( '../components/errors-area' );
+const MainPane = importJsx( '../components/main-pane' );
+
 const { PANE_CONFIG, PANE_NOTIFICATIONS } = require( '../lib/constants' );
 const { secsToMs } = require( '../lib/helpers' );
 
