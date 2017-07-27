@@ -962,9 +962,9 @@ getpass@^0.1.1:
   dependencies:
     assert-plus "^1.0.0"
 
-gitnews@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/gitnews/-/gitnews-2.0.0.tgz#1376adf81006fed592692a26fc8f6d71da765888"
+gitnews@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/gitnews/-/gitnews-2.0.1.tgz#af2dc39e23a2a2510d3687239575cb28e545891b"
   dependencies:
     lodash.get "^4.4.2"
     md5-hex "^2.0.0"
