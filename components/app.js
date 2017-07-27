@@ -34,6 +34,7 @@ class App extends React.Component {
 
 	componentWillUnmount() {
 		if ( this.fetcher ) {
+			debug( 'disabling fetch interval' );
 			window.clearInterval( this.fetcher );
 		}
 	}
