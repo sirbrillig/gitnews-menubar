@@ -10,7 +10,7 @@ const el = React.createElement;
 const debugFactory = require( 'debug' );
 const debug = debugFactory( 'gitnews-menubar' );
 const unhandled = require( 'electron-unhandled' );
-const { getToken, setToken, msToSecs, isOfflineCode, bindToDispatch } = require( './lib/helpers' );
+const { getToken, setToken, msToSecs, isOfflineCode, bindToDispatch, getErrorMessage } = require( './lib/helpers' );
 const { checkForUpdates } = require( './lib/updates' );
 const App = require( './components/app' );
 const State = require( './lib/state' );
@@ -96,7 +96,7 @@ class AppState extends React.Component {
 					this.dispatch( changeToOffline() );
 					return;
 				}
-				const errorString = 'Error fetching notifications: ' + err;
+				const errorString = 'Error fetching notifications: ' + getErrorMessage( err );
 				console.error( errorString );
 				this.dispatch( addConnectionError( errorString ) );
 			} );
