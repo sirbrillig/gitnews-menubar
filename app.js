@@ -40,6 +40,7 @@ class AppState extends React.Component {
 		const state = new State( reducer );
 		// TODO: remove callback when unmounting
 		this.state = state.getState();
+		// TODO: use actual Redux lib to get middleware options
 		state.addCallback( () => this.setState( state.getState() ) );
 		this.dispatch = state.dispatch;
 
@@ -67,7 +68,9 @@ class AppState extends React.Component {
 		return msToSecs( interval );
 	}
 
+	// TODO: change this to an action and have middleware handle fetch
 	fetchNotifications( token = null ) {
+		// TODO: have middleware de-duplicate requests without state change
 		if ( this.state.fetchingInProgress ) {
 			debug( 'skipping notifications check because we are already fetching' );
 			return;
@@ -96,6 +99,7 @@ class AppState extends React.Component {
 					this.dispatch( changeToOffline() );
 					return;
 				}
+				// TODO: add class of errors like offline which are any 500 error from GitHub
 				const errorString = 'Error fetching notifications: ' + getErrorMessage( err );
 				console.error( errorString );
 				this.dispatch( addConnectionError( errorString ) );
