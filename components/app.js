@@ -21,6 +21,7 @@ class App extends React.Component {
 	componentDidMount() {
 		debug( 'App mounted' );
 		this.fetcher.begin();
+		// TODO: move ipcRenderer out of here
 		ipcRenderer.on( 'menubar-click', this.props.markAllNotesSeen );
 	}
 
@@ -78,6 +79,7 @@ class App extends React.Component {
 		const nextIcon = this.getNextIcon( { offline, errors, unseenNotes } );
 
 		debug( 'sending set-icon', nextIcon );
+		// TODO: move ipcRenderer out of here
 		ipcRenderer.send( 'set-icon', nextIcon );
 
 		return el( 'main', null,
