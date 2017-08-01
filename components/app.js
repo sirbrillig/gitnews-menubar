@@ -1,4 +1,3 @@
-/* globals window */
 const React = require( 'react' );
 const el = React.createElement;
 const { ipcRenderer } = require( 'electron' );
@@ -8,35 +7,26 @@ const Header = require( '../components/header' );
 const ErrorsArea = require( '../components/errors-area' );
 const MainPane = require( '../components/main-pane' );
 const { PANE_CONFIG, PANE_NOTIFICATIONS } = require( '../lib/constants' );
-const { secsToMs } = require( '../lib/helpers' );
+const { Poller } = require( '../lib/poller' );
 
 class App extends React.Component {
 	constructor( props ) {
 		super( props );
-		this.refreshInterval = secsToMs( 1 );
-		this.fetcher = null; // The fetch interval object
+		this.fetcher = new Poller( {
+			pollWhen: () => props.getSecondsUntilNextFetch() < 1,
+			pollFunction: props.fetchNotifications,
+		} );
 	}
 
 	componentDidMount() {
 		debug( 'App mounted' );
 		this.props.fetchNotifications();
-		if ( this.fetcher ) {
-			window.clearInterval( this.fetcher );
-		}
-		this.fetcher = window.setInterval( () => {
-			if ( this.props.getSecondsUntilNextFetch() < 1 ) {
-				debug( 'fetch interval reached' );
-				this.props.fetchNotifications();
-			}
-		}, this.refreshInterval );
+		this.fetcher.begin();
 		ipcRenderer.on( 'menubar-click', this.props.markAllNotesSeen );
 	}
 
 	componentWillUnmount() {
-		if ( this.fetcher ) {
-			debug( 'disabling fetch interval' );
-			window.clearInterval( this.fetcher );
-		}
+		this.fetcher.end();
 	}
 
 	getReadNotifications() {
