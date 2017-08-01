@@ -60,7 +60,7 @@ class AppState extends React.Component {
 
 	getSecondsUntilNextFetch() {
 		const lastChecked = get( this.state, 'lastChecked', 0 );
-		const interval = ( this.state.fetchInterval - ( Date.now() - lastChecked ) );
+		const interval = ( this.state.fetchInterval - ( this.props.now() - lastChecked ) );
 		return ( interval < 0 ) ? 0 : msToSecs( interval );
 	}
 
@@ -163,7 +163,8 @@ function runApp() {
 		console.error( 'Could not find main element' );
 		return;
 	}
-	ReactDOM.render( el( AppState, { getNotifications, quitApp, getToken, version }, App ), main );
+	const now = Date.now;
+	ReactDOM.render( el( AppState, { getNotifications, quitApp, getToken, version, now }, App ), main );
 }
 
 runApp();
