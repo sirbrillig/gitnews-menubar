@@ -40,12 +40,14 @@
   },
   "devDependencies": {
     "chai": "^4.0.0",
+    "chai-sinon": "^2.8.1",
     "electron-installer-dmg": "^0.2.1",
     "electron-packager": "^8.7.0",
     "eslint": "^3.19.0",
     "eslint-config-wpcalypso": "^0.8.0",
     "eslint-plugin-wpcalypso": "^3.2.0",
-    "mocha": "^3.4.2"
+    "mocha": "^3.4.2",
+    "sinon": "^2.4.1"
   },
   "repository": {
     "type": "git",
