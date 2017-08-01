@@ -1,6 +1,7 @@
 /* globals window */
 require( 'dotenv' ).config();
 const { version } = require( './package.json' );
+const { get } = require( 'lodash' );
 const { shell, remote } = require( 'electron' );
 const semver = require( 'semver' );
 const { getNotifications } = require( 'gitnews' );
@@ -58,14 +59,9 @@ class AppState extends React.Component {
 	}
 
 	getSecondsUntilNextFetch() {
-		if ( ! this.state.lastChecked ) {
-			return 0;
-		}
-		const interval = ( this.state.fetchInterval - ( Date.now() - this.state.lastChecked ) );
-		if ( interval < 0 ) {
-			return 0;
-		}
-		return msToSecs( interval );
+		const lastChecked = get( this.state, 'lastChecked', 0 );
+		const interval = ( this.state.fetchInterval - ( Date.now() - lastChecked ) );
+		return ( interval < 0 ) ? 0 : msToSecs( interval );
 	}
 
 	// TODO: change this to an action and have middleware handle fetch
