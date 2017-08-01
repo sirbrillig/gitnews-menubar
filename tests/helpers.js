@@ -22,6 +22,11 @@ describe( 'getErrorMessage()', function() {
 		expect( getErrorMessage( err ) ).to.equal( err.statusText );
 	} );
 
+	it( 'returns the error message if one is set', function() {
+		const err = { message: 'YOYOYO' };
+		expect( getErrorMessage( err ) ).to.equal( err.message );
+	} );
+
 	it( 'returns the error status and statusText if set', function() {
 		const err = { status: 501, statusText: 'YOYOYO' };
 		expect( getErrorMessage( err ) ).to.equal( `${ err.status }; ${ err.statusText }` );
