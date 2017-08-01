@@ -14,7 +14,7 @@ class App extends React.Component {
 		super( props );
 		this.fetcher = new Poller( {
 			pollWhen: () => props.getSecondsUntilNextFetch() < 1,
-			pollFunction: props.fetchNotifications,
+			pollFunction: () => props.fetchNotifications(),
 		} );
 	}
 
