@@ -20,7 +20,6 @@ class App extends React.Component {
 
 	componentDidMount() {
 		debug( 'App mounted' );
-		this.props.fetchNotifications();
 		this.fetcher.begin();
 		ipcRenderer.on( 'menubar-click', this.props.markAllNotesSeen );
 	}
