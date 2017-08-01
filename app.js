@@ -2,7 +2,7 @@
 require( 'dotenv' ).config();
 const { version } = require( './package.json' );
 const { get } = require( 'lodash' );
-const { shell, remote } = require( 'electron' );
+const { shell, remote, ipcRenderer } = require( 'electron' );
 const semver = require( 'semver' );
 const { getNotifications } = require( 'gitnews' );
 const React = require( 'react' );
@@ -48,7 +48,14 @@ class AppState extends React.Component {
 		this.openUrl = this.openUrl.bind( this );
 		this.fetchNotifications = this.fetchNotifications.bind( this );
 		this.writeToken = this.writeToken.bind( this );
+		this.setIcon = this.setIcon.bind( this );
 		this.getSecondsUntilNextFetch = this.getSecondsUntilNextFetch.bind( this );
+
+		ipcRenderer.on( 'menubar-click', bindToDispatch( this.dispatch, markAllNotesSeen ) );
+	}
+
+	setIcon( nextIcon ) {
+		ipcRenderer.send( 'set-icon', nextIcon );
 	}
 
 	writeToken( token ) {
@@ -139,10 +146,10 @@ class AppState extends React.Component {
 			showConfig: bindToDispatch( this.dispatch, showConfig ),
 			markRead: bindToDispatch( this.dispatch, markRead ),
 			clearErrors: bindToDispatch( this.dispatch, clearErrors ),
-			markAllNotesSeen: bindToDispatch( this.dispatch, markAllNotesSeen ),
 			openUrl: this.openUrl,
 			fetchNotifications: this.fetchNotifications,
 			writeToken: this.writeToken,
+			setIcon: this.setIcon,
 			getSecondsUntilNextFetch: this.getSecondsUntilNextFetch,
 			checkForUpdates: this.checkForUpdates,
 		};

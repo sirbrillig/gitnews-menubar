@@ -1,6 +1,5 @@
 const React = require( 'react' );
 const el = React.createElement;
-const { ipcRenderer } = require( 'electron' );
 const debugFactory = require( 'debug' );
 const debug = debugFactory( 'gitnews-menubar' );
 const Header = require( '../components/header' );
@@ -21,8 +20,6 @@ class App extends React.Component {
 	componentDidMount() {
 		debug( 'App mounted' );
 		this.fetcher.begin();
-		// TODO: move ipcRenderer out of here
-		ipcRenderer.on( 'menubar-click', this.props.markAllNotesSeen );
 	}
 
 	componentWillUnmount() {
@@ -79,8 +76,7 @@ class App extends React.Component {
 		const nextIcon = this.getNextIcon( { offline, errors, unseenNotes } );
 
 		debug( 'sending set-icon', nextIcon );
-		// TODO: move ipcRenderer out of here
-		ipcRenderer.send( 'set-icon', nextIcon );
+		this.props.setIcon( nextIcon );
 
 		return el( 'main', null,
 			el( Header, {
