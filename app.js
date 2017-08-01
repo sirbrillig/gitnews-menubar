@@ -59,7 +59,7 @@ class AppState extends React.Component {
 
 	getSecondsUntilNextFetch() {
 		if ( ! this.state.lastChecked ) {
-			return msToSecs( this.state.fetchInterval );
+			return 0;
 		}
 		const interval = ( this.state.fetchInterval - ( Date.now() - this.state.lastChecked ) );
 		if ( interval < 0 ) {
