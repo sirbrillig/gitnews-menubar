@@ -32,6 +32,15 @@ describe( 'Poller', function() {
 			poller.begin();
 			expect( pollFunction ).to.not.have.been.called;
 		} );
+
+		it( 'ends a running timer', function() {
+			const setTimeout = sinon.stub().returns( 'foobar' );
+			const clearTimeout = sinon.spy();
+			const poller = new Poller( { setTimeout, clearTimeout } );
+			poller.begin();
+			poller.begin();
+			expect( clearTimeout ).to.have.been.calledWith( 'foobar' );
+		} );
 	} );
 
 	describe( '.end()', function() {
