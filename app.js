@@ -2,12 +2,13 @@
 require( 'dotenv' ).config();
 const { version } = require( './package.json' );
 const { remote } = require( 'electron' );
-const { createStore } = require( 'redux' );
+const { createStore, applyMiddleware } = require( 'redux' );
 const { Provider } = require( 'react-redux' );
 const { getNotifications } = require( 'gitnews' );
 const React = require( 'react' );
 const ReactDOM = require( 'react-dom' );
 const unhandled = require( 'electron-unhandled' );
+const { logger } = require( 'redux-logger' );
 const AppWrapper = require( './components/app-wrapper' );
 const App = require( './components/app' );
 const { reducer } = require( './lib/reducer' );
@@ -29,7 +30,7 @@ function runApp() {
 		console.error( 'Could not find main element' );
 		return;
 	}
-	const store = createStore( reducer );
+	const store = createStore( reducer, applyMiddleware( logger ) );
 	const now = Date.now;
 	ReactDOM.render(
 		el( Provider, { store },
