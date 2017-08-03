@@ -587,6 +587,10 @@ electron-positioner@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/electron-positioner/-/electron-positioner-3.0.0.tgz#1a3b75c9cc1e29dd37c663b23fd876d4ffab9996"
 
+electron-react-devtools@firejune/electron-react-devtools:
+  version "0.4.0"
+  resolved "https://codeload.github.com/firejune/electron-react-devtools/tar.gz/6d7904211f449e247ae1002d1ecedbd3f792cebd"
+
 electron-unhandled@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/electron-unhandled/-/electron-unhandled-0.1.1.tgz#ff26ec781cccb130b295d43bf406c1ebc05fe1d5"

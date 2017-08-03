@@ -45,6 +45,7 @@
     "chai-sinon": "^2.8.1",
     "electron-installer-dmg": "^0.2.1",
     "electron-packager": "^8.7.0",
+    "electron-react-devtools": "firejune/electron-react-devtools",
     "eslint": "^3.19.0",
     "eslint-config-wpcalypso": "^0.8.0",
     "eslint-plugin-wpcalypso": "^3.2.0",
