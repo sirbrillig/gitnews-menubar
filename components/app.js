@@ -14,6 +14,7 @@ const {
 	showConfig,
 	markRead,
 	clearErrors,
+	fetchNotifications,
 } = require( '../lib/reducer' );
 
 const debug = debugFactory( 'gitnews-menubar' );
@@ -61,12 +62,6 @@ class App extends React.Component {
 
 	render() {
 		const { offline, errors, currentPane, token, lastSuccessfulCheck, version } = this.props;
-		// We have to have a closure because otherwise it will treat the event param as a token.
-		const fetchNotifications = () => {
-			debug( 'fetchNotifications called manually' );
-			this.props.fetchNotifications();
-		};
-
 		const newNotes = this.getUnreadNotifications();
 		const readNotes = this.getReadNotifications();
 		const unseenNotes = this.getUnseenNotifications();
@@ -78,7 +73,7 @@ class App extends React.Component {
 		return el( 'main', null,
 			el( Header, {
 				offline,
-				fetchNotifications,
+				fetchNotifications: this.props.fetchNotifications,
 				lastSuccessfulCheck,
 				showConfig: currentPane === PANE_NOTIFICATIONS && this.props.showConfig,
 				hideConfig: currentPane === PANE_CONFIG && this.props.hideConfig,
@@ -107,7 +102,6 @@ class App extends React.Component {
 
 App.propTypes = {
 	// Actions
-	fetchNotifications: PropTypes.func.isRequired,
 	openUrl: PropTypes.func.isRequired,
 	writeToken: PropTypes.func.isRequired,
 	quitApp: PropTypes.func.isRequired,
@@ -115,6 +109,7 @@ App.propTypes = {
 	checkForUpdates: PropTypes.func.isRequired,
 	setIcon: PropTypes.func.isRequired,
 	// All following are provided by connect
+	fetchNotifications: PropTypes.func.isRequired,
 	markRead: PropTypes.func.isRequired,
 	clearErrors: PropTypes.func.isRequired,
 	showEditToken: PropTypes.func.isRequired,
@@ -151,6 +146,7 @@ const actions = {
 	showConfig,
 	markRead,
 	clearErrors,
+	fetchNotifications,
 };
 
 module.exports = connect( mapStateToProps, actions )( App );

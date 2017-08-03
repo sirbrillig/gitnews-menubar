@@ -8,7 +8,7 @@ const React = require( 'react' );
 const { connect } = require( 'react-redux' );
 const debugFactory = require( 'debug' );
 const debug = debugFactory( 'gitnews-menubar' );
-const { msToSecs, isOfflineCode, getErrorMessage } = require( '../lib/helpers' );
+const { msToSecs } = require( '../lib/helpers' );
 const {
 	changeToken,
 	changeToOffline,
@@ -27,7 +27,6 @@ class AppWrapper extends React.Component {
 
 		// TODO: make all these redux actions
 		this.openUrl = this.openUrl.bind( this );
-		this.fetchNotifications = this.fetchNotifications.bind( this );
 		this.writeToken = this.writeToken.bind( this );
 		this.setIcon = this.setIcon.bind( this );
 		this.getSecondsUntilNextFetch = this.getSecondsUntilNextFetch.bind( this );
@@ -44,51 +43,12 @@ class AppWrapper extends React.Component {
 		debug( 'writing new token' );
 		this.props.setToken( token );
 		this.props.changeToken( token );
-		this.fetchNotifications( token );
 	}
 
 	getSecondsUntilNextFetch() {
 		const lastChecked = get( this.props, 'lastChecked', 0 );
 		const interval = ( this.props.fetchInterval - ( this.props.now() - lastChecked ) );
 		return ( interval < 0 ) ? 0 : msToSecs( interval );
-	}
-
-	// TODO: change this to an action and have middleware handle fetch
-	fetchNotifications( token = null ) {
-		// TODO: have middleware de-duplicate requests without state change
-		if ( this.props.fetchingInProgress ) {
-			debug( 'skipping notifications check because we are already fetching' );
-			return;
-		}
-		if ( ! window.navigator.onLine ) {
-			debug( 'skipping notifications check because we are offline' );
-			this.props.changeToOffline();
-			return;
-		}
-		debug( 'fetching notifications' );
-		// NOTE: After this point, any return action MUST disable fetchingInProgress
-		this.props.fetchBegin();
-		this.props.getNotifications( token || this.props.token )
-			.then( notes => {
-				debug( 'notifications retrieved', notes );
-				this.props.gotNotes( notes );
-			} )
-			.catch( err => {
-				debug( 'fetching notifications failed with the error', err );
-				if ( err.code === 'GitHubTokenNotFound' ) {
-					this.props.fetchDone();
-					return; // This is handled in render
-				}
-				if ( isOfflineCode( err.code ) ) {
-					debug( 'notifications check failed because we are offline' );
-					this.props.changeToOffline();
-					return;
-				}
-				// TODO: add class of errors like offline which are any 500 error from GitHub
-				const errorString = 'Error fetching notifications: ' + getErrorMessage( err );
-				console.error( errorString );
-				this.props.addConnectionError( errorString );
-			} );
 	}
 
 	openUrl( url ) {
@@ -122,7 +82,6 @@ class AppWrapper extends React.Component {
 
 	getActions() {
 		return {
-			fetchNotifications: this.fetchNotifications,
 			openUrl: this.openUrl,
 			writeToken: this.writeToken,
 			quitApp: this.props.quitApp,
@@ -138,7 +97,7 @@ class AppWrapper extends React.Component {
 }
 
 AppWrapper.propTypes = {
-	// Actions
+	// Functions
 	now: PropTypes.func.isRequired,
 	getNotifications: PropTypes.func.isRequired,
 	quitApp: PropTypes.func.isRequired,
