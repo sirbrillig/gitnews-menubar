@@ -55,5 +55,12 @@ describe( 'handleFetchError()', function() {
 		handleFetchError( { statusText: 'random-string' } );
 		expect( dispatch ).to.have.been.calledWith( sinon.match( { error: sinon.match( 'random-string' ) } ) );
 	} );
+
+	it( 'enables offline mode if error is a 500 error from GitHub', function() {
+		const dispatch = sinon.spy();
+		const handleFetchError = getErrorHandler( dispatch );
+		handleFetchError( { status: 501 } );
+		expect( dispatch ).to.have.been.calledWith( sinon.match( { type: 'OFFLINE' } ) );
+	} );
 } );
 
