@@ -148,4 +148,18 @@ describe( 'reducer', function() {
 			expect( result.fetchInterval ).to.equal( secsToMs( 180 ) );
 		} );
 	} );
+
+	describe( 'ADD_CONNECTION_ERROR', function() {
+		it( 'adds the error string to the list of errors', function() {
+			const action = { type: 'ADD_CONNECTION_ERROR', error: 'foobar' };
+			const result = reducer( { errors: [ 'barfoo' ] }, action );
+			expect( result.errors ).to.eql( [ 'barfoo', 'foobar' ] );
+		} );
+
+		it( 'sets lastChecked date', function() {
+			const action = { type: 'ADD_CONNECTION_ERROR', error: 'foobar' };
+			const result = reducer( { errors: [ 'barfoo' ] }, action );
+			expect( result.lastChecked ).to.exist;
+		} );
+	} );
 } );
