@@ -20,6 +20,7 @@ function MainPane( {
 	readNotes,
 	markRead,
 	checkForUpdates,
+	fetchingInProgress,
 } ) {
 	if ( ! token || currentPane === PANE_TOKEN ) {
 		return el( AddTokenForm, { token, openUrl, writeToken, hideEditToken, showCancel: currentPane === PANE_TOKEN } );
@@ -28,7 +29,7 @@ function MainPane( {
 		return el( ConfigPage, { openUrl, showEditToken, version, quitApp, checkForUpdates } );
 	}
 	if ( ! lastSuccessfulCheck ) {
-		return el( UncheckedNotice );
+		return el( UncheckedNotice, { fetchingInProgress, openUrl } );
 	}
 	return el( NotificationsArea, { newNotes, readNotes, markRead, openUrl } );
 }

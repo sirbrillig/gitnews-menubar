@@ -61,7 +61,7 @@ class App extends React.Component {
 	}
 
 	render() {
-		const { offline, errors, currentPane, token, lastSuccessfulCheck, version } = this.props;
+		const { offline, errors, currentPane, token, lastSuccessfulCheck, version, fetchingInProgress } = this.props;
 		const newNotes = this.getUnreadNotifications();
 		const readNotes = this.getReadNotifications();
 		const unseenNotes = this.getUnseenNotifications();
@@ -88,6 +88,7 @@ class App extends React.Component {
 				newNotes,
 				readNotes,
 				lastSuccessfulCheck,
+				fetchingInProgress,
 				openUrl: this.props.openUrl,
 				writeToken: this.props.writeToken,
 				quitApp: this.props.quitApp,
@@ -126,6 +127,7 @@ App.propTypes = {
 	currentPane: PropTypes.string.isRequired,
 	token: PropTypes.string,
 	lastSuccessfulCheck: PropTypes.oneOfType( [ PropTypes.number, PropTypes.bool ] ),
+	fetchingInProgress: PropTypes.bool,
 };
 
 function mapStateToProps( state ) {
@@ -136,6 +138,7 @@ function mapStateToProps( state ) {
 		currentPane: state.currentPane,
 		token: state.token,
 		lastSuccessfulCheck: state.lastSuccessfulCheck,
+		fetchingInProgress: state.fetchingInProgress,
 	};
 }
 
