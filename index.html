@@ -98,6 +98,7 @@ header h1 {
   text-align: center;
 }
 
+.app-loading-message,
 .unchecked-notice {
   margin: 12px;
 }
@@ -226,7 +227,10 @@ main {
 		</style>
 	</head>
 	<body>
-	  <div class="main">loading... If you see this for a while, there might be an error. If you are a developer, try opening the developer console. Did you remember to run `yarn`?</div>
+	  <div class="main"><div class="app-loading-message"><h2>Loading Gitnews...</h2>
+	      <p>If this message does not disappear, please create a new issue <a href="https://github.com/sirbrillig/gitnews-menubar/issues/new">here</a> describing what happened.</p>
+	      <p>If you are using this app in development mode, make sure you remembered to run `yarn`.</p>
+	  </div></div>
 	  <script defer type="text/javascript" src="./app.js"></script>
 	</body>
 </html>
