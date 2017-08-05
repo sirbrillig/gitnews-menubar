@@ -5,6 +5,7 @@ const sinonChai = require( 'chai-sinon' );
 chai.use( sinonChai );
 const { expect } = chai;
 const { Poller } = require( '../lib/poller' );
+const { secsToMs } = require( '../lib/helpers' );
 
 describe( 'Poller', function() {
 	describe( '.begin()', function() {
@@ -40,6 +41,20 @@ describe( 'Poller', function() {
 			poller.begin();
 			poller.begin();
 			expect( clearInterval ).to.have.been.calledWith( 'foobar' );
+		} );
+
+		it( 'passes the number of miliseconds since the last call to pollFunction to pollWhen', function() {
+			const clock = sinon.useFakeTimers();
+			const setInterval = ( callBack ) => {
+				callBack();
+				clock.tick( secsToMs( 2 ) );
+				callBack();
+			};
+			const pollWhen = sinon.stub().returns( true );
+			const poller = new Poller( { pollWhen, setInterval } );
+			poller.begin();
+			clock.restore();
+			expect( pollWhen ).to.have.been.calledWith( secsToMs( 2 ) );
 		} );
 	} );
 
