@@ -35,10 +35,9 @@ function runApp() {
 		return;
 	}
 	const store = createStore( reducer, applyMiddleware( configMiddleware, electronMiddleware, fetcher, logger ) );
-	const now = Date.now;
 	ReactDOM.render(
 		el( Provider, { store },
-			el( AppWrapper, { quitApp, now, version }, App )
+			el( AppWrapper, { quitApp, version }, App )
 		),
 		main );
 }

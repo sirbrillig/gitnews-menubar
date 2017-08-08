@@ -7,6 +7,7 @@ const ErrorsArea = require( '../components/errors-area' );
 const MainPane = require( '../components/main-pane' );
 const { PANE_CONFIG, PANE_NOTIFICATIONS } = require( '../lib/constants' );
 const { Poller } = require( '../lib/poller' );
+const { getSecondsUntilNextFetch } = require( '../lib/helpers' );
 const {
 	hideEditToken,
 	showEditToken,
@@ -27,8 +28,9 @@ const el = React.createElement;
 class App extends React.Component {
 	constructor( props ) {
 		super( props );
+		this.shouldComponentPoll = this.shouldComponentPoll.bind( this );
 		this.fetcher = new Poller( {
-			pollWhen: () => props.getSecondsUntilNextFetch() < 1,
+			pollWhen: this.shouldComponentPoll,
 			pollFunction: () => props.fetchNotifications(),
 		} );
 	}
@@ -40,6 +42,10 @@ class App extends React.Component {
 
 	componentWillUnmount() {
 		this.fetcher.end();
+	}
+
+	shouldComponentPoll() {
+		return ( getSecondsUntilNextFetch( this.props.lastChecked, this.props.fetchInterval ) < 1 );
 	}
 
 	getReadNotifications() {
@@ -79,9 +85,10 @@ class App extends React.Component {
 				offline,
 				fetchNotifications: this.props.fetchNotifications,
 				lastSuccessfulCheck,
+				lastChecked: this.props.lastChecked,
+				fetchInterval: this.props.fetchInterval,
 				showConfig: currentPane === PANE_NOTIFICATIONS && this.props.showConfig,
 				hideConfig: currentPane === PANE_CONFIG && this.props.hideConfig,
-				getSecondsUntilNextFetch: this.props.getSecondsUntilNextFetch,
 				openUrl: this.props.openUrl,
 			} ),
 			el( ErrorsArea, { errors, clearErrors } ),
@@ -108,7 +115,6 @@ class App extends React.Component {
 App.propTypes = {
 	// Actions
 	quitApp: PropTypes.func.isRequired,
-	getSecondsUntilNextFetch: PropTypes.func.isRequired,
 	// All following are provided by connect
 	changeToken: PropTypes.func.isRequired,
 	setIcon: PropTypes.func.isRequired,
@@ -132,6 +138,8 @@ App.propTypes = {
 	token: PropTypes.string,
 	lastSuccessfulCheck: PropTypes.oneOfType( [ PropTypes.number, PropTypes.bool ] ),
 	fetchingInProgress: PropTypes.bool,
+	lastChecked: PropTypes.oneOfType( [ PropTypes.number, PropTypes.bool ] ),
+	fetchInterval: PropTypes.number,
 };
 
 function mapStateToProps( state ) {
@@ -143,6 +151,8 @@ function mapStateToProps( state ) {
 		token: state.token,
 		lastSuccessfulCheck: state.lastSuccessfulCheck,
 		fetchingInProgress: state.fetchingInProgress,
+		lastChecked: state.lastChecked,
+		fetchInterval: state.fetchInterval,
 	};
 }
 

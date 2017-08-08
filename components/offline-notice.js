@@ -1,8 +1,9 @@
 const React = require( 'react' );
+const { getSecondsUntilNextFetch } = require( '../lib/helpers' );
 const el = React.createElement;
 
-function OfflineNotice( { fetchNotifications, getSecondsUntilNextFetch } ) {
-	const secondsRemaining = getSecondsUntilNextFetch();
+function OfflineNotice( { fetchNotifications, lastChecked, fetchInterval } ) {
+	const secondsRemaining = getSecondsUntilNextFetch( lastChecked, fetchInterval );
 	if ( secondsRemaining < 1 ) {
 		return el( 'div', { className: 'offline-notice' },
 			el( 'span', null, 'I\'m having trouble connecting. Retrying now...' )

@@ -18,7 +18,7 @@ function LeftButton( { hideConfig, showConfig } ) {
 	return el( 'span', { className: 'config-spacer' } );
 }
 
-function Header( { openUrl, lastSuccessfulCheck, showConfig, offline, fetchNotifications, getSecondsUntilNextFetch, hideConfig } ) {
+function Header( { openUrl, lastSuccessfulCheck, lastChecked, fetchInterval, showConfig, offline, fetchNotifications, hideConfig } ) {
 	const openLink = ( event ) => {
 		event.preventDefault();
 		openUrl( event.target.href );
@@ -32,7 +32,7 @@ function Header( { openUrl, lastSuccessfulCheck, showConfig, offline, fetchNotif
 		el( 'div', { className: 'header__secondary' },
 			lastSuccessfulCheck && el( UpdatingLastChecked, { lastSuccessfulCheck } )
 		),
-		offline && el( UpdatingOfflineNotice, { fetchNotifications, getSecondsUntilNextFetch } )
+		offline && el( UpdatingOfflineNotice, { fetchNotifications, lastChecked, fetchInterval } )
 	);
 }
 
