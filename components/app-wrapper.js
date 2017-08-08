@@ -1,9 +1,7 @@
-/* globals window */
 const PropTypes = require( 'prop-types' );
 require( 'dotenv' ).config();
 const { get } = require( 'lodash' );
-const { remote, ipcRenderer } = require( 'electron' );
-const semver = require( 'semver' );
+const { ipcRenderer } = require( 'electron' );
 const React = require( 'react' );
 const { connect } = require( 'react-redux' );
 const debugFactory = require( 'debug' );
@@ -17,7 +15,6 @@ const {
 	markAllNotesSeen,
 	fetchBegin,
 	fetchDone,
-	openUrl,
 } = require( '../lib/reducer' );
 
 const el = React.createElement;
@@ -30,7 +27,6 @@ class AppWrapper extends React.Component {
 		this.writeToken = this.writeToken.bind( this );
 		this.setIcon = this.setIcon.bind( this );
 		this.getSecondsUntilNextFetch = this.getSecondsUntilNextFetch.bind( this );
-		this.checkForUpdates = this.checkForUpdates.bind( this );
 
 		ipcRenderer.on( 'menubar-click', this.props.markAllNotesSeen );
 	}
@@ -51,37 +47,11 @@ class AppWrapper extends React.Component {
 		return ( interval < 0 ) ? 0 : msToSecs( interval );
 	}
 
-	checkForUpdates() {
-		this.props.checkForUpdates( { fetch: window.fetch, version: this.props.version, semver } )
-			.then( response => {
-				if ( ! response.updateAvailable ) {
-					remote.dialog.showMessageBox( {
-						type: 'info',
-						message: `You have the latest version of Gitnews, ${ response.oldVersion }!`,
-					} );
-					return;
-				}
-				const confirm = remote.dialog.showMessageBox( {
-					type: 'question',
-					message: 'A new version ' + response.newVersion + ' of Gitnews is available.',
-					detail: 'Do you want to download it now?',
-					buttons: [ 'Yes', 'No' ]
-				} );
-				if ( confirm === 0 ) {
-					this.props.openUrl( 'https://github.com/sirbrillig/gitnews-menubar/releases' );
-				}
-			} )
-			.catch( err => {
-				console.error( 'Error while checking for updates:', err );
-			} );
-	}
-
 	getActions() {
 		return {
 			writeToken: this.writeToken,
 			quitApp: this.props.quitApp,
 			getSecondsUntilNextFetch: this.getSecondsUntilNextFetch,
-			checkForUpdates: this.checkForUpdates,
 			setIcon: this.setIcon,
 		};
 	}
@@ -95,10 +65,8 @@ AppWrapper.propTypes = {
 	// Functions
 	now: PropTypes.func.isRequired,
 	quitApp: PropTypes.func.isRequired,
-	checkForUpdates: PropTypes.func.isRequired,
 	setToken: PropTypes.func.isRequired,
 	// All following are provided by connect
-	openUrl: PropTypes.func.isRequired,
 	markAllNotesSeen: PropTypes.func.isRequired,
 	changeToken: PropTypes.func.isRequired,
 	changeToOffline: PropTypes.func.isRequired,
@@ -133,7 +101,6 @@ const actions = {
 	fetchBegin,
 	fetchDone,
 	addConnectionError,
-	openUrl,
 };
 
 module.exports = connect( mapStateToProps, actions )( AppWrapper );

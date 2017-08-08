@@ -12,7 +12,6 @@ const { logger } = require( 'redux-logger' );
 const AppWrapper = require( './components/app-wrapper' );
 const App = require( './components/app' );
 const { reducer } = require( './lib/reducer' );
-const { checkForUpdates } = require( './lib/updates' );
 const { setToken } = require( './lib/helpers' );
 const { fetcher } = require( './lib/gitnews-fetcher' );
 const { electronMiddleware } = require( './lib/electron-middleware' );
@@ -36,7 +35,7 @@ function runApp() {
 	const now = Date.now;
 	ReactDOM.render(
 		el( Provider, { store },
-			el( AppWrapper, { getNotifications, setToken, checkForUpdates, quitApp, now, version }, App )
+			el( AppWrapper, { getNotifications, setToken, quitApp, now, version }, App )
 		),
 		main );
 }
