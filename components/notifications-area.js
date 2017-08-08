@@ -2,9 +2,11 @@ const React = require( 'react' );
 const el = React.createElement;
 const Gridicon = require( 'gridicons' );
 const debugFactory = require( 'debug' );
-const debug = debugFactory( 'gitnews-menubar' );
 const date = require( 'date-fns' );
+const EnsuredImage = require( '@sirbrillig/ensured-image' );
 const { getNoteId } = require( '../lib/helpers' );
+
+const debug = debugFactory( 'gitnews-menubar' );
 
 function Notification( { note, openUrl, markRead } ) {
 	const onClick = () => {
@@ -15,7 +17,7 @@ function Notification( { note, openUrl, markRead } ) {
 	const timeString = date.distanceInWords( Date.now(), date.parse( note.updatedAt ), { addSuffix: true } );
 	const noteClass = note.unread ? ' notification__unread' : ' notification__read';
 	return el( 'div', { className: 'notification' + noteClass, onClick },
-		el( 'div', { className: 'notification__image' }, el( 'img', { src: note.commentAvatar } ) ),
+		el( 'div', { className: 'notification__image' }, el( EnsuredImage, { src: note.commentAvatar } ) ),
 		el( 'div', { className: 'notification__body' },
 			el( 'div', { className: 'notification__repo' }, note.repositoryFullName ),
 			el( 'div', { className: 'notification__title' }, note.title ),

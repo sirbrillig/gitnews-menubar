@@ -22,6 +22,7 @@
   "author": "Payton Swick <payton@foolord.com>",
   "license": "MIT",
   "dependencies": {
+    "@sirbrillig/ensured-image": "^1.0.0",
     "conf": "^1.0.0",
     "date-fns": "^1.28.4",
     "debug": "^2.6.6",
