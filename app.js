@@ -4,7 +4,6 @@ const { version } = require( './package.json' );
 const { remote } = require( 'electron' );
 const { createStore, applyMiddleware } = require( 'redux' );
 const { Provider } = require( 'react-redux' );
-const { getNotifications } = require( 'gitnews' );
 const React = require( 'react' );
 const ReactDOM = require( 'react-dom' );
 const unhandled = require( 'electron-unhandled' );
@@ -35,7 +34,7 @@ function runApp() {
 	const now = Date.now;
 	ReactDOM.render(
 		el( Provider, { store },
-			el( AppWrapper, { getNotifications, quitApp, now, version }, App )
+			el( AppWrapper, { quitApp, now, version }, App )
 		),
 		main );
 }
