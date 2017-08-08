@@ -7,7 +7,7 @@ const { Provider } = require( 'react-redux' );
 const React = require( 'react' );
 const ReactDOM = require( 'react-dom' );
 const unhandled = require( 'electron-unhandled' );
-const { logger } = require( 'redux-logger' );
+const { createLogger } = require( 'redux-logger' );
 const AppWrapper = require( './components/app-wrapper' );
 const App = require( './components/app' );
 const { reducer } = require( './lib/reducer' );
@@ -16,6 +16,10 @@ const { electronMiddleware } = require( './lib/electron-middleware' );
 const { configMiddleware } = require( './lib/config-middleware' );
 
 const el = React.createElement;
+const logger = createLogger( {
+	collapsed: true,
+	level: 'info',
+} );
 
 // Catch unhandled Promise rejections
 unhandled();
