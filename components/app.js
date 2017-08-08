@@ -17,6 +17,7 @@ const {
 	fetchNotifications,
 	openUrl,
 	checkForUpdates,
+	setIcon,
 } = require( '../lib/reducer' );
 
 const debug = debugFactory( 'gitnews-menubar' );
@@ -108,8 +109,8 @@ App.propTypes = {
 	writeToken: PropTypes.func.isRequired,
 	quitApp: PropTypes.func.isRequired,
 	getSecondsUntilNextFetch: PropTypes.func.isRequired,
-	setIcon: PropTypes.func.isRequired,
 	// All following are provided by connect
+	setIcon: PropTypes.func.isRequired,
 	checkForUpdates: PropTypes.func.isRequired,
 	openUrl: PropTypes.func.isRequired,
 	fetchNotifications: PropTypes.func.isRequired,
@@ -154,6 +155,7 @@ const actions = {
 	fetchNotifications,
 	openUrl,
 	checkForUpdates,
+	setIcon,
 };
 
 module.exports = connect( mapStateToProps, actions )( App );

@@ -25,14 +25,9 @@ class AppWrapper extends React.Component {
 
 		// TODO: make all these redux actions
 		this.writeToken = this.writeToken.bind( this );
-		this.setIcon = this.setIcon.bind( this );
 		this.getSecondsUntilNextFetch = this.getSecondsUntilNextFetch.bind( this );
 
 		ipcRenderer.on( 'menubar-click', this.props.markAllNotesSeen );
-	}
-
-	setIcon( nextIcon ) {
-		ipcRenderer.send( 'set-icon', nextIcon );
 	}
 
 	writeToken( token ) {
@@ -52,7 +47,6 @@ class AppWrapper extends React.Component {
 			writeToken: this.writeToken,
 			quitApp: this.props.quitApp,
 			getSecondsUntilNextFetch: this.getSecondsUntilNextFetch,
-			setIcon: this.setIcon,
 		};
 	}
 
