@@ -15,6 +15,7 @@ const {
 	markRead,
 	clearErrors,
 	fetchNotifications,
+	openUrl,
 } = require( '../lib/reducer' );
 
 const debug = debugFactory( 'gitnews-menubar' );
@@ -103,13 +104,13 @@ class App extends React.Component {
 
 App.propTypes = {
 	// Actions
-	openUrl: PropTypes.func.isRequired,
 	writeToken: PropTypes.func.isRequired,
 	quitApp: PropTypes.func.isRequired,
 	getSecondsUntilNextFetch: PropTypes.func.isRequired,
 	checkForUpdates: PropTypes.func.isRequired,
 	setIcon: PropTypes.func.isRequired,
 	// All following are provided by connect
+	openUrl: PropTypes.func.isRequired,
 	fetchNotifications: PropTypes.func.isRequired,
 	markRead: PropTypes.func.isRequired,
 	clearErrors: PropTypes.func.isRequired,
@@ -150,6 +151,7 @@ const actions = {
 	markRead,
 	clearErrors,
 	fetchNotifications,
+	openUrl,
 };
 
 module.exports = connect( mapStateToProps, actions )( App );

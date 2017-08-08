@@ -2,7 +2,7 @@
 const PropTypes = require( 'prop-types' );
 require( 'dotenv' ).config();
 const { get } = require( 'lodash' );
-const { shell, remote, ipcRenderer } = require( 'electron' );
+const { remote, ipcRenderer } = require( 'electron' );
 const semver = require( 'semver' );
 const React = require( 'react' );
 const { connect } = require( 'react-redux' );
@@ -17,6 +17,7 @@ const {
 	markAllNotesSeen,
 	fetchBegin,
 	fetchDone,
+	openUrl,
 } = require( '../lib/reducer' );
 
 const el = React.createElement;
@@ -26,7 +27,6 @@ class AppWrapper extends React.Component {
 		super( props );
 
 		// TODO: make all these redux actions
-		this.openUrl = this.openUrl.bind( this );
 		this.writeToken = this.writeToken.bind( this );
 		this.setIcon = this.setIcon.bind( this );
 		this.getSecondsUntilNextFetch = this.getSecondsUntilNextFetch.bind( this );
@@ -51,10 +51,6 @@ class AppWrapper extends React.Component {
 		return ( interval < 0 ) ? 0 : msToSecs( interval );
 	}
 
-	openUrl( url ) {
-		shell.openExternal( url );
-	}
-
 	checkForUpdates() {
 		this.props.checkForUpdates( { fetch: window.fetch, version: this.props.version, semver } )
 			.then( response => {
@@ -72,7 +68,7 @@ class AppWrapper extends React.Component {
 					buttons: [ 'Yes', 'No' ]
 				} );
 				if ( confirm === 0 ) {
-					shell.openExternal( 'https://github.com/sirbrillig/gitnews-menubar/releases' );
+					this.props.openUrl( 'https://github.com/sirbrillig/gitnews-menubar/releases' );
 				}
 			} )
 			.catch( err => {
@@ -82,7 +78,6 @@ class AppWrapper extends React.Component {
 
 	getActions() {
 		return {
-			openUrl: this.openUrl,
 			writeToken: this.writeToken,
 			quitApp: this.props.quitApp,
 			getSecondsUntilNextFetch: this.getSecondsUntilNextFetch,
@@ -99,11 +94,11 @@ class AppWrapper extends React.Component {
 AppWrapper.propTypes = {
 	// Functions
 	now: PropTypes.func.isRequired,
-	getNotifications: PropTypes.func.isRequired,
 	quitApp: PropTypes.func.isRequired,
 	checkForUpdates: PropTypes.func.isRequired,
 	setToken: PropTypes.func.isRequired,
 	// All following are provided by connect
+	openUrl: PropTypes.func.isRequired,
 	markAllNotesSeen: PropTypes.func.isRequired,
 	changeToken: PropTypes.func.isRequired,
 	changeToOffline: PropTypes.func.isRequired,
@@ -138,6 +133,7 @@ const actions = {
 	fetchBegin,
 	fetchDone,
 	addConnectionError,
+	openUrl,
 };
 
 module.exports = connect( mapStateToProps, actions )( AppWrapper );

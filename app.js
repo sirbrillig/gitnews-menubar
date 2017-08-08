@@ -15,6 +15,7 @@ const { reducer } = require( './lib/reducer' );
 const { checkForUpdates } = require( './lib/updates' );
 const { setToken } = require( './lib/helpers' );
 const { fetcher } = require( './lib/gitnews-fetcher' );
+const { electronMiddleware } = require( './lib/electron-middleware' );
 
 const el = React.createElement;
 
@@ -31,7 +32,7 @@ function runApp() {
 		console.error( 'Could not find main element' );
 		return;
 	}
-	const store = createStore( reducer, applyMiddleware( fetcher, logger ) );
+	const store = createStore( reducer, applyMiddleware( electronMiddleware, fetcher, logger ) );
 	const now = Date.now;
 	ReactDOM.render(
 		el( Provider, { store },
