@@ -1,5 +1,4 @@
 const PropTypes = require( 'prop-types' );
-require( 'dotenv' ).config();
 const { ipcRenderer } = require( 'electron' );
 const React = require( 'react' );
 const { connect } = require( 'react-redux' );
@@ -10,19 +9,11 @@ const el = React.createElement;
 class AppWrapper extends React.Component {
 	constructor( props ) {
 		super( props );
-
-		// TODO: make all these redux actions
 		ipcRenderer.on( 'menubar-click', this.props.markAllNotesSeen );
 	}
 
-	getActions() {
-		return {
-			quitApp: this.props.quitApp,
-		};
-	}
-
 	render() {
-		return el( this.props.children, Object.assign( { version: this.props.version }, this.getActions() ) );
+		return el( this.props.children, Object.assign( { version: this.props.version }, { quitApp: this.props.quitApp } ) );
 	}
 }
 
