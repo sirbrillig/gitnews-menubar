@@ -1,7 +1,7 @@
 const React = require( 'react' );
 const el = React.createElement;
 
-function AddTokenForm( { token, openUrl, writeToken, showCancel, hideEditToken } ) {
+function AddTokenForm( { token, openUrl, changeToken, showCancel, hideEditToken } ) {
 	const openLink = ( event ) => {
 		event.preventDefault();
 		openUrl( event.target.href );
@@ -12,7 +12,7 @@ function AddTokenForm( { token, openUrl, writeToken, showCancel, hideEditToken }
 	};
 	const saveToken = () => {
 		if ( tokenField ) {
-			writeToken( tokenField.value );
+			changeToken( tokenField.value );
 			hideEditToken();
 		}
 	};

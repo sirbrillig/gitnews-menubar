@@ -18,6 +18,7 @@ const {
 	openUrl,
 	checkForUpdates,
 	setIcon,
+	changeToken,
 } = require( '../lib/reducer' );
 
 const debug = debugFactory( 'gitnews-menubar' );
@@ -93,7 +94,7 @@ class App extends React.Component {
 				lastSuccessfulCheck,
 				fetchingInProgress,
 				openUrl: this.props.openUrl,
-				writeToken: this.props.writeToken,
+				changeToken: this.props.changeToken,
 				quitApp: this.props.quitApp,
 				hideEditToken: this.props.hideEditToken,
 				showEditToken: this.props.showEditToken,
@@ -106,10 +107,10 @@ class App extends React.Component {
 
 App.propTypes = {
 	// Actions
-	writeToken: PropTypes.func.isRequired,
 	quitApp: PropTypes.func.isRequired,
 	getSecondsUntilNextFetch: PropTypes.func.isRequired,
 	// All following are provided by connect
+	changeToken: PropTypes.func.isRequired,
 	setIcon: PropTypes.func.isRequired,
 	checkForUpdates: PropTypes.func.isRequired,
 	openUrl: PropTypes.func.isRequired,
@@ -156,6 +157,7 @@ const actions = {
 	openUrl,
 	checkForUpdates,
 	setIcon,
+	changeToken,
 };
 
 module.exports = connect( mapStateToProps, actions )( App );

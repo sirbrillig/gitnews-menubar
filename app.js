@@ -12,9 +12,9 @@ const { logger } = require( 'redux-logger' );
 const AppWrapper = require( './components/app-wrapper' );
 const App = require( './components/app' );
 const { reducer } = require( './lib/reducer' );
-const { setToken } = require( './lib/helpers' );
 const { fetcher } = require( './lib/gitnews-fetcher' );
 const { electronMiddleware } = require( './lib/electron-middleware' );
+const { configMiddleware } = require( './lib/config-middleware' );
 
 const el = React.createElement;
 
@@ -31,11 +31,11 @@ function runApp() {
 		console.error( 'Could not find main element' );
 		return;
 	}
-	const store = createStore( reducer, applyMiddleware( electronMiddleware, fetcher, logger ) );
+	const store = createStore( reducer, applyMiddleware( configMiddleware, electronMiddleware, fetcher, logger ) );
 	const now = Date.now;
 	ReactDOM.render(
 		el( Provider, { store },
-			el( AppWrapper, { getNotifications, setToken, quitApp, now, version }, App )
+			el( AppWrapper, { getNotifications, quitApp, now, version }, App )
 		),
 		main );
 }

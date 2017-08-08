@@ -4,11 +4,8 @@ const { get } = require( 'lodash' );
 const { ipcRenderer } = require( 'electron' );
 const React = require( 'react' );
 const { connect } = require( 'react-redux' );
-const debugFactory = require( 'debug' );
-const debug = debugFactory( 'gitnews-menubar' );
 const { msToSecs } = require( '../lib/helpers' );
 const {
-	changeToken,
 	changeToOffline,
 	gotNotes,
 	addConnectionError,
@@ -24,16 +21,9 @@ class AppWrapper extends React.Component {
 		super( props );
 
 		// TODO: make all these redux actions
-		this.writeToken = this.writeToken.bind( this );
 		this.getSecondsUntilNextFetch = this.getSecondsUntilNextFetch.bind( this );
 
 		ipcRenderer.on( 'menubar-click', this.props.markAllNotesSeen );
-	}
-
-	writeToken( token ) {
-		debug( 'writing new token' );
-		this.props.setToken( token );
-		this.props.changeToken( token );
 	}
 
 	getSecondsUntilNextFetch() {
@@ -44,7 +34,6 @@ class AppWrapper extends React.Component {
 
 	getActions() {
 		return {
-			writeToken: this.writeToken,
 			quitApp: this.props.quitApp,
 			getSecondsUntilNextFetch: this.getSecondsUntilNextFetch,
 		};
@@ -59,10 +48,8 @@ AppWrapper.propTypes = {
 	// Functions
 	now: PropTypes.func.isRequired,
 	quitApp: PropTypes.func.isRequired,
-	setToken: PropTypes.func.isRequired,
 	// All following are provided by connect
 	markAllNotesSeen: PropTypes.func.isRequired,
-	changeToken: PropTypes.func.isRequired,
 	changeToOffline: PropTypes.func.isRequired,
 	gotNotes: PropTypes.func.isRequired,
 	fetchBegin: PropTypes.func.isRequired,
@@ -74,7 +61,6 @@ AppWrapper.propTypes = {
 	// All following are provided by connect
 	fetchingInProgress: PropTypes.bool.isRequired,
 	fetchInterval: PropTypes.number.isRequired,
-	token: PropTypes.string,
 	lastChecked: PropTypes.oneOfType( [ PropTypes.number, PropTypes.bool ] ),
 };
 
@@ -82,14 +68,12 @@ function mapStateToProps( state ) {
 	return {
 		fetchInterval: state.fetchInterval,
 		fetchingInProgress: state.fetchingInProgress,
-		token: state.token,
 		lastChecked: state.lastChecked,
 	};
 }
 
 const actions = {
 	markAllNotesSeen,
-	changeToken,
 	changeToOffline,
 	gotNotes,
 	fetchBegin,

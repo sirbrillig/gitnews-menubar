@@ -10,7 +10,7 @@ function MainPane( {
 	token,
 	currentPane,
 	openUrl,
-	writeToken,
+	changeToken,
 	quitApp,
 	hideEditToken,
 	showEditToken,
@@ -23,7 +23,7 @@ function MainPane( {
 	fetchingInProgress,
 } ) {
 	if ( ! token || currentPane === PANE_TOKEN ) {
-		return el( AddTokenForm, { token, openUrl, writeToken, hideEditToken, showCancel: currentPane === PANE_TOKEN } );
+		return el( AddTokenForm, { token, openUrl, changeToken, hideEditToken, showCancel: currentPane === PANE_TOKEN } );
 	}
 	if ( currentPane === PANE_CONFIG ) {
 		return el( ConfigPage, { openUrl, showEditToken, version, quitApp, checkForUpdates } );
