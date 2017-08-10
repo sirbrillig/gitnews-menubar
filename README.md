@@ -13,7 +13,7 @@ Well, for me, there were two reasons:
 1. **Simplicity**: Gitnews does one thing; it tells you if you have any GitHub notifications.
 2. **All notifications**: Gitnews will display all your notifications, even for private repositories.
 
-## Download
+## ✨ Download ✨
 
 Currently the packaged version of Gitnews is only built for Mac OS but the app should work on any platform. If anyone wants to try running it in Windows or Linux I'd be happy to add the build targets.
 
