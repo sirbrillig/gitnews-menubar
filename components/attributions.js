@@ -8,6 +8,7 @@ function Attributions( { openUrl } ) {
 	};
 	return el( 'div', { className: 'attributions' },
 		el( 'h3', null, 'Attribution' ),
+		el( 'img', { src: './IconTemplate.png', className: 'attributions__icon' } ),
 		'Bell icon made by ',
 		el( 'a', { onClick: openLink, href: 'http://www.flaticon.com/authors/daniel-bruce', title: 'Daniel Bruce' }, 'Daniel Bruce' ),
 		' from ',
