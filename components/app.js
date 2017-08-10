@@ -1,3 +1,4 @@
+const AutoLaunch = require( 'auto-launch' );
 const React = require( 'react' );
 const { connect } = require( 'react-redux' );
 const PropTypes = require( 'prop-types' );
@@ -20,6 +21,7 @@ const {
 	checkForUpdates,
 	setIcon,
 	changeToken,
+	changeAutoLoad,
 } = require( '../lib/reducer' );
 
 const debug = debugFactory( 'gitnews-menubar' );
@@ -38,6 +40,15 @@ class App extends React.Component {
 	componentDidMount() {
 		debug( 'App mounted' );
 		this.fetcher.begin();
+		const autoLauncher = new AutoLaunch( { name: 'Gitnews' } );
+		autoLauncher.isEnabled()
+			.then( ( isEnabled ) => {
+				this.props.changeAutoLoad( isEnabled );
+			} )
+			.catch( function( err ) {
+				console.error( 'failed to fetch autoload', err );
+				// TODO: maybe send to sentry?
+			} );
 	}
 
 	componentWillUnmount() {
@@ -107,6 +118,8 @@ class App extends React.Component {
 				showEditToken: this.props.showEditToken,
 				markRead: this.props.markRead,
 				checkForUpdates: this.props.checkForUpdates,
+				isAutoLoadEnabled: this.props.isAutoLoadEnabled,
+				changeAutoLoad: this.props.changeAutoLoad,
 			} )
 		);
 	}
@@ -127,6 +140,7 @@ App.propTypes = {
 	hideEditToken: PropTypes.func.isRequired,
 	hideConfig: PropTypes.func.isRequired,
 	showConfig: PropTypes.func.isRequired,
+	changeAutoLoad: PropTypes.func.isRequired,
 
 	// Values
 	version: PropTypes.string.isRequired,
@@ -140,6 +154,7 @@ App.propTypes = {
 	fetchingInProgress: PropTypes.bool,
 	lastChecked: PropTypes.oneOfType( [ PropTypes.number, PropTypes.bool ] ),
 	fetchInterval: PropTypes.number,
+	isAutoLoadEnabled: PropTypes.bool,
 };
 
 function mapStateToProps( state ) {
@@ -153,6 +168,7 @@ function mapStateToProps( state ) {
 		fetchingInProgress: state.fetchingInProgress,
 		lastChecked: state.lastChecked,
 		fetchInterval: state.fetchInterval,
+		isAutoLoadEnabled: state.isAutoLoadEnabled,
 	};
 }
 
@@ -168,6 +184,7 @@ const actions = {
 	checkForUpdates,
 	setIcon,
 	changeToken,
+	changeAutoLoad,
 };
 
 module.exports = connect( mapStateToProps, actions )( App );

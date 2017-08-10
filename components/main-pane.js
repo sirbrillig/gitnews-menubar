@@ -21,12 +21,14 @@ function MainPane( {
 	markRead,
 	checkForUpdates,
 	fetchingInProgress,
+	isAutoLoadEnabled,
+	changeAutoLoad,
 } ) {
 	if ( ! token || currentPane === PANE_TOKEN ) {
 		return el( AddTokenForm, { token, openUrl, changeToken, hideEditToken, showCancel: currentPane === PANE_TOKEN } );
 	}
 	if ( currentPane === PANE_CONFIG ) {
-		return el( ConfigPage, { openUrl, showEditToken, version, quitApp, checkForUpdates } );
+		return el( ConfigPage, { openUrl, showEditToken, version, quitApp, checkForUpdates, isAutoLoadEnabled, changeAutoLoad } );
 	}
 	if ( ! lastSuccessfulCheck ) {
 		return el( UncheckedNotice, { fetchingInProgress, openUrl } );
