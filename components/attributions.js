@@ -1,4 +1,6 @@
 const React = require( 'react' );
+const BellIcon = require( '../components/bell-icon' );
+
 const el = React.createElement;
 
 function Attributions( { openUrl } ) {
@@ -9,7 +11,7 @@ function Attributions( { openUrl } ) {
 	return el( 'div', { className: 'attributions' },
 		el( 'h3', null, 'Attribution' ),
 		el( 'div', { className: 'attributions__text' },
-			el( 'img', { src: './IconTemplate.png', className: 'attributions__icon' } ),
+			el( BellIcon, { className: 'attributions__icon' } ),
 			'Bell icon made by ',
 			el( 'a', { onClick: openLink, href: 'http://www.flaticon.com/authors/daniel-bruce', title: 'Daniel Bruce' }, 'Daniel Bruce' ),
 			' from ',
