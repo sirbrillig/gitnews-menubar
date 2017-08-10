@@ -23,6 +23,7 @@
   "license": "MIT",
   "dependencies": {
     "@sirbrillig/ensured-image": "^1.0.0",
+    "auto-launch": "^5.0.1",
     "conf": "^1.0.0",
     "date-fns": "^1.28.4",
     "debug": "^2.6.6",
