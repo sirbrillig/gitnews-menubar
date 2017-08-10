@@ -24,7 +24,7 @@ const normalIcon = nativeImage.createFromPath( normalIconPath );
 const bar = menubar( {
 	preloadWindow: true,
 	width: 390,
-	height: 410,
+	height: 440,
 } );
 
 bar.on( 'ready', () => {
