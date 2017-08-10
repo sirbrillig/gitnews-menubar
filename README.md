@@ -17,7 +17,9 @@ Well, for me, there were two reasons:
 
 Currently the packaged version of Gitnews is only built for Mac OS but the app should work on any platform. If anyone wants to try running it in Windows or Linux I'd be happy to add the build targets.
 
-Visit [the releases page](https://github.com/sirbrillig/gitnews-menubar/releases) for the latest release.
+**Note:** I don't have a paid Apple developer account, so the package will warn you that the app is from an "Unidentified developer". The first time you open the app you will need to right-click on it and select "Open" from the context menu. [This Apple support doc](https://support.apple.com/kb/ph18657?locale=en_US) explains how to do this in more detail.
+
+Visit [the releases page](https://github.com/sirbrillig/gitnews-menubar/releases) to download an image of the latest release.
 
 ## Attributions
 
