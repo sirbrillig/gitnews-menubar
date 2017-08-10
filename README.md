@@ -23,7 +23,7 @@ Visit [the releases page](https://github.com/sirbrillig/gitnews-menubar/releases
 
 ## Attributions
 
-Bell icon made by <a href="http://www.flaticon.com/authors/daniel-bruce">Daniel Bruce</a> from <a href="http://www.flaticon.com">Flaticon</a> (<a href="http://creativecommons.org/licenses/by/3.0/">CC 3.0 BY</a>).
+<img src="./IconTemplate.png" /> Bell icon made by <a href="http://www.flaticon.com/authors/daniel-bruce">Daniel Bruce</a> from <a href="http://www.flaticon.com">Flaticon</a> (<a href="http://creativecommons.org/licenses/by/3.0/">CC 3.0 BY</a>).
 
 ## Development
 
