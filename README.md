@@ -2,7 +2,7 @@
 
 An app to display GitHub notifications in your menu bar.
 
-<img src="./gitnews-demo.gif" />
+<img src="./images/gitnews-demo.gif" />
 
 ## Why not use another app?
 
@@ -29,7 +29,7 @@ When you run Gitnews, you will need to generate an API key from your GitHub acco
 
 ## Attributions
 
-<img src="./IconTemplate.png" /> Bell icon made by <a href="http://www.flaticon.com/authors/daniel-bruce">Daniel Bruce</a> from <a href="http://www.flaticon.com">Flaticon</a> (<a href="http://creativecommons.org/licenses/by/3.0/">CC 3.0 BY</a>).
+<img src="./images/IconTemplateNormal.png" /> Bell icon made by <a href="http://www.flaticon.com/authors/daniel-bruce">Daniel Bruce</a> from <a href="http://www.flaticon.com">Flaticon</a> (<a href="http://creativecommons.org/licenses/by/3.0/">CC 3.0 BY</a>).
 
 ## Development
 

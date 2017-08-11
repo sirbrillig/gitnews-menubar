@@ -71,12 +71,15 @@ class App extends React.Component {
 		return this.getUnreadNotifications().filter( note => ! note.gitnewsSeen );
 	}
 
-	getNextIcon( { offline, errors, unseenNotes } ) {
+	getNextIcon( { offline, errors, unseenNotes, unreadNotes } ) {
 		if ( offline || errors.length ) {
 			return 'error';
 		}
 		if ( unseenNotes.length ) {
 			return 'unseen';
+		}
+		if ( unreadNotes.length ) {
+			return 'unread';
 		}
 		return 'normal';
 	}
@@ -86,7 +89,7 @@ class App extends React.Component {
 		const newNotes = this.getUnreadNotifications();
 		const readNotes = this.getReadNotifications();
 		const unseenNotes = this.getUnseenNotifications();
-		const nextIcon = this.getNextIcon( { offline, errors, unseenNotes } );
+		const nextIcon = this.getNextIcon( { offline, errors, unseenNotes, unreadNotes: newNotes } );
 
 		debug( 'sending set-icon', nextIcon );
 		this.props.setIcon( nextIcon );

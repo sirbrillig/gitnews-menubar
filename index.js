@@ -13,9 +13,11 @@ const unhandled = require( 'electron-unhandled' );
 unhandled();
 
 const appDir = app.getAppPath();
-const alertIconPath = path.join( appDir, 'IconTemplateAlert.png' );
-const errorIconPath = path.join( appDir, 'IconTemplateError.png' );
-const normalIconPath = path.join( appDir, 'IconTemplate.png' );
+const warnIconPath = path.join( appDir, 'images', 'IconTemplateWarn.png' );
+const alertIconPath = path.join( appDir, 'images', 'IconTemplateAlert.png' );
+const errorIconPath = path.join( appDir, 'images', 'IconTemplateError.png' );
+const normalIconPath = path.join( appDir, 'images', 'IconTemplateNormal.png' );
+const warnIcon = nativeImage.createFromPath( warnIconPath );
 const alertIcon = nativeImage.createFromPath( alertIconPath );
 const errorIcon = nativeImage.createFromPath( errorIconPath );
 const normalIcon = nativeImage.createFromPath( normalIconPath );
@@ -25,6 +27,7 @@ const bar = menubar( {
 	preloadWindow: true,
 	width: 390,
 	height: 440,
+	icon: normalIconPath,
 } );
 
 bar.on( 'ready', () => {
@@ -65,6 +68,8 @@ function getIcon( type ) {
 			return errorIcon;
 		case 'unseen':
 			return alertIcon;
+		case 'unread':
+			return warnIcon;
 	}
 	return normalIcon;
 }
