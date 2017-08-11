@@ -13,9 +13,11 @@ const unhandled = require( 'electron-unhandled' );
 unhandled();
 
 const appDir = app.getAppPath();
+const warnIconPath = path.join( appDir, 'IconTemplateWarn.png' );
 const alertIconPath = path.join( appDir, 'IconTemplateAlert.png' );
 const errorIconPath = path.join( appDir, 'IconTemplateError.png' );
 const normalIconPath = path.join( appDir, 'IconTemplate.png' );
+const warnIcon = nativeImage.createFromPath( warnIconPath );
 const alertIcon = nativeImage.createFromPath( alertIconPath );
 const errorIcon = nativeImage.createFromPath( errorIconPath );
 const normalIcon = nativeImage.createFromPath( normalIconPath );
@@ -65,6 +67,8 @@ function getIcon( type ) {
 			return errorIcon;
 		case 'unseen':
 			return alertIcon;
+		case 'unread':
+			return warnIcon;
 	}
 	return normalIcon;
 }
