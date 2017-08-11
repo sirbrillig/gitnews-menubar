@@ -58,6 +58,9 @@ bar.on( 'ready', () => {
 bar.on( 'hide', () => {
 	bar.window.webContents.send( 'menubar-click', true );
 } );
+bar.on( 'show', () => {
+	bar.window.webContents.send( 'menubar-click', true );
+} );
 
 ipcMain.on( 'set-icon', ( event, arg ) => {
 	const image = getIcon( arg );
