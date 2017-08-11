@@ -72,7 +72,10 @@ class App extends React.Component {
 	}
 
 	getNextIcon( { offline, errors, unseenNotes, unreadNotes } ) {
-		if ( offline || errors.length ) {
+		if ( offline ) {
+			return 'offline';
+		}
+		if ( errors.length ) {
 			return 'error';
 		}
 		if ( unseenNotes.length ) {
