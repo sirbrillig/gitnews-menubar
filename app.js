@@ -1,4 +1,4 @@
-/* globals window, Raven */
+/* globals window */
 require( 'dotenv' ).config();
 const { version } = require( './package.json' );
 const { remote } = require( 'electron' );
@@ -22,7 +22,9 @@ const logger = createLogger( {
 } );
 
 // https://sentry.io/ Error reporting
-Raven.config( 'https://d8eec1c8e2f846ac951aff7b04cfb4fe@sentry.io/201433' ).install();
+if ( window.Raven ) {
+	window.Raven.config( 'https://d8eec1c8e2f846ac951aff7b04cfb4fe@sentry.io/201433' ).install();
+}
 
 // Catch unhandled Promise rejections
 unhandled();
