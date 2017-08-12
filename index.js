@@ -1,8 +1,7 @@
 const { ipcMain, nativeImage, app, Menu, dialog, shell } = require( 'electron' );
 const path = require( 'path' );
-const menubar = require( 'menubar' );
+const createMenubar = require( 'menubar' );
 const isDev = require( 'electron-is-dev' );
-const fetch = require( 'electron-fetch' );
 const semver = require( 'semver' );
 const electronDebug = require( 'electron-debug' );
 const { version } = require( './package.json' );
@@ -28,8 +27,7 @@ const errorIcon = nativeImage.createFromPath( errorIconPath );
 const offlineIcon = nativeImage.createFromPath( offlineIconPath );
 const normalIcon = nativeImage.createFromPath( normalIconPath );
 
-// Create menubar
-const bar = menubar( {
+const bar = createMenubar( {
 	preloadWindow: true,
 	width: 390,
 	height: 440,
@@ -39,24 +37,7 @@ const bar = menubar( {
 bar.on( 'ready', () => {
 	isDev || bar.window.setResizable( false );
 	isDev || attachAppMenu();
-	checkForUpdates( { fetch, version, semver } )
-		.then( response => {
-			if ( response.updateAvailable !== true ) {
-				return;
-			}
-			const confirm = dialog.showMessageBox( {
-				type: 'question',
-				message: 'A new version ' + response.newVersion + ' of Gitnews is available.',
-				detail: 'Do you want to download it now?',
-				buttons: [ 'Yes', 'No' ]
-			} );
-			if ( confirm === 0 ) {
-				shell.openExternal( 'https://github.com/sirbrillig/gitnews-menubar/releases' );
-			}
-		} )
-		.catch( err => {
-			console.error( 'Error while checking for updates:', err );
-		} );
+	checkForUpdates( { version, semver, dialog, openUrl: shell.openExternal } );
 } );
 
 bar.on( 'hide', () => {
@@ -69,6 +50,10 @@ bar.on( 'show', () => {
 ipcMain.on( 'set-icon', ( event, arg ) => {
 	const image = getIcon( arg );
 	bar.tray.setImage( image );
+} );
+
+ipcMain.on( 'check-for-updates', () => {
+	checkForUpdates( { version, semver, dialog, openUrl: shell.openExternal, showCurrentVersion: true } );
 } );
 
 function getIcon( type ) {
