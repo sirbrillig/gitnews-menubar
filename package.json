@@ -11,7 +11,8 @@
     "prepare-release": "npm run dist-clean && npm run build && npm run package",
     "build:osx": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=images/gitnews-menubar.icns --prune=true --ignore='^/dist$' --out=dist",
     "package": "npm run package:osx",
-    "package:osx": "electron-installer-dmg --out=dist --icon=images/gitnews-menubar.icns --overwrite dist/Gitnews-darwin-x64/Gitnews.app Gitnews",
+    "package:osx": "electron-installer-dmg --out=dist --icon=images/gitnews-menubar.icns --overwrite dist/Gitnews-darwin-x64/Gitnews.app Gitnews && npm run name-package:osx",
+    "name-package:osx": "mv dist/Gitnews.dmg dist/Gitnews-MacOS-$(node -pe \"require('./package.json').version\").dmg",
     "test": "mocha tests"
   },
   "keywords": [
