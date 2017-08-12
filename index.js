@@ -4,6 +4,7 @@ const menubar = require( 'menubar' );
 const isDev = require( 'electron-is-dev' );
 const fetch = require( 'electron-fetch' );
 const semver = require( 'semver' );
+const electronDebug = require( 'electron-debug' );
 const { version } = require( './package.json' );
 const { checkForUpdates } = require( './lib/updates' );
 
@@ -11,6 +12,9 @@ const unhandled = require( 'electron-unhandled' );
 
 // Catch unhandled Promise rejections
 unhandled();
+
+// Allow devtools and reload in production
+electronDebug( { enabled: true } );
 
 const appDir = app.getAppPath();
 const warnIconPath = path.join( appDir, 'images', 'IconTemplateWarn.png' );
