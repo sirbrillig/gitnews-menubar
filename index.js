@@ -2,7 +2,6 @@ const { ipcMain, nativeImage, app, Menu, dialog, shell } = require( 'electron' )
 const path = require( 'path' );
 const menubar = require( 'menubar' );
 const isDev = require( 'electron-is-dev' );
-const fetch = require( 'electron-fetch' );
 const semver = require( 'semver' );
 const electronDebug = require( 'electron-debug' );
 const { version } = require( './package.json' );
@@ -39,7 +38,7 @@ const bar = menubar( {
 bar.on( 'ready', () => {
 	isDev || bar.window.setResizable( false );
 	isDev || attachAppMenu();
-	checkForUpdates( { fetch, version, semver } )
+	checkForUpdates( { version, semver } )
 		.then( response => {
 			if ( response.updateAvailable !== true ) {
 				return;
@@ -51,7 +50,7 @@ bar.on( 'ready', () => {
 				buttons: [ 'Yes', 'No' ]
 			} );
 			if ( confirm === 0 ) {
-				shell.openExternal( 'https://github.com/sirbrillig/gitnews-menubar/releases' );
+				shell.openExternal( response.newVersionUrl );
 			}
 		} )
 		.catch( err => {
