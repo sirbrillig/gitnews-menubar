@@ -594,12 +594,6 @@ electron-download@^4.0.0:
     semver "^5.3.0"
     sumchecker "^2.0.1"
 
-electron-fetch@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/electron-fetch/-/electron-fetch-1.0.0.tgz#a6d372aa559300140b470f46c236cc71ff8bacdc"
-  dependencies:
-    encoding "^0.1.11"
-
 electron-installer-dmg@^0.2.1:
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/electron-installer-dmg/-/electron-installer-dmg-0.2.1.tgz#de835f02009b83f82e408036ac31462c3d6cb249"
