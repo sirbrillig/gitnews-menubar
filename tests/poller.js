@@ -4,76 +4,79 @@ const sinon = require( 'sinon' );
 const sinonChai = require( 'chai-sinon' );
 chai.use( sinonChai );
 const { expect } = chai;
-const { Poller } = require( '../lib/poller' );
-const { secsToMs } = require( '../lib/helpers' );
+const Poller = require( '../lib/poller' );
+
+function getSinglePollFunction() {
+	const pollFunction = sinon.stub();
+	pollFunction.onCall( 1 ).returns( false );
+	pollFunction.returns( true );
+	return pollFunction;
+}
 
 describe( 'Poller', function() {
 	describe( '.begin()', function() {
 		it( 'starts a timer', function() {
-			const setInterval = sinon.spy();
-			const poller = new Poller( { setInterval } );
+			const setTimeout = sinon.spy();
+			const poller = new Poller( { setTimeout, pollFunction: getSinglePollFunction() } );
 			poller.begin();
-			expect( setInterval ).to.have.been.called;
+			expect( setTimeout ).to.have.been.called;
 		} );
 
-		it( 'calls pollFunction when pollWhen returns true', function() {
-			const pollFunction = sinon.spy();
-			const pollWhen = sinon.stub().returns( true );
-			const setInterval = ( callBack ) => callBack();
-			const poller = new Poller( { pollFunction, pollWhen, setInterval } );
+		it( 'calls pollFunction immediately', function() {
+			const pollFunction = getSinglePollFunction();
+			const setTimeout = ( callBack ) => callBack();
+			const poller = new Poller( { pollFunction, setTimeout } );
 			poller.begin();
 			expect( pollFunction ).to.have.been.called;
 		} );
 
-		it( 'does not call pollFunction when pollWhen returns false', function() {
-			const pollFunction = sinon.spy();
-			const pollWhen = sinon.stub().returns( false );
-			const setInterval = ( callBack ) => callBack();
-			const poller = new Poller( { pollFunction, pollWhen, setInterval } );
-			poller.begin();
-			expect( pollFunction ).to.not.have.been.called;
-		} );
-
 		it( 'ends a running timer', function() {
-			const setInterval = sinon.stub().returns( 'foobar' );
-			const clearInterval = sinon.spy();
-			const poller = new Poller( { setInterval, clearInterval } );
+			const setTimeout = sinon.stub().returns( 'foobar' );
+			const clearTimeout = sinon.spy();
+			const poller = new Poller( { setTimeout, clearTimeout, pollFunction: getSinglePollFunction() } );
 			poller.begin();
 			poller.begin();
-			expect( clearInterval ).to.have.been.calledWith( 'foobar' );
+			expect( clearTimeout ).to.have.been.calledWith( 'foobar' );
 		} );
 
-		it( 'passes the number of miliseconds since the last call to pollFunction to pollWhen', function() {
-			const clock = sinon.useFakeTimers();
-			const setInterval = ( callBack ) => {
-				callBack();
-				clock.tick( secsToMs( 2 ) );
-				callBack();
-			};
-			const pollWhen = sinon.stub().returns( true );
-			const poller = new Poller( { pollWhen, setInterval } );
+		it( 'calls pollFunction multiple times until pollFunction returns false', function() {
+			const pollFunction = getSinglePollFunction();
+			const setTimeout = ( callBack ) => callBack();
+			const poller = new Poller( { pollFunction, setTimeout } );
 			poller.begin();
-			clock.restore();
-			expect( pollWhen ).to.have.been.calledWith( secsToMs( 2 ) );
+			expect( pollFunction ).to.have.been.calledTwice;
+		} );
+
+		it( 'calls pollFunction multiple times until pollFunction throws an error', function() {
+			const pollFunction = getSinglePollFunction();
+			pollFunction.onCall( 1 ).returns( true );
+			pollFunction.onCall( 2 ).throws();
+			const setTimeout = ( callBack ) => callBack();
+			const poller = new Poller( { pollFunction, setTimeout } );
+			try {
+				poller.begin();
+			} catch ( err ) {
+			}
+			expect( pollFunction ).to.have.been.calledThrice;
 		} );
 	} );
 
 	describe( '.end()', function() {
 		it( 'ends a running timer', function() {
-			const setInterval = sinon.stub().returns( 'foobar' );
-			const clearInterval = sinon.spy();
-			const poller = new Poller( { setInterval, clearInterval } );
+			const setTimeout = sinon.stub().returns( 'foobar' );
+			const clearTimeout = sinon.spy();
+			const poller = new Poller( { setTimeout, clearTimeout, pollFunction: getSinglePollFunction() } );
 			poller.begin();
 			poller.end();
-			expect( clearInterval ).to.have.been.calledWith( 'foobar' );
+			expect( clearTimeout ).to.have.been.calledWith( 'foobar' );
 		} );
 
 		it( 'has no effect if no timer is running', function() {
-			const setInterval = sinon.stub().returns( 'foobar' );
-			const clearInterval = sinon.spy();
-			const poller = new Poller( { setInterval, clearInterval } );
+			const setTimeout = sinon.stub().returns( 'foobar' );
+			const clearTimeout = sinon.spy();
+			const poller = new Poller( { setTimeout, clearTimeout, pollFunction: getSinglePollFunction() } );
 			poller.end();
-			expect( clearInterval ).to.not.have.been.called;
+			expect( clearTimeout ).to.not.have.been.called;
 		} );
 	} );
 } );
