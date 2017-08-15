@@ -6,8 +6,11 @@ const semver = require( 'semver' );
 const electronDebug = require( 'electron-debug' );
 const { version } = require( './package.json' );
 const { checkForUpdates } = require( './lib/updates' );
-
+const Raven = require( 'raven' );
 const unhandled = require( 'electron-unhandled' );
+
+// https://sentry.io/ Error reporting
+Raven.config( 'https://d8eec1c8e2f846ac951aff7b04cfb4fe@sentry.io/201433' ).install();
 
 // Catch unhandled Promise rejections
 unhandled();
@@ -38,6 +41,12 @@ bar.on( 'ready', () => {
 	isDev || bar.window.setResizable( false );
 	isDev || attachAppMenu();
 	checkForUpdates( { version, semver, dialog, openUrl: shell.openExternal } );
+	bar.window.webContents.on( 'crashed', ( event ) => {
+		Raven.captureException( event );
+	} );
+	bar.window.on( 'unresponsive', () => {
+		Raven.captureException( new Error( 'Window was unresponsive.' ) );
+	} );
 } );
 
 bar.on( 'hide', () => {
