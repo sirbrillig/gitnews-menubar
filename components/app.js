@@ -7,7 +7,7 @@ const Header = require( '../components/header' );
 const ErrorsArea = require( '../components/errors-area' );
 const MainPane = require( '../components/main-pane' );
 const { PANE_CONFIG, PANE_NOTIFICATIONS } = require( '../lib/constants' );
-const { Poller } = require( '../lib/poller' );
+const Poller = require( '../lib/poller' );
 const { getSecondsUntilNextFetch } = require( '../lib/helpers' );
 const {
 	hideEditToken,
@@ -30,11 +30,12 @@ const el = React.createElement;
 class App extends React.Component {
 	constructor( props ) {
 		super( props );
-		this.shouldComponentPoll = this.shouldComponentPoll.bind( this );
-		this.fetcher = new Poller( {
-			pollWhen: this.shouldComponentPoll,
-			pollFunction: () => props.fetchNotifications(),
-		} );
+		const shouldComponentPoll = () => ( getSecondsUntilNextFetch( this.props.lastChecked, this.props.fetchInterval ) < 1 );
+		const pollFunction = () => {
+			shouldComponentPoll() && this.props.fetchNotifications();
+			return true;
+		};
+		this.fetcher = new Poller( { pollFunction } );
 	}
 
 	componentDidMount() {
@@ -53,10 +54,6 @@ class App extends React.Component {
 
 	componentWillUnmount() {
 		this.fetcher.end();
-	}
-
-	shouldComponentPoll() {
-		return ( getSecondsUntilNextFetch( this.props.lastChecked, this.props.fetchInterval ) < 1 );
 	}
 
 	getReadNotifications() {
