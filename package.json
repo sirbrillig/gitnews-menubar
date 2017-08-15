@@ -38,6 +38,7 @@
     "gridicons": "^2.0.1",
     "lodash": "^4.17.4",
     "menubar": "^5.2.3",
+    "raven": "^2.1.1",
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
     "react-redux": "^5.0.5",
