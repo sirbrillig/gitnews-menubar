@@ -1,4 +1,4 @@
-/* globals describe, it */
+/* globals describe, it, beforeEach */
 const { reducer } = require( '../lib/reducer' );
 const { secsToMs } = require( '../lib/helpers' );
 const { expect } = require( 'chai' );
@@ -39,11 +39,15 @@ describe( 'reducer', function() {
 
 	describe( 'NOTES_RETRIEVED', function() {
 		const now = Date.parse( '2017-08-12' );
-		const notes = [
-			{ id: 'a1', unread: true, title: 'test note 1', updatedAt: now },
-			{ id: 'a2', unread: false, title: 'test note 2', updatedAt: now },
-			{ id: 'a3', unread: true, title: 'test note 3', updatedAt: now },
-		];
+		let notes = [];
+
+		beforeEach( function() {
+			notes = [
+				{ id: 'a1', unread: true, title: 'test note 1', updatedAt: now },
+				{ id: 'a2', unread: false, title: 'test note 2', updatedAt: now },
+				{ id: 'a3', unread: true, title: 'test note 3', updatedAt: now },
+			];
+		} );
 
 		it( 'disables offline mode', function() {
 			const action = { type: 'NOTES_RETRIEVED', notes };
@@ -102,7 +106,7 @@ describe( 'reducer', function() {
 		it( 'replaces `seen` state for existing notifications with updates', function() {
 			const longAgo = Date.parse( '2017-08-01' );
 			const action = { type: 'NOTES_RETRIEVED', notes };
-			const result = reducer( { notes: [ { id: 'a1', title: 'test note', gitnewsSeen: true, gitnewsSeenAt: longAgo } ] }, action );
+			const result = reducer( { notes: [ { id: 'a1', title: 'test note', gitnewsSeen: true, updatedAt: longAgo, gitnewsSeenAt: longAgo } ] }, action );
 			expect( result.notes.filter( note => note.gitnewsSeen ) ).to.have.length( 0 );
 		} );
 	} );
