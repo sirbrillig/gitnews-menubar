@@ -104,6 +104,7 @@ class App extends React.Component {
 				showConfig: token && currentPane === PANE_NOTIFICATIONS && this.props.showConfig,
 				hideConfig: token && currentPane === PANE_CONFIG && this.props.hideConfig,
 				openUrl: this.props.openUrl,
+				fetchingInProgress,
 			} ),
 			el( ErrorsArea, { errors, clearErrors } ),
 			el( MainPane, {

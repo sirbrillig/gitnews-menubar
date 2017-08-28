@@ -1,14 +1,20 @@
+<!DOCTYPE html>
 <html>
 	<head>
 		<title>gitnews</title>
 		<script src="https://cdn.ravenjs.com/3.17.0/raven.min.js" crossorigin="anonymous"></script>
 		<style type="text/css">
+html {
+  height: 100%;
+}
+
 body {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
   font-size: 14px;
   color: #4e4e4e;
+  height: 100%;
 }
 
 * {
@@ -116,6 +122,14 @@ header h1 {
 .app-loading-message,
 .unchecked-notice {
   margin: 12px;
+}
+
+.fetching-in-progress {
+  width: 100%;
+  padding: 4px 5px;
+  background-color: #24292e;
+  font-size: 0.8em;
+  text-align: center;
 }
 
 .offline-notice {
@@ -241,6 +255,10 @@ header h1 {
   padding: 1em;
   margin: 0 auto 1em;
   vertical-align: top;
+}
+
+.main {
+  height: 100%;
 }
 
 main {

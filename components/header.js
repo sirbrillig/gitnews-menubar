@@ -4,6 +4,7 @@ const Gridicon = require( 'gridicons' );
 const Logo = require( '../components/logo' );
 const LastChecked = require( '../components/last-checked' );
 const OfflineNotice = require( '../components/offline-notice' );
+const FetchingInProgress = require( '../components/fetching-in-progress' );
 const createUpdater = require( '../components/updater' );
 const UpdatingLastChecked = createUpdater( LastChecked );
 const UpdatingOfflineNotice = createUpdater( OfflineNotice );
@@ -18,7 +19,7 @@ function LeftButton( { hideConfig, showConfig } ) {
 	return el( 'span', { className: 'config-spacer' } );
 }
 
-function Header( { openUrl, lastSuccessfulCheck, lastChecked, fetchInterval, showConfig, offline, fetchNotifications, hideConfig } ) {
+function Header( { openUrl, lastSuccessfulCheck, lastChecked, fetchInterval, showConfig, offline, fetchNotifications, hideConfig, fetchingInProgress } ) {
 	const openLink = ( event ) => {
 		event.preventDefault();
 		openUrl( event.target.href );
@@ -32,7 +33,8 @@ function Header( { openUrl, lastSuccessfulCheck, lastChecked, fetchInterval, sho
 		el( 'div', { className: 'header__secondary' },
 			lastSuccessfulCheck && el( UpdatingLastChecked, { lastSuccessfulCheck } )
 		),
-		offline && el( UpdatingOfflineNotice, { fetchNotifications, lastChecked, fetchInterval } )
+		offline && el( UpdatingOfflineNotice, { fetchNotifications, lastChecked, fetchInterval } ),
+		fetchingInProgress && el( FetchingInProgress )
 	);
 }
 
