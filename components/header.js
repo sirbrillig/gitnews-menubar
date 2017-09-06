@@ -34,7 +34,7 @@ function Header( { openUrl, lastSuccessfulCheck, lastChecked, fetchInterval, sho
 		el( 'div', { className: 'header__secondary' },
 			lastSuccessfulCheck && el( UpdatingLastChecked, { lastSuccessfulCheck } )
 		),
-		offline && el( UpdatingOfflineNotice, { fetchNotifications, lastChecked, fetchInterval } ),
+		el( Vanisher, { isVisible: offline }, el( UpdatingOfflineNotice, { fetchNotifications, lastChecked, fetchInterval } ) ),
 		el( Vanisher, { isVisible: fetchingInProgress }, el( FetchingInProgress ) )
 	);
 }
