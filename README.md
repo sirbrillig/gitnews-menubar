@@ -37,6 +37,14 @@ gitnews-menubar is built using [Electron](https://electron.atom.io/), [React](ht
 
 To run the development version from the source, first install all dependencies by running `yarn` (you must have [yarn](https://yarnpkg.com/en/) installed for this to work). Next run the command `npm start`.
 
+If you need to open the developer tools in the production build, you can do so by pressing `CMD-SHIFT-c`.
+
+The app uses [debug](https://github.com/visionmedia/debug), so you can enable all sorts of debug output in the console by typing
+
+```js
+localStorage.setItem('debug', 'gitnews-menubar')
+```
+
 ### Building a package
 
 To create a packaged Mac OS App, first install dependencies by running `yarn` (you must have [yarn](https://yarnpkg.com/en/) installed for this to work).
