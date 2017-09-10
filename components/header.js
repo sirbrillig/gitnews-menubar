@@ -6,6 +6,7 @@ const LastChecked = require( '../components/last-checked' );
 const OfflineNotice = require( '../components/offline-notice' );
 const FetchingInProgress = require( '../components/fetching-in-progress' );
 const createUpdater = require( '../components/updater' );
+const Vanisher = require( '../components/vanisher' );
 const UpdatingLastChecked = createUpdater( LastChecked );
 const UpdatingOfflineNotice = createUpdater( OfflineNotice );
 
@@ -33,8 +34,8 @@ function Header( { openUrl, lastSuccessfulCheck, lastChecked, fetchInterval, sho
 		el( 'div', { className: 'header__secondary' },
 			lastSuccessfulCheck && el( UpdatingLastChecked, { lastSuccessfulCheck } )
 		),
-		offline && el( UpdatingOfflineNotice, { fetchNotifications, lastChecked, fetchInterval } ),
-		fetchingInProgress && el( FetchingInProgress )
+		el( Vanisher, { isVisible: offline }, el( UpdatingOfflineNotice, { fetchNotifications, lastChecked, fetchInterval } ) ),
+		el( Vanisher, { isVisible: fetchingInProgress }, el( FetchingInProgress ) )
 	);
 }
 
