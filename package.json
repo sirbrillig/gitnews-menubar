@@ -5,9 +5,10 @@
   "productName": "Gitnews",
   "main": "index.js",
   "scripts": {
-    "start": "electron .",
-    "dist-clean": "rm -rf ./dist",
-    "build": "npm run build:osx",
+    "start": "npm run install-deps && electron .",
+    "install-deps": "npm install",
+    "dist-clean": "rm -rf ./dist && rm -rf node_modules",
+    "build": "npm run install-deps && npm run build:osx",
     "prepare-release": "npm run dist-clean && npm run build && npm run package",
     "build:osx": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=images/gitnews-menubar.icns --prune=true --ignore='^/dist$' --out=dist",
     "package": "npm run package:osx",
