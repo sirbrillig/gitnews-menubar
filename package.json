@@ -12,7 +12,7 @@
     "prepare-release": "npm run dist-clean && npm run build && npm run package",
     "copy-to-build": "mkdir build && cp -a LICENSE README.md app.js components images index.js index.html lib package.json yarn.lock build/",
     "install-deps:build": "cd build && yarn --prod && cd .. && electron-rebuild --module-dir=build",
-    "build:osx": "electron-packager build --overwrite --platform=darwin --arch=x64 --icon=images/gitnews-menubar.icns --prune=true --out=dist",
+    "build:osx": "electron-packager build --overwrite --platform=darwin --arch=x64 --icon=images/gitnews-menubar.icns --prune=true --out=dist --package-manager=yarn",
     "package": "npm run package:osx",
     "package:osx": "electron-installer-dmg --out=dist --icon=images/gitnews-menubar.icns --overwrite dist/Gitnews-darwin-x64/Gitnews.app Gitnews && npm run name-package:osx",
     "name-package:osx": "mv dist/Gitnews.dmg dist/Gitnews-MacOS-$(node -pe \"require('./package.json').version\").dmg",
