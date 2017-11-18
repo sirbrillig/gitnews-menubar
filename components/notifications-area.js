@@ -16,8 +16,10 @@ function Notification( { note, openUrl, markRead } ) {
 	};
 	const timeString = date.distanceInWords( Date.now(), date.parse( note.updatedAt ), { addSuffix: true } );
 	const noteClass = note.unread ? ' notification__unread' : ' notification__read';
+	const defaultAvatar = `https://avatars.io/twitter/${ note.repositoryFullName }`;
+	const avatarSrc = note.commentAvatar || note.repositoryOwnerAvatar || defaultAvatar;
 	return el( 'div', { className: 'notification' + noteClass, onClick },
-		el( 'div', { className: 'notification__image' }, el( EnsuredImage, { src: note.commentAvatar } ) ),
+		el( 'div', { className: 'notification__image' }, el( EnsuredImage, { src: avatarSrc } ) ),
 		el( 'div', { className: 'notification__body' },
 			el( 'div', { className: 'notification__repo' }, note.repositoryFullName ),
 			el( 'div', { className: 'notification__title' }, note.title ),
