@@ -106,7 +106,7 @@ class App extends React.Component {
 				openUrl: this.props.openUrl,
 				fetchingInProgress,
 			} ),
-			el( ErrorsArea, { errors, clearErrors } ),
+			el( ErrorsArea, { errors, clearErrors: this.props.clearErrors } ),
 			el( MainPane, {
 				token,
 				currentPane,
