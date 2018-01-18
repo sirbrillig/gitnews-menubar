@@ -33,7 +33,7 @@ function MainPane( {
 	if ( ! lastSuccessfulCheck ) {
 		return el( UncheckedNotice, { fetchingInProgress, openUrl } );
 	}
-	return el( NotificationsArea, { newNotes, readNotes, markRead, openUrl } );
+	return el( NotificationsArea, { newNotes, readNotes, markRead, openUrl, token } );
 }
 
 module.exports = MainPane;

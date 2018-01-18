@@ -6,10 +6,10 @@ const EnsuredImage = require( '@sirbrillig/ensured-image' );
 
 const debug = debugFactory( 'gitnews-menubar' );
 
-function Notification( { note, openUrl, markRead } ) {
+function Notification( { note, openUrl, markRead, token } ) {
 	const onClick = () => {
 		debug( 'clicked on notification', note );
-		markRead( note );
+		markRead( token, note );
 		openUrl( note.commentUrl );
 	};
 	const timeString = date.distanceInWords( Date.now(), date.parse( note.updatedAt ), { addSuffix: true } );
