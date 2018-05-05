@@ -19,11 +19,11 @@ unhandled();
 electronDebug( { enabled: true } );
 
 const appDir = app.getAppPath();
-const warnIconPath = path.join( appDir, 'images', 'IconTemplateWarn.png' );
-const alertIconPath = path.join( appDir, 'images', 'IconTemplateAlert.png' );
-const errorIconPath = path.join( appDir, 'images', 'IconTemplateError.png' );
-const offlineIconPath = path.join( appDir, 'images', 'IconTemplateOffline.png' );
-const normalIconPath = path.join( appDir, 'images', 'IconTemplateNormal.png' );
+const warnIconPath = path.join( appDir, 'images', 'IconWarnTemplate.png' );
+const alertIconPath = path.join( appDir, 'images', 'IconAlertTemplate.png' );
+const errorIconPath = path.join( appDir, 'images', 'IconErrorTemplate.png' );
+const offlineIconPath = path.join( appDir, 'images', 'IconOfflineTemplate.png' );
+const normalIconPath = path.join( appDir, 'images', 'IconNormalTemplate.png' );
 const warnIcon = nativeImage.createFromPath( warnIconPath );
 const alertIcon = nativeImage.createFromPath( alertIconPath );
 const errorIcon = nativeImage.createFromPath( errorIconPath );
