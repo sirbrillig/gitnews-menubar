@@ -13,7 +13,10 @@ function ErrorMessage( { error } ) {
 function ErrorsArea( { errors, clearErrors } ) {
 	return el( 'div', { className: 'errors-area' },
 		errors.length > 0 ? el( ClearErrorsButton, { clearErrors } ) : null,
-		errors.map( error => el( ErrorMessage, { error, key: getErrorMessage( error ) + Date.now() } ) )
+		Object.values( errors.reduce( ( uniqueErrors, error ) => {
+			uniqueErrors[ getErrorMessage( error ) ] = error;
+			return uniqueErrors;
+		}, {} ) ).map( error => el( ErrorMessage, { error, key: getErrorMessage( error ) } ) )
 	);
 }
 
