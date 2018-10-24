@@ -16,7 +16,10 @@ Raven.config( 'https://d8eec1c8e2f846ac951aff7b04cfb4fe@sentry.io/201433' ).inst
 unhandled();
 
 // Allow devtools and reload in production
-electronDebug( { enabled: true } );
+electronDebug( {
+	enabled: true,
+	showDevTools: false,
+} );
 
 const appDir = app.getAppPath();
 const warnIconPath = path.join( appDir, 'images', 'IconTemplateWarn.png' );
