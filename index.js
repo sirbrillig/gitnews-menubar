@@ -82,13 +82,16 @@ function getIcon( type ) {
 // Create the Application's main menu so it gets copy/paste
 // see: https://pracucci.com/atom-electron-enable-copy-and-paste.html
 function attachAppMenu() {
-	const template = [ {
-		label: 'Application',
-		submenu: [
-			{ label: 'About Gitnews', selector: 'orderFrontStandardAboutPanel:' },
-			{ type: 'separator' },
-			{ label: 'Quit', accelerator: 'Command+Q', click: () => app.quit() }
-		] }, {
+	const template = [
+		{
+			label: 'Application',
+			submenu: [
+				{ label: 'About Gitnews', selector: 'orderFrontStandardAboutPanel:' },
+				{ type: 'separator' },
+				{ label: 'Quit', accelerator: 'Command+Q', click: () => app.quit() },
+			],
+		},
+		{
 			label: 'Edit',
 			submenu: [
 				{ label: 'Undo', accelerator: 'CmdOrCtrl+Z', selector: 'undo:' },
@@ -97,8 +100,9 @@ function attachAppMenu() {
 				{ label: 'Cut', accelerator: 'CmdOrCtrl+X', selector: 'cut:' },
 				{ label: 'Copy', accelerator: 'CmdOrCtrl+C', selector: 'copy:' },
 				{ label: 'Paste', accelerator: 'CmdOrCtrl+V', selector: 'paste:' },
-				{ label: 'Select All', accelerator: 'CmdOrCtrl+A', selector: 'selectAll:' }
-			] }
+				{ label: 'Select All', accelerator: 'CmdOrCtrl+A', selector: 'selectAll:' },
+			],
+		},
 	];
 	Menu.setApplicationMenu( Menu.buildFromTemplate( template ) );
 }
