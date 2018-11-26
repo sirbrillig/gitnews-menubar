@@ -1,11 +1,11 @@
-const { ipcMain, nativeImage, app, Menu, dialog, shell } = require( 'electron' );
-const path = require( 'path' );
+const { ipcMain, app, Menu, dialog, shell, systemPreferences } = require( 'electron' );
 const createMenubar = require( 'menubar' );
 const isDev = require( 'electron-is-dev' );
 const semver = require( 'semver' );
 const electronDebug = require( 'electron-debug' );
 const { version } = require( './package.json' );
 const { checkForUpdates } = require( './lib/updates' );
+const { getIconPathForState, getIconForState } = require( './lib/icon-path' );
 const Raven = require( 'raven' );
 const unhandled = require( 'electron-unhandled' );
 
@@ -21,23 +21,13 @@ electronDebug( {
 	showDevTools: false,
 } );
 
-const appDir = app.getAppPath();
-const warnIconPath = path.join( appDir, 'images', 'IconTemplateWarn.png' );
-const alertIconPath = path.join( appDir, 'images', 'IconTemplateAlert.png' );
-const errorIconPath = path.join( appDir, 'images', 'IconTemplateError.png' );
-const offlineIconPath = path.join( appDir, 'images', 'IconTemplateOffline.png' );
-const normalIconPath = path.join( appDir, 'images', 'IconTemplateNormal.png' );
-const warnIcon = nativeImage.createFromPath( warnIconPath );
-const alertIcon = nativeImage.createFromPath( alertIconPath );
-const errorIcon = nativeImage.createFromPath( errorIconPath );
-const offlineIcon = nativeImage.createFromPath( offlineIconPath );
-const normalIcon = nativeImage.createFromPath( normalIconPath );
+let lastIconState = 'normal';
 
 const bar = createMenubar( {
 	preloadWindow: true,
 	width: 390,
 	height: 440,
-	icon: normalIconPath,
+	icon: getIconPathForState( 'normal' ),
 } );
 
 bar.on( 'ready', () => {
@@ -59,8 +49,19 @@ bar.on( 'show', () => {
 	bar.window.webContents.send( 'menubar-click', true );
 } );
 
+app.on( 'platform-theme-changed', () => {
+	const image = getIcon( lastIconState );
+	bar.tray.setImage( image );
+} );
+
+systemPreferences.subscribeNotification( 'AppleInterfaceThemeChangedNotification', () => {
+	const image = getIcon( lastIconState );
+	bar.tray.setImage( image );
+} );
+
 ipcMain.on( 'set-icon', ( event, arg ) => {
 	const image = getIcon( arg );
+	lastIconState = arg;
 	bar.tray.setImage( image );
 } );
 
@@ -71,15 +72,15 @@ ipcMain.on( 'check-for-updates', () => {
 function getIcon( type ) {
 	switch ( type ) {
 		case 'error':
-			return errorIcon;
+			return getIconForState( 'error' );
 		case 'unseen':
-			return alertIcon;
+			return getIconForState( 'unseen' );
 		case 'unread':
-			return warnIcon;
+			return getIconForState( 'unread' );
 		case 'offline':
-			return offlineIcon;
+			return getIconForState( 'offline' );
 	}
-	return normalIcon;
+	return getIconForState( 'normal' );
 }
 
 // Create the Application's main menu so it gets copy/paste
