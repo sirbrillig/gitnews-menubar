@@ -1,4 +1,4 @@
-const { ipcMain, app, Menu, dialog, shell } = require( 'electron' );
+const { ipcMain, app, Menu, dialog, shell, systemPreferences } = require( 'electron' );
 const createMenubar = require( 'menubar' );
 const isDev = require( 'electron-is-dev' );
 const semver = require( 'semver' );
@@ -50,6 +50,11 @@ bar.on( 'show', () => {
 } );
 
 app.on( 'platform-theme-changed', () => {
+	const image = getIcon( lastIconState );
+	bar.tray.setImage( image );
+} );
+
+systemPreferences.subscribeNotification( 'AppleInterfaceThemeChangedNotification', () => {
 	const image = getIcon( lastIconState );
 	bar.tray.setImage( image );
 } );
