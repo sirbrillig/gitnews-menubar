@@ -2,38 +2,21 @@
 const React = require( 'react' );
 const el = React.createElement;
 const { secsToMs } = require( '../lib/helpers' );
+const { useState, useEffect } = React;
 
 function createUpdater( WrappedComponent ) {
-	return class Updater extends React.Component {
-		constructor( props ) {
-			super( props );
-			this.lastCheckedUpdater = null;
-			this.updateInterval = secsToMs( 1 );
-			this.updateTimestamp = this.updateTimestamp.bind( this );
-			this.state = { lastUpdated: 0 };
-		}
-
-		componentDidMount() {
-			if ( this.lastCheckedUpdater ) {
-				window.clearInterval( this.lastCheckedUpdater );
-			}
-			this.lastCheckedUpdater = window.setInterval( () => this.updateTimestamp(), this.updateInterval );
-		}
-
-		componentWillUnmount() {
-			if ( this.lastCheckedUpdater ) {
-				window.clearInterval( this.lastCheckedUpdater );
-			}
-		}
-
-		updateTimestamp() {
-			// Just a hack to force re-rendering
-			this.setState( { lastUpdated: Date.now() } );
-		}
-
-		render() {
-			return el( WrappedComponent, Object.assign( { componentLastUpdated: this.state.lastUpdated }, this.props ) );
-		}
+	let lastCheckedUpdater = null;
+	return ( props ) => {
+		const updateInterval = secsToMs( 1 );
+		const [ lastUpdated, setLastUpdated ] = useState( 0 );
+		useEffect( () => {
+			lastCheckedUpdater && window.clearInterval( lastCheckedUpdater );
+			lastCheckedUpdater = window.setInterval( () => setLastUpdated( Date.now() ), updateInterval );
+			return () => {
+				lastCheckedUpdater && window.clearInterval( lastCheckedUpdater );
+			};
+		}, [] );
+		return el( WrappedComponent, Object.assign( { componentLastUpdated: lastUpdated }, props ) );
 	};
 }
 
