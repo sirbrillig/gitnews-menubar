@@ -151,14 +151,19 @@ header h1 {
 
 .notification__unread {
   background-color: rgba(245, 112, 35, 0.1);
+  position: relative;
 }
 
-.notification__dot {
-  margin-right: 10px;
-  min-width: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.notification__new-dot {
+  position: absolute;
+  font-size: 2.5em;
+  left: 34px;
+  top: 14px;
+  border-radius: 20px;
+  border: 1.2px solid #fff;
+  width: 12px;
+  height: 12px;
+  background: red;
 }
 
 .notification__image img {
