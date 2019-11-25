@@ -17,6 +17,7 @@ function Notification( { note, openUrl, markRead, token } ) {
 	const defaultAvatar = `https://avatars.io/twitter/${ note.repositoryFullName }`;
 	const avatarSrc = note.commentAvatar || note.repositoryOwnerAvatar || defaultAvatar;
 	return el( 'div', { className: 'notification' + noteClass, onClick },
+		note.unread ? el( 'span', { className: 'notification__new-dot' } ) : null,
 		el( 'div', { className: 'notification__image' }, el( EnsuredImage, { src: avatarSrc } ) ),
 		el( 'div', { className: 'notification__body' },
 			el( 'div', { className: 'notification__repo' }, note.repositoryFullName ),
