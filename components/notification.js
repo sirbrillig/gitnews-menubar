@@ -1,4 +1,5 @@
 const React = require( 'react' );
+const Gridicon = require( 'gridicons' );
 const el = React.createElement;
 const debugFactory = require( 'debug' );
 const date = require( 'date-fns' );
@@ -16,7 +17,17 @@ function Notification( { note, openUrl, markRead, token } ) {
 	const noteClass = note.unread ? ' notification__unread' : ' notification__read';
 	const defaultAvatar = `https://avatars.io/twitter/${ note.repositoryFullName }`;
 	const avatarSrc = note.commentAvatar || note.repositoryOwnerAvatar || defaultAvatar;
+	const isClosed = note.api.subject && note.api.subject.state && note.api.subject.state === 'closed';
+	const isMerged = note.api.subject && note.api.subject.merged;
+	const iconType = isMerged || isClosed ? 'checkmark-circle' : 'chat';
+	const iconClasses = [
+		'notification__type',
+		...( isClosed && ! isMerged ? [ 'notification__type--closed' ] : [] ),
+		...( isMerged ? [ 'notification__type--merged' ] : [] ),
+	];
+
 	return el( 'div', { className: 'notification' + noteClass, onClick },
+		el( 'div', { className: iconClasses.join( ' ' ) }, el( Gridicon, { icon: iconType } ) ),
 		note.unread ? el( 'span', { className: 'notification__new-dot' } ) : null,
 		el( 'div', { className: 'notification__image' }, el( EnsuredImage, { src: avatarSrc } ) ),
 		el( 'div', { className: 'notification__body' },
