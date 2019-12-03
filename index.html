@@ -157,18 +157,26 @@ header h1 {
 .notification__new-dot {
   position: absolute;
   font-size: 2.5em;
-  left: 60px;
-  top: 15px;
+  left: 23px;
+  top: 5px;
   border-radius: 20px;
   border: 1.2px solid #fff;
   width: 10px;
   height: 10px;
-  background: red;
+  background: #cb2431;
 }
 
 .notification__type {
   fill: #28a745;
   display: flex;
+  flex-direction: column;
+  font-size: 0.7em;
+  max-width: 50px;
+  min-width: 50px;
+  width: 50px;
+  align-items: center;
+  overflow: hidden;
+  margin-top: 14px;
 }
 
 .notification__type--closed {
@@ -180,10 +188,8 @@ header h1 {
 }
 
 .notification__type svg {
-  margin-top: 14px;
   width: 16px;
   height: 16px;
-  margin-right: 8px;
 }
 
 .notification__image img {
@@ -194,6 +200,7 @@ header h1 {
 .notification__image {
   margin-right: 10px;
   padding-top: 5px;
+  position: relative;
 }
 
 .notification__time {
