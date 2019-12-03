@@ -36,8 +36,19 @@ function Notification( { note, openUrl, markRead, token } ) {
 			el( 'div', { className: 'notification__repo' }, note.repositoryFullName ),
 			el( 'div', { className: 'notification__title' }, note.title ),
 			el( 'div', { className: 'notification__time' }, timeString )
-		)
+		),
+		note.unread ? el( MarkReadButton, { note, token, markRead } ) : el( 'span', { className: 'notification__mark-read-dot' }, '•' )
 	);
+}
+
+function MarkReadButton( { note, token, markRead } ) {
+	const onClick = event => {
+		debug( 'clicked to mark notification as read', note );
+		event.preventDefault();
+		event.stopPropagation();
+		markRead( token, note );
+	};
+	return el( 'a', { className: 'notification__mark-read', href: '#', title: 'Mark as read', onClick }, el( Gridicon, { icon: 'checkmark' } ) );
 }
 
 module.exports = Notification;
