@@ -29,8 +29,9 @@ function Notification( { note, openUrl, markRead, token } ) {
 
 	return el( 'div', { className: 'notification' + noteClass, onClick },
 		el( 'div', { className: iconClasses.join( ' ' ) }, el( Gridicon, { icon: iconType } ), el( 'span', { className: 'notification__type-text' }, iconText ) ),
-		note.unread ? el( 'span', { className: 'notification__new-dot' } ) : null,
-		el( 'div', { className: 'notification__image' }, el( EnsuredImage, { src: avatarSrc } ) ),
+		el( 'div', { className: 'notification__image' },
+			note.unread ? el( 'span', { className: 'notification__new-dot' } ) : null,
+			el( EnsuredImage, { src: avatarSrc } ) ),
 		el( 'div', { className: 'notification__body' },
 			el( 'div', { className: 'notification__repo' }, note.repositoryFullName ),
 			el( 'div', { className: 'notification__title' }, note.title ),
