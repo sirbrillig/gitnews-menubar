@@ -169,6 +169,14 @@ header h1 {
 .notification__type {
   fill: #28a745;
   display: flex;
+  flex-direction: column;
+  font-size: 0.7em;
+  max-width: 50px;
+  min-width: 50px;
+  width: 50px;
+  align-items: center;
+  overflow: hidden;
+  margin-top: 14px;
 }
 
 .notification__type--closed {
@@ -180,10 +188,8 @@ header h1 {
 }
 
 .notification__type svg {
-  margin-top: 14px;
   width: 16px;
   height: 16px;
-  margin-right: 8px;
 }
 
 .notification__image img {

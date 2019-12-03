@@ -20,6 +20,7 @@ function Notification( { note, openUrl, markRead, token } ) {
 	const isClosed = note.api.subject && note.api.subject.state && note.api.subject.state === 'closed';
 	const isMerged = note.api.subject && note.api.subject.merged;
 	const iconType = isMerged || isClosed ? 'checkmark-circle' : 'chat';
+	const iconText = isMerged || isClosed ? 'closed' : 'open';
 	const iconClasses = [
 		'notification__type',
 		...( isClosed && ! isMerged ? [ 'notification__type--closed' ] : [] ),
@@ -27,7 +28,7 @@ function Notification( { note, openUrl, markRead, token } ) {
 	];
 
 	return el( 'div', { className: 'notification' + noteClass, onClick },
-		el( 'div', { className: iconClasses.join( ' ' ) }, el( Gridicon, { icon: iconType } ) ),
+		el( 'div', { className: iconClasses.join( ' ' ) }, el( Gridicon, { icon: iconType } ), el( 'span', { className: 'notification__type-text' }, iconText ) ),
 		note.unread ? el( 'span', { className: 'notification__new-dot' } ) : null,
 		el( 'div', { className: 'notification__image' }, el( EnsuredImage, { src: avatarSrc } ) ),
 		el( 'div', { className: 'notification__body' },
