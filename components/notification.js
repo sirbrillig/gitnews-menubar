@@ -35,9 +35,8 @@ function Notification( { note, openUrl, markRead, token } ) {
 		el( 'div', { className: 'notification__body' },
 			el( 'div', { className: 'notification__repo' }, note.repositoryFullName ),
 			el( 'div', { className: 'notification__title' }, note.title ),
-			el( 'div', { className: 'notification__time' }, timeString )
-		),
-		note.unread ? el( MarkReadButton, { note, token, markRead } ) : el( 'span', { className: 'notification__mark-read-dot' }, '•' )
+			el( 'div', {}, el( 'span', { className: 'notification__time' }, timeString ), note.unread ? el( MarkReadButton, { note, token, markRead } ) : null )
+		)
 	);
 }
 
@@ -48,7 +47,7 @@ function MarkReadButton( { note, token, markRead } ) {
 		event.stopPropagation();
 		markRead( token, note );
 	};
-	return el( 'a', { className: 'notification__mark-read', href: '#', title: 'Mark as read', onClick }, el( Gridicon, { icon: 'checkmark' } ) );
+	return el( 'a', { className: 'notification__mark-read', href: '#', title: 'Mark as read', onClick }, 'mark read' );
 }
 
 module.exports = Notification;
