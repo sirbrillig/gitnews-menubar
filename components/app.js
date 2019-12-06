@@ -15,6 +15,7 @@ const {
 	hideConfig,
 	showConfig,
 	markRead,
+	markUnread,
 	clearErrors,
 	fetchNotifications,
 	openUrl,
@@ -57,11 +58,11 @@ class App extends React.Component {
 	}
 
 	getReadNotifications() {
-		return this.props.notes.filter( note => ! note.unread );
+		return this.props.notes.filter( note => ( ! note.unread && ! note.gitnewsMarkedUnread ) );
 	}
 
 	getUnreadNotifications() {
-		return this.props.notes.filter( note => note.unread );
+		return this.props.notes.filter( note => note.unread || note.gitnewsMarkedUnread );
 	}
 
 	getUnseenNotifications() {
@@ -121,6 +122,7 @@ class App extends React.Component {
 				hideEditToken: this.props.hideEditToken,
 				showEditToken: this.props.showEditToken,
 				markRead: this.props.markRead,
+				markUnread: this.props.markUnread,
 				checkForUpdates: this.props.checkForUpdates,
 				isAutoLoadEnabled: this.props.isAutoLoadEnabled,
 				changeAutoLoad: this.props.changeAutoLoad,
@@ -139,6 +141,7 @@ App.propTypes = {
 	openUrl: PropTypes.func.isRequired,
 	fetchNotifications: PropTypes.func.isRequired,
 	markRead: PropTypes.func.isRequired,
+	markUnread: PropTypes.func.isRequired,
 	clearErrors: PropTypes.func.isRequired,
 	showEditToken: PropTypes.func.isRequired,
 	hideEditToken: PropTypes.func.isRequired,
@@ -182,6 +185,7 @@ const actions = {
 	hideConfig,
 	showConfig,
 	markRead,
+	markUnread,
 	clearErrors,
 	fetchNotifications,
 	openUrl,

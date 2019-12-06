@@ -17,9 +17,9 @@ function NoNotifications() {
 	);
 }
 
-function NotificationsArea( { newNotes, readNotes, markRead, openUrl, token } ) {
-	const noteRows = newNotes.length ? newNotes.map( note => el( Notification, { note, key: getNoteId( note ), markRead, token, openUrl } ) ) : el( NoNotifications );
-	const readNoteRows = readNotes.map( note => el( Notification, { note, key: getNoteId( note ), markRead, token, openUrl } ) );
+function NotificationsArea( { newNotes, readNotes, markRead, markUnread, openUrl, token } ) {
+	const noteRows = newNotes.length ? newNotes.map( note => el( Notification, { note, key: getNoteId( note ), markRead, markUnread, token, openUrl } ) ) : el( NoNotifications );
+	const readNoteRows = readNotes.map( note => el( Notification, { note, key: getNoteId( note ), markRead, markUnread, token, openUrl } ) );
 	return el( 'div', { className: 'notifications-area' },
 		noteRows,
 		readNoteRows

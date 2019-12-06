@@ -19,6 +19,7 @@ function MainPane( {
 	newNotes,
 	readNotes,
 	markRead,
+	markUnread,
 	checkForUpdates,
 	fetchingInProgress,
 	isAutoLoadEnabled,
@@ -33,7 +34,7 @@ function MainPane( {
 	if ( ! lastSuccessfulCheck ) {
 		return el( UncheckedNotice, { fetchingInProgress, openUrl } );
 	}
-	return el( NotificationsArea, { newNotes, readNotes, markRead, openUrl, token } );
+	return el( NotificationsArea, { newNotes, readNotes, markRead, markUnread, openUrl, token } );
 }
 
 module.exports = MainPane;
