@@ -15,6 +15,11 @@ const { fetcher } = require( './lib/gitnews-fetcher' );
 const { electronMiddleware } = require( './lib/electron-middleware' );
 const { configMiddleware } = require( './lib/config-middleware' );
 const { githubMiddleware } = require( './lib/github-middleware' );
+const { persistStore, persistReducer } = require( 'redux-persist' );
+const storage = require( 'redux-persist/lib/storage' ).default;
+
+const persistConfig = { key: 'gitnews-state', storage };
+const persistedReducer = persistReducer( persistConfig, reducer );
 
 const el = React.createElement;
 const logger = createLogger( {
@@ -40,7 +45,9 @@ function runApp() {
 		console.error( 'Could not find main element' );
 		return;
 	}
-	const store = createStore( reducer, applyMiddleware( configMiddleware, electronMiddleware, githubMiddleware, fetcher, logger ) );
+	const store = createStore( persistedReducer, applyMiddleware( configMiddleware, electronMiddleware, githubMiddleware, fetcher, logger ) );
+	persistStore( store );
+
 	ReactDOM.render(
 		el( Provider, { store },
 			el( AppWrapper, { quitApp, version }, App )
