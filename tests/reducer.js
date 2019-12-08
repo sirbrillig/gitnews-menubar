@@ -97,6 +97,12 @@ describe( 'reducer', function() {
 			expect( result.notes.map( note => note.id ) ).to.not.include( 'o1' );
 		} );
 
+		it( 'preserves `markedUnread` state for existing notifications', function() {
+			const action = { type: 'NOTES_RETRIEVED', notes };
+			const result = reducer( { notes: [ { id: 'a1', title: 'test note', gitnewsMarkedUnread: true } ] }, action );
+			expect( result.notes.filter( note => note.gitnewsMarkedUnread ) ).to.have.length( 1 );
+		} );
+
 		it( 'preserves `seen` state for existing notifications', function() {
 			const action = { type: 'NOTES_RETRIEVED', notes };
 			const result = reducer( { notes: [ { id: 'a1', title: 'test note', gitnewsSeen: true } ] }, action );
