@@ -68,6 +68,7 @@
     "eslint-plugin-react-hooks": "^2.3.0",
     "eslint-plugin-wpcalypso": "^4.0.2",
     "mocha": "^5.2.0",
+    "prettier": "1.19.1",
     "sinon": "^7.0.0",
     "webpack": "^4.41.2"
   },
