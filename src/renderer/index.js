@@ -1,21 +1,25 @@
 require('dotenv').config();
-const { version } = require('../../package.json');
-const { remote } = require('electron');
-const { createStore, applyMiddleware } = require('redux');
-const { Provider } = require('react-redux');
-const React = require('react');
-const ReactDOM = require('react-dom');
-const unhandled = require('electron-unhandled');
-const { createLogger } = require('redux-logger');
-const AppWrapper = require('./components/app-wrapper');
-const App = require('./components/app');
-const { reducer } = require('common/lib/reducer');
-const { fetcher } = require('common/lib/gitnews-fetcher');
-const { electronMiddleware } = require('common/lib/electron-middleware');
-const { configMiddleware } = require('common/lib/config-middleware');
-const { githubMiddleware } = require('common/lib/github-middleware');
-const { persistStore, persistReducer } = require('redux-persist');
-const storage = require('redux-persist/lib/storage').default;
+
+import { version } from '../../package.json';
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { remote } from 'electron';
+import { createStore, applyMiddleware } from 'redux';
+import { createLogger } from 'redux-logger';
+import unhandled from 'electron-unhandled';
+import { Provider } from 'react-redux';
+import { persistStore, persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
+
+import App from './components/app';
+import AppWrapper from './components/app-wrapper';
+
+import { reducer } from 'common/lib/reducer';
+import { fetcher } from 'common/lib/gitnews-fetcher';
+import { electronMiddleware } from 'common/lib/electron-middleware';
+import { configMiddleware } from 'common/lib/config-middleware';
+import { githubMiddleware } from 'common/lib/github-middleware';
 
 import './styles.css';
 
