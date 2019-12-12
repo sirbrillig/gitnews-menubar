@@ -1,3 +1,4 @@
+/* globals __static */
 const path = require( 'path' );
 const { app, systemPreferences, nativeImage } = require( 'electron' );
 
@@ -20,7 +21,7 @@ function getIconPathBuilder( appDir ) {
 }
 
 function getIconForState( state ) {
-	const getIconPathForState = getIconPathBuilder( app.getAppPath() );
+	const getIconPathForState = getIconPathBuilder( __static );
 	return nativeImage.createFromPath( getIconPathForState( state ) );
 }
 

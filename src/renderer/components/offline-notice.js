@@ -1,5 +1,5 @@
 const React = require( 'react' );
-const { getSecondsUntilNextFetch } = require( '../lib/helpers' );
+const { getSecondsUntilNextFetch } = require( 'common/lib/helpers' );
 const el = React.createElement;
 
 function OfflineNotice( { fetchNotifications, lastChecked, fetchInterval } ) {

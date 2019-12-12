@@ -1,5 +1,5 @@
 const AutoLaunch = require( 'auto-launch' );
-const { setToken } = require( '../lib/helpers' );
+const { setToken } = require( 'common/lib/helpers' );
 const debugFactory = require( 'debug' );
 
 const debug = debugFactory( 'gitnews-menubar' );

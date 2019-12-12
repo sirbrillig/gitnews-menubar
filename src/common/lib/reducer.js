@@ -1,5 +1,5 @@
-const { PANE_NOTIFICATIONS, PANE_CONFIG, PANE_TOKEN } = require( '../lib/constants' );
-const { getToken, secsToMs, getNoteId, mergeNotifications, getFetchInterval } = require( '../lib/helpers' );
+const { PANE_NOTIFICATIONS, PANE_CONFIG, PANE_TOKEN } = require( 'common/lib/constants' );
+const { getToken, secsToMs, getNoteId, mergeNotifications, getFetchInterval } = require( 'common/lib/helpers' );
 
 const defaultFetchInterval = secsToMs( 120 );
 

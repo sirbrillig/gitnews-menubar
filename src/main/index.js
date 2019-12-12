@@ -1,13 +1,18 @@
+/* eslint-disable wpcalypso/import-docblock */
+/* globals __dirname */
 const { ipcMain, app, Menu, dialog, shell, systemPreferences } = require( 'electron' );
 const createMenubar = require( 'menubar' );
 const isDev = require( 'electron-is-dev' );
 const semver = require( 'semver' );
 const electronDebug = require( 'electron-debug' );
-const { version } = require( './package.json' );
-const { checkForUpdates } = require( './lib/updates' );
-const { getIconPathForState, getIconForState } = require( './lib/icon-path' );
+const { version } = require( '../../package.json' );
+const { checkForUpdates } = require( 'common/lib/updates' );
+const { getIconPathForState, getIconForState } = require( 'common/lib/icon-path' );
 const Raven = require( 'raven' );
 const unhandled = require( 'electron-unhandled' );
+
+import * as path from 'path';
+import { format as formatUrl } from 'url';
 
 // https://sentry.io/ Error reporting
 Raven.config( 'https://d8eec1c8e2f846ac951aff7b04cfb4fe@sentry.io/201433' ).install();
@@ -28,6 +33,9 @@ const bar = createMenubar( {
 	width: 390,
 	height: 440,
 	icon: getIconPathForState( 'normal' ),
+	webPreferences: {
+		nodeIntegration: true,
+	},
 } );
 
 bar.on( 'ready', () => {
@@ -40,6 +48,16 @@ bar.on( 'ready', () => {
 	bar.window.on( 'unresponsive', () => {
 		Raven.captureException( new Error( 'Window was unresponsive.' ) );
 	} );
+
+	if ( process.env.NODE_ENV !== 'production' ) {
+		bar.window.loadURL( `http://localhost:${ process.env.ELECTRON_WEBPACK_WDS_PORT }` );
+	} else {
+		bar.window.loadURL( formatUrl( {
+			pathname: path.join( __dirname, 'index.html' ),
+			protocol: 'file',
+			slashes: true,
+		} ) );
+	}
 } );
 
 bar.on( 'hide', () => {

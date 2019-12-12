@@ -4,7 +4,7 @@ const ConfigPage = require( '../components/config-page' );
 const UncheckedNotice = require( '../components/unchecked-notice' );
 const AddTokenForm = require( '../components/add-token-form' );
 const NotificationsArea = require( '../components/notifications-area' );
-const { PANE_CONFIG, PANE_TOKEN } = require( '../lib/constants' );
+const { PANE_CONFIG, PANE_TOKEN } = require( 'common/lib/constants' );
 
 function MainPane( {
 	token,

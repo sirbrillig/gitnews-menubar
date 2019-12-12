@@ -1,7 +1,7 @@
 /* globals window */
 const React = require( 'react' );
 const el = React.createElement;
-const { secsToMs } = require( '../lib/helpers' );
+const { secsToMs } = require( 'common/lib/helpers' );
 
 function createUpdater( WrappedComponent ) {
 	return class Updater extends React.Component {

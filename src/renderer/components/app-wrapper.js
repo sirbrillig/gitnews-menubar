@@ -2,7 +2,7 @@ const PropTypes = require( 'prop-types' );
 const { ipcRenderer } = require( 'electron' );
 const React = require( 'react' );
 const { connect } = require( 'react-redux' );
-const { markAllNotesSeen, scrollToTop } = require( '../lib/reducer' );
+const { markAllNotesSeen, scrollToTop } = require( 'common/lib/reducer' );
 
 const el = React.createElement;
 

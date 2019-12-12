@@ -1,10 +1,3 @@
-<!DOCTYPE html>
-<html>
-	<head>
-		<title>gitnews</title>
-		<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.ravenjs.com; img-src *; style-src 'unsafe-inline'">
-		<script src="https://cdn.ravenjs.com/3.17.0/raven.min.js" crossorigin="anonymous"></script>
-		<style type="text/css">
 html {
   height: 100%;
 }
@@ -309,26 +302,3 @@ main {
   max-height: 0;
   transition: max-height 1s;
 }
-		</style>
-	</head>
-	<body>
-	  <div class="main">
-	    <header>
-	      <div class="header__primary"><span class="config-spacer"></span><h1><a href="https://github.com/sirbrillig/gitnews-menubar">Gitnews</a></h1><span class="config-spacer"></span></div>
-	      <div class="header__secondary"></div>
-	    </header>
-	    <div class="app-loading-message">
-	      <h2>Loading Gitnews...</h2>
-	      <p>If this message does not disappear, please create a new issue <a href="https://github.com/sirbrillig/gitnews-menubar/issues/new">here</a> describing what happened.</p>
-	      <p>If you are using this app in development mode, make sure you remembered to run `yarn`.</p>
-	      <div class="spinner" title="Loading">
-		<svg version="1.1" id="loader-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="40px" height="40px" viewBox="0 0 50 50" style="enable-background:new 0 0 50 50;" xml:space="preserve">
-		  <path fill="#000" d="M43.935,25.145c0-10.318-8.364-18.683-18.683-18.683c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615c8.072,0,14.615,6.543,14.615,14.615H43.935z">
-		  <animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.6s" repeatCount="indefinite"/>
-		  </path>
-		</svg>
-	      </div>
-	    </div></div>
-	    <script defer type="text/javascript" src="./app.js"></script>
-	</body>
-</html>

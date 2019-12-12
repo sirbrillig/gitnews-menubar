@@ -6,9 +6,9 @@ const debugFactory = require( 'debug' );
 const Header = require( '../components/header' );
 const ErrorsArea = require( '../components/errors-area' );
 const MainPane = require( '../components/main-pane' );
-const { PANE_CONFIG, PANE_NOTIFICATIONS } = require( '../lib/constants' );
-const Poller = require( '../lib/poller' );
-const { getSecondsUntilNextFetch } = require( '../lib/helpers' );
+const { PANE_CONFIG, PANE_NOTIFICATIONS } = require( 'common/lib/constants' );
+const Poller = require( 'common/lib/poller' );
+const { getSecondsUntilNextFetch } = require( 'common/lib/helpers' );
 const {
 	hideEditToken,
 	showEditToken,
@@ -23,7 +23,7 @@ const {
 	setIcon,
 	changeToken,
 	changeAutoLoad,
-} = require( '../lib/reducer' );
+} = require( 'common/lib/reducer' );
 
 const debug = debugFactory( 'gitnews-menubar' );
 const el = React.createElement;

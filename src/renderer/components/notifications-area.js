@@ -2,7 +2,7 @@ const React = require( 'react' );
 const el = React.createElement;
 const Gridicon = require( 'gridicons' );
 const Notification = require( '../components/notification' );
-const { getNoteId } = require( '../lib/helpers' );
+const { getNoteId } = require( 'common/lib/helpers' );
 
 function NoNotificationsIcon() {
 	return el( Gridicon, { icon: 'checkmark-circle', size: 36, className: 'no-notifications-icon' } );

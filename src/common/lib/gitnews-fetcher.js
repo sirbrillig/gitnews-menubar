@@ -1,6 +1,6 @@
 /* globals window */
 const debugFactory = require( 'debug' );
-const { logError, secsToMs, isOfflineCode, getErrorMessage, isGitHubOffline, isInvalidJson } = require( '../lib/helpers' );
+const { logError, secsToMs, isOfflineCode, getErrorMessage, isGitHubOffline, isInvalidJson } = require( 'common/lib/helpers' );
 const { getNotifications } = require( 'gitnews' );
 const {
 	changeToOffline,
@@ -8,7 +8,7 @@ const {
 	fetchDone,
 	gotNotes,
 	addConnectionError,
-} = require( '../lib/reducer' );
+} = require( 'common/lib/reducer' );
 
 const debug = debugFactory( 'gitnews-menubar' );
 

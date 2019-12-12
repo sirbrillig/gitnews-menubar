@@ -1,6 +1,6 @@
 const React = require( 'react' );
 const el = React.createElement;
-const { getErrorMessage } = require( '../lib/helpers' );
+const { getErrorMessage } = require( 'common/lib/helpers' );
 
 function ClearErrorsButton( { clearErrors } ) {
 	return el( 'button', { className: 'clear-errors-button btn', onClick: clearErrors }, 'Clear Errors' );
