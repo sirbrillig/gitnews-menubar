@@ -51,6 +51,7 @@
     "source-map-support": "^0.5.16"
   },
   "devDependencies": {
+    "@babel/preset-react": "^7.7.4",
     "chai": "^4.0.0",
     "chai-sinon": "^2.8.1",
     "devtron": "^1.4.0",
