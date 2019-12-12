@@ -4,8 +4,6 @@ const React = require( 'react' );
 const { connect } = require( 'react-redux' );
 const { markAllNotesSeen, scrollToTop } = require( 'common/lib/reducer' );
 
-const el = React.createElement;
-
 class AppWrapper extends React.Component {
 	constructor( props ) {
 		super( props );
@@ -16,7 +14,7 @@ class AppWrapper extends React.Component {
 	}
 
 	render() {
-		return el( this.props.children, Object.assign( { version: this.props.version }, { quitApp: this.props.quitApp } ) );
+		return this.props.children;
 	}
 }
 

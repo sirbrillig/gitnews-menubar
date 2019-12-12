@@ -53,9 +53,11 @@ function runApp() {
 	persistStore( store );
 
 	ReactDOM.render(
-		el( Provider, { store },
-			el( AppWrapper, { quitApp, version }, App )
-		),
+		<Provider store={store}>
+			<AppWrapper quitApp={quitApp} version={version}>
+				<App version={ version } quitApp={ quitApp } />
+			</AppWrapper>
+		</Provider>,
 		main );
 }
 
