@@ -1,9 +1,9 @@
-/* globals window */
-const React = require( 'react' );
-const el = React.createElement;
-const { secsToMs } = require( 'common/lib/helpers' );
+import React from 'react' ;
+import { secsToMs } from 'common/lib/helpers' ;
 
-function createUpdater( WrappedComponent ) {
+const el = React.createElement;
+
+export default function createUpdater( WrappedComponent ) {
 	return class Updater extends React.Component {
 		constructor( props ) {
 			super( props );
@@ -36,6 +36,3 @@ function createUpdater( WrappedComponent ) {
 		}
 	};
 }
-
-module.exports = createUpdater;
-

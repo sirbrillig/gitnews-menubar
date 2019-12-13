@@ -1,7 +1,8 @@
-const React = require( 'react' );
+import React from 'react' ;
+
 const el = React.createElement;
 
-function UncheckedNotice( { fetchingInProgress, openUrl } ) {
+export default function UncheckedNotice( { fetchingInProgress, openUrl } ) {
 	const openLink = ( event ) => {
 		event.preventDefault();
 		openUrl( event.target.href );
@@ -16,5 +17,3 @@ function UncheckedNotice( { fetchingInProgress, openUrl } ) {
 		)
 	);
 }
-
-module.exports = UncheckedNotice;

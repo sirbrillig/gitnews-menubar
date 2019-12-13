@@ -1,12 +1,11 @@
-const React = require( 'react' );
-const el = React.createElement;
+import React from 'react';
 
-function Logo( { onClick } ) {
-	return el( 'h1', null,
-		el( 'a', { href: 'https://github.com/sirbrillig/gitnews-menubar', onClick },
-			'Gitnews'
-		)
+export default function Logo({ onClick }) {
+	return (
+		<h1>
+			<a href="https://github.com/sirbrillig/gitnews-menubar" onClick={onClick}>
+				Gitnews
+			</a>
+		</h1>
 	);
 }
-
-module.exports = Logo;

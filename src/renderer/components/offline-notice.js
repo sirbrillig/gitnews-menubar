@@ -1,8 +1,9 @@
-const React = require( 'react' );
-const { getSecondsUntilNextFetch } = require( 'common/lib/helpers' );
+import React from 'react' ;
+import { getSecondsUntilNextFetch } from 'common/lib/helpers' ;
+
 const el = React.createElement;
 
-function OfflineNotice( { fetchNotifications, lastChecked, fetchInterval } ) {
+export default function OfflineNotice( { fetchNotifications, lastChecked, fetchInterval } ) {
 	const secondsRemaining = getSecondsUntilNextFetch( lastChecked, fetchInterval );
 	if ( secondsRemaining < 1 ) {
 		return el( 'div', { className: 'offline-notice' },
@@ -14,5 +15,3 @@ function OfflineNotice( { fetchNotifications, lastChecked, fetchInterval } ) {
 		el( 'a', { href: '#', onClick: fetchNotifications }, 'Retry now' )
 	);
 }
-
-module.exports = OfflineNotice;

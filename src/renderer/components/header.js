@@ -1,42 +1,74 @@
-const React = require( 'react' );
-const el = React.createElement;
-const Gridicon = require( 'gridicons' );
-const Logo = require( '../components/logo' );
-const LastChecked = require( '../components/last-checked' );
-const OfflineNotice = require( '../components/offline-notice' );
-const FetchingInProgress = require( '../components/fetching-in-progress' );
-const createUpdater = require( '../components/updater' );
-const Vanisher = require( '../components/vanisher' );
-const UpdatingLastChecked = createUpdater( LastChecked );
-const UpdatingOfflineNotice = createUpdater( OfflineNotice );
+import React from 'react';
+import Gridicon from 'gridicons';
+import Logo from '../components/logo';
+import LastChecked from '../components/last-checked';
+import OfflineNotice from '../components/offline-notice';
+import FetchingInProgress from '../components/fetching-in-progress';
+import createUpdater from '../components/updater';
+import Vanisher from '../components/vanisher';
 
-function LeftButton( { hideConfig, showConfig } ) {
-	if ( hideConfig ) {
-		return el( 'a', { className: 'back-button', href: '#', onClick: hideConfig, title: 'Back' }, el( Gridicon, { icon: 'chevron-left' } ) );
+const UpdatingLastChecked = createUpdater(LastChecked);
+const UpdatingOfflineNotice = createUpdater(OfflineNotice);
+
+function LeftButton({ hideConfig, showConfig }) {
+	if (hideConfig) {
+		return (
+			<a className="back-button" href="#" onClick={hideConfig} title="Back">
+				<Gridicon icon="chevron-left" />
+			</a>
+		);
 	}
-	if ( showConfig ) {
-		return el( 'a', { className: 'config-button', onClick: showConfig, href: '#', title: 'Configuration' }, el( Gridicon, { icon: 'cog' } ) );
+	if (showConfig) {
+		return (
+			<a
+				href="#"
+				className="config-button"
+				onClick={showConfig}
+				titke="Configuration">
+				<Gridicon icon="cog" />
+			</a>
+		);
 	}
-	return el( 'span', { className: 'config-spacer' } );
+	return <span className="config-spacer" />;
 }
 
-function Header( { openUrl, lastSuccessfulCheck, lastChecked, fetchInterval, showConfig, offline, fetchNotifications, hideConfig, fetchingInProgress } ) {
-	const openLink = ( event ) => {
+export default function Header({
+	openUrl,
+	lastSuccessfulCheck,
+	lastChecked,
+	fetchInterval,
+	showConfig,
+	offline,
+	fetchNotifications,
+	hideConfig,
+	fetchingInProgress,
+}) {
+	const openLink = event => {
 		event.preventDefault();
-		openUrl( event.target.href );
+		openUrl(event.target.href);
 	};
-	return el( 'header', null,
-		el( 'div', { className: 'header__primary' },
-			el( LeftButton, { hideConfig, showConfig } ),
-			el( Logo, { onClick: openLink } ),
-			el( 'span', { className: 'config-spacer' } )
-		),
-		el( 'div', { className: 'header__secondary' },
-			lastSuccessfulCheck && el( UpdatingLastChecked, { lastSuccessfulCheck } )
-		),
-		el( Vanisher, { isVisible: offline }, el( UpdatingOfflineNotice, { fetchNotifications, lastChecked, fetchInterval } ) ),
-		el( Vanisher, { isVisible: fetchingInProgress }, el( FetchingInProgress ) )
+	return (
+		<header>
+			<div className="header__primary">
+				<LeftButton hideConfig={hideConfig} showConfig={showConfig} />
+				<Logo onClick={openLink} />
+				<span className="config-spacer"></span>
+			</div>
+			<div className="header__secondary">
+				{lastSuccessfulCheck && (
+					<UpdatingLastChecked lastSuccessfulCheck={lastSuccessfulCheck} />
+				)}
+			</div>
+			<Vanisher isVisible={offline}>
+				<UpdatingOfflineNotice
+					fetchNotifications={fetchNotifications}
+					lastChecked={lastChecked}
+					fetchInterval={fetchInterval}
+				/>
+			</Vanisher>
+			<Vanisher isVisible={fetchingInProgress}>
+				<FetchingInProgress />
+			</Vanisher>
+		</header>
 	);
 }
-
-module.exports = Header;

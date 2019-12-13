@@ -1,5 +1,5 @@
-const React = require('react');
-const BellIcon = require('../components/bell-icon');
+import React from'react';
+import BellIcon from'../components/bell-icon';
 
 export default function Attributions({ openUrl }) {
 	const openLink = event => {

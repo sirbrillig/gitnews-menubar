@@ -1,13 +1,13 @@
-const React = require( 'react' );
-const Gridicon = require( 'gridicons' );
-const el = React.createElement;
-const debugFactory = require( 'debug' );
-const date = require( 'date-fns' );
-const EnsuredImage = require( '@sirbrillig/ensured-image' );
+import React from 'react' ;
+import Gridicon from 'gridicons' ;
+import debugFactory from 'debug' ;
+import date from 'date-fns' ;
+import EnsuredImage from '@sirbrillig/ensured-image' ;
 
+const el = React.createElement;
 const debug = debugFactory( 'gitnews-menubar' );
 
-function Notification( { note, openUrl, markRead, markUnread, token } ) {
+export default function Notification( { note, openUrl, markRead, markUnread, token } ) {
 	const isUnread = note.unread === true ? true : note.gitnewsMarkedUnread === true;
 	const onClick = () => {
 		debug( 'clicked on notification', note );
@@ -60,5 +60,3 @@ function MarkUnreadButton( { note, markUnread } ) {
 	};
 	return el( 'a', { className: 'notification__mark-unread', href: '#', title: 'Mark as unread', onClick }, 'mark unread' );
 }
-
-module.exports = Notification;

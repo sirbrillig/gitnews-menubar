@@ -1,20 +1,20 @@
-const React = require( 'react' );
-const el = React.createElement;
+import React from 'react';
 
-function Copyright( { openUrl, version } ) {
-	const openLink = ( event ) => {
+export default function Copyright({ openUrl, version }) {
+	const openLink = event => {
 		event.preventDefault();
-		openUrl( event.target.href );
+		openUrl(event.target.href);
 	};
-	return el( 'div', { className: 'copyright' },
-		el( 'div', { className: 'copyright__text' },
-			el( 'a', { href: 'https://github.com/sirbrillig/gitnews-menubar', onClick: openLink }, 'gitnews-menubar' ),
-			' - ',
-			el( 'span', null, ` v${ version }` ),
-			' - ',
-			el( 'span', null, 'copyright 2017 Payton Swick' )
-		)
+	return (
+		<div className="copyright">
+			<div className="copyright__text">
+				<a
+					href="https://github.com/sirbrillig/gitnews-menubar"
+					onClick={openLink}>
+					gitnews-menubar
+				</a>{' '}
+				- <span>v{version}</span> - <span>copyright 2017 Payton Swick</span>
+			</div>
+		</div>
 	);
 }
-
-module.exports = Copyright;

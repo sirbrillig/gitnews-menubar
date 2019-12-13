@@ -1,10 +1,9 @@
-const React = require( 'react' );
-const el = React.createElement;
+import React from 'react';
 
-function FetchingInProgress() {
-	return el( 'div', { className: 'fetching-in-progress' },
-		el( 'span', null, 'fetching notifications...' )
+export default function FetchingInProgress() {
+	return (
+		<div className="fething-in-progress">
+			<span>fetching notifications...</span>
+		</div>
 	);
 }
-
-module.exports = FetchingInProgress;
