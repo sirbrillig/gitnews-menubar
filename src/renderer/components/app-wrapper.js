@@ -1,8 +1,8 @@
-const PropTypes = require( 'prop-types' );
-const { ipcRenderer } = require( 'electron' );
-const React = require( 'react' );
-const { connect } = require( 'react-redux' );
-const { markAllNotesSeen, scrollToTop } = require( 'common/lib/reducer' );
+import PropTypes from 'prop-types' ;
+import { ipcRenderer } from 'electron' ;
+import React from 'react' ;
+import { connect } from 'react-redux' ;
+import { markAllNotesSeen, scrollToTop } from 'common/lib/reducer' ;
 
 class AppWrapper extends React.Component {
 	constructor( props ) {
@@ -34,4 +34,4 @@ const actions = {
 	scrollToTop,
 };
 
-module.exports = connect( null, actions )( AppWrapper );
+export default connect( null, actions )( AppWrapper );

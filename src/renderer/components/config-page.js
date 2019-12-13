@@ -1,26 +1,51 @@
-const React = require( 'react' );
-const el = React.createElement;
+import React from 'react';
+import Copyright from '../components/copyright';
+import Attributions from '../components/attributions';
 
-const Copyright = require( '../components/copyright' );
-const Attributions = require( '../components/attributions' );
+export default function ConfigPage({
+	showEditToken,
+	openUrl,
+	version,
+	quitApp,
+	checkForUpdates,
+	isAutoLoadEnabled,
+	changeAutoLoad,
+}) {
+	const toggleAutoLoad = event => changeAutoLoad(event.target.checked);
 
-function ConfigPage( { showEditToken, openUrl, version, quitApp, checkForUpdates, isAutoLoadEnabled, changeAutoLoad } ) {
-	const toggleAutoLoad = ( event ) => changeAutoLoad( event.target.checked );
-	return el( 'div', { className: 'config-page' },
-		el( 'h2', { className: 'config-page__title' }, 'Configuration' ),
-		el( 'h3', null, 'Token' ),
-		el( 'div', null, 'Would you like to change your authentication token?' ),
-		el( 'a', { href: '#', onClick: showEditToken }, 'Edit token' ),
-		el( 'h3', null, 'Settings' ),
-		el( 'input', { type: 'checkbox', id: 'auto-load-setting', className: 'auto-load-setting', checked: isAutoLoadEnabled, onChange: toggleAutoLoad } ),
-		el( 'label', { htmlFor: 'auto-load-setting', className: 'auto-load-setting-label' }, 'Launch Gitnews at login' ),
-		el( Attributions, { openUrl } ),
-		el( 'div', { className: 'config-page__buttons' },
-			el( 'a', { className: 'btn quit-button', onClick: quitApp, href: '#', title: 'Quit' }, 'Quit' ),
-			el( 'a', { className: 'btn', onClick: checkForUpdates, href: '#', title: 'Check for Updates' }, 'Check for Updates' )
-		),
-		el( Copyright, { openUrl, version } )
+	return (
+		<div className="config-page">
+			<h2 className="config-page__title">Configuration</h2>
+			<h3>Token</h3>
+			<div>Would you like to change your authentication token?</div>
+			<a href="#" onClick={showEditToken}>
+				Edit token
+			</a>
+			<h3>Settings</h3>
+			<input
+				type="checkbox"
+				id="auto-load-setting"
+				className="auto-load-setting"
+				checked={isAutoLoadEnabled}
+				onChange={toggleAutoLoad}
+			/>
+			<label htmlFor="auto-load-setting" className="auto-load-setting-label">
+				Launch Gitnews at login
+			</label>
+			<Attributions openUrl={openUrl} />
+			<div className="config-page__buttons">
+				<a className="btn quit-button" onClick={quitApp} href="#" title="Quit">
+					Quit
+				</a>
+				<a
+					className="btn"
+					onClick={checkForUpdates}
+					href="#"
+					title="Check for Updates">
+					Check for Updates
+				</a>
+			</div>
+			<Copyright openUrl={openUrl} version={version} />
+		</div>
 	);
 }
-
-module.exports = ConfigPage;
