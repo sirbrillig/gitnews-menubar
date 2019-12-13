@@ -13,7 +13,7 @@ function ErrorMessage({ error }) {
 	return <div className="error-message">{error}</div>;
 }
 
-function ErrorsArea({ errors, clearErrors }) {
+export default function ErrorsArea({ errors, clearErrors }) {
 	return (
 		<div className="errors-area">
 			{errors.length > 0 ? (
@@ -30,5 +30,3 @@ function ErrorsArea({ errors, clearErrors }) {
 		</div>
 	);
 }
-
-module.exports = ErrorsArea;

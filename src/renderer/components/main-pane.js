@@ -1,12 +1,11 @@
-const React = require( 'react' );
-const el = React.createElement;
-const ConfigPage = require( '../components/config-page' );
-const UncheckedNotice = require( '../components/unchecked-notice' );
-const AddTokenForm = require( '../components/add-token-form' );
-const NotificationsArea = require( '../components/notifications-area' );
-const { PANE_CONFIG, PANE_TOKEN } = require( 'common/lib/constants' );
+import React from 'react';
+import ConfigPage from '../components/config-page';
+import UncheckedNotice from '../components/unchecked-notice';
+import AddTokenForm from '../components/add-token-form';
+import NotificationsArea from '../components/notifications-area';
+import { PANE_CONFIG, PANE_TOKEN } from 'common/lib/constants';
 
-function MainPane( {
+export default function MainPane({
 	token,
 	currentPane,
 	openUrl,
@@ -24,17 +23,47 @@ function MainPane( {
 	fetchingInProgress,
 	isAutoLoadEnabled,
 	changeAutoLoad,
-} ) {
-	if ( ! token || currentPane === PANE_TOKEN ) {
-		return el( AddTokenForm, { token, openUrl, changeToken, hideEditToken, showCancel: currentPane === PANE_TOKEN } );
+}) {
+	if (!token || currentPane === PANE_TOKEN) {
+		return (
+			<AddTokenForm
+				token={token}
+				openUrl={openUrl}
+				changeToken={changeToken}
+				hideEditToken={hideEditToken}
+				showCancel={currentPane === PANE_TOKEN}
+			/>
+		);
 	}
-	if ( currentPane === PANE_CONFIG ) {
-		return el( ConfigPage, { openUrl, showEditToken, version, quitApp, checkForUpdates, isAutoLoadEnabled, changeAutoLoad } );
+	if (currentPane === PANE_CONFIG) {
+		return (
+			<ConfigPage
+				openUrl={openUrl}
+				showEditToken={showEditToken}
+				version={version}
+				quitApp={quitApp}
+				checkForUpdates={checkForUpdates}
+				isAutoLoadEnabled={isAutoLoadEnabled}
+				changeAutoLoad={changeAutoLoad}
+			/>
+		);
 	}
-	if ( ! lastSuccessfulCheck ) {
-		return el( UncheckedNotice, { fetchingInProgress, openUrl } );
+	if (!lastSuccessfulCheck) {
+		return (
+			<UncheckedNotice
+				fetchingInProgress={fetchingInProgress}
+				openUrl={openUrl}
+			/>
+		);
 	}
-	return el( NotificationsArea, { newNotes, readNotes, markRead, markUnread, openUrl, token } );
+	return (
+		<NotificationsArea
+			newNotes={newNotes}
+			readNotes={readNotes}
+			markRead={markRead}
+			markUnread={markUnread}
+			openUrl={openUrl}
+			token={token}
+		/>
+	);
 }
-
-module.exports = MainPane;

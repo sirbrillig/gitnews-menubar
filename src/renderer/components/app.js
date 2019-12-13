@@ -137,25 +137,23 @@ class App extends React.Component {
 				/>
 				<ErrorsArea errors={errors} clearErrors={this.props.clearErrors} />
 				<MainPane
-					{...{
-						token,
-						currentPane,
-						version,
-						newNotes,
-						readNotes,
-						lastSuccessfulCheck,
-						fetchingInProgress,
-						openUrl: this.props.openUrl,
-						changeToken: this.props.changeToken,
-						quitApp: this.props.quitApp,
-						hideEditToken: this.props.hideEditToken,
-						showEditToken: this.props.showEditToken,
-						markRead: this.props.markRead,
-						markUnread: this.props.markUnread,
-						checkForUpdates: this.props.checkForUpdates,
-						isAutoLoadEnabled: this.props.isAutoLoadEnabled,
-						changeAutoLoad: this.props.changeAutoLoad,
-					}}
+					token={token}
+					currentPane={currentPane}
+					version={version}
+					newNotes={newNotes}
+					readNotes={readNotes}
+					lastSuccessfulCheck={lastSuccessfulCheck}
+					fetchingInProgress={fetchingInProgress}
+					openUrl={this.props.openUrl}
+					changeToken={this.props.changeToken}
+					quitApp={this.props.quitApp}
+					hideEditToken={this.props.hideEditToken}
+					showEditToken={this.props.showEditToken}
+					markRead={this.props.markRead}
+					markUnread={this.props.markUnread}
+					checkForUpdates={this.props.checkForUpdates}
+					isAutoLoadEnabled={this.props.isAutoLoadEnabled}
+					changeAutoLoad={this.props.changeAutoLoad}
 				/>
 			</main>
 		);
@@ -226,4 +224,4 @@ const actions = {
 	changeAutoLoad,
 };
 
-module.exports = connect(mapStateToProps, actions)(App);
+export default connect(mapStateToProps, actions)(App);

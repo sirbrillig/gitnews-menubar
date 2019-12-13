@@ -1,31 +1,53 @@
-const React = require( 'react' );
-const el = React.createElement;
+import React from 'react';
 
-function AddTokenForm( { token, openUrl, changeToken, showCancel, hideEditToken } ) {
-	const openLink = ( event ) => {
+export default function AddTokenForm({
+	token,
+	openUrl,
+	changeToken,
+	showCancel,
+	hideEditToken,
+}) {
+	const openLink = event => {
 		event.preventDefault();
-		openUrl( event.target.href );
+		openUrl(event.target.href);
 	};
 	let tokenField = null;
-	const saveTokenField = ( field ) => {
+	const saveTokenField = field => {
 		tokenField = field;
 	};
 	const saveToken = () => {
-		if ( tokenField ) {
-			changeToken( tokenField.value );
+		if (tokenField) {
+			changeToken(tokenField.value);
 			hideEditToken();
 		}
 	};
-	return el( 'div', { className: 'add-token-form' },
-		el( 'p', null,
-			'You must generate a GitHub authentication token so this app can see your notifications. It will need the `notifications` and `repo` scopes. You can generate a token ',
-			el( 'a', { href: 'https://github.com/settings/tokens', onClick: openLink }, 'here.' )
-		),
-		el( 'label', { htmlFor: 'add-token-form__input' }, 'GitHub Token:' ),
-		el( 'input', { type: 'text', className: 'add-token-form__input', id: 'add-token-form__input', defaultValue: token, ref: saveTokenField } ),
-		el( 'button', { className: 'add-token-form__save-button btn', onClick: saveToken }, 'Save Token' ),
-		showCancel && el( 'a', { href: '#', onClick: hideEditToken }, 'Cancel' )
+	return (
+		<div className="add-token-form">
+			<p>
+				You must generate a GitHub authentication token so this app can see your
+				notifications. It will need the `notifications` and `repo` scopes. You
+				can generate a token{' '}
+				<a href="https://github.com/settings/tokens" onClick={openLink}>
+					here
+				</a>
+				.
+			</p>
+			<label htmlFor="add-token-form__input">GitHub Token:</label>
+			<input
+				type="text"
+				className="add-token-form__input"
+				id="add-token-form__input"
+				defaultValue={token}
+				ref={saveTokenField}
+			/>
+			<button className="add-token-form__save-button btn" onClick={saveToken}>
+				Save Token
+			</button>
+			{showCancel && (
+				<a href="#" onClick={hideEditToken}>
+					Cancel
+				</a>
+			)}
+		</div>
 	);
 }
-
-module.exports = AddTokenForm;
