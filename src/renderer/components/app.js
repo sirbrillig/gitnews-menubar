@@ -26,7 +26,6 @@ import {
 } from 'common/lib/reducer';
 
 const debug = debugFactory('gitnews-menubar');
-const el = React.createElement;
 
 class App extends React.Component {
 	constructor(props) {
@@ -117,42 +116,48 @@ class App extends React.Component {
 		debug('sending set-icon', nextIcon);
 		this.props.setIcon(nextIcon);
 
-		return el(
-			'main',
-			null,
-			el(Header, {
-				offline,
-				fetchNotifications: this.props.fetchNotifications,
-				lastSuccessfulCheck,
-				lastChecked: this.props.lastChecked,
-				fetchInterval: this.props.fetchInterval,
-				showConfig:
-					token && currentPane === PANE_NOTIFICATIONS && this.props.showConfig,
-				hideConfig:
-					token && currentPane === PANE_CONFIG && this.props.hideConfig,
-				openUrl: this.props.openUrl,
-				fetchingInProgress,
-			}),
-			el(ErrorsArea, { errors, clearErrors: this.props.clearErrors }),
-			el(MainPane, {
-				token,
-				currentPane,
-				version,
-				newNotes,
-				readNotes,
-				lastSuccessfulCheck,
-				fetchingInProgress,
-				openUrl: this.props.openUrl,
-				changeToken: this.props.changeToken,
-				quitApp: this.props.quitApp,
-				hideEditToken: this.props.hideEditToken,
-				showEditToken: this.props.showEditToken,
-				markRead: this.props.markRead,
-				markUnread: this.props.markUnread,
-				checkForUpdates: this.props.checkForUpdates,
-				isAutoLoadEnabled: this.props.isAutoLoadEnabled,
-				changeAutoLoad: this.props.changeAutoLoad,
-			})
+		return (
+			<main>
+				<Header
+					{...{
+						offline,
+						fetchNotifications: this.props.fetchNotifications,
+						lastSuccessfulCheck,
+						lastChecked: this.props.lastChecked,
+						fetchInterval: this.props.fetchInterval,
+						showConfig:
+							token &&
+							currentPane === PANE_NOTIFICATIONS &&
+							this.props.showConfig,
+						hideConfig:
+							token && currentPane === PANE_CONFIG && this.props.hideConfig,
+						openUrl: this.props.openUrl,
+						fetchingInProgress,
+					}}
+				/>
+				<ErrorsArea errors={errors} clearErrors={this.props.clearErrors} />
+				<MainPane
+					{...{
+						token,
+						currentPane,
+						version,
+						newNotes,
+						readNotes,
+						lastSuccessfulCheck,
+						fetchingInProgress,
+						openUrl: this.props.openUrl,
+						changeToken: this.props.changeToken,
+						quitApp: this.props.quitApp,
+						hideEditToken: this.props.hideEditToken,
+						showEditToken: this.props.showEditToken,
+						markRead: this.props.markRead,
+						markUnread: this.props.markUnread,
+						checkForUpdates: this.props.checkForUpdates,
+						isAutoLoadEnabled: this.props.isAutoLoadEnabled,
+						changeAutoLoad: this.props.changeAutoLoad,
+					}}
+				/>
+			</main>
 		);
 	}
 }
