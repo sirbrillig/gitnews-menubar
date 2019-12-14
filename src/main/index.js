@@ -1,5 +1,5 @@
 import { ipcMain, app, Menu, dialog, shell, systemPreferences } from 'electron';
-import createMenubar from 'menubar';
+import { menubar } from 'menubar';
 import isDev from 'electron-is-dev';
 import semver from 'semver';
 import electronDebug from 'electron-debug';
@@ -30,14 +30,17 @@ electronDebug({
 
 let lastIconState = 'normal';
 
-const bar = createMenubar({
+const bar = menubar({
 	preloadWindow: true,
-	width: 390,
-	height: 440,
-	icon: getIconPathForState('normal'),
-	webPreferences: {
-		nodeIntegration: true,
+	index: getAppUrl(),
+	browserWindow: {
+		width: 390,
+		height: 440,
+		webPreferences: {
+			nodeIntegration: true,
+		},
 	},
+	icon: getIconPathForState('normal'),
 });
 debug('menubar created');
 
@@ -52,21 +55,19 @@ bar.on('ready', () => {
 	bar.window.on('unresponsive', () => {
 		Raven.captureException(new Error('Window was unresponsive.'));
 	});
-
-	if (process.env.NODE_ENV !== 'production') {
-		bar.window.loadURL(
-			`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`
-		);
-	} else {
-		bar.window.loadURL(
-			formatUrl({
-				pathname: path.join(__dirname, 'index.html'),
-				protocol: 'file',
-				slashes: true,
-			})
-		);
-	}
+	bar.window.loadURL(getAppUrl());
 });
+
+function getAppUrl() {
+	if (process.env.NODE_ENV !== 'production') {
+		return `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`;
+	}
+	return formatUrl({
+		pathname: path.join(__dirname, 'index.html'),
+		protocol: 'file',
+		slashes: true,
+	});
+}
 
 bar.on('hide', () => {
 	bar.window.webContents.send('menubar-click', true);
