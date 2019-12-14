@@ -56,7 +56,7 @@
     "chai-sinon": "^2.8.1",
     "devtron": "^1.4.0",
     "electron-installer-dmg": "^2.0.0",
-    "electron-packager": "^12.2.0",
+    "electron-packager": "^14.1.1",
     "electron-react-devtools": "firejune/electron-react-devtools",
     "electron-rebuild": "^1.8.8",
     "electron-webpack": "^2.7.4",
@@ -73,6 +73,9 @@
     "prettier": "1.19.1",
     "sinon": "^7.5.0",
     "webpack": "^4.41.2"
+  },
+  "resolutions": {
+    "js-yaml": "3.13.1"
   },
   "repository": {
     "type": "git",
