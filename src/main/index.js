@@ -25,7 +25,6 @@ unhandled();
 // Allow devtools and reload in production
 electronDebug({
 	enabled: true,
-	showDevTools: false,
 });
 
 let lastIconState = 'normal';
