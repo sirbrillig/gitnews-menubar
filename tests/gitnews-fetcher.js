@@ -4,7 +4,7 @@ const sinon = require( 'sinon' );
 const sinonChai = require( 'chai-sinon' );
 chai.use( sinonChai );
 const { expect } = chai;
-const { getErrorHandler } = require( '../lib/gitnews-fetcher' );
+const { getErrorHandler } = require( '../src/common/lib/gitnews-fetcher' );
 
 describe( 'handleFetchError()', function() {
 	it( 'does nothing if the error is GitHubTokenNotFound', function() {

@@ -1,6 +1,6 @@
 /* globals describe, it, beforeEach */
-const { reducer } = require( '../lib/reducer' );
-const { secsToMs } = require( '../lib/helpers' );
+const { reducer } = require( '../src/common/lib/reducer' );
+const { secsToMs } = require( '../src/common/lib/helpers' );
 const { expect } = require( 'chai' );
 
 describe( 'reducer', function() {
