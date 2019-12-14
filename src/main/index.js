@@ -10,6 +10,9 @@ import Raven from 'raven';
 import unhandled from 'electron-unhandled';
 import * as path from 'path';
 import { format as formatUrl } from 'url';
+import debugFactory from 'debug';
+
+const debug = debugFactory('gitnews-menubar:main');
 
 // https://sentry.io/ Error reporting
 Raven.config(
@@ -36,8 +39,10 @@ const bar = createMenubar({
 		nodeIntegration: true,
 	},
 });
+debug('menubar created');
 
 bar.on('ready', () => {
+	debug('app is ready');
 	isDev || bar.window.setResizable(false);
 	isDev || attachAppMenu();
 	checkForUpdates({ version, semver, dialog, openUrl: shell.openExternal });
@@ -71,22 +76,18 @@ bar.on('show', () => {
 });
 
 app.on('platform-theme-changed', () => {
-	const image = getIcon(lastIconState);
-	bar.tray.setImage(image);
+	setIcon();
 });
 
 systemPreferences.subscribeNotification(
 	'AppleInterfaceThemeChangedNotification',
 	() => {
-		const image = getIcon(lastIconState);
-		bar.tray.setImage(image);
+		setIcon();
 	}
 );
 
 ipcMain.on('set-icon', (event, arg) => {
-	const image = getIcon(arg);
-	lastIconState = arg;
-	bar.tray.setImage(image);
+	setIcon(arg);
 });
 
 ipcMain.on('check-for-updates', () => {
@@ -98,6 +99,16 @@ ipcMain.on('check-for-updates', () => {
 		showCurrentVersion: true,
 	});
 });
+
+function setIcon(type) {
+	if (!type) {
+		type = lastIconState;
+	}
+	debug('setting icon to', type);
+	const image = getIcon(type);
+	lastIconState = type;
+	bar.tray.setImage(image);
+}
 
 function getIcon(type) {
 	switch (type) {
