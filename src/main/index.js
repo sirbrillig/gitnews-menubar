@@ -1,16 +1,26 @@
-import { ipcMain, app, Menu, dialog, shell, systemPreferences } from 'electron';
-import { menubar } from 'menubar';
-import isDev from 'electron-is-dev';
-import semver from 'semver';
-import electronDebug from 'electron-debug';
-import { version } from '../../package.json';
-import { checkForUpdates } from 'common/lib/updates';
-import { getIconPathForState, getIconForState } from 'common/lib/icon-path';
-import Raven from 'raven';
-import unhandled from 'electron-unhandled';
-import * as path from 'path';
-import { format as formatUrl } from 'url';
-import debugFactory from 'debug';
+const {
+	ipcMain,
+	app,
+	Menu,
+	dialog,
+	shell,
+	systemPreferences,
+} = require('electron');
+const { menubar } = require('menubar');
+const isDev = require('electron-is-dev');
+const semver = require('semver');
+const electronDebug = require('electron-debug');
+const { version } = require('../../package.json');
+const { checkForUpdates } = require('../common/lib/updates');
+const {
+	getIconPathForState,
+	getIconForState,
+} = require('../common/lib/icon-path');
+const Raven = require('raven');
+const unhandled = require('electron-unhandled');
+const path = require('path');
+const { format: formatUrl } = require('url');
+const debugFactory = require('debug');
 
 const debug = debugFactory('gitnews-menubar:main');
 
