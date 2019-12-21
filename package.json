@@ -9,7 +9,7 @@
     "install-deps": "yarn",
     "dist-clean": "rm -rf dist && rm -rf node_modules",
     "prepare-release": "npm run dist-clean && npm run build",
-    "build-for-release": "npm run install-deps && npm run compile-for-production && npm run build-osx-package",
+    "build": "npm run install-deps && npm run compile-for-production && npm run build-osx-package",
     "compile-for-production": "electron-webpack compile",
     "build-osx-package": "electron-builder",
     "test": "NODE_PATH=./src mocha tests"
