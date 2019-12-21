@@ -19,6 +19,9 @@
     "github",
     "notifications"
   ],
+  "build": {
+    "appId": "com.electron.gitnews-menubar"
+  },
   "author": "Payton Swick <payton@foolord.com>",
   "license": "MIT",
   "dependencies": {
