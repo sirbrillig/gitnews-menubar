@@ -20,7 +20,10 @@
     "notifications"
   ],
   "build": {
-    "appId": "com.electron.gitnews-menubar"
+    "appId": "com.electron.gitnews-menubar",
+    "mac": {
+      "icon": "static/images/gitnews-menubar.icns"
+    }
   },
   "author": "Payton Swick <payton@foolord.com>",
   "license": "MIT",
