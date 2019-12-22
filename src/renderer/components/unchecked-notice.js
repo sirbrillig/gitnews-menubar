@@ -1,19 +1,25 @@
-import React from 'react' ;
+import React from 'react';
 
-const el = React.createElement;
-
-export default function UncheckedNotice( { fetchingInProgress, openUrl } ) {
-	const openLink = ( event ) => {
+export default function UncheckedNotice({ fetchingInProgress, openUrl }) {
+	const openLink = event => {
 		event.preventDefault();
-		openUrl( event.target.href );
+		openUrl(event.target.href);
 	};
-	const message = fetchingInProgress ? 'Checking for notifications...' : 'Preparing to fetch notifications...';
-	return el( 'div', { className: 'unchecked-notice' },
-		el( 'h2', null, message ),
-		el( 'p', null,
-			'If this message does not disappear, please create a new issue ',
-			el( 'a', { href: 'https://github.com/sirbrillig/gitnews-menubar/issues/new', onClick: openLink }, 'here' ),
-			' describing what happened.'
-		)
+	const message = fetchingInProgress
+		? 'Checking for notifications...'
+		: 'Preparing to fetch notifications...';
+	return (
+		<div className="unchecked-notice">
+			<h2>{message}</h2>
+			<p>
+				If this message does not disappear, please create a new issue{' '}
+				<a
+					href="https://github.com/sirbrillig/gitnews-menubar/issues/new"
+					onClick={openLink}>
+					here
+				</a>{' '}
+				describing what happened.
+			</p>
+		</div>
 	);
 }
