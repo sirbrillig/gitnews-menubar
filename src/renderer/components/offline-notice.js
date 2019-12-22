@@ -1,17 +1,28 @@
-import React from 'react' ;
-import { getSecondsUntilNextFetch } from 'common/lib/helpers' ;
+import React from 'react';
+import { getSecondsUntilNextFetch } from 'common/lib/helpers';
 
-const el = React.createElement;
-
-export default function OfflineNotice( { fetchNotifications, lastChecked, fetchInterval } ) {
-	const secondsRemaining = getSecondsUntilNextFetch( lastChecked, fetchInterval );
-	if ( secondsRemaining < 1 ) {
-		return el( 'div', { className: 'offline-notice' },
-			el( 'span', null, 'I\'m having trouble connecting. Retrying now...' )
+export default function OfflineNotice({
+	fetchNotifications,
+	lastChecked,
+	fetchInterval,
+}) {
+	const secondsRemaining = getSecondsUntilNextFetch(lastChecked, fetchInterval);
+	if (secondsRemaining < 1) {
+		return (
+			<div className="offline-notice">
+				<span>I&apos;m having trouble connecting. Retrying now...</span>
+			</div>
 		);
 	}
-	return el( 'div', { className: 'offline-notice' },
-		el( 'span', null, `I'm having trouble connecting. Retrying in ${ secondsRemaining } seconds. ` ),
-		el( 'a', { href: '#', onClick: fetchNotifications }, 'Retry now' )
+	return (
+		<div className="offline-notice">
+			<span>
+				I&apos;m having trouble connecting. Retrying in {secondsRemaining}{' '}
+				seconds.
+			</span>{' '}
+			<a href="#" onClick={fetchNotifications}>
+				Retry now
+			</a>
+		</div>
 	);
 }
