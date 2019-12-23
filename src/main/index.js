@@ -13,7 +13,6 @@ const electronDebug = require('electron-debug');
 const { version } = require('../../package.json');
 const { checkForUpdates } = require('../common/lib/updates');
 const {
-	getIconPathForState,
 	getIconForState,
 } = require('../common/lib/icon-path');
 const Raven = require('raven');
@@ -23,6 +22,8 @@ const { format: formatUrl } = require('url');
 const debugFactory = require('debug');
 
 const debug = debugFactory('gitnews-menubar:main');
+
+debug('initializing');
 
 // https://sentry.io/ Error reporting
 Raven.config(
@@ -42,6 +43,7 @@ let lastIconState = 'normal';
 const bar = menubar({
 	preloadWindow: true,
 	index: getAppUrl(),
+	icon: getIconForState('normal'),
 	browserWindow: {
 		width: 390,
 		height: 440,
@@ -49,7 +51,6 @@ const bar = menubar({
 			nodeIntegration: true,
 		},
 	},
-	icon: getIconPathForState('normal'),
 });
 debug('menubar created');
 
