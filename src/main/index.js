@@ -12,9 +12,7 @@ const semver = require('semver');
 const electronDebug = require('electron-debug');
 const { version } = require('../../package.json');
 const { checkForUpdates } = require('../common/lib/updates');
-const {
-	getIconForState,
-} = require('../common/lib/icon-path');
+const { getIconForState } = require('../common/lib/icon-path');
 const Raven = require('raven');
 const unhandled = require('electron-unhandled');
 const path = require('path');
