@@ -85,6 +85,9 @@
     "url": "https://github.com/sirbrillig/gitnews-menubar/issues"
   },
   "homepage": "https://github.com/sirbrillig/gitnews-menubar#readme",
+  "electronWebpack": {
+    "renderer": { "template": "src/renderer/index.html" }
+  },
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
