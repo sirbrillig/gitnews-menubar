@@ -1,5 +1,5 @@
 /* globals describe, it */
-const { getErrorMessage, isOfflineCode } = require( '../lib/helpers' );
+const { getErrorMessage, isOfflineCode } = require( '../src/common/lib/helpers' );
 const { expect } = require( 'chai' );
 
 describe( 'getErrorMessage()', function() {

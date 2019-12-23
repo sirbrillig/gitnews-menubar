@@ -3,65 +3,79 @@
   "version": "1.5.0",
   "description": "GitHub notifications in your menu bar",
   "productName": "Gitnews",
-  "main": "index.js",
+  "main": "src/main/index.js",
   "scripts": {
-    "start": "npm run install-deps && electron .",
+    "start": "npm run install-deps && electron-webpack dev",
     "install-deps": "yarn",
-    "dist-clean": "rm -rf build && rm -rf ./dist && rm -rf node_modules",
-    "build": "npm run install-deps && npm run copy-to-build && npm run install-deps:build && npm run build:osx",
-    "prepare-release": "npm run dist-clean && npm run build && npm run package",
-    "copy-to-build": "mkdir build && cp -a LICENSE README.md app.js components images index.js index.html lib package.json yarn.lock build/",
-    "install-deps:build": "cd build && yarn --prod && cd .. && electron-rebuild --module-dir=build",
-    "build:osx": "electron-packager build --overwrite --platform=darwin --arch=x64 --icon=images/gitnews-menubar.icns --prune=true --out=dist --package-manager=yarn",
-    "package": "npm run package:osx",
-    "package:osx": "electron-installer-dmg --out=dist --icon=images/gitnews-menubar.icns --overwrite dist/Gitnews-darwin-x64/Gitnews.app Gitnews && npm run name-package:osx",
-    "name-package:osx": "mv dist/Gitnews.dmg dist/Gitnews-MacOS-$(node -pe \"require('./package.json').version\").dmg",
-    "test": "mocha tests"
+    "dist-clean": "rm -rf dist && rm -rf node_modules",
+    "prepare-release": "npm run dist-clean && npm run build",
+    "build": "npm run install-deps && npm run compile-for-production && npm run build-osx-package",
+    "compile-for-production": "electron-webpack compile",
+    "build-osx-package": "electron-builder",
+    "test": "NODE_PATH=./src mocha tests"
   },
   "keywords": [
     "menu",
     "github",
     "notifications"
   ],
+  "build": {
+    "appId": "com.electron.gitnews-menubar",
+    "mac": {
+      "icon": "static/images/gitnews-menubar.icns"
+    }
+  },
   "author": "Payton Swick <payton@foolord.com>",
   "license": "MIT",
   "dependencies": {
     "@sirbrillig/ensured-image": "^1.0.0",
     "auto-launch": "^5.0.1",
-    "conf": "^2.0.0",
-    "date-fns": "^1.28.4",
-    "debug": "^4.1.0",
-    "dotenv": "^6.1.0",
-    "electron": "^3.0.4",
-    "electron-debug": "^2.0.0",
-    "electron-is-dev": "^1.0.1",
+    "conf": "^2.2.0",
+    "date-fns": "^1.30.1",
+    "debug": "^4.1.1",
+    "dotenv": "^6.2.0",
+    "electron-debug": "^3.0.1",
+    "electron-is-dev": "^1.1.0",
     "electron-unhandled": "^1.1.0",
     "get-latest-release": "^1.1.2",
     "gitnews": "^3.1.1",
-    "gridicons": "^3.1.1",
-    "menubar": "^5.2.3",
+    "gridicons": "^3.3.1",
+    "menubar": "^7.1.0",
     "raven": "^2.1.1",
-    "react": "16",
-    "react-dom": "16",
-    "react-redux": "^5.0.5",
-    "redux": "^4.0.1",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-redux": "^5.1.2",
+    "redux": "^4.0.4",
     "redux-logger": "^3.0.6",
     "redux-persist": "^6.0.0",
-    "semver": "^5.3.0"
+    "semver": "^5.7.1",
+    "source-map-support": "^0.5.16"
   },
   "devDependencies": {
+    "@babel/preset-react": "^7.7.4",
     "chai": "^4.0.0",
     "chai-sinon": "^2.8.1",
     "devtron": "^1.4.0",
-    "electron-installer-dmg": "^2.0.0",
-    "electron-packager": "^12.2.0",
+    "electron": "^7.1.5",
+    "electron-builder": "^21.2.0",
     "electron-react-devtools": "firejune/electron-react-devtools",
-    "electron-rebuild": "^1.6.0",
-    "eslint": "^5.7.0",
+    "electron-webpack": "^2.7.4",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^6.7.0",
     "eslint-config-wpcalypso": "^4.0.1",
-    "eslint-plugin-wpcalypso": "^4.0.2",
+    "eslint-plugin-prettier": "^3.1.1",
+    "eslint-plugin-react": "^7.17.0",
+    "eslint-plugin-react-hooks": "^2.3.0",
+    "eslint-plugin-wpcalypso": "^4.1.0",
+    "husky": ">=1",
+    "lint-staged": ">=8",
     "mocha": "^5.2.0",
-    "sinon": "^7.0.0"
+    "prettier": "1.19.1",
+    "sinon": "^7.5.0",
+    "webpack": "^4.41.2"
+  },
+  "resolutions": {
+    "js-yaml": "3.13.1"
   },
   "repository": {
     "type": "git",
@@ -70,5 +84,19 @@
   "bugs": {
     "url": "https://github.com/sirbrillig/gitnews-menubar/issues"
   },
-  "homepage": "https://github.com/sirbrillig/gitnews-menubar#readme"
+  "homepage": "https://github.com/sirbrillig/gitnews-menubar#readme",
+  "electronWebpack": {
+    "renderer": { "template": "src/renderer/index.html" }
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "git add"
+    ]
+  }
 }

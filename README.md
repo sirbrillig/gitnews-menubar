@@ -6,12 +6,14 @@ An app to display GitHub notifications in your menu bar.
 
 ## Why not use another app?
 
-This app has fewer features than the excellent [Gitify](http://gitify.io/) or [DevSpace](https://devspace.io/). So why use it?
+There are several other apps that are similar to this one. Notably, you might want to check out:
 
-Well, for me, there were two reasons:
+- [Octobox](https://octobox.io/)
+- [DevHub](https://devhubapp.com/)
+- [Gitify](https://www.gitify.io/)
+- [Trailer](http://ptsochantaris.github.io/trailer/)
 
-1. **It's simple**: Gitnews does one thing; it tells you if you have any GitHub notifications.
-2. **You can see private notifications**: Gitnews will display all your notifications, even for private repositories, because it uses a private token.
+I developed Gitnews primarily because it easily allows you to see private notifications, which many of the other apps do not. I think it's also quite a lot simpler, but try it out for yourself and make your own decision.
 
 ## ✨ Download ✨
 
@@ -52,5 +54,3 @@ To create a packaged Mac OS App, first install dependencies by running `yarn` (y
 Next run the following command: `npm run build`.
 
 You will then find an executable application in the `dist` directory.
-
-To package the app into a DMG file, run `npm run package`.

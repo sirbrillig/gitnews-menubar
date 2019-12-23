@@ -4,7 +4,7 @@ const sinon = require( 'sinon' );
 const sinonChai = require( 'chai-sinon' );
 chai.use( sinonChai );
 const { expect } = chai;
-const Poller = require( '../lib/poller' );
+const Poller = require( '../src/common/lib/poller' );
 
 function getSinglePollFunction() {
 	const pollFunction = sinon.stub();
@@ -53,11 +53,14 @@ describe( 'Poller', function() {
 			pollFunction.onCall( 2 ).throws();
 			const setTimeout = ( callBack ) => callBack();
 			const poller = new Poller( { pollFunction, setTimeout } );
+			let errorThrown = false;
 			try {
 				poller.begin();
 			} catch ( err ) {
+				errorThrown = true;
 			}
 			expect( pollFunction ).to.have.been.calledThrice;
+			expect( errorThrown ).to.be.true;
 		} );
 	} );
 
