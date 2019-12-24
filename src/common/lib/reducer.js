@@ -16,6 +16,7 @@ const initialState = {
 	offline: false,
 	currentPane: PANE_NOTIFICATIONS,
 	isAutoLoadEnabled: false,
+	isDemoMode: false,
 };
 
 function reducer( state, action ) {
@@ -60,6 +61,10 @@ function reducer( state, action ) {
 			return Object.assign( {}, state, { offline: false, lastChecked: Date.now(), lastSuccessfulCheck: Date.now(), fetchRetryCount: 0, errors: [], fetchInterval: defaultFetchInterval, notes: mergeNotifications( state.notes, action.notes ) } );
 		case 'CHANGE_AUTO_LOAD':
 			return Object.assign( {}, state, { isAutoLoadEnabled: action.isEnabled } );
+		case 'DEMO_MODE_ENABLE':
+			return {...state, isDemoMode: true};
+		case 'DEMO_MODE_DISABLE':
+			return {...state, isDemoMode: false};
 	}
 	return state;
 }
@@ -144,6 +149,14 @@ function scrollToTop() {
 	return { type: 'SCROLL_TO_TOP' };
 }
 
+function enableDemoMode() {
+	return { type: 'DEMO_MODE_ENABLE' };
+}
+
+function disableDemoMode() {
+	return { type: 'DEMO_MODE_DISABLE' };
+}
+
 module.exports = {
 	reducer,
 	hideEditToken,
@@ -166,4 +179,6 @@ module.exports = {
 	setIcon,
 	changeAutoLoad,
 	scrollToTop,
+	enableDemoMode,
+	disableDemoMode,
 };
