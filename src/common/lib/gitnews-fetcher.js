@@ -1,4 +1,6 @@
 /* globals window */
+require('dotenv').config();
+
 const debugFactory = require('debug');
 const {
 	logError,
@@ -36,10 +38,12 @@ const fetcher = store => next => action => {
 	performFetch(store.getState(), next);
 };
 
-function performFetch(
-	{ fetchingInProgress, token, fetchingStartedAt, isDemoMode },
-	next
-) {
+function performFetch({ fetchingInProgress, token, fetchingStartedAt }, next) {
+	let isDemoMode = false;
+	if (process.env.GITNEWS_DEMO_MODE) {
+		debug('demo mode enabled!');
+		isDemoMode = true;
+	}
 	const fetchingMaxTime = secsToMs(120); // 2 minutes
 	if (fetchingInProgress) {
 		const timeSinceFetchingStarted = Date.now() - (fetchingStartedAt || 0);
