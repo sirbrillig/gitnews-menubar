@@ -47,6 +47,12 @@ The app uses [debug](https://github.com/visionmedia/debug), so you can enable al
 localStorage.setItem('debug', 'gitnews-menubar')
 ```
 
+Rather than use real data, you can use mock data by enabling demo mode. This also disables network side effects (like marking a notification as read). To do this, create a `.env` file in the source directory and include the following:
+
+```
+GITNEWS_DEMO_MODE=y
+```
+
 ### Building a package
 
 To create a packaged Mac OS App, first install dependencies by running `yarn` (you must have [yarn](https://yarnpkg.com/en/) installed for this to work).
