@@ -20,6 +20,10 @@ const {
 } = require('common/lib/reducer');
 
 const debug = debugFactory('gitnews-menubar');
+const isDemoMode = process.env.GITNEWS_DEMO_MODE ? true : false;
+if (isDemoMode) {
+	debug('demo mode enabled!');
+}
 
 const fetcher = store => next => action => {
 	// eslint-disable-line no-unused-vars
@@ -39,11 +43,6 @@ const fetcher = store => next => action => {
 };
 
 function performFetch({ fetchingInProgress, token, fetchingStartedAt }, next) {
-	let isDemoMode = false;
-	if (process.env.GITNEWS_DEMO_MODE) {
-		debug('demo mode enabled!');
-		isDemoMode = true;
-	}
 	const fetchingMaxTime = secsToMs(120); // 2 minutes
 	if (fetchingInProgress) {
 		const timeSinceFetchingStarted = Date.now() - (fetchingStartedAt || 0);
