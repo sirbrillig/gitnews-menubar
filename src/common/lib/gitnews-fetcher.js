@@ -99,16 +99,15 @@ async function getDemoNotifications() {
 		{
 			updatedAt: new Date('21 December 2019 14:48 UTC').toISOString(),
 			unread: true,
-			repositoryName: 'gitnews',
-			repositoryFullName: 'sirbrillig/gitnews',
-			title: 'Pieces of Eight',
+			repositoryName: 'gitnews-menubar',
+			repositoryFullName: 'sirbrillig/gitnews-menubar',
+			title: 'Brew Tea Properly',
 			type: 'PullRequest',
-			id: 'd568cb6b0a944a3d2c3e6230b0190f26',
+			id: '5682942812944a3d2c3e6230b0190f26',
 			repositoryOwnerAvatar:
 				'https://avatars1.githubusercontent.com/u/887802?v=4',
-			subjectUrl: 'https://github.com/Automattic/wp-calypso/pull/38435',
-			commentUrl:
-				'https://github.com/Automattic/wp-calypso/pull/38435#issuecomment-568611814',
+			subjectUrl: 'https://github.com/sirbrillig/gitnews-menubar/pull/65',
+			commentUrl: 'https://github.com/sirbrillig/gitnews-menubar/pull/65',
 			commentAvatar: 'https://avatars2.githubusercontent.com/u/2036909?v=4',
 			api: {
 				subject: {
@@ -120,20 +119,59 @@ async function getDemoNotifications() {
 		{
 			updatedAt: new Date('20 December 2019 14:52 UTC').toISOString(),
 			unread: true,
-			repositoryName: 'gitnews',
-			repositoryFullName: 'sirbrillig/gitnews',
-			title: 'Trysail Sail ho Corsair',
+			repositoryName: 'gitnews-menubar',
+			repositoryFullName: 'sirbrillig/gitnews-menubar',
+			title: 'Fix Teapot',
 			type: 'PullRequest',
 			id: '1234566b0a944a3d2c3e6230b0190f26',
 			repositoryOwnerAvatar:
 				'https://avatars1.githubusercontent.com/u/887802?v=4',
-			subjectUrl: 'https://github.com/Automattic/wp-calypso/pull/38435',
-			commentUrl:
-				'https://github.com/Automattic/wp-calypso/pull/38435#issuecomment-568611814',
+			subjectUrl: 'https://github.com/sirbrillig/gitnews-menubar/pull/44',
+			commentUrl: 'https://github.com/sirbrillig/gitnews-menubar/pull/44',
+			commentAvatar: 'https://avatars2.githubusercontent.com/u/2036909?v=4',
+			api: {
+				subject: {
+					state: 'closed',
+					merged: true,
+				},
+			},
+		},
+		{
+			updatedAt: new Date('20 December 2019 10:52 UTC').toISOString(),
+			unread: true,
+			repositoryName: 'gitnews-menubar',
+			repositoryFullName: 'sirbrillig/gitnews-menubar',
+			title: 'Teapot is Broken',
+			type: 'Issue',
+			id: '2967500023477777222e6230b0190f26',
+			repositoryOwnerAvatar:
+				'https://avatars1.githubusercontent.com/u/887802?v=4',
+			subjectUrl: 'https://github.com/sirbrillig/gitnews-menubar/pull/48',
+			commentUrl: 'https://github.com/sirbrillig/gitnews-menubar/pull/48',
 			commentAvatar: 'https://avatars2.githubusercontent.com/u/2036909?v=4',
 			api: {
 				subject: {
 					state: 'open',
+					merged: false,
+				},
+			},
+		},
+		{
+			updatedAt: new Date('20 November 2019 16:20 UTC').toISOString(),
+			unread: true,
+			repositoryName: 'gitnews-menubar',
+			repositoryFullName: 'sirbrillig/gitnews-menubar',
+			title: 'Tea is bitter',
+			type: 'Issue',
+			id: '4582894865123099522e6230b0190f26',
+			repositoryOwnerAvatar:
+				'https://avatars1.githubusercontent.com/u/887802?v=4',
+			subjectUrl: 'https://github.com/sirbrillig/gitnews-menubar/pull/35',
+			commentUrl: 'https://github.com/sirbrillig/gitnews-menubar/pull/35',
+			commentAvatar: 'https://avatars2.githubusercontent.com/u/2036909?v=4',
+			api: {
+				subject: {
+					state: 'closed',
 					merged: false,
 				},
 			},
