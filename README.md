@@ -2,7 +2,7 @@
 
 An app to display GitHub notifications in your menu bar.
 
-<img src="./static/images/gitnews-demo.gif" />
+<img src="./static/images/gitnews-demo.png" />
 
 ## Why not use another app?
 
