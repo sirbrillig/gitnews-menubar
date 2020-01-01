@@ -76,14 +76,13 @@ function MarkReadButton({ note, token, markRead }) {
 		markRead(token, note);
 	};
 	return (
-		<a
+		<button
 			className="notification__mark-read"
-			href="#"
-			title="Mark as read"
 			onClick={onClick}
+			aria-label="Mark notification as read"
 		>
 			mark read
-		</a>
+		</button>
 	);
 }
 
@@ -95,13 +94,12 @@ function MarkUnreadButton({ note, markUnread }) {
 		markUnread(note);
 	};
 	return (
-		<a
+		<button
 			className="notification__mark-unread"
-			href="#"
-			title="Mark as unread"
 			onClick={onClick}
+			aria-label="Mark as unread"
 		>
 			mark unread
-		</a>
+		</button>
 	);
 }

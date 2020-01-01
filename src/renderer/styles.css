@@ -206,6 +206,11 @@ header h1 {
   font-size: 0.7em;
   color: rgb(146, 146, 146);
   margin-left: 2em;
+  background: none!important;
+  border: none;
+  padding: 0!important;
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 .notification__repo {
