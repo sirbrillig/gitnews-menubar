@@ -44,9 +44,13 @@ export default function AddTokenForm({
 				Save Token
 			</button>
 			{showCancel && (
-				<a href="#" onClick={hideEditToken}>
+				<button
+					className="add-token-form__cancel-button"
+					onClick={hideEditToken}
+					aria-label="Cancel changing token"
+				>
 					Cancel
-				</a>
+				</button>
 			)}
 		</div>
 	);

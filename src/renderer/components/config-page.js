@@ -18,9 +18,9 @@ export default function ConfigPage({
 			<h2 className="config-page__title">Configuration</h2>
 			<h3>Token</h3>
 			<div>Would you like to change your authentication token?</div>
-			<a href="#" onClick={showEditToken}>
+			<button className="edit-token-button" onClick={showEditToken}>
 				Edit token
-			</a>
+			</button>
 			<h3>Settings</h3>
 			<input
 				type="checkbox"
@@ -34,16 +34,15 @@ export default function ConfigPage({
 			</label>
 			<Attributions openUrl={openUrl} />
 			<div className="config-page__buttons">
-				<a className="btn quit-button" onClick={quitApp} href="#" title="Quit">
+				<button className="btn quit-button" onClick={quitApp}>
 					Quit
-				</a>
-				<a
-					className="btn"
+				</button>
+				<button
+					className="btn check-for-updates-button"
 					onClick={checkForUpdates}
-					href="#"
-					title="Check for Updates">
+					>
 					Check for Updates
-				</a>
+				</button>
 			</div>
 			<Copyright openUrl={openUrl} version={version} />
 		</div>

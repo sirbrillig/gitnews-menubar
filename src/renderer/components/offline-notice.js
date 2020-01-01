@@ -20,9 +20,9 @@ export default function OfflineNotice({
 				I&apos;m having trouble connecting. Retrying in {secondsRemaining}{' '}
 				seconds.
 			</span>{' '}
-			<a href="#" onClick={fetchNotifications}>
+			<button className="retry-button" onClick={fetchNotifications} aria-label="Retry fetching now">
 				Retry now
-			</a>
+			</button>
 		</div>
 	);
 }

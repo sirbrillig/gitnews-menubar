@@ -38,6 +38,11 @@ body {
   border-color: #ca1a1a;
 }
 
+.quit-button,
+.check-for-updates-button {
+  font-size: 14px;
+}
+
 a {
   color: #f57023;
 }
@@ -86,6 +91,9 @@ header svg {
   min-height: 1em;
 }
 
+.edit-token-button,
+.add-token-form__cancel-button,
+.retry-button,
 .config-button,
 .back-button {
   color: rgb(146, 146, 146);
