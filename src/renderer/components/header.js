@@ -13,20 +13,24 @@ const UpdatingOfflineNotice = createUpdater(OfflineNotice);
 function LeftButton({ hideConfig, showConfig }) {
 	if (hideConfig) {
 		return (
-			<a className="back-button" href="#" onClick={hideConfig} title="Back">
+			<button
+				className="back-button"
+				onClick={hideConfig}
+				aria-label="Close settings"
+			>
 				<Gridicon icon="chevron-left" />
-			</a>
+			</button>
 		);
 	}
 	if (showConfig) {
 		return (
-			<a
-				href="#"
+			<button
 				className="config-button"
 				onClick={showConfig}
-				titke="Configuration">
+				aria-label="Open settings"
+			>
 				<Gridicon icon="cog" />
-			</a>
+			</button>
 		);
 	}
 	return <span className="config-spacer" />;

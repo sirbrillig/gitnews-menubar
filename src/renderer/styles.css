@@ -87,6 +87,16 @@ header svg {
 }
 
 .config-button,
+.back-button {
+  color: rgb(146, 146, 146);
+  background: none!important;
+  border: none;
+  padding: 0!important;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.config-button,
 .config-spacer {
   width: 24px;
 }
