@@ -86,7 +86,9 @@
   },
   "homepage": "https://github.com/sirbrillig/gitnews-menubar#readme",
   "electronWebpack": {
-    "renderer": { "template": "src/renderer/index.html" }
+    "renderer": {
+      "template": "src/renderer/index.html"
+    }
   },
   "husky": {
     "hooks": {
