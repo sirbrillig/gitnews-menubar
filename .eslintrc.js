@@ -22,6 +22,7 @@ module.exports = {
 		'react/prop-types': 'off',
 		'react-hooks/rules-of-hooks': 'error',
 		'react-hooks/exhaustive-deps': 'warn',
+		'no-console': 'off',
 	},
 	settings: { react: { version: 'detect' } },
 };
