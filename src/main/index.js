@@ -38,7 +38,7 @@ electronDebug({
 
 let lastIconState = 'normal';
 const defaultClickOptions = {
-	activate: true,
+	openInBackground: false,
 };
 let lastClickOptions = defaultClickOptions;
 
@@ -90,7 +90,7 @@ bar.on('show', () => {
 });
 bar.on('focus-lost', () => {
 	debug('focus was lost; lastClickOptions:', lastClickOptions);
-	if (lastClickOptions.activate) {
+	if (! lastClickOptions.openInBackground) {
 		bar.hideWindow();
 	}
 	lastClickOptions = defaultClickOptions;
