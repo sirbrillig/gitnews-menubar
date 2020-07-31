@@ -49,7 +49,6 @@ const bar = menubar({
 	browserWindow: {
 		width: 390,
 		height: 440,
-		alwaysOnTop: true,
 		webPreferences: {
 			nodeIntegration: true,
 		},
