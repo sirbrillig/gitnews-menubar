@@ -1,34 +1,35 @@
 /* globals window */
-const { shell, ipcRenderer } = require( 'electron' );
+const { ipcRenderer } = require('electron');
 
-function openUrl( url ) {
-	shell.openExternal( url );
+function openUrl(url, options = {}) {
+	ipcRenderer.send('open-url', url, options);
 }
 
 function updateCheck() {
-	ipcRenderer.send( 'check-for-updates' );
+	ipcRenderer.send('check-for-updates');
 }
 
-function setIcon( nextIcon ) {
-	ipcRenderer.send( 'set-icon', nextIcon );
+function setIcon(nextIcon) {
+	ipcRenderer.send('set-icon', nextIcon);
 }
 
 function scrollToTopNotification() {
-	window.scrollTo( 0, 0 );
+	window.scrollTo(0, 0);
 }
 
-const electronMiddleware = store => next => action => { // eslint-disable-line no-unused-vars
-	switch ( action.type ) {
+// eslint-disable-next-line no-unused-vars
+const electronMiddleware = store => next => action => {
+	switch (action.type) {
 		case 'OPEN_URL':
-			return openUrl( action.url );
+			return openUrl(action.url, action.options);
 		case 'CHECK_FOR_UPDATES':
-			return updateCheck( next );
+			return updateCheck(next);
 		case 'SET_ICON':
-			return setIcon( action.icon );
+			return setIcon(action.icon);
 		case 'SCROLL_TO_TOP':
 			return scrollToTopNotification();
 	}
-	next( action );
+	next(action);
 };
 
 module.exports = {

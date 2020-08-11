@@ -1,7 +1,17 @@
-const { PANE_NOTIFICATIONS, PANE_CONFIG, PANE_TOKEN } = require( 'common/lib/constants' );
-const { getToken, secsToMs, getNoteId, mergeNotifications, getFetchInterval } = require( 'common/lib/helpers' );
+const {
+	PANE_NOTIFICATIONS,
+	PANE_CONFIG,
+	PANE_TOKEN,
+} = require('common/lib/constants');
+const {
+	getToken,
+	secsToMs,
+	getNoteId,
+	mergeNotifications,
+	getFetchInterval,
+} = require('common/lib/helpers');
 
-const defaultFetchInterval = secsToMs( 120 );
+const defaultFetchInterval = secsToMs(120);
 
 const initialState = {
 	token: getToken(),
@@ -18,48 +28,76 @@ const initialState = {
 	isAutoLoadEnabled: false,
 };
 
-function reducer( state, action ) {
-	if ( ! state ) {
+function reducer(state, action) {
+	if (!state) {
 		state = initialState;
 	}
 	// TODO: split these into sub-reducers
-	switch ( action.type ) {
+	switch (action.type) {
 		case 'FETCH_BEGIN':
-			return Object.assign( {}, state, { fetchingInProgress: true, fetchingStartedAt: Date.now() } );
+			return Object.assign({}, state, {
+				fetchingInProgress: true,
+				fetchingStartedAt: Date.now(),
+			});
 		case 'FETCH_END':
-			return Object.assign( {}, state, { fetchingInProgress: false } );
+			return Object.assign({}, state, { fetchingInProgress: false });
 		case 'ADD_CONNECTION_ERROR':
-			return Object.assign( {}, state, { errors: [ ...state.errors, action.error ], lastChecked: Date.now() } );
+			return Object.assign({}, state, {
+				errors: [...state.errors, action.error],
+				lastChecked: Date.now(),
+			});
 		case 'CLEAR_ERRORS':
-			return Object.assign( {}, state, { errors: [] } );
+			return Object.assign({}, state, { errors: [] });
 		case 'SET_CURRENT_PANE':
-			return Object.assign( {}, state, { currentPane: action.pane } );
+			return Object.assign({}, state, { currentPane: action.pane });
 		case 'MARK_NOTE_UNREAD':
-			return Object.assign( {}, state, { notes: state.notes.map( note => {
-				if ( getNoteId( note ) === getNoteId( action.note ) ) {
-					return Object.assign( {}, note, { gitnewsMarkedUnread: true } );
-				}
-				return note;
-			} ) } );
+			return Object.assign({}, state, {
+				notes: state.notes.map(note => {
+					if (getNoteId(note) === getNoteId(action.note)) {
+						return Object.assign({}, note, { gitnewsMarkedUnread: true });
+					}
+					return note;
+				}),
+			});
 		case 'MARK_NOTE_READ':
-			return Object.assign( {}, state, { notes: state.notes.map( note => {
-				if ( getNoteId( note ) === getNoteId( action.note ) ) {
-					return Object.assign( {}, note, { unread: false, gitnewsMarkedUnread: false } );
-				}
-				return note;
-			} ) } );
+			return Object.assign({}, state, {
+				notes: state.notes.map(note => {
+					if (getNoteId(note) === getNoteId(action.note)) {
+						return Object.assign({}, note, {
+							unread: false,
+							gitnewsMarkedUnread: false,
+						});
+					}
+					return note;
+				}),
+			});
 		case 'MARK_ALL_NOTES_SEEN': {
-			const notes = state.notes.map( note => Object.assign( note, { gitnewsSeen: true, gitnewsSeenAt: Date.now() } ) );
-			return Object.assign( {}, state, { notes } );
+			const notes = state.notes.map(note =>
+				Object.assign(note, { gitnewsSeen: true, gitnewsSeenAt: Date.now() })
+			);
+			return Object.assign({}, state, { notes });
 		}
 		case 'CHANGE_TOKEN':
-			return Object.assign( {}, state, { token: action.token } );
+			return Object.assign({}, state, { token: action.token });
 		case 'OFFLINE':
-			return Object.assign( {}, state, { offline: true, lastChecked: Date.now(), fetchInterval: getFetchInterval( secsToMs( 60 ), state.fetchRetryCount ), fetchRetryCount: state.fetchRetryCount + 1 } );
+			return Object.assign({}, state, {
+				offline: true,
+				lastChecked: Date.now(),
+				fetchInterval: getFetchInterval(secsToMs(60), state.fetchRetryCount),
+				fetchRetryCount: state.fetchRetryCount + 1,
+			});
 		case 'NOTES_RETRIEVED':
-			return Object.assign( {}, state, { offline: false, lastChecked: Date.now(), lastSuccessfulCheck: Date.now(), fetchRetryCount: 0, errors: [], fetchInterval: defaultFetchInterval, notes: mergeNotifications( state.notes, action.notes ) } );
+			return Object.assign({}, state, {
+				offline: false,
+				lastChecked: Date.now(),
+				lastSuccessfulCheck: Date.now(),
+				fetchRetryCount: 0,
+				errors: [],
+				fetchInterval: defaultFetchInterval,
+				notes: mergeNotifications(state.notes, action.notes),
+			});
 		case 'CHANGE_AUTO_LOAD':
-			return Object.assign( {}, state, { isAutoLoadEnabled: action.isEnabled } );
+			return Object.assign({}, state, { isAutoLoadEnabled: action.isEnabled });
 	}
 	return state;
 }
@@ -80,11 +118,11 @@ function showConfig() {
 	return { type: 'SET_CURRENT_PANE', pane: PANE_CONFIG };
 }
 
-function markRead( token, note ) {
+function markRead(token, note) {
 	return { type: 'MARK_NOTE_READ', token, note };
 }
 
-function markUnread( note ) {
+function markUnread(note) {
 	return { type: 'MARK_NOTE_UNREAD', note };
 }
 
@@ -96,7 +134,7 @@ function markAllNotesSeen() {
 	return { type: 'MARK_ALL_NOTES_SEEN' };
 }
 
-function changeToken( token ) {
+function changeToken(token) {
 	return { type: 'CHANGE_TOKEN', token };
 }
 
@@ -104,11 +142,11 @@ function changeToOffline() {
 	return { type: 'OFFLINE' };
 }
 
-function gotNotes( notes ) {
+function gotNotes(notes) {
 	return { type: 'NOTES_RETRIEVED', notes };
 }
 
-function addConnectionError( error ) {
+function addConnectionError(error) {
 	return { type: 'ADD_CONNECTION_ERROR', error };
 }
 
@@ -128,15 +166,15 @@ function checkForUpdates() {
 	return { type: 'CHECK_FOR_UPDATES' };
 }
 
-function openUrl( url ) {
-	return { type: 'OPEN_URL', url };
+function openUrl(url, options) {
+	return { type: 'OPEN_URL', url, options };
 }
 
-function setIcon( icon ) {
+function setIcon(icon) {
 	return { type: 'SET_ICON', icon };
 }
 
-function changeAutoLoad( isEnabled ) {
+function changeAutoLoad(isEnabled) {
 	return { type: 'CHANGE_AUTO_LOAD', isEnabled };
 }
 

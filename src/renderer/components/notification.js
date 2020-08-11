@@ -15,10 +15,12 @@ export default function Notification({
 }) {
 	const isUnread =
 		note.unread === true ? true : note.gitnewsMarkedUnread === true;
-	const onClick = () => {
-		debug('clicked on notification', note);
+	const onClick = event => {
+		debug('clicked on notification', note, 'with metaKey', event.metaKey);
 		markRead(token, note);
-		openUrl(note.commentUrl);
+		openUrl(note.commentUrl, {
+			openInBackground: event.metaKey,
+		});
 	};
 	const timeString = date.distanceInWords(
 		Date.now(),
