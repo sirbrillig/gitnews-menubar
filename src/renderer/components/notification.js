@@ -19,7 +19,7 @@ export default function Notification({
 		debug('clicked on notification', note, 'with metaKey', event.metaKey);
 		markRead(token, note);
 		openUrl(note.commentUrl, {
-			openInBackground: event.metaKey,
+			openInBackground: !! event.metaKey,
 		});
 	};
 	const timeString = date.distanceInWords(
