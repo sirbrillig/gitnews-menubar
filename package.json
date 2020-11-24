@@ -40,7 +40,6 @@
     "gitnews": "^3.1.1",
     "gridicons": "^3.3.1",
     "menubar": "^9.0.1",
-    "raven": "^2.1.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-redux": "^5.1.2",

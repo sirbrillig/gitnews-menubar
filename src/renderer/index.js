@@ -31,13 +31,6 @@ const logger = createLogger({
 	level: 'info',
 });
 
-// https://sentry.io/ Error reporting
-if (window.Raven) {
-	window.Raven.config(
-		'https://d8eec1c8e2f846ac951aff7b04cfb4fe@sentry.io/201433'
-	).install();
-}
-
 // Catch unhandled Promise rejections
 unhandled();
 
