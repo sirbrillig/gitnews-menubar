@@ -308,19 +308,3 @@ main {
   flex-direction: column;
   width: 100%;
 }
-
-.vanisher {
-  width: 100%;
-  overflow: hidden;
-  transition: max-height 1s;
-}
-
-.vanisher--visible {
-  max-height: 300px;
-  transition: max-height 1s;
-}
-
-.vanisher--invisible {
-  max-height: 0;
-  transition: max-height 1s;
-}
