@@ -1,4 +1,3 @@
-/* globals window */
 const Conf = require( 'conf' );
 const config = new Conf();
 
@@ -85,12 +84,6 @@ function getSecondsUntilNextFetch( lastChecked, fetchInterval ) {
 	return ( interval < 0 ) ? 0 : msToSecs( interval );
 }
 
-function logError( exception ) {
-	if ( exception instanceof Error && typeof window !== 'undefined' && window.Raven && window.Raven.isSetup() ) {
-		window.Raven.captureException( exception );
-	}
-}
-
 module.exports = {
 	getNoteId,
 	getToken,
@@ -104,5 +97,4 @@ module.exports = {
 	isGitHubOffline,
 	isInvalidJson,
 	getSecondsUntilNextFetch,
-	logError,
 };

@@ -3,7 +3,6 @@ require('dotenv').config();
 
 const debugFactory = require('debug');
 const {
-	logError,
 	secsToMs,
 	isOfflineCode,
 	getErrorMessage,
@@ -51,7 +50,6 @@ function performFetch({ fetchingInProgress, token, fetchingStartedAt }, next) {
 				`it has been too long since we started fetching (${timeSinceFetchingStarted} ms). Giving up.`
 			);
 			next(fetchDone());
-			logError(new Error('Fetching timed out.'));
 			return;
 		}
 		debug('skipping notifications check because we are already fetching');
@@ -83,7 +81,6 @@ function performFetch({ fetchingInProgress, token, fetchingStartedAt }, next) {
 		debug('fetching notifications threw an error', err);
 		next(fetchDone());
 		getErrorHandler(next)(err);
-		logError(err);
 	}
 }
 
@@ -204,7 +201,6 @@ function getErrorHandler(dispatch) {
 		const errorString = 'Error fetching notifications: ' + getErrorMessage(err);
 		console.error(errorString); //eslint-disable-line no-console
 		dispatch(addConnectionError(errorString));
-		logError(new Error(errorString));
 	};
 }
 
