@@ -1,9 +1,4 @@
 const {
-	PANE_NOTIFICATIONS,
-	PANE_CONFIG,
-	PANE_TOKEN,
-} = require('common/lib/constants');
-const {
 	getToken,
 	secsToMs,
 	getNoteId,
@@ -24,7 +19,6 @@ const initialState = {
 	fetchInterval: defaultFetchInterval,
 	fetchRetryCount: 0,
 	offline: false,
-	currentPane: PANE_NOTIFICATIONS,
 	isAutoLoadEnabled: false,
 };
 
@@ -48,8 +42,6 @@ function reducer(state, action) {
 			});
 		case 'CLEAR_ERRORS':
 			return Object.assign({}, state, { errors: [] });
-		case 'SET_CURRENT_PANE':
-			return Object.assign({}, state, { currentPane: action.pane });
 		case 'MARK_NOTE_UNREAD':
 			return Object.assign({}, state, {
 				notes: state.notes.map(note => {
@@ -100,22 +92,6 @@ function reducer(state, action) {
 			return Object.assign({}, state, { isAutoLoadEnabled: action.isEnabled });
 	}
 	return state;
-}
-
-function hideEditToken() {
-	return { type: 'SET_CURRENT_PANE', pane: PANE_CONFIG };
-}
-
-function showEditToken() {
-	return { type: 'SET_CURRENT_PANE', pane: PANE_TOKEN };
-}
-
-function hideConfig() {
-	return { type: 'SET_CURRENT_PANE', pane: PANE_NOTIFICATIONS };
-}
-
-function showConfig() {
-	return { type: 'SET_CURRENT_PANE', pane: PANE_CONFIG };
 }
 
 function markRead(token, note) {
@@ -184,10 +160,6 @@ function scrollToTop() {
 
 module.exports = {
 	reducer,
-	hideEditToken,
-	showEditToken,
-	hideConfig,
-	showConfig,
 	markRead,
 	markUnread,
 	markAllNotesSeen,

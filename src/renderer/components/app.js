@@ -6,14 +6,14 @@ import debugFactory from 'debug';
 import Header from '../components/header';
 import ErrorsArea from '../components/errors-area';
 import MainPane from '../components/main-pane';
-import { PANE_CONFIG, PANE_NOTIFICATIONS } from 'common/lib/constants';
+import {
+	PANE_CONFIG,
+	PANE_NOTIFICATIONS,
+	PANE_TOKEN,
+} from 'common/lib/constants';
 import Poller from 'common/lib/poller';
 import { getSecondsUntilNextFetch } from 'common/lib/helpers';
 import {
-	hideEditToken,
-	showEditToken,
-	hideConfig,
-	showConfig,
 	markRead,
 	markUnread,
 	clearErrors,
@@ -40,6 +40,9 @@ class App extends React.Component {
 			return true;
 		};
 		this.fetcher = new Poller({ pollFunction });
+		this.state = {
+			currentPane: PANE_NOTIFICATIONS,
+		};
 	}
 
 	componentDidMount() {
@@ -97,7 +100,6 @@ class App extends React.Component {
 		const {
 			offline,
 			errors,
-			currentPane,
 			token,
 			lastSuccessfulCheck,
 			version,
@@ -116,6 +118,12 @@ class App extends React.Component {
 		debug('sending set-icon', nextIcon);
 		this.props.setIcon(nextIcon);
 
+		const { currentPane } = this.state;
+		const hideConfig = () => this.setState({ currentPane: PANE_NOTIFICATIONS });
+		const showConfig = () => this.setState({ currentPane: PANE_CONFIG });
+		const showEditToken = () => this.setState({ currentPane: PANE_TOKEN });
+		const hideEditToken = () => this.setState({ currentPane: PANE_CONFIG });
+
 		return (
 			<main>
 				<Header
@@ -126,11 +134,8 @@ class App extends React.Component {
 						lastChecked: this.props.lastChecked,
 						fetchInterval: this.props.fetchInterval,
 						showConfig:
-							token &&
-							currentPane === PANE_NOTIFICATIONS &&
-							this.props.showConfig,
-						hideConfig:
-							token && currentPane === PANE_CONFIG && this.props.hideConfig,
+							token && currentPane === PANE_NOTIFICATIONS && showConfig,
+						hideConfig: token && currentPane === PANE_CONFIG && hideConfig,
 						openUrl: this.props.openUrl,
 						fetchingInProgress,
 					}}
@@ -147,8 +152,8 @@ class App extends React.Component {
 					openUrl={this.props.openUrl}
 					changeToken={this.props.changeToken}
 					quitApp={this.props.quitApp}
-					hideEditToken={this.props.hideEditToken}
-					showEditToken={this.props.showEditToken}
+					hideEditToken={hideEditToken}
+					showEditToken={showEditToken}
 					markRead={this.props.markRead}
 					markUnread={this.props.markUnread}
 					checkForUpdates={this.props.checkForUpdates}
@@ -172,10 +177,6 @@ App.propTypes = {
 	markRead: PropTypes.func.isRequired,
 	markUnread: PropTypes.func.isRequired,
 	clearErrors: PropTypes.func.isRequired,
-	showEditToken: PropTypes.func.isRequired,
-	hideEditToken: PropTypes.func.isRequired,
-	hideConfig: PropTypes.func.isRequired,
-	showConfig: PropTypes.func.isRequired,
 	changeAutoLoad: PropTypes.func.isRequired,
 
 	// Values
@@ -184,7 +185,6 @@ App.propTypes = {
 	notes: PropTypes.array.isRequired,
 	offline: PropTypes.bool,
 	errors: PropTypes.array,
-	currentPane: PropTypes.string.isRequired,
 	token: PropTypes.string,
 	lastSuccessfulCheck: PropTypes.oneOfType([PropTypes.number, PropTypes.bool]),
 	fetchingInProgress: PropTypes.bool,
@@ -198,7 +198,6 @@ function mapStateToProps(state) {
 		notes: state.notes,
 		offline: state.offline,
 		errors: state.errors,
-		currentPane: state.currentPane,
 		token: state.token,
 		lastSuccessfulCheck: state.lastSuccessfulCheck,
 		fetchingInProgress: state.fetchingInProgress,
@@ -209,10 +208,6 @@ function mapStateToProps(state) {
 }
 
 const actions = {
-	hideEditToken,
-	showEditToken,
-	hideConfig,
-	showConfig,
 	markRead,
 	markUnread,
 	clearErrors,
