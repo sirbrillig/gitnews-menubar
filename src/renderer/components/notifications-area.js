@@ -40,6 +40,7 @@ export default function NotificationsArea({
 	const openNotificationUrl = (url, options = {}) =>
 		options.openInBackground ? saveUrlToOpen(url) : openUrl(url, options);
 	const openSavedUrls = React.useCallback(() => {
+		debug('opening urls', urlsToOpen);
 		urlsToOpen.map(openUrl);
 		setUrlsToOpen([]);
 	}, [openUrl, urlsToOpen]);
