@@ -75,7 +75,11 @@ export default function Header({
 
 function SecondaryHeader({ lastSuccessfulCheck, fetchingInProgress }) {
 	if (fetchingInProgress) {
-		return <FetchingInProgress />;
+		return (
+			<div className="header__secondary">
+				<FetchingInProgress />
+			</div>
+		);
 	}
 	return (
 		<div className="header__secondary">

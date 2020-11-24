@@ -129,7 +129,7 @@ header h1 {
 }
 
 .last-checked {
-  font-size: 0.7em;
+  font-size: 0.8em;
   text-align: center;
 }
 
@@ -139,9 +139,6 @@ header h1 {
 }
 
 .fetching-in-progress {
-  width: 100%;
-  padding: 4px 5px;
-  background-color: #24292e;
   font-size: 0.8em;
   text-align: center;
 }
