@@ -1,3 +1,5 @@
+require('isomorphic-fetch');
+
 async function checkForNewVersion({ version, semver }) {
 	return getLatestRelease().then(getVersionComparator({ version, semver }));
 }
@@ -64,11 +66,12 @@ async function getLatestRelease() {
 	const url =
 		'https://api.github.com/repos/sirbrillig/gitnews-menubar/releases/latest';
 	const response = await fetch(url);
-	const responseData = response.json();
-	const asset = response.assets
-		? response.assets.find(asset => asset.name.includes('dmg'))
+	const responseData = await response.json();
+	const asset = responseData.assets
+		? responseData.assets.find(asset => asset.name.includes('dmg'))
 		: null;
 	if (!asset) {
+		console.error('Latest release not found in', responseData);
 		throw new Error("Couldn't find latest release.");
 	}
 	const latestRelease = {
