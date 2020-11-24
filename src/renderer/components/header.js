@@ -58,11 +58,10 @@ export default function Header({
 				<Logo onClick={openLink} />
 				<span className="config-spacer"></span>
 			</div>
-			<div className="header__secondary">
-				{lastSuccessfulCheck && (
-					<UpdatingLastChecked lastSuccessfulCheck={lastSuccessfulCheck} />
-				)}
-			</div>
+			<SecondaryHeader
+				fetchingInProgress={fetchingInProgress}
+				lastSuccessfulCheck={lastSuccessfulCheck}
+			/>
 			<Vanisher isVisible={offline}>
 				<UpdatingOfflineNotice
 					fetchNotifications={fetchNotifications}
@@ -70,9 +69,19 @@ export default function Header({
 					fetchInterval={fetchInterval}
 				/>
 			</Vanisher>
-			<Vanisher isVisible={fetchingInProgress}>
-				<FetchingInProgress />
-			</Vanisher>
 		</header>
+	);
+}
+
+function SecondaryHeader({ lastSuccessfulCheck, fetchingInProgress }) {
+	if (fetchingInProgress) {
+		return <FetchingInProgress />;
+	}
+	return (
+		<div className="header__secondary">
+			{lastSuccessfulCheck && (
+				<UpdatingLastChecked lastSuccessfulCheck={lastSuccessfulCheck} />
+			)}
+		</div>
 	);
 }
