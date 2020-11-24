@@ -1,3 +1,5 @@
+require('isomorphic-fetch');
+
 async function checkForNewVersion({ version, semver }) {
 	return getLatestRelease().then(getVersionComparator({ version, semver }));
 }
