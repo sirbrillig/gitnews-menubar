@@ -3,22 +3,23 @@ import Gridicon from 'gridicons';
 import Notification from '../components/notification';
 import { getNoteId } from 'common/lib/helpers';
 
-function NoNotificationsIcon() {
+function NoNotificationsIcon({ children }) {
 	return (
-		<Gridicon
-			icon="checkmark-circle"
-			size={36}
-			className="no-notifications-icon"
-		/>
+		<div>
+			<Gridicon
+				icon="checkmark-circle"
+				size={36}
+				className="no-notifications-icon"
+			/>
+			{children}
+		</div>
 	);
 }
 
 function NoNotifications() {
 	return (
 		<div className="no-notifications">
-			<div>
-				<NoNotificationsIcon>No new notifications!</NoNotificationsIcon>
-			</div>
+			<NoNotificationsIcon>No notifications!</NoNotificationsIcon>
 		</div>
 	);
 }
@@ -31,20 +32,16 @@ export default function NotificationsArea({
 	openUrl,
 	token,
 }) {
-	const noteRows = newNotes.length ? (
-		newNotes.map(note => (
-			<Notification
-				note={note}
-				key={getNoteId(note)}
-				markRead={markRead}
-				markUnread={markUnread}
-				token={token}
-				openUrl={openUrl}
-			/>
-		))
-	) : (
-		<NoNotifications />
-	);
+	const noteRows = newNotes.map(note => (
+		<Notification
+			note={note}
+			key={getNoteId(note)}
+			markRead={markRead}
+			markUnread={markUnread}
+			token={token}
+			openUrl={openUrl}
+		/>
+	));
 	const readNoteRows = readNotes.map(note => (
 		<Notification
 			note={note}
@@ -57,6 +54,7 @@ export default function NotificationsArea({
 	));
 	return (
 		<div className="notifications-area">
+			{newNotes.length === 0 && readNotes.length === 0 && <NoNotifications />}
 			{noteRows}
 			{readNoteRows}
 		</div>

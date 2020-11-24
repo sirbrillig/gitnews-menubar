@@ -5,7 +5,6 @@ import LastChecked from '../components/last-checked';
 import OfflineNotice from '../components/offline-notice';
 import FetchingInProgress from '../components/fetching-in-progress';
 import createUpdater from '../components/updater';
-import Vanisher from '../components/vanisher';
 
 const UpdatingLastChecked = createUpdater(LastChecked);
 const UpdatingOfflineNotice = createUpdater(OfflineNotice);
@@ -58,21 +57,34 @@ export default function Header({
 				<Logo onClick={openLink} />
 				<span className="config-spacer"></span>
 			</div>
-			<div className="header__secondary">
-				{lastSuccessfulCheck && (
-					<UpdatingLastChecked lastSuccessfulCheck={lastSuccessfulCheck} />
-				)}
-			</div>
-			<Vanisher isVisible={offline}>
+			<SecondaryHeader
+				fetchingInProgress={fetchingInProgress}
+				lastSuccessfulCheck={lastSuccessfulCheck}
+			/>
+			{offline && (
 				<UpdatingOfflineNotice
 					fetchNotifications={fetchNotifications}
 					lastChecked={lastChecked}
 					fetchInterval={fetchInterval}
 				/>
-			</Vanisher>
-			<Vanisher isVisible={fetchingInProgress}>
-				<FetchingInProgress />
-			</Vanisher>
+			)}
 		</header>
+	);
+}
+
+function SecondaryHeader({ lastSuccessfulCheck, fetchingInProgress }) {
+	if (fetchingInProgress) {
+		return (
+			<div className="header__secondary">
+				<FetchingInProgress />
+			</div>
+		);
+	}
+	return (
+		<div className="header__secondary">
+			{lastSuccessfulCheck && (
+				<UpdatingLastChecked lastSuccessfulCheck={lastSuccessfulCheck} />
+			)}
+		</div>
 	);
 }

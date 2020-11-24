@@ -129,7 +129,7 @@ header h1 {
 }
 
 .last-checked {
-  font-size: 0.7em;
+  font-size: 0.8em;
   text-align: center;
 }
 
@@ -139,9 +139,6 @@ header h1 {
 }
 
 .fetching-in-progress {
-  width: 100%;
-  padding: 4px 5px;
-  background-color: #24292e;
   font-size: 0.8em;
   text-align: center;
 }
@@ -151,6 +148,8 @@ header h1 {
   padding: 4px 5px;
   background-color: #24292e;
   font-size: 0.9em;
+  position: fixed;
+  bottom: 0;
 }
 
 .notification {
@@ -308,20 +307,4 @@ main {
   display: flex;
   flex-direction: column;
   width: 100%;
-}
-
-.vanisher {
-  width: 100%;
-  overflow: hidden;
-  transition: max-height 1s;
-}
-
-.vanisher--visible {
-  max-height: 300px;
-  transition: max-height 1s;
-}
-
-.vanisher--invisible {
-  max-height: 0;
-  transition: max-height 1s;
 }
