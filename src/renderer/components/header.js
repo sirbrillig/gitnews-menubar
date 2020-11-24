@@ -5,7 +5,6 @@ import LastChecked from '../components/last-checked';
 import OfflineNotice from '../components/offline-notice';
 import FetchingInProgress from '../components/fetching-in-progress';
 import createUpdater from '../components/updater';
-import Vanisher from '../components/vanisher';
 
 const UpdatingLastChecked = createUpdater(LastChecked);
 const UpdatingOfflineNotice = createUpdater(OfflineNotice);
@@ -62,13 +61,13 @@ export default function Header({
 				fetchingInProgress={fetchingInProgress}
 				lastSuccessfulCheck={lastSuccessfulCheck}
 			/>
-			<Vanisher isVisible={offline}>
+			{offline && (
 				<UpdatingOfflineNotice
 					fetchNotifications={fetchNotifications}
 					lastChecked={lastChecked}
 					fetchInterval={fetchInterval}
 				/>
-			</Vanisher>
+			)}
 		</header>
 	);
 }

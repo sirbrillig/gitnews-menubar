@@ -148,6 +148,8 @@ header h1 {
   padding: 4px 5px;
   background-color: #24292e;
   font-size: 0.9em;
+  position: fixed;
+  bottom: 0;
 }
 
 .notification {
