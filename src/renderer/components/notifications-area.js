@@ -1,7 +1,10 @@
 import React from 'react';
 import Gridicon from 'gridicons';
+import debugFactory from 'debug';
 import Notification from '../components/notification';
 import { getNoteId } from 'common/lib/helpers';
+
+const debug = debugFactory('gitnews-menubar');
 
 function NoNotificationsIcon({ children }) {
 	return (
@@ -32,6 +35,30 @@ export default function NotificationsArea({
 	openUrl,
 	token,
 }) {
+	const [urlsToOpen, setUrlsToOpen] = React.useState([]);
+	const saveUrlToOpen = url => setUrlsToOpen(urls => [...urls, url]);
+	const openNotificationUrl = (url, options = {}) =>
+		options.openInBackground ? saveUrlToOpen(url) : openUrl(url, options);
+	const openSavedUrls = React.useCallback(() => {
+		urlsToOpen.map(openUrl);
+		setUrlsToOpen([]);
+	}, [openUrl, urlsToOpen]);
+	const onKeyUp = React.useCallback(
+		event => {
+			debug('Notification keyUp', event.code);
+			if (event.code.includes('Meta')) {
+				openSavedUrls();
+			}
+		},
+		[openSavedUrls]
+	);
+	React.useEffect(() => {
+		window.document.addEventListener('keyup', onKeyUp);
+		return () => {
+			window.document.removeEventListener('keyup', onKeyUp);
+		};
+	}, [onKeyUp]);
+
 	const noteRows = newNotes.map(note => (
 		<Notification
 			note={note}
@@ -39,7 +66,8 @@ export default function NotificationsArea({
 			markRead={markRead}
 			markUnread={markUnread}
 			token={token}
-			openUrl={openUrl}
+			openUrl={openNotificationUrl}
+			onKeyUp={onKeyUp}
 		/>
 	));
 	const readNoteRows = readNotes.map(note => (
@@ -49,7 +77,7 @@ export default function NotificationsArea({
 			markRead={markRead}
 			markUnread={markUnread}
 			token={token}
-			openUrl={openUrl}
+			openUrl={openNotificationUrl}
 		/>
 	));
 	return (
