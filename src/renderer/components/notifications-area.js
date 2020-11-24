@@ -3,22 +3,23 @@ import Gridicon from 'gridicons';
 import Notification from '../components/notification';
 import { getNoteId } from 'common/lib/helpers';
 
-function NoNotificationsIcon() {
+function NoNotificationsIcon({ children }) {
 	return (
-		<Gridicon
-			icon="checkmark-circle"
-			size={36}
-			className="no-notifications-icon"
-		/>
+		<div>
+			<Gridicon
+				icon="checkmark-circle"
+				size={36}
+				className="no-notifications-icon"
+			/>
+			{children}
+		</div>
 	);
 }
 
 function NoNotifications() {
 	return (
 		<div className="no-notifications">
-			<div>
-				<NoNotificationsIcon>No new notifications!</NoNotificationsIcon>
-			</div>
+			<NoNotificationsIcon>No notifications!</NoNotificationsIcon>
 		</div>
 	);
 }
