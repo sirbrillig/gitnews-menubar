@@ -31,20 +31,16 @@ export default function NotificationsArea({
 	openUrl,
 	token,
 }) {
-	const noteRows = newNotes.length ? (
-		newNotes.map(note => (
-			<Notification
-				note={note}
-				key={getNoteId(note)}
-				markRead={markRead}
-				markUnread={markUnread}
-				token={token}
-				openUrl={openUrl}
-			/>
-		))
-	) : (
-		<NoNotifications />
-	);
+	const noteRows = newNotes.map(note => (
+		<Notification
+			note={note}
+			key={getNoteId(note)}
+			markRead={markRead}
+			markUnread={markUnread}
+			token={token}
+			openUrl={openUrl}
+		/>
+	));
 	const readNoteRows = readNotes.map(note => (
 		<Notification
 			note={note}
@@ -57,6 +53,7 @@ export default function NotificationsArea({
 	));
 	return (
 		<div className="notifications-area">
+			{newNotes.length === 0 && readNotes.length === 0 && <NoNotifications />}
 			{noteRows}
 			{readNoteRows}
 		</div>
