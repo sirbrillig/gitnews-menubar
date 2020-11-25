@@ -155,7 +155,7 @@ header h1 {
 .notification {
   padding: 12px 12px 12px 6px;
   cursor: pointer;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #ccc;
   display: flex;
 }
 
@@ -223,10 +223,14 @@ header h1 {
   color: rgb(146, 146, 146);
 }
 
-.notification__mute-confirm__title {
+.notification__mute-confirm__text {
   text-align: center;
   font-size: 0.9em;
-  padding: 0 0 5px 0;
+  padding: 0 10px 10px 10px;
+}
+
+.notification__mute-confirm__title {
+  font-weight: bold;
 }
 
 .notification__mute-confirm__buttons {
@@ -234,11 +238,39 @@ header h1 {
   justify-content: space-evenly;
 }
 
+.notification__mute-confirm__cancel {
+  box-shadow:inset 0px 1px 0px 0px #ccc;
+  background-color: #eee;
+  border-radius:3px;
+  border:1px solid #999;
+  display:inline-block;
+  cursor:pointer;
+  color:#000;
+  font-family:Arial;
+  font-size:13px;
+  padding:6px 24px;
+  text-decoration:none;
+}
+
+.notification__mute-confirm__confirm {
+  box-shadow:inset 0px 1px 0px 0px #D2EBEF;
+  background-color: #9ef2ff;
+  border-radius:3px;
+  border:1px solid #54d5e8;
+  display:inline-block;
+  cursor:pointer;
+  color:#000;
+  font-family:Arial;
+  font-size:13px;
+  padding:6px 24px;
+  text-decoration:none;
+}
+
 .notification__mute-repo,
 .notification__mark-unread,
 .notification__mark-read {
   font-size: 0.7em;
-  color: rgb(146, 146, 146);
+  color: #172527;
   background: none!important;
   border: none;
   padding: 0!important;

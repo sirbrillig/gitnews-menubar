@@ -68,9 +68,9 @@ export default function Notification({
 		return (
 			<div className={noteClasses.join(' ')}>
 				<div className="notification__mute-confirm">
-					<div className="notification__mute-confirm__title">
-						Do you want to mute all notifications from the repo {note.repositoryFullName}? <br/><br/>
-						Notifications from a muted repo will not cause the icon to change.
+					<div className="notification__mute-confirm__text">
+						<div className="notification__mute-confirm__title">Mute all notifications from {note.repositoryFullName}?</div>
+						Notifications from a muted repo will not cause the icon to change. You can unmute it later.
 					</div>
 					<div className="notification__mute-confirm__buttons">
 						<MuteRepoCancelButton onClick={() => setMuteRequested(false)} />
