@@ -127,17 +127,14 @@ class App extends React.Component {
 		return (
 			<main>
 				<Header
-					{...{
-						offline,
-						fetchNotifications: this.props.fetchNotifications,
-						lastSuccessfulCheck,
-						lastChecked: this.props.lastChecked,
-						fetchInterval: this.props.fetchInterval,
-						showConfig:
-							token && currentPane === PANE_NOTIFICATIONS && showConfig,
-						hideConfig: token && currentPane === PANE_CONFIG && hideConfig,
-						fetchingInProgress,
-					}}
+					offline={offline}
+					fetchNotifications={this.props.fetchNotifications}
+					lastSuccessfulCheck={lastSuccessfulCheck}
+					lastChecked={this.props.lastChecked}
+					fetchInterval={this.props.fetchInterval}
+					showConfig={token && currentPane === PANE_NOTIFICATIONS && showConfig}
+					hideConfig={token && currentPane === PANE_CONFIG && hideConfig}
+					fetchingInProgress={fetchingInProgress}
 				/>
 				<ErrorsArea errors={errors} clearErrors={this.props.clearErrors} />
 				<MainPane
