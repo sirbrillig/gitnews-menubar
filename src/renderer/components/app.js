@@ -65,14 +65,29 @@ class App extends React.Component {
 		this.fetcher.end();
 	}
 
-	getReadNotifications() {
+	getUnmutedNotifications() {
 		return this.props.notes.filter(
-			note => !note.unread && !note.gitnewsMarkedUnread
+			note => !this.props.mutedRepos.includes(note.repositoryFullName)
 		);
 	}
 
+	getReadNotifications() {
+		return this.props.notes.filter(note => {
+			if (!note.unread && !note.gitnewsMarkedUnread) {
+				return true;
+			}
+			// We have to include muted repo notifications somewhere, so we'll show
+			// them with read notifications. That way they won't clutter new notes or
+			// show any alert icons.
+			if (this.props.mutedRepos.includes(note.repositoryFullName)) {
+				return true;
+			}
+			return false;
+		});
+	}
+
 	getUnreadNotifications() {
-		return this.props.notes.filter(
+		return this.getUnmutedNotifications().filter(
 			note => note.unread || note.gitnewsMarkedUnread
 		);
 	}
