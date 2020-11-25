@@ -106,6 +106,12 @@ header svg {
   width: 24px;
 }
 
+.mute-icon {
+  vertical-align: middle;
+  width: 16px;
+  fill: #777;
+}
+
 .attributions__icon {
   vertical-align: middle;
   padding-right: 0.5em;

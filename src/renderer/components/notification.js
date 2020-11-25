@@ -3,6 +3,8 @@ import Gridicon from 'gridicons';
 import debugFactory from 'debug';
 import date from 'date-fns';
 import EnsuredImage from './ensured-image';
+import MuteIcon from './mute-icon';
+import UnmuteIcon from './unmute-icon';
 
 const debug = debugFactory('gitnews-menubar');
 
@@ -152,7 +154,7 @@ function MuteRepoRequestButton({ onClick }) {
 			aria-label="Mute notifications from this repo"
 			onClick={onClick}
 		>
-			mute repo
+			<MuteIcon className="mute-icon" />
 		</button>
 	);
 }
@@ -164,7 +166,7 @@ function UnmuteRepoButton({ onClick }) {
 			aria-label="Unmute notifications from this repo"
 			onClick={onClick}
 		>
-			unmute repo
+			<UnmuteIcon className="mute-icon" />
 		</button>
 	);
 }
