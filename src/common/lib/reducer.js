@@ -12,6 +12,7 @@ const initialState = {
 	token: getToken(),
 	notes: [],
 	errors: [],
+	mutedRepos: [],
 	fetchingInProgress: false,
 	lastChecked: false,
 	lastSuccessfulCheck: false,
@@ -26,7 +27,6 @@ function reducer(state, action) {
 	if (!state) {
 		state = initialState;
 	}
-	// TODO: split these into sub-reducers
 	switch (action.type) {
 		case 'FETCH_BEGIN':
 			return Object.assign({}, state, {
@@ -90,8 +90,14 @@ function reducer(state, action) {
 			});
 		case 'CHANGE_AUTO_LOAD':
 			return Object.assign({}, state, { isAutoLoadEnabled: action.isEnabled });
+		case 'MUTE_REPO':
+			return { ...state, mutedRepos: [...state.mutedRepos, action.repo] };
 	}
 	return state;
+}
+
+function muteRepo(repo) {
+	return { type: 'MUTE_REPO', repo };
 }
 
 function markRead(token, note) {
@@ -176,4 +182,5 @@ module.exports = {
 	setIcon,
 	changeAutoLoad,
 	scrollToTop,
+	muteRepo,
 };
