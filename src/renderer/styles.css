@@ -17,10 +17,10 @@ body {
 }
 
 .btn {
-  box-shadow:inset 0px 1px 0px 0px #D2EBEF;
-  background-color: #9ef2ff;
+  box-shadow:inset 0px 1px 0px 0px #c1ab8c;
+  background-color: #F5E2C8;
   border-radius:3px;
-  border:1px solid #54d5e8;
+  border:1px solid #24292E;
   display:inline-block;
   cursor:pointer;
   color:#000;
