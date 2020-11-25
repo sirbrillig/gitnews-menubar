@@ -2,7 +2,7 @@ import React from 'react';
 import Gridicon from 'gridicons';
 import debugFactory from 'debug';
 import date from 'date-fns';
-import EnsuredImage from '@sirbrillig/ensured-image';
+import EnsuredImage from './ensured-image';
 
 const debug = debugFactory('gitnews-menubar');
 
