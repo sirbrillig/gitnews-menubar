@@ -34,7 +34,7 @@ export default function ConfigPage({
 			</label>
 			<Attributions openUrl={openUrl} />
 			<div className="config-page__buttons">
-				<button className="btn quit-button" onClick={quitApp}>
+				<button className="btn--cancel quit-button" onClick={quitApp}>
 					Quit
 				</button>
 				<button

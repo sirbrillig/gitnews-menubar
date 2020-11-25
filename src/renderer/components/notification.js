@@ -124,7 +124,7 @@ export default function Notification({
 function MuteRepoCancelButton({ onClick }) {
 	return (
 		<button
-			className="notification__mute-confirm__cancel"
+			className="notification__mute-confirm__cancel btn--cancel"
 			aria-label="Cancel mute repo"
 			onClick={onClick}
 		>
@@ -136,7 +136,7 @@ function MuteRepoCancelButton({ onClick }) {
 function MuteRepoButton({ onClick }) {
 	return (
 		<button
-			className="notification__mute-confirm__confirm"
+			className="notification__mute-confirm__confirm btn"
 			aria-label="Mute notifications from this repo"
 			onClick={onClick}
 		>

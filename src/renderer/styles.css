@@ -17,30 +17,28 @@ body {
 }
 
 .btn {
-  background: none;
-  border-radius: 10px;
-  color: #239266;
-  padding: 5px 20px 5px 20px;
-  border: solid #239266 2px;
-  text-decoration: none;
-  margin: 0 2px 0 0;
-  text-decoration: none;
+  box-shadow:inset 0px 1px 0px 0px #D2EBEF;
+  background-color: #9ef2ff;
+  border-radius:3px;
+  border:1px solid #54d5e8;
+  display:inline-block;
+  cursor:pointer;
+  color:#000;
+  font-family:Arial;
+  font-size:13px;
+  padding:6px 24px;
+  text-decoration:none;
+  margin-right: 10px;
 }
 
 .btn:hover {
   cursor: pointer;
 }
 
-.quit-button {
-  display: inline-block;
-  margin-top: 2em;
-  color: #ca1a1a;
-  border-color: #ca1a1a;
-}
-
-.quit-button,
-.check-for-updates-button {
-  font-size: 14px;
+.config-page__buttons {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 10px;
 }
 
 a {
@@ -92,11 +90,10 @@ header svg {
 }
 
 .edit-token-button,
-.add-token-form__cancel-button,
 .retry-button,
 .config-button,
 .back-button {
-  color: rgb(146, 146, 146);
+  color: #5d5252;
   background: none!important;
   border: none;
   padding: 0!important;
@@ -238,7 +235,7 @@ header h1 {
   justify-content: space-evenly;
 }
 
-.notification__mute-confirm__cancel {
+.btn--cancel {
   box-shadow:inset 0px 1px 0px 0px #ccc;
   background-color: #eee;
   border-radius:3px;
@@ -250,20 +247,7 @@ header h1 {
   font-size:13px;
   padding:6px 24px;
   text-decoration:none;
-}
-
-.notification__mute-confirm__confirm {
-  box-shadow:inset 0px 1px 0px 0px #D2EBEF;
-  background-color: #9ef2ff;
-  border-radius:3px;
-  border:1px solid #54d5e8;
-  display:inline-block;
-  cursor:pointer;
-  color:#000;
-  font-family:Arial;
-  font-size:13px;
-  padding:6px 24px;
-  text-decoration:none;
+  margin-right: 10px;
 }
 
 .notification__mute-repo,

@@ -40,18 +40,18 @@ export default function AddTokenForm({
 				defaultValue={token}
 				ref={saveTokenField}
 			/>
-			<button className="add-token-form__save-button btn" onClick={saveToken}>
-				Save Token
-			</button>
 			{showCancel && (
 				<button
-					className="add-token-form__cancel-button"
+					className="add-token-form__cancel-button btn--cancel"
 					onClick={hideEditToken}
 					aria-label="Cancel changing token"
 				>
 					Cancel
 				</button>
 			)}
+			<button className="add-token-form__save-button btn" onClick={saveToken}>
+				Save Token
+			</button>
 		</div>
 	);
 }
