@@ -74,7 +74,9 @@ export default function Notification({
 			</div>
 			<div className="notification__body">
 				<div className="notification__repo">
-					{note.repositoryFullName}
+					<span className="notification__repo-name">
+						{note.repositoryFullName}
+					</span>
 					{isMuted ? (
 						<UnmuteRepoButton onClick={doUnmute} />
 					) : (

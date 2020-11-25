@@ -228,17 +228,33 @@ header h1 {
 .notification__mark-read {
   font-size: 0.7em;
   color: rgb(146, 146, 146);
-  margin-left: 2em;
   background: none!important;
   border: none;
   padding: 0!important;
   text-decoration: underline;
   cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.notification__body {
+  width: 100%;
+}
+
+.notification__footer {
+  display: flex;
+  justify-content: space-between;
 }
 
 .notification__repo {
   font-weight: 800;
   margin-bottom: 5px;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.notification__repo-name {
+  flex: 1 1 auto;
 }
 
 .notification__title {
