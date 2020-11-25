@@ -13,6 +13,8 @@ export default function Notification({
 	markUnread,
 	token,
 	muteRepo,
+	unmuteRepo,
+	isMuted,
 }) {
 	const isUnread =
 		note.unread === true ? true : note.gitnewsMarkedUnread === true;
@@ -28,7 +30,11 @@ export default function Notification({
 		date.parse(note.updatedAt),
 		{ addSuffix: true }
 	);
-	const noteClass = isUnread ? ' notification__unread' : ' notification__read';
+	const noteClasses = [
+		'notification',
+		...getNoteClasses({ isUnread, isMuted }),
+	];
+	const noteClass = noteClasses.join(' ');
 	const defaultAvatar = `https://avatars.io/twitter/${note.repositoryFullName}`;
 	const avatarSrc =
 		note.commentAvatar || note.repositoryOwnerAvatar || defaultAvatar;
@@ -50,8 +56,14 @@ export default function Notification({
 		muteRepo(note.repositoryFullName);
 	};
 
+	const doUnmute = event => {
+		event.preventDefault();
+		event.stopPropagation();
+		unmuteRepo(note.repositoryFullName);
+	};
+
 	return (
-		<div className={'notification' + noteClass} onClick={onClick}>
+		<div className={noteClass} onClick={onClick}>
 			<div className={iconClasses.join(' ')}>
 				<Gridicon icon={iconType} />
 				<span className="notification__type--text">{iconText}</span>
@@ -63,7 +75,11 @@ export default function Notification({
 			<div className="notification__body">
 				<div className="notification__repo">
 					{note.repositoryFullName}
-					<MuteRepoButton onClick={doMute} />
+					{isMuted ? (
+						<UnmuteRepoButton onClick={doUnmute} />
+					) : (
+						<MuteRepoButton onClick={doMute} />
+					)}
 				</div>
 				<div className="notification__title">{note.title}</div>
 				<div className="notification__footer">
@@ -87,6 +103,18 @@ function MuteRepoButton({ onClick }) {
 			onClick={onClick}
 		>
 			mute repo
+		</button>
+	);
+}
+
+function UnmuteRepoButton({ onClick }) {
+	return (
+		<button
+			className="notification__mute-repo"
+			aria-label="Unmute notifications from this repo"
+			onClick={onClick}
+		>
+			unmute repo
 		</button>
 	);
 }
@@ -125,4 +153,14 @@ function MarkUnreadButton({ note, markUnread }) {
 			mark unread
 		</button>
 	);
+}
+
+function getNoteClasses({ isMuted, isUnread }) {
+	if (isMuted) {
+		return ['notification__muted'];
+	}
+	if (isUnread) {
+		return ['notification__unread'];
+	}
+	return ['notification__read'];
 }

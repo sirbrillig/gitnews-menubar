@@ -24,6 +24,8 @@ export default function MainPane({
 	isAutoLoadEnabled,
 	changeAutoLoad,
 	muteRepo,
+	unmuteRepo,
+	mutedRepos,
 }) {
 	if (!token || currentPane === PANE_TOKEN) {
 		return (
@@ -64,6 +66,8 @@ export default function MainPane({
 			markRead={markRead}
 			markUnread={markUnread}
 			muteRepo={muteRepo}
+			unmuteRepo={unmuteRepo}
+			mutedRepos={mutedRepos}
 			openUrl={openUrl}
 			token={token}
 		/>

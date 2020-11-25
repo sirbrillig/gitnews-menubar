@@ -24,6 +24,7 @@ import {
 	changeToken,
 	changeAutoLoad,
 	muteRepo,
+	unmuteRepo,
 } from 'common/lib/reducer';
 
 const debug = debugFactory('gitnews-menubar');
@@ -171,7 +172,9 @@ class App extends React.Component {
 					checkForUpdates={this.props.checkForUpdates}
 					isAutoLoadEnabled={this.props.isAutoLoadEnabled}
 					changeAutoLoad={this.props.changeAutoLoad}
-					muteRepo={muteRepo}
+					muteRepo={this.props.muteRepo}
+					unmuteRepo={this.props.unmuteRepo}
+					mutedRepos={this.props.mutedRepos}
 				/>
 			</main>
 		);
@@ -192,11 +195,13 @@ App.propTypes = {
 	clearErrors: PropTypes.func.isRequired,
 	changeAutoLoad: PropTypes.func.isRequired,
 	muteRepo: PropTypes.func.isRequired,
+	unmuteRepo: PropTypes.func.isRequired,
 
 	// Values
 	version: PropTypes.string.isRequired,
 	// All following are provided by connect
 	notes: PropTypes.array.isRequired,
+	mutedRepos: PropTypes.arrayOf(PropTypes.string).isRequired,
 	offline: PropTypes.bool,
 	errors: PropTypes.array,
 	token: PropTypes.string,
@@ -210,6 +215,7 @@ App.propTypes = {
 function mapStateToProps(state) {
 	return {
 		notes: state.notes,
+		mutedRepos: state.mutedRepos,
 		offline: state.offline,
 		errors: state.errors,
 		token: state.token,
@@ -232,6 +238,7 @@ const actions = {
 	changeToken,
 	changeAutoLoad,
 	muteRepo,
+	unmuteRepo,
 };
 
 export default connect(mapStateToProps, actions)(App);

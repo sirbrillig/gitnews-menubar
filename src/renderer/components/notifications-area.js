@@ -32,6 +32,8 @@ export default function NotificationsArea({
 	readNotes,
 	markRead,
 	muteRepo,
+	unmuteRepo,
+	mutedRepos,
 	markUnread,
 	openUrl,
 	token,
@@ -69,8 +71,9 @@ export default function NotificationsArea({
 			markUnread={markUnread}
 			token={token}
 			openUrl={openNotificationUrl}
-			onKeyUp={onKeyUp}
 			muteRepo={muteRepo}
+			unmuteRepo={unmuteRepo}
+			isMuted={mutedRepos.includes(note.repositoryFullName)}
 		/>
 	));
 	const readNoteRows = readNotes.map(note => (
@@ -81,6 +84,9 @@ export default function NotificationsArea({
 			markUnread={markUnread}
 			token={token}
 			openUrl={openNotificationUrl}
+			muteRepo={muteRepo}
+			unmuteRepo={unmuteRepo}
+			isMuted={mutedRepos.includes(note.repositoryFullName)}
 		/>
 	));
 	return (

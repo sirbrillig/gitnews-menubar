@@ -159,6 +159,11 @@ header h1 {
   display: flex;
 }
 
+.notification__muted {
+  color: #999;
+  position: relative;
+}
+
 .notification__unread {
   background-color: rgba(245, 112, 35, 0.1);
   position: relative;
