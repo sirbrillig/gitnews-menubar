@@ -1,5 +1,6 @@
 import React from 'react';
 import BellIcon from '../components/bell-icon';
+import MuteIcon from '../components/mute-icon';
 
 export default function Attributions({ openUrl }) {
 	const openLink = event => {
@@ -11,7 +12,7 @@ export default function Attributions({ openUrl }) {
 			<h3>Attribution</h3>
 			<div className="attributions__text">
 				<BellIcon className="attributions__icon" />
-				Bell icon made by&nbsp;
+				Bell icon by&nbsp;
 				<a
 					onClick={openLink}
 					href="http://www.flaticon.com/authors/daniel-bruce"
@@ -32,16 +33,30 @@ export default function Attributions({ openUrl }) {
 					CC 3 BY
 				</a>
 				)
-				<div>
-					Mute icons made by{' '}
-					<a href="https://www.flaticon.com/authors/freepik" title="Freepik">
+				<p>
+					<MuteIcon className="attributions__icon" />
+					Mute icons by{' '}
+					<a
+						onClick={openLink}
+						href="https://www.flaticon.com/authors/freepik"
+						title="Freepik"
+					>
 						Freepik
 					</a>{' '}
 					from{' '}
-					<a href="https://www.flaticon.com/" title="Flaticon">
-						www.flaticon.com
+					<a onClick={openLink} href="http://www.flaticon.com" title="Flaticon">
+						Flaticon
 					</a>
-				</div>
+					&nbsp; (
+					<a
+						onClick={openLink}
+						href="http://creativecommons.org/licenses/by/3.0/"
+						title="Creative Commons BY 3.0"
+					>
+						CC 3 BY
+					</a>
+					)
+				</p>
 			</div>
 		</div>
 	);

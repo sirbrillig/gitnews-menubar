@@ -17,21 +17,25 @@ export default function ConfigPage({
 		<div className="config-page">
 			<h2 className="config-page__title">Configuration</h2>
 			<h3>Token</h3>
-			<div>Would you like to change your authentication token?</div>
-			<button className="edit-token-button" onClick={showEditToken}>
-				Edit token
-			</button>
+			<div>
+				<div>Would you like to change your authentication token?</div>
+				<button className="edit-token-button" onClick={showEditToken}>
+					Edit token
+				</button>
+			</div>
 			<h3>Settings</h3>
-			<input
-				type="checkbox"
-				id="auto-load-setting"
-				className="auto-load-setting"
-				checked={isAutoLoadEnabled}
-				onChange={toggleAutoLoad}
-			/>
-			<label htmlFor="auto-load-setting" className="auto-load-setting-label">
-				Launch Gitnews at login
-			</label>
+			<div>
+				<input
+					type="checkbox"
+					id="auto-load-setting"
+					className="auto-load-setting"
+					checked={isAutoLoadEnabled}
+					onChange={toggleAutoLoad}
+				/>
+				<label htmlFor="auto-load-setting" className="auto-load-setting-label">
+					Launch Gitnews at login
+				</label>
+			</div>
 			<Attributions openUrl={openUrl} />
 			<div className="config-page__buttons">
 				<button className="btn--cancel quit-button" onClick={quitApp}>
@@ -40,7 +44,7 @@ export default function ConfigPage({
 				<button
 					className="btn check-for-updates-button"
 					onClick={checkForUpdates}
-					>
+				>
 					Check for Updates
 				</button>
 			</div>

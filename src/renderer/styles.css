@@ -47,7 +47,7 @@ a {
 
 .copyright {
   font-size: 0.8em;
-  margin-top: 1em;
+  margin-top: 2em;
   display: flex;
 }
 
@@ -338,10 +338,17 @@ header h1 {
 
 .config-page {
   margin: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .config-page h2 {
   margin: 0 0 10px 0;
+}
+
+.config-page h3 {
+  margin: 10px 0;
 }
 
 .spinner {
