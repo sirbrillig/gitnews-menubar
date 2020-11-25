@@ -31,6 +31,7 @@ export default function NotificationsArea({
 	newNotes,
 	readNotes,
 	markRead,
+	muteRepo,
 	markUnread,
 	openUrl,
 	token,
@@ -69,6 +70,7 @@ export default function NotificationsArea({
 			token={token}
 			openUrl={openNotificationUrl}
 			onKeyUp={onKeyUp}
+			muteRepo={muteRepo}
 		/>
 	));
 	const readNoteRows = readNotes.map(note => (

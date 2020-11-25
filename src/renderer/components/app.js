@@ -23,6 +23,7 @@ import {
 	setIcon,
 	changeToken,
 	changeAutoLoad,
+	muteRepo,
 } from 'common/lib/reducer';
 
 const debug = debugFactory('gitnews-menubar');
@@ -155,6 +156,7 @@ class App extends React.Component {
 					checkForUpdates={this.props.checkForUpdates}
 					isAutoLoadEnabled={this.props.isAutoLoadEnabled}
 					changeAutoLoad={this.props.changeAutoLoad}
+					muteRepo={muteRepo}
 				/>
 			</main>
 		);
@@ -174,6 +176,7 @@ App.propTypes = {
 	markUnread: PropTypes.func.isRequired,
 	clearErrors: PropTypes.func.isRequired,
 	changeAutoLoad: PropTypes.func.isRequired,
+	muteRepo: PropTypes.func.isRequired,
 
 	// Values
 	version: PropTypes.string.isRequired,
@@ -213,6 +216,7 @@ const actions = {
 	setIcon,
 	changeToken,
 	changeAutoLoad,
+	muteRepo,
 };
 
 export default connect(mapStateToProps, actions)(App);

@@ -218,6 +218,7 @@ header h1 {
   color: rgb(146, 146, 146);
 }
 
+.notification__mute-repo,
 .notification__mark-unread,
 .notification__mark-read {
   font-size: 0.7em;

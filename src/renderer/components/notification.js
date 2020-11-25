@@ -12,6 +12,7 @@ export default function Notification({
 	markRead,
 	markUnread,
 	token,
+	muteRepo,
 }) {
 	const isUnread =
 		note.unread === true ? true : note.gitnewsMarkedUnread === true;
@@ -19,7 +20,7 @@ export default function Notification({
 		debug('clicked on notification', note, 'with metaKey', event.metaKey);
 		markRead(token, note);
 		openUrl(note.commentUrl, {
-			openInBackground: !! event.metaKey,
+			openInBackground: !!event.metaKey,
 		});
 	};
 	const timeString = date.distanceInWords(
@@ -43,6 +44,11 @@ export default function Notification({
 		...(isClosed && !isMerged ? ['notification__type--closed'] : []),
 		...(isMerged ? ['notification__type--merged'] : []),
 	];
+	const doMute = event => {
+		event.preventDefault();
+		event.stopPropagation();
+		muteRepo(note.repositoryFullName);
+	};
 
 	return (
 		<div className={'notification' + noteClass} onClick={onClick}>
@@ -55,7 +61,10 @@ export default function Notification({
 				<EnsuredImage src={avatarSrc} />
 			</div>
 			<div className="notification__body">
-				<div className="notification__repo">{note.repositoryFullName}</div>
+				<div className="notification__repo">
+					{note.repositoryFullName}
+					<MuteRepoButton onClick={doMute} />
+				</div>
 				<div className="notification__title">{note.title}</div>
 				<div className="notification__footer">
 					<span className="notification__time">{timeString}</span>
@@ -67,6 +76,18 @@ export default function Notification({
 				</div>
 			</div>
 		</div>
+	);
+}
+
+function MuteRepoButton({ onClick }) {
+	return (
+		<button
+			className="notification__mute-repo"
+			aria-label="Mute notifications from this repo"
+			onClick={onClick}
+		>
+			mute repo
+		</button>
 	);
 }
 

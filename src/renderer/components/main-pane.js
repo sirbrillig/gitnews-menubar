@@ -23,6 +23,7 @@ export default function MainPane({
 	fetchingInProgress,
 	isAutoLoadEnabled,
 	changeAutoLoad,
+	muteRepo,
 }) {
 	if (!token || currentPane === PANE_TOKEN) {
 		return (
@@ -62,6 +63,7 @@ export default function MainPane({
 			readNotes={readNotes}
 			markRead={markRead}
 			markUnread={markUnread}
+			muteRepo={muteRepo}
 			openUrl={openUrl}
 			token={token}
 		/>
