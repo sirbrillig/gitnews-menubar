@@ -223,6 +223,17 @@ header h1 {
   color: rgb(146, 146, 146);
 }
 
+.notification__mute-confirm__title {
+  text-align: center;
+  font-size: 0.9em;
+  padding: 0 0 5px 0;
+}
+
+.notification__mute-confirm__buttons {
+  display: flex;
+  justify-content: space-evenly;
+}
+
 .notification__mute-repo,
 .notification__mark-unread,
 .notification__mark-read {

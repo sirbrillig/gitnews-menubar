@@ -15,11 +15,14 @@ export default function Notification({
 	muteRepo,
 	unmuteRepo,
 	isMuted,
+	isMuteRequested,
+	setMuteRequested,
 }) {
 	const isUnread =
 		note.unread === true ? true : note.gitnewsMarkedUnread === true;
 	const onClick = event => {
 		debug('clicked on notification', note, 'with metaKey', event.metaKey);
+		setMuteRequested(false);
 		markRead(token, note);
 		openUrl(note.commentUrl, {
 			openInBackground: !!event.metaKey,
@@ -34,7 +37,6 @@ export default function Notification({
 		'notification',
 		...getNoteClasses({ isUnread, isMuted }),
 	];
-	const noteClass = noteClasses.join(' ');
 	const defaultAvatar = `https://avatars.io/twitter/${note.repositoryFullName}`;
 	const avatarSrc =
 		note.commentAvatar || note.repositoryOwnerAvatar || defaultAvatar;
@@ -50,20 +52,42 @@ export default function Notification({
 		...(isClosed && !isMerged ? ['notification__type--closed'] : []),
 		...(isMerged ? ['notification__type--merged'] : []),
 	];
+
 	const doMute = event => {
 		event.preventDefault();
 		event.stopPropagation();
-		muteRepo(note.repositoryFullName);
+		setMuteRequested(note);
 	};
-
 	const doUnmute = event => {
 		event.preventDefault();
 		event.stopPropagation();
 		unmuteRepo(note.repositoryFullName);
 	};
 
+	if (isMuteRequested) {
+		return (
+			<div className={noteClasses.join(' ')}>
+				<div className="notification__mute-confirm">
+					<div className="notification__mute-confirm__title">
+						Do you want to mute all notifications from the repo {note.repositoryFullName}? <br/><br/>
+						Notifications from a muted repo will not cause the icon to change.
+					</div>
+					<div className="notification__mute-confirm__buttons">
+						<MuteRepoCancelButton onClick={() => setMuteRequested(false)} />
+						<MuteRepoButton
+							onClick={() => {
+								setMuteRequested(false);
+								muteRepo(note.repositoryFullName);
+							}}
+						/>
+					</div>
+				</div>
+			</div>
+		);
+	}
+
 	return (
-		<div className={noteClass} onClick={onClick}>
+		<div className={noteClasses.join(' ')} onClick={onClick}>
 			<div className={iconClasses.join(' ')}>
 				<Gridicon icon={iconType} />
 				<span className="notification__type--text">{iconText}</span>
@@ -80,7 +104,7 @@ export default function Notification({
 					{isMuted ? (
 						<UnmuteRepoButton onClick={doUnmute} />
 					) : (
-						<MuteRepoButton onClick={doMute} />
+						<MuteRepoRequestButton onClick={doMute} />
 					)}
 				</div>
 				<div className="notification__title">{note.title}</div>
@@ -97,7 +121,31 @@ export default function Notification({
 	);
 }
 
+function MuteRepoCancelButton({ onClick }) {
+	return (
+		<button
+			className="notification__mute-confirm__cancel"
+			aria-label="Cancel mute repo"
+			onClick={onClick}
+		>
+			Cancel
+		</button>
+	);
+}
+
 function MuteRepoButton({ onClick }) {
+	return (
+		<button
+			className="notification__mute-confirm__confirm"
+			aria-label="Mute notifications from this repo"
+			onClick={onClick}
+		>
+			Mute repo
+		</button>
+	);
+}
+
+function MuteRepoRequestButton({ onClick }) {
 	return (
 		<button
 			className="notification__mute-repo"
