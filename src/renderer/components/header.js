@@ -36,7 +36,6 @@ function LeftButton({ hideConfig, showConfig }) {
 }
 
 export default function Header({
-	openUrl,
 	lastSuccessfulCheck,
 	lastChecked,
 	fetchInterval,
@@ -46,15 +45,11 @@ export default function Header({
 	hideConfig,
 	fetchingInProgress,
 }) {
-	const openLink = event => {
-		event.preventDefault();
-		openUrl(event.target.href);
-	};
 	return (
 		<header>
 			<div className="header__primary">
 				<LeftButton hideConfig={hideConfig} showConfig={showConfig} />
-				<Logo onClick={openLink} />
+				<Logo />
 				<span className="config-spacer"></span>
 			</div>
 			<SecondaryHeader

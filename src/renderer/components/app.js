@@ -136,7 +136,6 @@ class App extends React.Component {
 						showConfig:
 							token && currentPane === PANE_NOTIFICATIONS && showConfig,
 						hideConfig: token && currentPane === PANE_CONFIG && hideConfig,
-						openUrl: this.props.openUrl,
 						fetchingInProgress,
 					}}
 				/>
