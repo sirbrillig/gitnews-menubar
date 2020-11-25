@@ -92,12 +92,18 @@ function reducer(state, action) {
 			return Object.assign({}, state, { isAutoLoadEnabled: action.isEnabled });
 		case 'MUTE_REPO':
 			return { ...state, mutedRepos: [...state.mutedRepos, action.repo] };
+		case 'UNMUTE_REPO':
+			return { ...state, mutedRepos: state.mutedRepos.filter( repoName => repoName !== action.repo ) };
 	}
 	return state;
 }
 
 function muteRepo(repo) {
 	return { type: 'MUTE_REPO', repo };
+}
+
+function unmuteRepo(repo) {
+	return { type: 'UNMUTE_REPO', repo };
 }
 
 function markRead(token, note) {
@@ -183,4 +189,5 @@ module.exports = {
 	changeAutoLoad,
 	scrollToTop,
 	muteRepo,
+	unmuteRepo,
 };
