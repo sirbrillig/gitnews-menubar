@@ -39,9 +39,11 @@ export default function NotificationsArea({
 	token,
 }) {
 	const [urlsToOpen, setUrlsToOpen] = React.useState([]);
+	const [isMultiOpenMode, setMultiOpenMode] = React.useState(false);
 	const saveUrlToOpen = url => setUrlsToOpen(urls => [...urls, url]);
 	const openNotificationUrl = (url, options = {}) =>
 		options.openInBackground ? saveUrlToOpen(url) : openUrl(url, options);
+
 	const openSavedUrls = React.useCallback(() => {
 		debug('opening urls', urlsToOpen);
 		urlsToOpen.map(openUrl);
@@ -52,16 +54,33 @@ export default function NotificationsArea({
 			debug('Notification keyUp', event.code);
 			if (event.code.includes('Meta')) {
 				openSavedUrls();
+				setMultiOpenMode(false);
 			}
 		},
 		[openSavedUrls]
 	);
+	const onKeyDown = React.useCallback(
+		event => {
+			if (event.code.includes('Meta')) {
+				setMultiOpenMode(true);
+			}
+		},
+		[setMultiOpenMode]
+	);
+
 	React.useEffect(() => {
 		window.document.addEventListener('keyup', onKeyUp);
 		return () => {
 			window.document.removeEventListener('keyup', onKeyUp);
 		};
 	}, [onKeyUp]);
+	React.useEffect(() => {
+		window.document.addEventListener('keydown', onKeyDown);
+		return () => {
+			window.document.removeEventListener('keydown', onKeyDown);
+		};
+	}, [onKeyDown]);
+
 	const [muteRequestedFor, setMuteRequested] = React.useState(false);
 
 	const noteRows = newNotes.map(note => (
@@ -77,6 +96,7 @@ export default function NotificationsArea({
 			isMuted={mutedRepos.includes(note.repositoryFullName)}
 			isMuteRequested={muteRequestedFor === note}
 			setMuteRequested={setMuteRequested}
+			isMultiOpenMode={isMultiOpenMode}
 		/>
 	));
 	const readNoteRows = readNotes.map(note => (
@@ -92,6 +112,7 @@ export default function NotificationsArea({
 			isMuted={mutedRepos.includes(note.repositoryFullName)}
 			isMuteRequested={muteRequestedFor === note}
 			setMuteRequested={setMuteRequested}
+			isMultiOpenMode={isMultiOpenMode}
 		/>
 	));
 	return (

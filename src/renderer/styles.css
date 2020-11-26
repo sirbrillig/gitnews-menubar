@@ -183,10 +183,19 @@ header h1 {
 }
 
 .notification {
-  padding: 12px 12px 12px 6px;
+  padding: 12px 12px 12px 2px;
   cursor: pointer;
   border-top: 1px solid #ccc;
+  border-left: 4px solid transparent;
   display: flex;
+}
+
+.notification--multi-open {
+  border-left: 4px solid #f57023;
+}
+
+.notification--multi-open-clicked {
+  border-left: 4px solid #4FB477;
 }
 
 .notification__muted {
