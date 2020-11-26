@@ -41,6 +41,15 @@ body {
   margin-top: 10px;
 }
 
+.config-page__settings {
+  margin: 0;
+  padding: 0;
+}
+
+.config-page__settings li {
+  margin: 0 0 10px 0;
+}
+
 a {
   color: #f57023;
 }
@@ -90,6 +99,7 @@ header svg {
 }
 
 .edit-token-button,
+.edit-muted-repos-button,
 .retry-button,
 .config-button,
 .back-button {
@@ -104,6 +114,23 @@ header svg {
 .config-button,
 .config-spacer {
   width: 24px;
+}
+
+.muted-repos-list {
+  margin: 12px;
+}
+
+.muted-repos-list h2 {
+  margin: 0 0 10px 0;
+}
+
+.muted-repos-list ul {
+  margin: 0;
+  padding: 0;
+}
+
+.muted-repos-list li {
+  margin: 10px 0;
 }
 
 .mute-icon {

@@ -10,6 +10,7 @@ import {
 	PANE_CONFIG,
 	PANE_NOTIFICATIONS,
 	PANE_TOKEN,
+	PANE_MUTED_REPOS,
 } from 'common/lib/constants';
 import Poller from 'common/lib/poller';
 import { getSecondsUntilNextFetch } from 'common/lib/helpers';
@@ -140,6 +141,19 @@ class App extends React.Component {
 		const showConfig = () => this.setState({ currentPane: PANE_CONFIG });
 		const showEditToken = () => this.setState({ currentPane: PANE_TOKEN });
 		const hideEditToken = () => this.setState({ currentPane: PANE_CONFIG });
+		const showMutedReposList = () =>
+			this.setState({ currentPane: PANE_MUTED_REPOS });
+
+		const showBackButton =
+			token &&
+			(currentPane === PANE_CONFIG || currentPane === PANE_MUTED_REPOS);
+		const onBack = () => {
+			if (currentPane === PANE_MUTED_REPOS) {
+				showConfig();
+				return;
+			}
+			hideConfig();
+		};
 
 		return (
 			<main>
@@ -150,7 +164,7 @@ class App extends React.Component {
 					lastChecked={this.props.lastChecked}
 					fetchInterval={this.props.fetchInterval}
 					showConfig={token && currentPane === PANE_NOTIFICATIONS && showConfig}
-					hideConfig={token && currentPane === PANE_CONFIG && hideConfig}
+					hideConfig={showBackButton ? onBack : null}
 					fetchingInProgress={fetchingInProgress}
 				/>
 				<ErrorsArea errors={errors} clearErrors={this.props.clearErrors} />
@@ -175,6 +189,7 @@ class App extends React.Component {
 					muteRepo={this.props.muteRepo}
 					unmuteRepo={this.props.unmuteRepo}
 					mutedRepos={this.props.mutedRepos}
+					showMutedReposList={showMutedReposList}
 				/>
 			</main>
 		);
