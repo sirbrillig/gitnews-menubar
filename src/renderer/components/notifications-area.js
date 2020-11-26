@@ -82,44 +82,52 @@ export default function NotificationsArea({
 	}, [onKeyDown]);
 
 	const [muteRequestedFor, setMuteRequested] = React.useState(false);
+	const [searchValue, setSearchTo] = React.useState('');
 
-	const noteRows = newNotes.map(note => (
-		<Notification
-			note={note}
-			key={getNoteId(note)}
-			markRead={markRead}
-			markUnread={markUnread}
-			token={token}
-			openUrl={openNotificationUrl}
-			muteRepo={muteRepo}
-			unmuteRepo={unmuteRepo}
-			isMuted={mutedRepos.includes(note.repositoryFullName)}
-			isMuteRequested={muteRequestedFor === note}
-			setMuteRequested={setMuteRequested}
-			isMultiOpenMode={isMultiOpenMode}
-		/>
-	));
-	const readNoteRows = readNotes.map(note => (
-		<Notification
-			note={note}
-			key={getNoteId(note)}
-			markRead={markRead}
-			markUnread={markUnread}
-			token={token}
-			openUrl={openNotificationUrl}
-			muteRepo={muteRepo}
-			unmuteRepo={unmuteRepo}
-			isMuted={mutedRepos.includes(note.repositoryFullName)}
-			isMuteRequested={muteRequestedFor === note}
-			setMuteRequested={setMuteRequested}
-			isMultiOpenMode={isMultiOpenMode}
-		/>
-	));
-	return (
-		<div className="notifications-area">
-			{newNotes.length === 0 && readNotes.length === 0 && <NoNotifications />}
-			{noteRows}
-			{readNoteRows}
-		</div>
+	const orderedNotes = [...newNotes, ...readNotes].filter(note =>
+		doesNoteMatchSearch(note, searchValue)
 	);
+	const noteRows = orderedNotes.map(note => (
+		<Notification
+			note={note}
+			key={getNoteId(note)}
+			markRead={markRead}
+			markUnread={markUnread}
+			token={token}
+			openUrl={openNotificationUrl}
+			muteRepo={muteRepo}
+			unmuteRepo={unmuteRepo}
+			isMuted={mutedRepos.includes(note.repositoryFullName)}
+			isMuteRequested={muteRequestedFor === note}
+			setMuteRequested={setMuteRequested}
+			isMultiOpenMode={isMultiOpenMode}
+		/>
+	));
+
+	return (
+		<>
+			<SearchField setSearchTo={setSearchTo} searchValue={searchValue} />
+			<div className="notifications-area">
+				{newNotes.length === 0 && readNotes.length === 0 && <NoNotifications />}
+				{noteRows}
+			</div>
+		</>
+	);
+}
+
+function SearchField({ setSearchTo, searchValue }) {
+	return (
+		<input
+			type="search"
+			onChange={event => setSearchTo(event.target.value)}
+			value={searchValue}
+		/>
+	);
+}
+
+function doesNoteMatchSearch(note, searchValue) {
+	if (note.title.toLowerCase().includes(searchValue.toLowerCase())) {
+		return true;
+	}
+	return false;
 }
