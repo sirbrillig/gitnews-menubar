@@ -19,17 +19,29 @@ export default function Notification({
 	isMuted,
 	isMuteRequested,
 	setMuteRequested,
+	isMultiOpenMode,
 }) {
 	const isUnread =
 		note.unread === true ? true : note.gitnewsMarkedUnread === true;
+
+	const [isMultiOpened, setMultiOpened] = React.useState(false);
 	const onClick = event => {
 		debug('clicked on notification', note, 'with metaKey', event.metaKey);
 		setMuteRequested(false);
+		if (isMultiOpenMode) {
+			setMultiOpened(true);
+		}
 		markRead(token, note);
 		openUrl(note.commentUrl, {
 			openInBackground: !!event.metaKey,
 		});
 	};
+	React.useEffect(() => {
+		if (!isMultiOpenMode) {
+			setMultiOpened(false);
+		}
+	}, [isMultiOpenMode]);
+
 	const timeString = date.distanceInWords(
 		Date.now(),
 		date.parse(note.updatedAt),
@@ -37,6 +49,8 @@ export default function Notification({
 	);
 	const noteClasses = [
 		'notification',
+		...(isMultiOpenMode && ! isMultiOpened ? ['notification--multi-open'] : []),
+		...(isMultiOpened ? ['notification--multi-open-clicked'] : []),
 		...getNoteClasses({ isUnread, isMuted }),
 	];
 	const defaultAvatar = `https://avatars.io/twitter/${note.repositoryFullName}`;
@@ -71,8 +85,11 @@ export default function Notification({
 			<div className={noteClasses.join(' ')}>
 				<div className="notification__mute-confirm">
 					<div className="notification__mute-confirm__text">
-						<div className="notification__mute-confirm__title">Mute all notifications from {note.repositoryFullName}?</div>
-						Notifications from a muted repo will not cause the icon to change. You can unmute it later.
+						<div className="notification__mute-confirm__title">
+							Mute all notifications from {note.repositoryFullName}?
+						</div>
+						Notifications from a muted repo will not cause the icon to change.
+						You can unmute it later.
 					</div>
 					<div className="notification__mute-confirm__buttons">
 						<MuteRepoCancelButton onClick={() => setMuteRequested(false)} />
