@@ -28,7 +28,6 @@
   "author": "Payton Swick <payton@foolord.com>",
   "license": "MIT",
   "dependencies": {
-    "@sirbrillig/ensured-image": "^1.0.0",
     "auto-launch": "^5.0.1",
     "conf": "^7.1.1",
     "date-fns": "^1.30.1",

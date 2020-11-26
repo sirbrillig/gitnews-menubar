@@ -10,6 +10,7 @@ import {
 	PANE_CONFIG,
 	PANE_NOTIFICATIONS,
 	PANE_TOKEN,
+	PANE_MUTED_REPOS,
 } from 'common/lib/constants';
 import Poller from 'common/lib/poller';
 import { getSecondsUntilNextFetch } from 'common/lib/helpers';
@@ -23,6 +24,8 @@ import {
 	setIcon,
 	changeToken,
 	changeAutoLoad,
+	muteRepo,
+	unmuteRepo,
 } from 'common/lib/reducer';
 
 const debug = debugFactory('gitnews-menubar');
@@ -64,14 +67,29 @@ class App extends React.Component {
 		this.fetcher.end();
 	}
 
-	getReadNotifications() {
+	getUnmutedNotifications() {
 		return this.props.notes.filter(
-			note => !note.unread && !note.gitnewsMarkedUnread
+			note => !this.props.mutedRepos.includes(note.repositoryFullName)
 		);
 	}
 
+	getReadNotifications() {
+		return this.props.notes.filter(note => {
+			if (!note.unread && !note.gitnewsMarkedUnread) {
+				return true;
+			}
+			// We have to include muted repo notifications somewhere, so we'll show
+			// them with read notifications. That way they won't clutter new notes or
+			// show any alert icons.
+			if (this.props.mutedRepos.includes(note.repositoryFullName)) {
+				return true;
+			}
+			return false;
+		});
+	}
+
 	getUnreadNotifications() {
-		return this.props.notes.filter(
+		return this.getUnmutedNotifications().filter(
 			note => note.unread || note.gitnewsMarkedUnread
 		);
 	}
@@ -123,22 +141,31 @@ class App extends React.Component {
 		const showConfig = () => this.setState({ currentPane: PANE_CONFIG });
 		const showEditToken = () => this.setState({ currentPane: PANE_TOKEN });
 		const hideEditToken = () => this.setState({ currentPane: PANE_CONFIG });
+		const showMutedReposList = () =>
+			this.setState({ currentPane: PANE_MUTED_REPOS });
+
+		const showBackButton =
+			token &&
+			(currentPane === PANE_CONFIG || currentPane === PANE_MUTED_REPOS);
+		const onBack = () => {
+			if (currentPane === PANE_MUTED_REPOS) {
+				showConfig();
+				return;
+			}
+			hideConfig();
+		};
 
 		return (
 			<main>
 				<Header
-					{...{
-						offline,
-						fetchNotifications: this.props.fetchNotifications,
-						lastSuccessfulCheck,
-						lastChecked: this.props.lastChecked,
-						fetchInterval: this.props.fetchInterval,
-						showConfig:
-							token && currentPane === PANE_NOTIFICATIONS && showConfig,
-						hideConfig: token && currentPane === PANE_CONFIG && hideConfig,
-						openUrl: this.props.openUrl,
-						fetchingInProgress,
-					}}
+					offline={offline}
+					fetchNotifications={this.props.fetchNotifications}
+					lastSuccessfulCheck={lastSuccessfulCheck}
+					lastChecked={this.props.lastChecked}
+					fetchInterval={this.props.fetchInterval}
+					showConfig={token && currentPane === PANE_NOTIFICATIONS && showConfig}
+					hideConfig={showBackButton ? onBack : null}
+					fetchingInProgress={fetchingInProgress}
 				/>
 				<ErrorsArea errors={errors} clearErrors={this.props.clearErrors} />
 				<MainPane
@@ -159,6 +186,10 @@ class App extends React.Component {
 					checkForUpdates={this.props.checkForUpdates}
 					isAutoLoadEnabled={this.props.isAutoLoadEnabled}
 					changeAutoLoad={this.props.changeAutoLoad}
+					muteRepo={this.props.muteRepo}
+					unmuteRepo={this.props.unmuteRepo}
+					mutedRepos={this.props.mutedRepos}
+					showMutedReposList={showMutedReposList}
 				/>
 			</main>
 		);
@@ -178,11 +209,14 @@ App.propTypes = {
 	markUnread: PropTypes.func.isRequired,
 	clearErrors: PropTypes.func.isRequired,
 	changeAutoLoad: PropTypes.func.isRequired,
+	muteRepo: PropTypes.func.isRequired,
+	unmuteRepo: PropTypes.func.isRequired,
 
 	// Values
 	version: PropTypes.string.isRequired,
 	// All following are provided by connect
 	notes: PropTypes.array.isRequired,
+	mutedRepos: PropTypes.arrayOf(PropTypes.string).isRequired,
 	offline: PropTypes.bool,
 	errors: PropTypes.array,
 	token: PropTypes.string,
@@ -196,6 +230,7 @@ App.propTypes = {
 function mapStateToProps(state) {
 	return {
 		notes: state.notes,
+		mutedRepos: state.mutedRepos,
 		offline: state.offline,
 		errors: state.errors,
 		token: state.token,
@@ -217,6 +252,8 @@ const actions = {
 	setIcon,
 	changeToken,
 	changeAutoLoad,
+	muteRepo,
+	unmuteRepo,
 };
 
 export default connect(mapStateToProps, actions)(App);

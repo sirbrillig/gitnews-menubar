@@ -17,30 +17,37 @@ body {
 }
 
 .btn {
-  background: none;
-  border-radius: 10px;
-  color: #239266;
-  padding: 5px 20px 5px 20px;
-  border: solid #239266 2px;
-  text-decoration: none;
-  margin: 0 2px 0 0;
-  text-decoration: none;
+  box-shadow:inset 0px 1px 0px 0px #c1ab8c;
+  background-color: #F5E2C8;
+  border-radius:3px;
+  border:1px solid #24292E;
+  display:inline-block;
+  cursor:pointer;
+  color:#000;
+  font-family:Arial;
+  font-size:13px;
+  padding:6px 24px;
+  text-decoration:none;
+  margin-right: 10px;
 }
 
 .btn:hover {
   cursor: pointer;
 }
 
-.quit-button {
-  display: inline-block;
-  margin-top: 2em;
-  color: #ca1a1a;
-  border-color: #ca1a1a;
+.config-page__buttons {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 10px;
 }
 
-.quit-button,
-.check-for-updates-button {
-  font-size: 14px;
+.config-page__settings {
+  margin: 0;
+  padding: 0;
+}
+
+.config-page__settings li {
+  margin: 0 0 10px 0;
 }
 
 a {
@@ -49,7 +56,7 @@ a {
 
 .copyright {
   font-size: 0.8em;
-  margin-top: 1em;
+  margin-top: 2em;
   display: flex;
 }
 
@@ -92,11 +99,11 @@ header svg {
 }
 
 .edit-token-button,
-.add-token-form__cancel-button,
+.edit-muted-repos-button,
 .retry-button,
 .config-button,
 .back-button {
-  color: rgb(146, 146, 146);
+  color: #5d5252;
   background: none!important;
   border: none;
   padding: 0!important;
@@ -107,6 +114,29 @@ header svg {
 .config-button,
 .config-spacer {
   width: 24px;
+}
+
+.muted-repos-list {
+  margin: 12px;
+}
+
+.muted-repos-list h2 {
+  margin: 0 0 10px 0;
+}
+
+.muted-repos-list ul {
+  margin: 0;
+  padding: 0;
+}
+
+.muted-repos-list li {
+  margin: 10px 0;
+}
+
+.mute-icon {
+  vertical-align: middle;
+  width: 16px;
+  fill: #777;
 }
 
 .attributions__icon {
@@ -155,8 +185,13 @@ header h1 {
 .notification {
   padding: 12px 12px 12px 6px;
   cursor: pointer;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #ccc;
   display: flex;
+}
+
+.notification__muted {
+  color: #999;
+  position: relative;
 }
 
 .notification__unread {
@@ -218,21 +253,68 @@ header h1 {
   color: rgb(146, 146, 146);
 }
 
+.notification__mute-confirm__text {
+  text-align: center;
+  font-size: 0.9em;
+  padding: 0 10px 10px 10px;
+}
+
+.notification__mute-confirm__title {
+  font-weight: bold;
+}
+
+.notification__mute-confirm__buttons {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.btn--cancel {
+  box-shadow:inset 0px 1px 0px 0px #ccc;
+  background-color: #eee;
+  border-radius:3px;
+  border:1px solid #999;
+  display:inline-block;
+  cursor:pointer;
+  color:#000;
+  font-family:Arial;
+  font-size:13px;
+  padding:6px 24px;
+  text-decoration:none;
+  margin-right: 10px;
+}
+
+.notification__mute-repo,
 .notification__mark-unread,
 .notification__mark-read {
   font-size: 0.7em;
-  color: rgb(146, 146, 146);
-  margin-left: 2em;
+  color: #172527;
   background: none!important;
   border: none;
   padding: 0!important;
   text-decoration: underline;
   cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.notification__body {
+  width: 100%;
+}
+
+.notification__footer {
+  display: flex;
+  justify-content: space-between;
 }
 
 .notification__repo {
   font-weight: 800;
   margin-bottom: 5px;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.notification__repo-name {
+  flex: 1 1 auto;
 }
 
 .notification__title {
@@ -283,10 +365,17 @@ header h1 {
 
 .config-page {
   margin: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .config-page h2 {
   margin: 0 0 10px 0;
+}
+
+.config-page h3 {
+  margin: 10px 0;
 }
 
 .spinner {

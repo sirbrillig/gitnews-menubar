@@ -2,7 +2,9 @@ import React from 'react';
 import Gridicon from 'gridicons';
 import debugFactory from 'debug';
 import date from 'date-fns';
-import EnsuredImage from '@sirbrillig/ensured-image';
+import EnsuredImage from './ensured-image';
+import MuteIcon from './mute-icon';
+import UnmuteIcon from './unmute-icon';
 
 const debug = debugFactory('gitnews-menubar');
 
@@ -12,14 +14,20 @@ export default function Notification({
 	markRead,
 	markUnread,
 	token,
+	muteRepo,
+	unmuteRepo,
+	isMuted,
+	isMuteRequested,
+	setMuteRequested,
 }) {
 	const isUnread =
 		note.unread === true ? true : note.gitnewsMarkedUnread === true;
 	const onClick = event => {
 		debug('clicked on notification', note, 'with metaKey', event.metaKey);
+		setMuteRequested(false);
 		markRead(token, note);
 		openUrl(note.commentUrl, {
-			openInBackground: !! event.metaKey,
+			openInBackground: !!event.metaKey,
 		});
 	};
 	const timeString = date.distanceInWords(
@@ -27,7 +35,10 @@ export default function Notification({
 		date.parse(note.updatedAt),
 		{ addSuffix: true }
 	);
-	const noteClass = isUnread ? ' notification__unread' : ' notification__read';
+	const noteClasses = [
+		'notification',
+		...getNoteClasses({ isUnread, isMuted }),
+	];
 	const defaultAvatar = `https://avatars.io/twitter/${note.repositoryFullName}`;
 	const avatarSrc =
 		note.commentAvatar || note.repositoryOwnerAvatar || defaultAvatar;
@@ -44,8 +55,41 @@ export default function Notification({
 		...(isMerged ? ['notification__type--merged'] : []),
 	];
 
+	const doMute = event => {
+		event.preventDefault();
+		event.stopPropagation();
+		setMuteRequested(note);
+	};
+	const doUnmute = event => {
+		event.preventDefault();
+		event.stopPropagation();
+		unmuteRepo(note.repositoryFullName);
+	};
+
+	if (isMuteRequested) {
+		return (
+			<div className={noteClasses.join(' ')}>
+				<div className="notification__mute-confirm">
+					<div className="notification__mute-confirm__text">
+						<div className="notification__mute-confirm__title">Mute all notifications from {note.repositoryFullName}?</div>
+						Notifications from a muted repo will not cause the icon to change. You can unmute it later.
+					</div>
+					<div className="notification__mute-confirm__buttons">
+						<MuteRepoCancelButton onClick={() => setMuteRequested(false)} />
+						<MuteRepoButton
+							onClick={() => {
+								setMuteRequested(false);
+								muteRepo(note.repositoryFullName);
+							}}
+						/>
+					</div>
+				</div>
+			</div>
+		);
+	}
+
 	return (
-		<div className={'notification' + noteClass} onClick={onClick}>
+		<div className={noteClasses.join(' ')} onClick={onClick}>
 			<div className={iconClasses.join(' ')}>
 				<Gridicon icon={iconType} />
 				<span className="notification__type--text">{iconText}</span>
@@ -55,7 +99,16 @@ export default function Notification({
 				<EnsuredImage src={avatarSrc} />
 			</div>
 			<div className="notification__body">
-				<div className="notification__repo">{note.repositoryFullName}</div>
+				<div className="notification__repo">
+					<span className="notification__repo-name">
+						{note.repositoryFullName}
+					</span>
+					{isMuted ? (
+						<UnmuteRepoButton onClick={doUnmute} />
+					) : (
+						<MuteRepoRequestButton onClick={doMute} />
+					)}
+				</div>
 				<div className="notification__title">{note.title}</div>
 				<div className="notification__footer">
 					<span className="notification__time">{timeString}</span>
@@ -67,6 +120,54 @@ export default function Notification({
 				</div>
 			</div>
 		</div>
+	);
+}
+
+function MuteRepoCancelButton({ onClick }) {
+	return (
+		<button
+			className="notification__mute-confirm__cancel btn--cancel"
+			aria-label="Cancel mute repo"
+			onClick={onClick}
+		>
+			Cancel
+		</button>
+	);
+}
+
+function MuteRepoButton({ onClick }) {
+	return (
+		<button
+			className="notification__mute-confirm__confirm btn"
+			aria-label="Mute notifications from this repo"
+			onClick={onClick}
+		>
+			Mute repo
+		</button>
+	);
+}
+
+function MuteRepoRequestButton({ onClick }) {
+	return (
+		<button
+			className="notification__mute-repo"
+			aria-label="Mute notifications from this repo"
+			onClick={onClick}
+		>
+			<MuteIcon className="mute-icon" />
+		</button>
+	);
+}
+
+function UnmuteRepoButton({ onClick }) {
+	return (
+		<button
+			className="notification__mute-repo"
+			aria-label="Unmute notifications from this repo"
+			onClick={onClick}
+		>
+			<UnmuteIcon className="mute-icon" />
+		</button>
 	);
 }
 
@@ -104,4 +205,14 @@ function MarkUnreadButton({ note, markUnread }) {
 			mark unread
 		</button>
 	);
+}
+
+function getNoteClasses({ isMuted, isUnread }) {
+	if (isMuted) {
+		return ['notification__muted'];
+	}
+	if (isUnread) {
+		return ['notification__unread'];
+	}
+	return ['notification__read'];
 }

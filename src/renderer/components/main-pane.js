@@ -3,7 +3,12 @@ import ConfigPage from '../components/config-page';
 import UncheckedNotice from '../components/unchecked-notice';
 import AddTokenForm from '../components/add-token-form';
 import NotificationsArea from '../components/notifications-area';
-import { PANE_CONFIG, PANE_TOKEN } from 'common/lib/constants';
+import MutedReposList from '../components/muted-repos-list';
+import {
+	PANE_CONFIG,
+	PANE_TOKEN,
+	PANE_MUTED_REPOS,
+} from 'common/lib/constants';
 
 export default function MainPane({
 	token,
@@ -13,6 +18,7 @@ export default function MainPane({
 	quitApp,
 	hideEditToken,
 	showEditToken,
+	showMutedReposList,
 	lastSuccessfulCheck,
 	version,
 	newNotes,
@@ -23,6 +29,9 @@ export default function MainPane({
 	fetchingInProgress,
 	isAutoLoadEnabled,
 	changeAutoLoad,
+	muteRepo,
+	unmuteRepo,
+	mutedRepos,
 }) {
 	if (!token || currentPane === PANE_TOKEN) {
 		return (
@@ -35,11 +44,15 @@ export default function MainPane({
 			/>
 		);
 	}
+	if (currentPane === PANE_MUTED_REPOS) {
+		return <MutedReposList mutedRepos={mutedRepos} unmuteRepo={unmuteRepo} />;
+	}
 	if (currentPane === PANE_CONFIG) {
 		return (
 			<ConfigPage
 				openUrl={openUrl}
 				showEditToken={showEditToken}
+				showMutedReposList={showMutedReposList}
 				version={version}
 				quitApp={quitApp}
 				checkForUpdates={checkForUpdates}
@@ -62,6 +75,9 @@ export default function MainPane({
 			readNotes={readNotes}
 			markRead={markRead}
 			markUnread={markUnread}
+			muteRepo={muteRepo}
+			unmuteRepo={unmuteRepo}
+			mutedRepos={mutedRepos}
 			openUrl={openUrl}
 			token={token}
 		/>
