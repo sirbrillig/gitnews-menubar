@@ -117,11 +117,16 @@ export default function NotificationsArea({
 
 function SearchField({ setSearchTo, searchValue }) {
 	return (
-		<input
-			type="search"
-			onChange={event => setSearchTo(event.target.value)}
-			value={searchValue}
-		/>
+		<div className="notifications__search-area">
+			<Gridicon icon="search" size={36} className="search-icon" />
+			<input
+				className="notifications__search"
+				type="search"
+				placeholder="Search"
+				onChange={event => setSearchTo(event.target.value)}
+				value={searchValue}
+			/>
+		</div>
 	);
 }
 
