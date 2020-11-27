@@ -116,5 +116,10 @@ function doesNoteMatchSearch(note, searchValue) {
 	if (note.title.toLowerCase().includes(searchValue.toLowerCase())) {
 		return true;
 	}
+	if (
+		note.repositoryFullName.toLowerCase().includes(searchValue.toLowerCase())
+	) {
+		return true;
+	}
 	return false;
 }
