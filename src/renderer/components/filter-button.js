@@ -27,6 +27,7 @@ export default function FilterButton({ filterType, setFilterType }) {
 function FilterMenu({ filterType, setFilterType }) {
 	return (
 		<div className="filter-menu">
+			<h3>Filter notifications</h3>
 			<ul>
 				<FilterMenuItem
 					selected={filterType === 'all' ? true : false}
@@ -60,8 +61,8 @@ function FilterMenu({ filterType, setFilterType }) {
 function FilterMenuItem({ children, selected, onClick }) {
 	return (
 		<li onClick={onClick} className={selected ? 'filter-menu__selected' : ''}>
-			<Gridicon className="filter-menu__icon" icon="checkmark" size={24} />
 			<span className="filter-menu__text">{children}</span>
+			<Gridicon className="filter-menu__icon" icon="checkmark" size={24} />
 		</li>
 	);
 }
