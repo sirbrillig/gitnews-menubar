@@ -75,15 +75,15 @@ class App extends React.Component {
 		);
 	}
 
+	getMutedNotifications() {
+		return this.props.notes.filter(note =>
+			this.props.mutedRepos.includes(note.repositoryFullName)
+		);
+	}
+
 	getReadNotifications() {
-		return this.props.notes.filter(note => {
+		return this.getUnmutedNotifications().filter(note => {
 			if (!note.unread && !note.gitnewsMarkedUnread) {
-				return true;
-			}
-			// We have to include muted repo notifications somewhere, so we'll show
-			// them with read notifications. That way they won't clutter new notes or
-			// show any alert icons.
-			if (this.props.mutedRepos.includes(note.repositoryFullName)) {
 				return true;
 			}
 			return false;
@@ -127,6 +127,7 @@ class App extends React.Component {
 		} = this.props;
 		const newNotes = this.getUnreadNotifications();
 		const readNotes = this.getReadNotifications();
+		const mutedNotes = this.getMutedNotifications();
 		const unseenNotes = this.getUnseenNotifications();
 		const nextIcon = this.getNextIcon({
 			offline,
@@ -186,6 +187,7 @@ class App extends React.Component {
 					version={version}
 					newNotes={newNotes}
 					readNotes={readNotes}
+					mutedNotes={mutedNotes}
 					lastSuccessfulCheck={lastSuccessfulCheck}
 					fetchingInProgress={fetchingInProgress}
 					openUrl={this.props.openUrl}

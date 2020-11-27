@@ -23,6 +23,7 @@ export default function MainPane({
 	version,
 	newNotes,
 	readNotes,
+	mutedNotes,
 	markRead,
 	markUnread,
 	checkForUpdates,
@@ -75,6 +76,7 @@ export default function MainPane({
 		<NotificationsArea
 			newNotes={newNotes}
 			readNotes={readNotes}
+			mutedNotes={mutedNotes}
 			markRead={markRead}
 			markUnread={markUnread}
 			muteRepo={muteRepo}

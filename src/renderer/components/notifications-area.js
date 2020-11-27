@@ -30,6 +30,7 @@ function NoNotifications() {
 export default function NotificationsArea({
 	newNotes,
 	readNotes,
+	mutedNotes,
 	markRead,
 	muteRepo,
 	unmuteRepo,
@@ -85,7 +86,7 @@ export default function NotificationsArea({
 
 	const [muteRequestedFor, setMuteRequested] = React.useState(false);
 
-	const orderedNotes = [...newNotes, ...readNotes]
+	const orderedNotes = [...newNotes, ...readNotes, ...mutedNotes]
 		.filter(note => doesNoteMatchSearch(note, searchValue))
 		.filter(note => doesNoteMatchFilter(note, filterType));
 	const noteRows = orderedNotes.map(note => (
@@ -107,7 +108,9 @@ export default function NotificationsArea({
 
 	return (
 		<div className="notifications-area">
-			{newNotes.length === 0 && readNotes.length === 0 && <NoNotifications />}
+			{newNotes.length === 0 &&
+				readNotes.length === 0 &&
+				mutedNotes.length === 0 && <NoNotifications />}
 			{noteRows}
 		</div>
 	);
