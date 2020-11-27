@@ -52,6 +52,7 @@ debug('menubar created');
 
 bar.on('ready', () => {
 	debug('app is ready');
+	app.dock.hide(); // Buggy behavior with showDockIcon: https://github.com/maxogden/menubar/issues/306
 	isDev || bar.window.setResizable(false);
 	isDev || attachAppMenu();
 	checkForUpdates({ version, semver, dialog, openUrl: shell.openExternal });
