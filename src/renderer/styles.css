@@ -197,9 +197,14 @@ header svg {
 }
 
 .mute-icon {
+  position: absolute;
+  left: -9px;
+  top: 20px;
+  background-color: rgba(255,255,255,0.75);
+  border-radius: 20px;
   vertical-align: middle;
   width: 16px;
-  fill: #777;
+  padding: 2px;
 }
 
 .attributions__icon {
@@ -403,6 +408,14 @@ header h1 {
 .notification__footer {
   display: flex;
   justify-content: space-between;
+}
+
+.notification__actions {
+  display: flex;
+}
+
+.notification__actions button {
+  margin: 0 4px;
 }
 
 .notification__repo {
