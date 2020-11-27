@@ -4,6 +4,10 @@ import Gridicon from 'gridicons';
 export default function FilterButton({ filterType, setFilterType }) {
 	const [isFiltersVisible, setFiltersVisible] = React.useState(false);
 	const toggleFiltersVisible = () => setFiltersVisible(value => !value);
+	const setFilter = type => {
+		setFilterType(type);
+		setFiltersVisible(false);
+	};
 	return (
 		<>
 			<button
@@ -14,7 +18,7 @@ export default function FilterButton({ filterType, setFilterType }) {
 				<Gridicon icon="filter" />
 			</button>
 			{isFiltersVisible && (
-				<FilterMenu filterType={filterType} setFilterType={setFilterType} />
+				<FilterMenu filterType={filterType} setFilterType={setFilter} />
 			)}
 		</>
 	);
