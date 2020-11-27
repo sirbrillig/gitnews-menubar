@@ -27,6 +27,7 @@ import {
 	muteRepo,
 	unmuteRepo,
 } from 'common/lib/reducer';
+import SearchNotifications from './search-notifications';
 
 const debug = debugFactory('gitnews-menubar');
 
@@ -45,6 +46,7 @@ class App extends React.Component {
 		this.fetcher = new Poller({ pollFunction });
 		this.state = {
 			currentPane: PANE_NOTIFICATIONS,
+			searchValue: '',
 		};
 	}
 
@@ -59,7 +61,6 @@ class App extends React.Component {
 			})
 			.catch(function(err) {
 				console.error('failed to fetch autoload', err); // eslint-disable-line no-console
-				// TODO: maybe send to sentry?
 			});
 	}
 
@@ -143,6 +144,7 @@ class App extends React.Component {
 		const hideEditToken = () => this.setState({ currentPane: PANE_CONFIG });
 		const showMutedReposList = () =>
 			this.setState({ currentPane: PANE_MUTED_REPOS });
+		const setSearchTo = value => this.setState({ searchValue: value });
 
 		const showBackButton =
 			token &&
@@ -166,7 +168,14 @@ class App extends React.Component {
 					showConfig={token && currentPane === PANE_NOTIFICATIONS && showConfig}
 					hideConfig={showBackButton ? onBack : null}
 					fetchingInProgress={fetchingInProgress}
-				/>
+				>
+					{currentPane === PANE_NOTIFICATIONS && (
+						<SearchNotifications
+							searchValue={this.state.searchValue}
+							setSearchTo={setSearchTo}
+						/>
+					)}
+				</Header>
 				<ErrorsArea errors={errors} clearErrors={this.props.clearErrors} />
 				<MainPane
 					token={token}
@@ -190,6 +199,7 @@ class App extends React.Component {
 					unmuteRepo={this.props.unmuteRepo}
 					mutedRepos={this.props.mutedRepos}
 					showMutedReposList={showMutedReposList}
+					searchValue={this.state.searchValue}
 				/>
 			</main>
 		);

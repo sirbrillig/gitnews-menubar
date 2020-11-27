@@ -32,6 +32,7 @@ export default function MainPane({
 	muteRepo,
 	unmuteRepo,
 	mutedRepos,
+	searchValue,
 }) {
 	if (!token || currentPane === PANE_TOKEN) {
 		return (
@@ -80,6 +81,7 @@ export default function MainPane({
 			mutedRepos={mutedRepos}
 			openUrl={openUrl}
 			token={token}
+			searchValue={searchValue}
 		/>
 	);
 }

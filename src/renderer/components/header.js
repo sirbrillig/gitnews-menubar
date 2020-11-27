@@ -44,6 +44,7 @@ export default function Header({
 	fetchNotifications,
 	hideConfig,
 	fetchingInProgress,
+	children,
 }) {
 	return (
 		<header>
@@ -63,6 +64,7 @@ export default function Header({
 					fetchInterval={fetchInterval}
 				/>
 			)}
+			{children}
 		</header>
 	);
 }

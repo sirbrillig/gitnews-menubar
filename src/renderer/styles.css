@@ -182,6 +182,35 @@ header h1 {
   bottom: 0;
 }
 
+.notifications-area {
+  position: relative;
+}
+
+.notifications__search-area {
+  display: flex;
+  width: 100%;
+  background-color: #fff;
+  padding: 0 10px 0 5px;
+  border-bottom: 1px solid #ccc;
+}
+
+.search-icon {
+  vertical-align: middle;
+  fill: #24292e;
+  padding: 8px;
+}
+
+.notifications__search {
+  border: none;
+  font-size: 1em;
+  padding: 4px 2px;
+  flex: 1;
+}
+
+.notifications__search:focus {
+  outline: none;
+}
+
 .notification {
   padding: 12px 12px 12px 2px;
   cursor: pointer;

@@ -37,6 +37,7 @@ export default function NotificationsArea({
 	markUnread,
 	openUrl,
 	token,
+	searchValue,
 }) {
 	const [urlsToOpen, setUrlsToOpen] = React.useState([]);
 	const [isMultiOpenMode, setMultiOpenMode] = React.useState(false);
@@ -83,7 +84,10 @@ export default function NotificationsArea({
 
 	const [muteRequestedFor, setMuteRequested] = React.useState(false);
 
-	const noteRows = newNotes.map(note => (
+	const orderedNotes = [...newNotes, ...readNotes].filter(note =>
+		doesNoteMatchSearch(note, searchValue)
+	);
+	const noteRows = orderedNotes.map(note => (
 		<Notification
 			note={note}
 			key={getNoteId(note)}
@@ -99,27 +103,18 @@ export default function NotificationsArea({
 			isMultiOpenMode={isMultiOpenMode}
 		/>
 	));
-	const readNoteRows = readNotes.map(note => (
-		<Notification
-			note={note}
-			key={getNoteId(note)}
-			markRead={markRead}
-			markUnread={markUnread}
-			token={token}
-			openUrl={openNotificationUrl}
-			muteRepo={muteRepo}
-			unmuteRepo={unmuteRepo}
-			isMuted={mutedRepos.includes(note.repositoryFullName)}
-			isMuteRequested={muteRequestedFor === note}
-			setMuteRequested={setMuteRequested}
-			isMultiOpenMode={isMultiOpenMode}
-		/>
-	));
+
 	return (
 		<div className="notifications-area">
 			{newNotes.length === 0 && readNotes.length === 0 && <NoNotifications />}
 			{noteRows}
-			{readNoteRows}
 		</div>
 	);
+}
+
+function doesNoteMatchSearch(note, searchValue) {
+	if (note.title.toLowerCase().includes(searchValue.toLowerCase())) {
+		return true;
+	}
+	return false;
 }
