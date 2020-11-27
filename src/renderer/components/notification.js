@@ -4,7 +4,6 @@ import debugFactory from 'debug';
 import date from 'date-fns';
 import EnsuredImage from './ensured-image';
 import MuteIcon from './mute-icon';
-import UnmuteIcon from './unmute-icon';
 
 const debug = debugFactory('gitnews-menubar');
 
@@ -49,7 +48,7 @@ export default function Notification({
 	);
 	const noteClasses = [
 		'notification',
-		...(isMultiOpenMode && ! isMultiOpened ? ['notification--multi-open'] : []),
+		...(isMultiOpenMode && !isMultiOpened ? ['notification--multi-open'] : []),
 		...(isMultiOpened ? ['notification--multi-open-clicked'] : []),
 		...getNoteClasses({ isUnread, isMuted }),
 	];
@@ -113,6 +112,7 @@ export default function Notification({
 			</div>
 			<div className="notification__image">
 				{isUnread && <span className="notification__new-dot" />}
+				{isMuted && <MuteIcon className="mute-icon" />}
 				<EnsuredImage src={avatarSrc} />
 			</div>
 			<div className="notification__body">
@@ -120,20 +120,22 @@ export default function Notification({
 					<span className="notification__repo-name">
 						{note.repositoryFullName}
 					</span>
-					{isMuted ? (
-						<UnmuteRepoButton onClick={doUnmute} />
-					) : (
-						<MuteRepoRequestButton onClick={doMute} />
-					)}
 				</div>
 				<div className="notification__title">{note.title}</div>
 				<div className="notification__footer">
 					<span className="notification__time">{timeString}</span>
-					{isUnread ? (
-						<MarkReadButton note={note} token={token} markRead={markRead} />
-					) : (
-						<MarkUnreadButton note={note} markUnread={markUnread} />
-					)}
+					<span className="notification__actions">
+						{isMuted ? (
+							<UnmuteRepoButton onClick={doUnmute} />
+						) : (
+							<MuteRepoRequestButton onClick={doMute} />
+						)}
+						{isUnread ? (
+							<MarkReadButton note={note} token={token} markRead={markRead} />
+						) : (
+							<MarkUnreadButton note={note} markUnread={markUnread} />
+						)}
+					</span>
 				</div>
 			</div>
 		</div>
@@ -171,7 +173,7 @@ function MuteRepoRequestButton({ onClick }) {
 			aria-label="Mute notifications from this repo"
 			onClick={onClick}
 		>
-			<MuteIcon className="mute-icon" />
+			mute repo
 		</button>
 	);
 }
@@ -183,7 +185,7 @@ function UnmuteRepoButton({ onClick }) {
 			aria-label="Unmute notifications from this repo"
 			onClick={onClick}
 		>
-			<UnmuteIcon className="mute-icon" />
+			unmute repo
 		</button>
 	);
 }

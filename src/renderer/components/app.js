@@ -171,6 +171,7 @@ class App extends React.Component {
 					fetchingInProgress={fetchingInProgress}
 					filterType={this.props.filterType}
 					setFilterType={this.props.setFilterType}
+					currentPane={currentPane}
 				>
 					{currentPane === PANE_NOTIFICATIONS && (
 						<SearchNotifications
