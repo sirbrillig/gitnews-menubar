@@ -26,6 +26,7 @@ import {
 	changeAutoLoad,
 	muteRepo,
 	unmuteRepo,
+	setFilterType,
 } from 'common/lib/reducer';
 import SearchNotifications from './search-notifications';
 
@@ -168,6 +169,8 @@ class App extends React.Component {
 					showConfig={token && currentPane === PANE_NOTIFICATIONS && showConfig}
 					hideConfig={showBackButton ? onBack : null}
 					fetchingInProgress={fetchingInProgress}
+					filterType={this.props.filterType}
+					setFilterType={this.props.setFilterType}
 				>
 					{currentPane === PANE_NOTIFICATIONS && (
 						<SearchNotifications
@@ -200,6 +203,7 @@ class App extends React.Component {
 					mutedRepos={this.props.mutedRepos}
 					showMutedReposList={showMutedReposList}
 					searchValue={this.state.searchValue}
+					filterType={this.props.filterType}
 				/>
 			</main>
 		);
@@ -221,6 +225,7 @@ App.propTypes = {
 	changeAutoLoad: PropTypes.func.isRequired,
 	muteRepo: PropTypes.func.isRequired,
 	unmuteRepo: PropTypes.func.isRequired,
+	setFilterType: PropTypes.func.isRequired,
 
 	// Values
 	version: PropTypes.string.isRequired,
@@ -235,6 +240,7 @@ App.propTypes = {
 	lastChecked: PropTypes.oneOfType([PropTypes.number, PropTypes.bool]),
 	fetchInterval: PropTypes.number,
 	isAutoLoadEnabled: PropTypes.bool,
+	filterType: PropTypes.string.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -249,6 +255,7 @@ function mapStateToProps(state) {
 		lastChecked: state.lastChecked,
 		fetchInterval: state.fetchInterval,
 		isAutoLoadEnabled: state.isAutoLoadEnabled,
+		filterType: state.filterType,
 	};
 }
 
@@ -264,6 +271,7 @@ const actions = {
 	changeAutoLoad,
 	muteRepo,
 	unmuteRepo,
+	setFilterType,
 };
 
 export default connect(mapStateToProps, actions)(App);

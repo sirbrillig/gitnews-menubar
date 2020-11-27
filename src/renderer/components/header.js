@@ -5,6 +5,7 @@ import LastChecked from '../components/last-checked';
 import OfflineNotice from '../components/offline-notice';
 import FetchingInProgress from '../components/fetching-in-progress';
 import createUpdater from '../components/updater';
+import FilterButton from './filter-button';
 
 const UpdatingLastChecked = createUpdater(LastChecked);
 const UpdatingOfflineNotice = createUpdater(OfflineNotice);
@@ -45,13 +46,15 @@ export default function Header({
 	hideConfig,
 	fetchingInProgress,
 	children,
+	filterType,
+	setFilterType,
 }) {
 	return (
 		<header>
 			<div className="header__primary">
 				<LeftButton hideConfig={hideConfig} showConfig={showConfig} />
 				<Logo />
-				<span className="config-spacer"></span>
+				<FilterButton filterType={filterType} setFilterType={setFilterType} />
 			</div>
 			<SecondaryHeader
 				fetchingInProgress={fetchingInProgress}

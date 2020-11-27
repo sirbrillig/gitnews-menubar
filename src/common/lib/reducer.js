@@ -21,6 +21,7 @@ const initialState = {
 	fetchRetryCount: 0,
 	offline: false,
 	isAutoLoadEnabled: false,
+	filterType: 'all',
 };
 
 function reducer(state, action) {
@@ -93,7 +94,14 @@ function reducer(state, action) {
 		case 'MUTE_REPO':
 			return { ...state, mutedRepos: [...state.mutedRepos, action.repo] };
 		case 'UNMUTE_REPO':
-			return { ...state, mutedRepos: state.mutedRepos.filter( repoName => repoName !== action.repo ) };
+			return {
+				...state,
+				mutedRepos: state.mutedRepos.filter(
+					repoName => repoName !== action.repo
+				),
+			};
+		case 'SET_FILTER_TYPE':
+			return { ...state, filterType: action.filterType };
 	}
 	return state;
 }
@@ -170,6 +178,10 @@ function scrollToTop() {
 	return { type: 'SCROLL_TO_TOP' };
 }
 
+function setFilterType(filterType) {
+	return { type: 'SET_FILTER_TYPE', filterType };
+}
+
 module.exports = {
 	reducer,
 	markRead,
@@ -190,4 +202,5 @@ module.exports = {
 	scrollToTop,
 	muteRepo,
 	unmuteRepo,
+	setFilterType,
 };

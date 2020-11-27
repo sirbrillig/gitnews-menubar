@@ -38,6 +38,7 @@ export default function NotificationsArea({
 	openUrl,
 	token,
 	searchValue,
+	filterType,
 }) {
 	const [urlsToOpen, setUrlsToOpen] = React.useState([]);
 	const [isMultiOpenMode, setMultiOpenMode] = React.useState(false);
@@ -84,9 +85,9 @@ export default function NotificationsArea({
 
 	const [muteRequestedFor, setMuteRequested] = React.useState(false);
 
-	const orderedNotes = [...newNotes, ...readNotes].filter(note =>
-		doesNoteMatchSearch(note, searchValue)
-	);
+	const orderedNotes = [...newNotes, ...readNotes]
+		.filter(note => doesNoteMatchSearch(note, searchValue))
+		.filter(note => doesNoteMatchFilter(note, filterType));
 	const noteRows = orderedNotes.map(note => (
 		<Notification
 			note={note}
@@ -113,22 +114,22 @@ export default function NotificationsArea({
 }
 
 function doesNoteMatchSearch(note, searchValue) {
-	if (searchValue.startsWith('reason:')) {
-		const matches = searchValue.match(/reason:(\S+)/);
-		if (
-			matches &&
-			matches.length > 1 &&
-			matches[1] === note.api.notification.reason
-		) {
-			return true;
-		}
-	}
 	if (note.title.toLowerCase().includes(searchValue.toLowerCase())) {
 		return true;
 	}
 	if (
 		note.repositoryFullName.toLowerCase().includes(searchValue.toLowerCase())
 	) {
+		return true;
+	}
+	return false;
+}
+
+function doesNoteMatchFilter(note, filterType) {
+	if (filterType === 'all') {
+		return true;
+	}
+	if (filterType === note.api.notification.reason) {
 		return true;
 	}
 	return false;
