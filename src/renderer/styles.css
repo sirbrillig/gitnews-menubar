@@ -303,13 +303,13 @@ header h1 {
 .notification__new-dot {
   position: absolute;
   font-size: 2.5em;
-  left: 23px;
-  top: 5px;
+  left: -8px;
+  top: 3px;
   border-radius: 20px;
   border: 1.2px solid #fff;
-  width: 10px;
-  height: 10px;
-  background: #cb2431;
+  width: 14px;
+  height: 14px;
+  background: #a6111d;
 }
 
 .notification__type {
