@@ -98,10 +98,52 @@ header svg {
   min-height: 1em;
 }
 
+.filter-menu {
+  position: absolute;
+  z-index: 300;
+  background-color: #24292e;
+  border: 1px solid #999;
+  right: 8px;
+  top: 38px;
+}
+
+.filter-menu ul {
+  padding: 0px;
+  margin: 0;
+}
+
+.filter-menu li {
+  padding: 6px 10px;
+  list-style-type: none;
+  border-top: 1px solid #999;
+  cursor: pointer;
+}
+
+.filter-menu__icon {
+  padding: 4px;
+  margin-right: 4px;
+  margin-bottom: 3px;
+  visibility: hidden;
+  vertical-align: middle;
+}
+
+.filter-menu__selected .filter-menu__icon {
+  visibility: visible;
+}
+
+.retry-button {
+  color: #fff;
+  background: none!important;
+  border: none;
+  padding: 0!important;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .edit-token-button,
 .edit-muted-repos-button,
-.retry-button,
 .config-button,
+.filter-button,
 .back-button {
   color: #5d5252;
   background: none!important;
@@ -112,6 +154,7 @@ header svg {
 }
 
 .config-button,
+.filter-button,
 .config-spacer {
   width: 24px;
 }
