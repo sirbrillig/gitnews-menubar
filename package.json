@@ -22,7 +22,10 @@
   "build": {
     "appId": "com.electron.gitnews-menubar",
     "mac": {
-      "icon": "static/images/gitnews-menubar.icns"
+      "icon": "static/images/gitnews-menubar.icns",
+      "extendInfo": {
+        "LSUIElement": 1
+      }
     }
   },
   "author": "Payton Swick <payton@foolord.com>",
