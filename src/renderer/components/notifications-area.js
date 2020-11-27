@@ -37,6 +37,7 @@ export default function NotificationsArea({
 	markUnread,
 	openUrl,
 	token,
+	searchValue,
 }) {
 	const [urlsToOpen, setUrlsToOpen] = React.useState([]);
 	const [isMultiOpenMode, setMultiOpenMode] = React.useState(false);
@@ -82,7 +83,6 @@ export default function NotificationsArea({
 	}, [onKeyDown]);
 
 	const [muteRequestedFor, setMuteRequested] = React.useState(false);
-	const [searchValue, setSearchTo] = React.useState('');
 
 	const orderedNotes = [...newNotes, ...readNotes].filter(note =>
 		doesNoteMatchSearch(note, searchValue)
@@ -105,27 +105,9 @@ export default function NotificationsArea({
 	));
 
 	return (
-		<>
-			<SearchField setSearchTo={setSearchTo} searchValue={searchValue} />
-			<div className="notifications-area">
-				{newNotes.length === 0 && readNotes.length === 0 && <NoNotifications />}
-				{noteRows}
-			</div>
-		</>
-	);
-}
-
-function SearchField({ setSearchTo, searchValue }) {
-	return (
-		<div className="notifications__search-area">
-			<Gridicon icon="search" size={36} className="search-icon" />
-			<input
-				className="notifications__search"
-				type="search"
-				placeholder="Search"
-				onChange={event => setSearchTo(event.target.value)}
-				value={searchValue}
-			/>
+		<div className="notifications-area">
+			{newNotes.length === 0 && readNotes.length === 0 && <NoNotifications />}
+			{noteRows}
 		</div>
 	);
 }

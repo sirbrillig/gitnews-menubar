@@ -182,8 +182,16 @@ header h1 {
   bottom: 0;
 }
 
+.notifications-area {
+  position: relative;
+}
+
 .notifications__search-area {
   display: flex;
+  width: 100%;
+  background-color: #fff;
+  padding: 0 10px 0 5px;
+  border-bottom: 1px solid #ccc;
 }
 
 .search-icon {
@@ -195,7 +203,7 @@ header h1 {
 .notifications__search {
   border: none;
   font-size: 1em;
-  padding: 6px 2px;
+  padding: 4px 2px;
   flex: 1;
 }
 
