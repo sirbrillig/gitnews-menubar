@@ -113,6 +113,16 @@ export default function NotificationsArea({
 }
 
 function doesNoteMatchSearch(note, searchValue) {
+	if (searchValue.startsWith('reason:')) {
+		const matches = searchValue.match(/reason:(\S+)/);
+		if (
+			matches &&
+			matches.length > 1 &&
+			matches[1] === note.api.notification.reason
+		) {
+			return true;
+		}
+	}
 	if (note.title.toLowerCase().includes(searchValue.toLowerCase())) {
 		return true;
 	}
