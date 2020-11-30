@@ -107,6 +107,7 @@ export default function Notification({
 
 	return (
 		<div className={noteClasses.join(' ')} onClick={onClick}>
+			{isMultiOpened && <MultiOpenPendingNotice />}
 			<div className={iconClasses.join(' ')}>
 				<Gridicon icon={iconType} />
 				<span className="notification__type--text">{iconText}</span>
@@ -235,4 +236,10 @@ function getNoteClasses({ isMuted, isUnread }) {
 		return ['notification__unread'];
 	}
 	return ['notification__read'];
+}
+
+function MultiOpenPendingNotice() {
+	return (
+		<div className="multi-open-pending-notice">Release meta key to open</div>
+	);
 }
