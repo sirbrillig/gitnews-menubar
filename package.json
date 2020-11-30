@@ -1,6 +1,6 @@
 {
   "name": "gitnews-menubar",
-  "version": "1.7.0-beta.1",
+  "version": "1.7.0-beta.2",
   "description": "GitHub notifications in your menu bar",
   "productName": "Gitnews",
   "main": "src/main/index.js",
