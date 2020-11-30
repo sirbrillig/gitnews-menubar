@@ -48,6 +48,7 @@ body {
 
 .config-page__settings li {
   margin: 0 0 10px 0;
+  list-style-type: none;
 }
 
 a {
@@ -190,6 +191,10 @@ header svg {
 .muted-repos-list ul {
   margin: 0;
   padding: 0;
+}
+
+.muted-repos-list li {
+  list-style-type: none;
 }
 
 .muted-repos-list li {
