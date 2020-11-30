@@ -24,12 +24,12 @@ export default function Notification({
 	const isUnread =
 		note.unread === true ? true : note.gitnewsMarkedUnread === true;
 
-	const [isMultiOpened, setMultiOpened] = React.useState(false);
+	const [isMultiOpenPending, setMultiOpenPending] = React.useState(false);
 	const onClick = () => {
 		debug('clicked on notification', note);
 		setMuteRequested(false);
 		if (isMultiOpenMode) {
-			setMultiOpened(true);
+			setMultiOpenPending(true);
 			saveNoteToOpen(note);
 			return;
 		}
@@ -38,7 +38,7 @@ export default function Notification({
 	};
 	React.useEffect(() => {
 		if (!isMultiOpenMode) {
-			setMultiOpened(false);
+			setMultiOpenPending(false);
 		}
 	}, [isMultiOpenMode]);
 
@@ -49,8 +49,8 @@ export default function Notification({
 	);
 	const noteClasses = [
 		'notification',
-		...(isMultiOpenMode && !isMultiOpened ? ['notification--multi-open'] : []),
-		...(isMultiOpened ? ['notification--multi-open-clicked'] : []),
+		...(isMultiOpenMode && !isMultiOpenPending ? ['notification--multi-open'] : []),
+		...(isMultiOpenPending ? ['notification--multi-open-clicked'] : []),
 		...getNoteClasses({ isUnread, isMuted }),
 	];
 	const defaultAvatar = `https://avatars.io/twitter/${note.repositoryFullName}`;
@@ -107,7 +107,7 @@ export default function Notification({
 
 	return (
 		<div className={noteClasses.join(' ')} onClick={onClick}>
-			{isMultiOpened && <MultiOpenPendingNotice />}
+			{isMultiOpenPending && <MultiOpenPendingNotice />}
 			<div className={iconClasses.join(' ')}>
 				<Gridicon icon={iconType} />
 				<span className="notification__type--text">{iconText}</span>
