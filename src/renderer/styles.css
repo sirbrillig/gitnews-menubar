@@ -503,6 +503,7 @@ header h1 {
   position: fixed;
   bottom: 0;
   text-align: center;
+  z-index: 400;
 }
 
 .config-page {
