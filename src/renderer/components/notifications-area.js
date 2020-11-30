@@ -41,26 +41,27 @@ export default function NotificationsArea({
 	searchValue,
 	filterType,
 }) {
-	const [urlsToOpen, setUrlsToOpen] = React.useState([]);
+	const [notesToOpen, setNotesToOpen] = React.useState([]);
 	const [isMultiOpenMode, setMultiOpenMode] = React.useState(false);
-	const saveUrlToOpen = url => setUrlsToOpen(urls => [...urls, url]);
-	const openNotificationUrl = (url, options = {}) =>
-		options.openInBackground ? saveUrlToOpen(url) : openUrl(url, options);
+	const saveNoteToOpen = note => setNotesToOpen(notes => [...notes, note]);
 
-	const openSavedUrls = React.useCallback(() => {
-		debug('opening urls', urlsToOpen);
-		urlsToOpen.map(openUrl);
-		setUrlsToOpen([]);
-	}, [openUrl, urlsToOpen]);
+	const openSavedNotes = React.useCallback(() => {
+		debug('opening notes', notesToOpen);
+		notesToOpen.forEach(note => {
+			markRead(token, note);
+			openUrl(note.commentUrl);
+		});
+		setNotesToOpen([]);
+	}, [notesToOpen, openUrl, markRead, token]);
 	const onKeyUp = React.useCallback(
 		event => {
 			debug('Notification keyUp', event.code);
 			if (event.code.includes('Meta')) {
-				openSavedUrls();
+				openSavedNotes();
 				setMultiOpenMode(false);
 			}
 		},
-		[openSavedUrls]
+		[openSavedNotes]
 	);
 	const onKeyDown = React.useCallback(
 		event => {
@@ -96,13 +97,14 @@ export default function NotificationsArea({
 			markRead={markRead}
 			markUnread={markUnread}
 			token={token}
-			openUrl={openNotificationUrl}
+			openUrl={openUrl}
 			muteRepo={muteRepo}
 			unmuteRepo={unmuteRepo}
 			isMuted={mutedRepos.includes(note.repositoryFullName)}
 			isMuteRequested={muteRequestedFor === note}
 			setMuteRequested={setMuteRequested}
 			isMultiOpenMode={isMultiOpenMode}
+			saveNoteToOpen={saveNoteToOpen}
 		/>
 	));
 
