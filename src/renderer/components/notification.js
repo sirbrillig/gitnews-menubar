@@ -240,6 +240,6 @@ function getNoteClasses({ isMuted, isUnread }) {
 
 function MultiOpenPendingNotice() {
 	return (
-		<div className="multi-open-pending-notice">Release meta key to open</div>
+		<div className="multi-open-pending-notice">Release Command key to open</div>
 	);
 }

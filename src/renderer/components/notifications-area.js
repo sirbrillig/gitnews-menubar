@@ -140,7 +140,7 @@ function doesNoteMatchSearch(note, searchValue) {
 function MultiOpenNotice() {
 	return (
 		<div className="multi-open-notice">
-			Click multiple notifications then release the meta key
+			Click multiple notifications then release the Command key
 		</div>
 	);
 }
