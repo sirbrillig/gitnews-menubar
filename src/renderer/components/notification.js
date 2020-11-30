@@ -19,21 +19,22 @@ export default function Notification({
 	isMuteRequested,
 	setMuteRequested,
 	isMultiOpenMode,
+	saveNoteToOpen,
 }) {
 	const isUnread =
 		note.unread === true ? true : note.gitnewsMarkedUnread === true;
 
 	const [isMultiOpened, setMultiOpened] = React.useState(false);
-	const onClick = event => {
-		debug('clicked on notification', note, 'with metaKey', event.metaKey);
+	const onClick = () => {
+		debug('clicked on notification', note);
 		setMuteRequested(false);
 		if (isMultiOpenMode) {
 			setMultiOpened(true);
+			saveNoteToOpen(note);
+			return;
 		}
 		markRead(token, note);
-		openUrl(note.commentUrl, {
-			openInBackground: !!event.metaKey,
-		});
+		openUrl(note.commentUrl);
 	};
 	React.useEffect(() => {
 		if (!isMultiOpenMode) {
