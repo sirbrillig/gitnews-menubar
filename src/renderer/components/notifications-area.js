@@ -40,6 +40,7 @@ export default function NotificationsArea({
 	token,
 	searchValue,
 	filterType,
+	appVisible,
 }) {
 	const [notesToOpen, setNotesToOpen] = React.useState([]);
 	const [isMultiOpenMode, setMultiOpenMode] = React.useState(false);
@@ -53,16 +54,12 @@ export default function NotificationsArea({
 		});
 		setNotesToOpen([]);
 	}, [notesToOpen, openUrl, markRead, token]);
-	const onKeyUp = React.useCallback(
-		event => {
-			debug('Notification keyUp', event.code);
-			if (event.code.includes('Meta')) {
-				openSavedNotes();
-				setMultiOpenMode(false);
-			}
-		},
-		[openSavedNotes]
-	);
+	const onKeyUp = React.useCallback(event => {
+		debug('Notification keyUp', event.code);
+		if (event.code.includes('Meta')) {
+			setMultiOpenMode(false);
+		}
+	}, []);
 	const onKeyDown = React.useCallback(
 		event => {
 			if (event.code.includes('Meta')) {
@@ -72,6 +69,17 @@ export default function NotificationsArea({
 		[setMultiOpenMode]
 	);
 
+	React.useEffect(() => {
+		if (!isMultiOpenMode && notesToOpen.length > 0) {
+			openSavedNotes();
+		}
+	}, [isMultiOpenMode, openSavedNotes, notesToOpen]);
+
+	React.useEffect(() => {
+		if (!appVisible) {
+			setMultiOpenMode(false);
+		}
+	}, [appVisible]);
 	React.useEffect(() => {
 		window.document.addEventListener('keyup', onKeyUp);
 		return () => {

@@ -34,6 +34,7 @@ export default function MainPane({
 	mutedRepos,
 	searchValue,
 	filterType,
+	appVisible,
 }) {
 	if (!token || currentPane === PANE_TOKEN) {
 		return (
@@ -84,6 +85,7 @@ export default function MainPane({
 			token={token}
 			searchValue={searchValue}
 			filterType={filterType}
+			appVisible={appVisible}
 		/>
 	);
 }
