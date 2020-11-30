@@ -68,9 +68,11 @@ function getAppUrl() {
 
 bar.on('hide', () => {
 	bar.window.webContents.send('menubar-click', true);
+	bar.window.webContents.send('hide-app', true);
 });
 bar.on('show', () => {
 	bar.window.webContents.send('menubar-click', true);
+	bar.window.webContents.send('show-app', true);
 });
 bar.on('focus-lost', () => {
 	debug('focus was lost');

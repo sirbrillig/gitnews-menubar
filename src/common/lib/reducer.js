@@ -22,6 +22,7 @@ const initialState = {
 	offline: false,
 	isAutoLoadEnabled: false,
 	filterType: 'all',
+	appVisible: false,
 };
 
 function reducer(state, action) {
@@ -29,6 +30,8 @@ function reducer(state, action) {
 		state = initialState;
 	}
 	switch (action.type) {
+		case 'NOTE_APP_VISIBLE':
+			return { ...state, appVisible: action.visible };
 		case 'FETCH_BEGIN':
 			return Object.assign({}, state, {
 				fetchingInProgress: true,
@@ -182,6 +185,14 @@ function setFilterType(filterType) {
 	return { type: 'SET_FILTER_TYPE', filterType };
 }
 
+function markAppHidden() {
+	return { type: 'NOTE_APP_VISIBLE', visible: false };
+}
+
+function markAppShown() {
+	return { type: 'NOTE_APP_VISIBLE', visible: true };
+}
+
 module.exports = {
 	reducer,
 	markRead,
@@ -203,4 +214,6 @@ module.exports = {
 	muteRepo,
 	unmuteRepo,
 	setFilterType,
+	markAppHidden,
+	markAppShown,
 };
