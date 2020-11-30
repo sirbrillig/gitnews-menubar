@@ -494,6 +494,17 @@ header h1 {
   font-weight: bold;
 }
 
+.multi-open-notice {
+  width: 100%;
+  padding: 4px 5px;
+  background-color: #24292e;
+  color: #fff;
+  font-size: 0.9em;
+  position: fixed;
+  bottom: 0;
+  text-align: center;
+}
+
 .config-page {
   margin: 12px;
   display: flex;

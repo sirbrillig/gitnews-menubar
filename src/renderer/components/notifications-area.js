@@ -120,6 +120,7 @@ export default function NotificationsArea({
 		<div className="notifications-area">
 			{newNotes.length === 0 && readNotes.length === 0 && <NoNotifications />}
 			{noteRows}
+			{isMultiOpenMode && <MultiOpenNotice />}
 		</div>
 	);
 }
@@ -134,4 +135,12 @@ function doesNoteMatchSearch(note, searchValue) {
 		return true;
 	}
 	return false;
+}
+
+function MultiOpenNotice() {
+	return (
+		<div className="multi-open-notice">
+			Click multiple notifications then release the meta key
+		</div>
+	);
 }
