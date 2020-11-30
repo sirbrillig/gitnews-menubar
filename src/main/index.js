@@ -31,10 +31,6 @@ electronDebug({
 });
 
 let lastIconState = 'normal';
-const defaultClickOptions = {
-	openInBackground: false,
-};
-let lastClickOptions = defaultClickOptions;
 
 const bar = menubar({
 	preloadWindow: true,
@@ -77,11 +73,8 @@ bar.on('show', () => {
 	bar.window.webContents.send('menubar-click', true);
 });
 bar.on('focus-lost', () => {
-	debug('focus was lost; lastClickOptions:', lastClickOptions);
-	if (! lastClickOptions.openInBackground) {
-		bar.hideWindow();
-	}
-	lastClickOptions = defaultClickOptions;
+	debug('focus was lost');
+	bar.hideWindow();
 });
 
 app.on('platform-theme-changed', () => {
@@ -110,7 +103,6 @@ ipcMain.on('check-for-updates', () => {
 });
 
 ipcMain.on('open-url', (event, url, options) => {
-	lastClickOptions = options;
 	shell.openExternal(url, options);
 });
 
