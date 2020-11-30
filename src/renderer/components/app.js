@@ -29,6 +29,7 @@ import {
 	setFilterType,
 } from 'common/lib/reducer';
 import SearchNotifications from './search-notifications';
+import doesNoteMatchFilter from 'common/lib/does-note-match-filter';
 
 const debug = debugFactory('gitnews-menubar');
 
@@ -100,14 +101,20 @@ class App extends React.Component {
 		return this.getUnreadNotifications().filter(note => !note.gitnewsSeen);
 	}
 
-	getNextIcon({ offline, errors, unseenNotes, unreadNotes }) {
+	getNextIcon({ offline, errors, unseenNotes, unreadNotes, filterType }) {
 		if (errors.length) {
 			return 'error';
 		}
-		if (unseenNotes.length) {
+		const unseenNotesFiltered = unseenNotes.filter(note =>
+			doesNoteMatchFilter(note, filterType)
+		);
+		if (unseenNotesFiltered.length) {
 			return 'unseen';
 		}
-		if (unreadNotes.length) {
+		const unreadNotesFiltered = unreadNotes.filter(note =>
+			doesNoteMatchFilter(note, filterType)
+		);
+		if (unreadNotesFiltered.length) {
 			return 'unread';
 		}
 		if (offline) {
@@ -133,6 +140,7 @@ class App extends React.Component {
 			errors,
 			unseenNotes,
 			unreadNotes: newNotes,
+			filterType: this.props.filterType,
 		});
 
 		debug('sending set-icon', nextIcon);

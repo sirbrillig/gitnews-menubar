@@ -3,6 +3,7 @@ import Gridicon from 'gridicons';
 import debugFactory from 'debug';
 import Notification from '../components/notification';
 import { getNoteId } from 'common/lib/helpers';
+import doesNoteMatchFilter from 'common/lib/does-note-match-filter';
 
 const debug = debugFactory('gitnews-menubar');
 
@@ -120,16 +121,6 @@ function doesNoteMatchSearch(note, searchValue) {
 	if (
 		note.repositoryFullName.toLowerCase().includes(searchValue.toLowerCase())
 	) {
-		return true;
-	}
-	return false;
-}
-
-function doesNoteMatchFilter(note, filterType) {
-	if (filterType === 'all') {
-		return true;
-	}
-	if (filterType === note.api.notification.reason) {
 		return true;
 	}
 	return false;
