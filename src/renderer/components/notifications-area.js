@@ -45,7 +45,7 @@ export default function NotificationsArea({
 	const [notesToOpen, setNotesToOpen] = React.useState([]);
 	const [isMultiOpenMode, setMultiOpenMode] = React.useState(false);
 	const saveNoteToOpen = note => {
-		if (notesToOpen.includes(note)) {
+		if (isNoteInNotes(note, notesToOpen)) {
 			setNotesToOpen(notes => notes.filter(noteToOpen => noteToOpen !== note));
 			return;
 		}
@@ -119,7 +119,7 @@ export default function NotificationsArea({
 			setMuteRequested={setMuteRequested}
 			isMultiOpenMode={isMultiOpenMode}
 			saveNoteToOpen={saveNoteToOpen}
-			isMultiOpenPending={notesToOpen.includes(note)}
+			isMultiOpenPending={isNoteInNotes(note, notesToOpen)}
 		/>
 	));
 
@@ -142,6 +142,10 @@ function doesNoteMatchSearch(note, searchValue) {
 		return true;
 	}
 	return false;
+}
+
+function isNoteInNotes(note, notes) {
+	return notes.some(item => item.id === note.id);
 }
 
 function MultiOpenNotice() {
