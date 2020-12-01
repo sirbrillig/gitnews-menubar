@@ -19,28 +19,22 @@ export default function Notification({
 	isMuteRequested,
 	setMuteRequested,
 	isMultiOpenMode,
+	isMultiOpenPending,
 	saveNoteToOpen,
 }) {
 	const isUnread =
 		note.unread === true ? true : note.gitnewsMarkedUnread === true;
 
-	const [isMultiOpenPending, setMultiOpenPending] = React.useState(false);
 	const onClick = () => {
 		debug('clicked on notification', note);
 		setMuteRequested(false);
 		if (isMultiOpenMode) {
-			setMultiOpenPending(true);
 			saveNoteToOpen(note);
 			return;
 		}
 		markRead(token, note);
 		openUrl(note.commentUrl);
 	};
-	React.useEffect(() => {
-		if (!isMultiOpenMode) {
-			setMultiOpenPending(false);
-		}
-	}, [isMultiOpenMode]);
 
 	const timeString = date.distanceInWords(
 		Date.now(),

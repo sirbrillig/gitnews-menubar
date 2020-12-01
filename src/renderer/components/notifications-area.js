@@ -44,7 +44,13 @@ export default function NotificationsArea({
 }) {
 	const [notesToOpen, setNotesToOpen] = React.useState([]);
 	const [isMultiOpenMode, setMultiOpenMode] = React.useState(false);
-	const saveNoteToOpen = note => setNotesToOpen(notes => [...notes, note]);
+	const saveNoteToOpen = note => {
+		if (notesToOpen.includes(note)) {
+			setNotesToOpen(notes => notes.filter(noteToOpen => noteToOpen !== note));
+			return;
+		}
+		setNotesToOpen(notes => [...notes, note]);
+	};
 
 	const openSavedNotes = React.useCallback(() => {
 		debug('opening notes', notesToOpen);
@@ -113,6 +119,7 @@ export default function NotificationsArea({
 			setMuteRequested={setMuteRequested}
 			isMultiOpenMode={isMultiOpenMode}
 			saveNoteToOpen={saveNoteToOpen}
+			isMultiOpenPending={notesToOpen.includes(note)}
 		/>
 	));
 
