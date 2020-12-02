@@ -151,7 +151,7 @@ function isNoteInNotes(note, notes) {
 function MultiOpenNotice() {
 	return (
 		<div className="multi-open-notice">
-			Click multiple notifications then release the Command key
+			<span>Click multiple notifications then release the Command key</span>
 		</div>
 	);
 }

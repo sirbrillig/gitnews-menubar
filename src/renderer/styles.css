@@ -497,13 +497,20 @@ header h1 {
 .multi-open-notice {
   width: 100%;
   padding: 4px 5px;
+  position: fixed;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  z-index: 400;
+}
+
+.multi-open-notice span {
+  padding: 5px 10px;
   background-color: #24292e;
   color: #fff;
   font-size: 0.9em;
-  position: fixed;
-  bottom: 0;
-  text-align: center;
-  z-index: 400;
+  border-radius: 20px;
 }
 
 .config-page {
