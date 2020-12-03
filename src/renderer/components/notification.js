@@ -19,28 +19,22 @@ export default function Notification({
 	isMuteRequested,
 	setMuteRequested,
 	isMultiOpenMode,
+	isMultiOpenPending,
 	saveNoteToOpen,
 }) {
 	const isUnread =
 		note.unread === true ? true : note.gitnewsMarkedUnread === true;
 
-	const [isMultiOpened, setMultiOpened] = React.useState(false);
 	const onClick = () => {
 		debug('clicked on notification', note);
 		setMuteRequested(false);
 		if (isMultiOpenMode) {
-			setMultiOpened(true);
 			saveNoteToOpen(note);
 			return;
 		}
 		markRead(token, note);
 		openUrl(note.commentUrl);
 	};
-	React.useEffect(() => {
-		if (!isMultiOpenMode) {
-			setMultiOpened(false);
-		}
-	}, [isMultiOpenMode]);
 
 	const timeString = date.distanceInWords(
 		Date.now(),
@@ -49,8 +43,10 @@ export default function Notification({
 	);
 	const noteClasses = [
 		'notification',
-		...(isMultiOpenMode && !isMultiOpened ? ['notification--multi-open'] : []),
-		...(isMultiOpened ? ['notification--multi-open-clicked'] : []),
+		...(isMultiOpenMode && !isMultiOpenPending
+			? ['notification--multi-open']
+			: []),
+		...(isMultiOpenPending ? ['notification--multi-open-clicked'] : []),
 		...getNoteClasses({ isUnread, isMuted }),
 	];
 	const defaultAvatar = `https://avatars.io/twitter/${note.repositoryFullName}`;
@@ -92,8 +88,12 @@ export default function Notification({
 						You can unmute it later.
 					</div>
 					<div className="notification__mute-confirm__buttons">
-						<MuteRepoCancelButton onClick={() => setMuteRequested(false)} />
+						<MuteRepoCancelButton
+							disabled={isMultiOpenMode}
+							onClick={() => setMuteRequested(false)}
+						/>
 						<MuteRepoButton
+							disabled={isMultiOpenMode}
 							onClick={() => {
 								setMuteRequested(false);
 								muteRepo(note.repositoryFullName);
@@ -107,6 +107,7 @@ export default function Notification({
 
 	return (
 		<div className={noteClasses.join(' ')} onClick={onClick}>
+			{isMultiOpenPending && <MultiOpenPendingNotice />}
 			<div className={iconClasses.join(' ')}>
 				<Gridicon icon={iconType} />
 				<span className="notification__type--text">{iconText}</span>
@@ -127,14 +128,26 @@ export default function Notification({
 					<span className="notification__time">{timeString}</span>
 					<span className="notification__actions">
 						{isMuted ? (
-							<UnmuteRepoButton onClick={doUnmute} />
+							<UnmuteRepoButton disabled={isMultiOpenMode} onClick={doUnmute} />
 						) : (
-							<MuteRepoRequestButton onClick={doMute} />
+							<MuteRepoRequestButton
+								disabled={isMultiOpenMode}
+								onClick={doMute}
+							/>
 						)}
 						{isUnread ? (
-							<MarkReadButton note={note} token={token} markRead={markRead} />
+							<MarkReadButton
+								disabled={isMultiOpenMode}
+								note={note}
+								token={token}
+								markRead={markRead}
+							/>
 						) : (
-							<MarkUnreadButton note={note} markUnread={markUnread} />
+							<MarkUnreadButton
+								disabled={isMultiOpenMode}
+								note={note}
+								markUnread={markUnread}
+							/>
 						)}
 					</span>
 				</div>
@@ -143,84 +156,102 @@ export default function Notification({
 	);
 }
 
-function MuteRepoCancelButton({ onClick }) {
+function MuteRepoCancelButton({ onClick, disabled }) {
 	return (
 		<button
 			className="notification__mute-confirm__cancel btn--cancel"
 			aria-label="Cancel mute repo"
 			onClick={onClick}
+			disabled={disabled}
 		>
 			Cancel
 		</button>
 	);
 }
 
-function MuteRepoButton({ onClick }) {
+function MuteRepoButton({ onClick, disabled }) {
 	return (
 		<button
 			className="notification__mute-confirm__confirm btn"
 			aria-label="Mute notifications from this repo"
 			onClick={onClick}
+			disabled={disabled}
 		>
 			Mute repo
 		</button>
 	);
 }
 
-function MuteRepoRequestButton({ onClick }) {
+function MuteRepoRequestButton({ onClick, disabled }) {
+	if (disabled) {
+		return null;
+	}
 	return (
 		<button
 			className="notification__mute-repo"
 			aria-label="Mute notifications from this repo"
 			onClick={onClick}
+			disabled={disabled}
 		>
 			mute repo
 		</button>
 	);
 }
 
-function UnmuteRepoButton({ onClick }) {
+function UnmuteRepoButton({ onClick, disabled }) {
+	if (disabled) {
+		return null;
+	}
 	return (
 		<button
 			className="notification__mute-repo"
 			aria-label="Unmute notifications from this repo"
 			onClick={onClick}
+			disabled={disabled}
 		>
 			unmute repo
 		</button>
 	);
 }
 
-function MarkReadButton({ note, token, markRead }) {
+function MarkReadButton({ note, token, markRead, disabled }) {
 	const onClick = event => {
 		debug('clicked to mark notification as read', note);
 		event.preventDefault();
 		event.stopPropagation();
 		markRead(token, note);
 	};
+	if (disabled) {
+		return null;
+	}
 	return (
 		<button
 			className="notification__mark-read"
 			onClick={onClick}
 			aria-label="Mark notification as read"
+			disabled={disabled}
 		>
 			mark read
 		</button>
 	);
 }
 
-function MarkUnreadButton({ note, markUnread }) {
+function MarkUnreadButton({ note, markUnread, disabled }) {
 	const onClick = event => {
 		debug('clicked to mark notification as unread', note);
 		event.preventDefault();
 		event.stopPropagation();
 		markUnread(note);
 	};
+	if (disabled) {
+		return null;
+	}
 	return (
 		<button
 			className="notification__mark-unread"
 			onClick={onClick}
 			aria-label="Mark as unread"
+			disabled={disabled}
 		>
 			mark unread
 		</button>
@@ -235,4 +266,10 @@ function getNoteClasses({ isMuted, isUnread }) {
 		return ['notification__unread'];
 	}
 	return ['notification__read'];
+}
+
+function MultiOpenPendingNotice() {
+	return (
+		<div className="multi-open-pending-notice">Release Command key to open</div>
+	);
 }

@@ -213,6 +213,7 @@ class App extends React.Component {
 					showMutedReposList={showMutedReposList}
 					searchValue={this.state.searchValue}
 					filterType={this.props.filterType}
+					appVisible={this.props.appVisible}
 				/>
 			</main>
 		);
@@ -250,6 +251,7 @@ App.propTypes = {
 	fetchInterval: PropTypes.number,
 	isAutoLoadEnabled: PropTypes.bool,
 	filterType: PropTypes.string.isRequired,
+	appVisible: PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -265,6 +267,7 @@ function mapStateToProps(state) {
 		fetchInterval: state.fetchInterval,
 		isAutoLoadEnabled: state.isAutoLoadEnabled,
 		filterType: state.filterType,
+		appVisible: state.appVisible,
 	};
 }
 
