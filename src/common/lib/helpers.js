@@ -39,7 +39,14 @@ function mergeNotifications(prevNotes, nextNotes) {
 
 function removeOutdatedNotifications(notes) {
 	const now = Date.now();
-	return notes.filter(note => now - new Date(note.updatedAt) < maxReadNoteAge);
+	return notes.filter(note => {
+		const isUnread = note.unread || note.gitnewsMarkedUnread;
+		if (isUnread) {
+			return true;
+		}
+		const noteAge = now - new Date(note.updatedAt);
+		return noteAge < maxReadNoteAge;
+	});
 }
 
 const findNoteInNotes = (note, prevNotes) => {
