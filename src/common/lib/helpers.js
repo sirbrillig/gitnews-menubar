@@ -2,7 +2,7 @@ const Conf = require('conf');
 const config = new Conf();
 
 const maxFetchInterval = secsToMs(300); // 5 minutes
-const maxReadNoteAge = secsToMs(minsToSecs(hoursToMins(4000))); // about 6 months
+const maxReadNoteAge = 6 * 30 * 24 * 60 * 60 * 1000; // about 6 months
 
 function getNoteId(note) {
 	return note.id;
@@ -39,7 +39,7 @@ function mergeNotifications(prevNotes, nextNotes) {
 
 function removeOutdatedNotifications(notes) {
 	const now = Date.now();
-	return notes.filter(note => now - note.updatedAt < maxReadNoteAge);
+	return notes.filter(note => now - new Date(note.updatedAt) < maxReadNoteAge);
 }
 
 const findNoteInNotes = (note, prevNotes) => {
@@ -50,7 +50,7 @@ const findNoteInNotes = (note, prevNotes) => {
 };
 
 const hasNoteUpdated = (note, prevNote) =>
-	note.updatedAt > prevNote.gitnewsSeenAt;
+	new Date(note.updatedAt) > new Date(prevNote.gitnewsSeenAt);
 
 function msToSecs(ms) {
 	return parseInt(ms * 0.001, 10);
@@ -58,14 +58,6 @@ function msToSecs(ms) {
 
 function secsToMs(secs) {
 	return secs * 1000;
-}
-
-function minsToSecs(mins) {
-	return 60 * mins;
-}
-
-function hoursToMins(hours) {
-	return 24 * hours;
 }
 
 function isOfflineCode(code) {
