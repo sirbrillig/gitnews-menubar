@@ -66,7 +66,7 @@ function performFetch({ fetchingInProgress, token, fetchingStartedAt }, next) {
 	next(fetchBegin());
 	const getGithubNotifications = getFetcher(token, isDemoMode);
 	try {
-		getGithubNotifications()
+		getGithubNotifications(1)
 			.then(notes => {
 				debug('notifications retrieved', notes);
 				next(fetchDone());
@@ -88,7 +88,11 @@ function getFetcher(token, isDemoMode) {
 	if (isDemoMode) {
 		return () => getDemoNotifications();
 	}
-	return () => getNotifications(token);
+	return pageNumber =>
+		getNotifications(token, {
+			per_page: 100,
+			page: pageNumber,
+		});
 }
 
 async function getDemoNotifications() {
