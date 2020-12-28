@@ -40,7 +40,13 @@ const fetcher = store => next => action => {
 };
 
 function performFetch(
-	{ fetchingInProgress, token, fetchingStartedAt, notes, lastSuccessfulCheck },
+	{
+		fetchingInProgress,
+		token,
+		fetchingStartedAt,
+		notes,
+		lastSuccessfulReadCheck,
+	},
 	next
 ) {
 	const fetchingMaxTime = secsToMs(120); // 2 minutes
@@ -69,9 +75,9 @@ function performFetch(
 	// we last fetched them
 	const shouldFetchRead =
 		notes.length === 0 ||
-		new Date() - new Date(lastSuccessfulCheck) >
+		new Date() - new Date(lastSuccessfulReadCheck) >
 			maxIntervalForPollingReadNotifications;
-	debug( 'should we fetch read notifications?', shouldFetchRead );
+	debug('should we fetch read notifications?', shouldFetchRead);
 	const getGithubNotifications = getFetcher(token, isDemoMode, shouldFetchRead);
 	try {
 		getGithubNotifications()

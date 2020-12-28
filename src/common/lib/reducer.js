@@ -19,6 +19,7 @@ const initialState = {
 	fetchingInProgress: false,
 	lastChecked: false,
 	lastSuccessfulCheck: false,
+	lastSuccessfulReadCheck: false,
 	fetchingStartedAt: false,
 	fetchInterval: defaultFetchInterval,
 	fetchRetryCount: 0,
@@ -89,11 +90,15 @@ export function reducer(state, action) {
 			const notes = removeOutdatedNotifications(
 				mergeNotifications(state.notes, action.notes)
 			);
+			const didFetchReadNotifications = action.notes.some(note => !note.unread);
 			debug('notes retrieved, merged, and filtered', notes);
 			return Object.assign({}, state, {
 				offline: false,
 				lastChecked: Date.now(),
 				lastSuccessfulCheck: Date.now(),
+				lastSuccessfulReadCheck: didFetchReadNotifications
+					? Date.now()
+					: state.lastSuccessfulReadCheck,
 				fetchRetryCount: 0,
 				errors: [],
 				fetchInterval: defaultFetchInterval,
