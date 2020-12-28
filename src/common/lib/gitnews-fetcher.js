@@ -24,13 +24,11 @@ if (isDemoMode) {
 	debug('demo mode enabled!');
 }
 
+const maxIntervalForPollingReadNotifications = 20 * 60 * 60 * 1000; // 20 minutes
+
 const fetcher = store => next => action => {
-	// eslint-disable-line no-unused-vars
 	if (action.type === 'CHANGE_TOKEN') {
-		performFetch(
-			Object.assign({}, store.getState(), { token: action.token }),
-			next
-		);
+		performFetch({ ...store.getState(), token: action.token }, next);
 		return next(action);
 	}
 
@@ -41,7 +39,10 @@ const fetcher = store => next => action => {
 	performFetch(store.getState(), next);
 };
 
-function performFetch({ fetchingInProgress, token, fetchingStartedAt }, next) {
+function performFetch(
+	{ fetchingInProgress, token, fetchingStartedAt, notes, lastSuccessfulCheck },
+	next
+) {
 	const fetchingMaxTime = secsToMs(120); // 2 minutes
 	if (fetchingInProgress) {
 		const timeSinceFetchingStarted = Date.now() - (fetchingStartedAt || 0);
@@ -64,9 +65,16 @@ function performFetch({ fetchingInProgress, token, fetchingStartedAt }, next) {
 	// NOTE: After this point, any return action MUST disable fetchingInProgress
 	// or the app will get stuck never updating again.
 	next(fetchBegin());
-	const getGithubNotifications = getFetcher(token, isDemoMode);
+	// Only fetch read notifications if we have none or if it's been a while since
+	// we last fetched them
+	const shouldFetchRead =
+		notes.length === 0 ||
+		new Date() - new Date(lastSuccessfulCheck) >
+			maxIntervalForPollingReadNotifications;
+	debug( 'should we fetch read notifications?', shouldFetchRead );
+	const getGithubNotifications = getFetcher(token, isDemoMode, shouldFetchRead);
 	try {
-		getGithubNotifications(1)
+		getGithubNotifications()
 			.then(notes => {
 				debug('notifications retrieved', notes);
 				next(fetchDone());
@@ -84,14 +92,15 @@ function performFetch({ fetchingInProgress, token, fetchingStartedAt }, next) {
 	}
 }
 
-function getFetcher(token, isDemoMode) {
+function getFetcher(token, isDemoMode, shouldFetchRead) {
 	if (isDemoMode) {
 		return () => getDemoNotifications();
 	}
-	return pageNumber =>
+	return () =>
 		getNotifications(token, {
 			per_page: 100,
-			page: pageNumber,
+			page: 1,
+			all: shouldFetchRead,
 		});
 }
 
