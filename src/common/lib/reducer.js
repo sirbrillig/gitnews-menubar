@@ -1,12 +1,14 @@
-const {
+import {
 	getToken,
 	secsToMs,
 	getNoteId,
 	mergeNotifications,
 	removeOutdatedNotifications,
 	getFetchInterval,
-} = require('common/lib/helpers');
+} from 'common/lib/helpers';
+import debugFactory from 'debug';
 
+const debug = debugFactory('gitnews-menubar');
 const defaultFetchInterval = secsToMs(120);
 
 const initialState = {
@@ -26,7 +28,7 @@ const initialState = {
 	appVisible: false,
 };
 
-function reducer(state, action) {
+export function reducer(state, action) {
 	if (!state) {
 		state = initialState;
 	}
@@ -83,7 +85,11 @@ function reducer(state, action) {
 				fetchInterval: getFetchInterval(secsToMs(60), state.fetchRetryCount),
 				fetchRetryCount: state.fetchRetryCount + 1,
 			});
-		case 'NOTES_RETRIEVED':
+		case 'NOTES_RETRIEVED': {
+			const notes = removeOutdatedNotifications(
+				mergeNotifications(state.notes, action.notes)
+			);
+			debug('notes retrieved, merged, and filtered', notes);
 			return Object.assign({}, state, {
 				offline: false,
 				lastChecked: Date.now(),
@@ -91,10 +97,9 @@ function reducer(state, action) {
 				fetchRetryCount: 0,
 				errors: [],
 				fetchInterval: defaultFetchInterval,
-				notes: removeOutdatedNotifications(
-					mergeNotifications(state.notes, action.notes)
-				),
+				notes,
 			});
+		}
 		case 'CHANGE_AUTO_LOAD':
 			return Object.assign({}, state, { isAutoLoadEnabled: action.isEnabled });
 		case 'MUTE_REPO':
@@ -112,111 +117,86 @@ function reducer(state, action) {
 	return state;
 }
 
-function muteRepo(repo) {
+export function muteRepo(repo) {
 	return { type: 'MUTE_REPO', repo };
 }
 
-function unmuteRepo(repo) {
+export function unmuteRepo(repo) {
 	return { type: 'UNMUTE_REPO', repo };
 }
 
-function markRead(token, note) {
+export function markRead(token, note) {
 	return { type: 'MARK_NOTE_READ', token, note };
 }
 
-function markUnread(note) {
+export function markUnread(note) {
 	return { type: 'MARK_NOTE_UNREAD', note };
 }
 
-function clearErrors() {
+export function clearErrors() {
 	return { type: 'CLEAR_ERRORS' };
 }
 
-function markAllNotesSeen() {
+export function markAllNotesSeen() {
 	return { type: 'MARK_ALL_NOTES_SEEN' };
 }
 
-function changeToken(token) {
+export function changeToken(token) {
 	return { type: 'CHANGE_TOKEN', token };
 }
 
-function changeToOffline() {
+export function changeToOffline() {
 	return { type: 'OFFLINE' };
 }
 
-function gotNotes(notes) {
+export function gotNotes(notes) {
 	return { type: 'NOTES_RETRIEVED', notes };
 }
 
-function addConnectionError(error) {
+export function addConnectionError(error) {
 	return { type: 'ADD_CONNECTION_ERROR', error };
 }
 
-function fetchBegin() {
+export function fetchBegin() {
 	return { type: 'FETCH_BEGIN' };
 }
 
-function fetchDone() {
+export function fetchDone() {
 	return { type: 'FETCH_END' };
 }
 
-function fetchNotifications() {
+export function fetchNotifications() {
 	return { type: 'GITNEWS_FETCH_NOTIFICATIONS' };
 }
 
-function checkForUpdates() {
+export function checkForUpdates() {
 	return { type: 'CHECK_FOR_UPDATES' };
 }
 
-function openUrl(url, options) {
+export function openUrl(url, options) {
 	return { type: 'OPEN_URL', url, options };
 }
 
-function setIcon(icon) {
+export function setIcon(icon) {
 	return { type: 'SET_ICON', icon };
 }
 
-function changeAutoLoad(isEnabled) {
+export function changeAutoLoad(isEnabled) {
 	return { type: 'CHANGE_AUTO_LOAD', isEnabled };
 }
 
-function scrollToTop() {
+export function scrollToTop() {
 	return { type: 'SCROLL_TO_TOP' };
 }
 
-function setFilterType(filterType) {
+export function setFilterType(filterType) {
 	return { type: 'SET_FILTER_TYPE', filterType };
 }
 
-function markAppHidden() {
+export function markAppHidden() {
 	return { type: 'NOTE_APP_VISIBLE', visible: false };
 }
 
-function markAppShown() {
+export function markAppShown() {
 	return { type: 'NOTE_APP_VISIBLE', visible: true };
 }
-
-module.exports = {
-	reducer,
-	markRead,
-	markUnread,
-	markAllNotesSeen,
-	clearErrors,
-	changeToken,
-	changeToOffline,
-	gotNotes,
-	addConnectionError,
-	fetchBegin,
-	fetchDone,
-	fetchNotifications,
-	openUrl,
-	checkForUpdates,
-	setIcon,
-	changeAutoLoad,
-	scrollToTop,
-	muteRepo,
-	unmuteRepo,
-	setFilterType,
-	markAppHidden,
-	markAppShown,
-};
