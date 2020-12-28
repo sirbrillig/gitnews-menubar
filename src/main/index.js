@@ -40,6 +40,7 @@ const bar = menubar({
 		width: 390,
 		height: 440,
 		webPreferences: {
+			enableRemoteModule: true,
 			nodeIntegration: true,
 		},
 	},
