@@ -22,10 +22,18 @@ function mergeNotifications(prevNotes, nextNotes) {
 		...nextNotes.map(note => {
 			const previousNote = findNoteInNotes(note, prevNotes);
 			if (previousNote && !hasNoteUpdated(note, previousNote)) {
-				return Object.assign({}, note, {
+				return {
+					...note,
 					gitnewsSeen: previousNote.gitnewsSeen,
 					gitnewsMarkedUnread: previousNote.gitnewsMarkedUnread,
-				});
+				};
+			}
+			// Always preserve local marked unread status
+			if (note.gitnewsMarkedUnread) {
+				return {
+					...note,
+					gitnewsMarkedUnread: previousNote.gitnewsMarkedUnread,
+				};
 			}
 			return note;
 		}),
