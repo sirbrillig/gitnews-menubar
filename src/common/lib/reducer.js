@@ -3,6 +3,7 @@ const {
 	secsToMs,
 	getNoteId,
 	mergeNotifications,
+	removeOutdatedNotifications,
 	getFetchInterval,
 } = require('common/lib/helpers');
 
@@ -90,7 +91,9 @@ function reducer(state, action) {
 				fetchRetryCount: 0,
 				errors: [],
 				fetchInterval: defaultFetchInterval,
-				notes: mergeNotifications(state.notes, action.notes),
+				notes: removeOutdatedNotifications(
+					mergeNotifications(state.notes, action.notes)
+				),
 			});
 		case 'CHANGE_AUTO_LOAD':
 			return Object.assign({}, state, { isAutoLoadEnabled: action.isEnabled });
