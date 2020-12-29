@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { remote } from 'electron';
 import PropTypes from 'prop-types';
 import debugFactory from 'debug';
 import Header from '../components/header';
@@ -26,6 +27,7 @@ import {
 	muteRepo,
 	unmuteRepo,
 	setFilterType,
+	setAutoLoadState,
 } from 'common/lib/reducer';
 import SearchNotifications from './search-notifications';
 import doesNoteMatchFilter from 'common/lib/does-note-match-filter';
@@ -55,6 +57,9 @@ class App extends React.Component {
 		debug('App mounted');
 		debug('starting fetcher...');
 		this.fetcher.begin();
+		debug('synching open-at-login...');
+		const settings = remote.app.getLoginItemSettings();
+		this.props.setAutoLoadState(settings.openAtLogin);
 	}
 
 	componentWillUnmount() {
@@ -275,6 +280,7 @@ const actions = {
 	muteRepo,
 	unmuteRepo,
 	setFilterType,
+	setAutoLoadState,
 };
 
 export default connect(mapStateToProps, actions)(App);
