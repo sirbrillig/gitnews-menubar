@@ -109,7 +109,7 @@ ipcMain.on('open-url', (event, url, options) => {
 	shell.openExternal(url, options);
 });
 
-ipcMain.on('set-open-at-login', shouldOpenAtLogin => {
+ipcMain.on('set-open-at-login', (event, shouldOpenAtLogin) => {
 	debug('checking open-at-login to change it to', shouldOpenAtLogin);
 	const settings = app.getLoginItemSettings();
 	if (settings.openAtLogin !== shouldOpenAtLogin) {
