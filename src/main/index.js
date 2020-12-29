@@ -40,6 +40,7 @@ const bar = menubar({
 		width: 390,
 		height: 440,
 		webPreferences: {
+			enableRemoteModule: true,
 			nodeIntegration: true,
 		},
 	},
@@ -106,6 +107,17 @@ ipcMain.on('check-for-updates', () => {
 
 ipcMain.on('open-url', (event, url, options) => {
 	shell.openExternal(url, options);
+});
+
+ipcMain.on('set-open-at-login', (event, shouldOpenAtLogin) => {
+	debug('checking open-at-login to change it to', shouldOpenAtLogin);
+	const settings = app.getLoginItemSettings();
+	if (settings.openAtLogin !== shouldOpenAtLogin) {
+		debug('setting open-at-login to', shouldOpenAtLogin);
+		app.setLoginItemSettings({
+			openAtLogin: shouldOpenAtLogin,
+		});
+	}
 });
 
 function setIcon(type) {

@@ -85,27 +85,34 @@ describe( 'reducer', function() {
 			expect( result.fetchInterval ).to.not.equal( 9999 );
 		} );
 
-		it( 'saves new notifications', function() {
+		it( 'saves new notifications but ignores old read notifications', function() {
 			const action = { type: 'NOTES_RETRIEVED', notes };
 			const result = reducer( { notes: [] }, action );
-			expect( result.notes ).to.have.length( 3 );
+			expect( result.notes ).to.have.length( 2 );
 		} );
 
-		it( 'removes notifications not in new data', function() {
+		it( 'preserves notifications not in new data', function() {
 			const action = { type: 'NOTES_RETRIEVED', notes };
-			const result = reducer( { notes: [ { id: 'o1', title: 'test note' } ] }, action );
-			expect( result.notes.map( note => note.id ) ).to.not.include( 'o1' );
+			const result = reducer( { notes: [ { id: 'o1', title: 'test note', updatedAt: Date.now() } ] }, action );
+			expect( result.notes.map( note => note.id ) ).to.include( 'o1' );
+		} );
+
+		it( 'does not duplicate existing notifications if they also appear in new data', function() {
+			const action = { type: 'NOTES_RETRIEVED', notes };
+			const result = reducer( { notes: [ notes[0] ] }, action );
+			const resultsWithoutFirst = result.notes.slice(1);
+			expect( resultsWithoutFirst.map( note => note.id ) ).to.not.include( 'o1' );
 		} );
 
 		it( 'preserves `markedUnread` state for existing notifications', function() {
 			const action = { type: 'NOTES_RETRIEVED', notes };
-			const result = reducer( { notes: [ { id: 'a1', title: 'test note', gitnewsMarkedUnread: true } ] }, action );
+			const result = reducer( { notes: [ { id: 'a1', title: 'test note', gitnewsMarkedUnread: true, updatedAt: Date.now() } ] }, action );
 			expect( result.notes.filter( note => note.gitnewsMarkedUnread ) ).to.have.length( 1 );
 		} );
 
 		it( 'preserves `seen` state for existing notifications', function() {
 			const action = { type: 'NOTES_RETRIEVED', notes };
-			const result = reducer( { notes: [ { id: 'a1', title: 'test note', gitnewsSeen: true } ] }, action );
+			const result = reducer( { notes: [ { id: 'a1', title: 'test note', gitnewsSeen: true, updatedAt: Date.now() } ] }, action );
 			expect( result.notes.filter( note => note.gitnewsSeen ) ).to.have.length( 1 );
 		} );
 

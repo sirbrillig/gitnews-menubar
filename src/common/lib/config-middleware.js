@@ -1,40 +1,30 @@
-const AutoLaunch = require( 'auto-launch' );
-const { setToken } = require( 'common/lib/helpers' );
-const debugFactory = require( 'debug' );
+const { ipcRenderer, remote } = require('electron');
+const { setToken } = require('common/lib/helpers');
+const { setAutoLoadState } = require('common/lib/reducer');
+const debugFactory = require('debug');
 
-const debug = debugFactory( 'gitnews-menubar' );
+const debug = debugFactory('gitnews-menubar');
 
-const configMiddleware = store => next => action => { // eslint-disable-line no-unused-vars
-	switch ( action.type ) {
+// eslint-disable-next-line no-unused-vars
+const configMiddleware = store => next => action => {
+	switch (action.type) {
 		case 'CHANGE_TOKEN':
-			setToken( action.token );
-		case 'CHANGE_AUTO_LOAD':
-			changeAutoLoad( action.isEnabled );
+			setToken(action.token);
+			break;
+		case 'CHANGE_AUTO_LOAD': {
+			changeAutoLoad(action.isEnabled);
+			const settings = remote.app.getLoginItemSettings();
+			return next(setAutoLoadState(settings.openAtLogin));
+		}
 	}
-	next( action );
+	next(action);
 };
 
-function changeAutoLoad( shouldEnable ) {
-	const autoLauncher = new AutoLaunch( { name: 'Gitnews' } );
-	autoLauncher.isEnabled()
-		.then( function( isEnabled ) {
-			if ( shouldEnable && ! isEnabled ) {
-				return autoLauncher.enable();
-			}
-			if ( ! shouldEnable && isEnabled ) {
-				return autoLauncher.disable();
-			}
-		} )
-		.then( function() {
-			debug( 'autoload changed to', shouldEnable );
-		} )
-		.catch( function( err ) {
-			console.error( 'failed to change autoload to', shouldEnable, err );
-			// TODO: maybe send to sentry?
-		} );
+function changeAutoLoad(shouldEnable) {
+	debug('changing auto load to', shouldEnable);
+	ipcRenderer.send('set-open-at-login', shouldEnable);
 }
 
 module.exports = {
 	configMiddleware,
 };
-
