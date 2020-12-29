@@ -157,7 +157,7 @@ async function getDemoNotifications() {
 			unread: true,
 			repositoryName: 'gitnews-menubar',
 			repositoryFullName: 'sirbrillig/gitnews-menubar',
-			title: 'Teapot is Broken',
+			title: 'Teapot is Broken with error ThisIsNotATeapotPleaseTryToMakeSureYouOnlyUseATeapot',
 			type: 'Issue',
 			id: '2967500023477777222e6230b0190f26',
 			repositoryOwnerAvatar:
