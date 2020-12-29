@@ -407,6 +407,7 @@ header h1 {
 }
 
 .notification__body {
+  overflow: hidden;
   width: 100%;
 }
 
