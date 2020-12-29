@@ -38,7 +38,7 @@ const bar = menubar({
 	icon: getIconForState('normal'),
 	browserWindow: {
 		width: 390,
-		height: 440,
+		height: 500,
 		webPreferences: {
 			enableRemoteModule: true,
 			nodeIntegration: true,
