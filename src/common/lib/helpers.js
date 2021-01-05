@@ -2,7 +2,6 @@ const Conf = require('conf');
 const config = new Conf();
 
 const maxFetchInterval = secsToMs(300); // 5 minutes
-const maxReadNoteAge = 6 * 30 * 24 * 60 * 60 * 1000; // about 6 months
 
 function getNoteId(note) {
 	return note.id;
@@ -17,68 +16,52 @@ function setToken(token) {
 }
 
 function mergeNotifications(prevNotes, nextNotes) {
-	const didFetchReadNotifications = nextNotes.some(note => !note.unread);
+	const nextNotesUpdated = nextNotes.map(note => {
+		const previousNote = findNoteInNotes(note, prevNotes);
+		if (previousNote) {
+			return {
+				...note,
+				gitnewsSeen: hasNoteUpdated(note, previousNote)
+					? false
+					: previousNote.gitnewsSeen,
+				gitnewsMarkedUnread: previousNote.gitnewsMarkedUnread,
+			};
+		}
+		return note;
+	});
+	const prevNotesWithoutUpdated = prevNotes.filter(note => {
+		const nextNote = findNoteInNotes(note, nextNotes);
+		return !nextNote;
+	});
 
-	return [
-		// Include all new notes, retaining custom properties unless the note has been updated
-		...nextNotes.map(note => {
-			const previousNote = findNoteInNotes(note, prevNotes);
-			if (previousNote && !hasNoteUpdated(note, previousNote)) {
-				return {
-					...note,
-					gitnewsSeen: previousNote.gitnewsSeen,
-					gitnewsMarkedUnread: previousNote.gitnewsMarkedUnread,
-				};
-			}
-			// Always preserve local marked unread status
-			if (note.gitnewsMarkedUnread) {
-				return {
-					...note,
-					gitnewsMarkedUnread: previousNote.gitnewsMarkedUnread,
-				};
-			}
-			return note;
-		}),
-		// Include all notes previously downloaded that are not in the latest data set
-		...prevNotes
-			.filter(previousNote => !findNoteInNotes(previousNote, nextNotes))
-			.map(previousNote => {
-				// If a note has stopped being unread and we are not polling for read
-				// notifications, we will assume that note has been read.
-				const didNoteStopBeingUnread =
-					!didFetchReadNotifications && previousNote.unread;
-				if (didNoteStopBeingUnread) {
-					return {
-						...previousNote,
-						unread: false,
-					};
-				}
-				return previousNote;
-			}),
-	];
+	return [...nextNotesUpdated, ...prevNotesWithoutUpdated];
+}
+
+function hasNoteUpdated(note, prevNote) {
+	return new Date(note.updatedAt) > new Date(prevNote.updatedAt);
 }
 
 function removeOutdatedNotifications(notes) {
-	const now = Date.now();
 	return notes.filter(note => {
 		const isUnread = note.unread || note.gitnewsMarkedUnread;
 		if (isUnread) {
 			return true;
 		}
-		const noteAge = now - new Date(note.updatedAt);
-		return noteAge < maxReadNoteAge;
+		return !isNoteOutdated(note);
 	});
 }
 
-const findNoteInNotes = (note, prevNotes) => {
-	const found = prevNotes.filter(
-		prevNote => getNoteId(prevNote) === getNoteId(note)
-	);
-	return found.length ? found[0] : null;
-};
+function isNoteOutdated(note) {
+	const maxReadNoteDate = new Date();
+	maxReadNoteDate.setDate(maxReadNoteDate.getDate() - 180); // about 6 months
 
-const hasNoteUpdated = (note, prevNote) =>
-	new Date(note.updatedAt) > new Date(prevNote.gitnewsSeenAt);
+	const noteDate = new Date(note.updatedAt);
+	return maxReadNoteDate > noteDate;
+}
+
+function findNoteInNotes(note, notes) {
+	return notes.find(noteInNotes => getNoteId(noteInNotes) === getNoteId(note));
+}
 
 function msToSecs(ms) {
 	return parseInt(ms * 0.001, 10);
@@ -150,4 +133,7 @@ module.exports = {
 	isInvalidJson,
 	getSecondsUntilNextFetch,
 	removeOutdatedNotifications,
+	findNoteInNotes,
+	hasNoteUpdated,
+	isNoteOutdated,
 };
