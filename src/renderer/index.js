@@ -10,6 +10,7 @@ import { createLogger } from 'redux-logger';
 import unhandled from 'electron-unhandled';
 import { Provider } from 'react-redux';
 import { persistStore, persistReducer } from 'redux-persist';
+import { PersistGate } from 'redux-persist/es/integration/react';
 import storage from 'redux-persist/lib/storage';
 
 import App from './components/app';
@@ -65,15 +66,31 @@ function runApp() {
 			logger
 		)
 	);
-	persistStore(store);
+	const persistor = persistStore(store);
 
 	ReactDOM.render(
 		<Provider store={store}>
-			<AppWrapper quitApp={quitApp} version={version}>
-				<App version={version} quitApp={quitApp} />
-			</AppWrapper>
+			<PersistGate loading={<Loading />} persistor={persistor}>
+				<AppWrapper quitApp={quitApp} version={version}>
+					<App version={version} quitApp={quitApp} />
+				</AppWrapper>
+			</PersistGate>
 		</Provider>,
 		main
+	);
+}
+
+function Loading() {
+	return (
+		<>
+			<div className="app-loading-spinner">
+				<div className="double-bounce1"></div>
+				<div className="double-bounce2"></div>
+			</div>
+			<div className="app-loading-text">
+				Loading. Restoring previous data...
+			</div>
+		</>
 	);
 }
 
