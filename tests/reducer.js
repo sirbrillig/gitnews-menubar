@@ -38,14 +38,15 @@ describe( 'reducer', function() {
 	} );
 
 	describe( 'NOTES_RETRIEVED', function() {
-		const now = Date.parse( '2017-08-12' );
+		const earlierDate = new Date();
+		earlierDate.setMonth(earlierDate.getMonth() - 7);
 		let notes = [];
 
 		beforeEach( function() {
 			notes = [
-				{ id: 'a1', unread: true, title: 'test note 1', updatedAt: now },
-				{ id: 'a2', unread: false, title: 'test note 2', updatedAt: now },
-				{ id: 'a3', unread: true, title: 'test note 3', updatedAt: now },
+				{ id: 'a1', unread: true, title: 'test note 1', updatedAt: earlierDate },
+				{ id: 'a2', unread: false, title: 'test note 2', updatedAt: earlierDate },
+				{ id: 'a3', unread: true, title: 'test note 3', updatedAt: earlierDate },
 			];
 		} );
 
