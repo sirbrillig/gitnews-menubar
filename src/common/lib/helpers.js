@@ -34,7 +34,16 @@ function mergeNotifications(prevNotes, nextNotes) {
 		return !nextNote;
 	});
 
-	return [...nextNotesUpdated, ...prevNotesWithoutUpdated];
+	return deduplicateNotes([...nextNotesUpdated, ...prevNotesWithoutUpdated]);
+}
+
+function deduplicateNotes(notes) {
+	return notes.reduce((deduplicatedNotes, note) => {
+		if (findNoteInNotes(note, deduplicatedNotes)) {
+			return deduplicatedNotes;
+		}
+		return [...deduplicatedNotes, note];
+	}, []);
 }
 
 function hasNoteUpdated(note, prevNote) {
