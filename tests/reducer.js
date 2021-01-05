@@ -117,6 +117,16 @@ describe('reducer', function() {
 			expect(result.notes.map(note => note.id)).to.include('o1');
 		});
 
+		it('does not allow duplicate existing notifications', function() {
+			const action = { type: 'NOTES_RETRIEVED', notes: [notes[0]] };
+			const result = reducer({ notes: [notes[1], notes[1], notes[2]] }, action);
+			const notesWithDuplicatedNoteId = result.notes.filter(
+				note => note.id === notes[1].id
+			);
+			expect(result.notes).to.have.length(notes.length);
+			expect(notesWithDuplicatedNoteId).to.have.length(1);
+		});
+
 		it('does not duplicate existing notifications if they also appear in new data', function() {
 			const action = { type: 'NOTES_RETRIEVED', notes };
 			const result = reducer({ notes: [notes[0]] }, action);
