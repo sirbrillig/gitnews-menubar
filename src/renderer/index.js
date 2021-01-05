@@ -34,7 +34,7 @@ const stateFieldsToPersist = [
 const persistConfig = {
 	key: 'gitnews-state',
 	storage,
-	whiteList: stateFieldsToPersist,
+	whitelist: stateFieldsToPersist,
 };
 const persistedReducer = persistReducer(persistConfig, reducer);
 
