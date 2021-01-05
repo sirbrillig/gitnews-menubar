@@ -23,7 +23,18 @@ import { githubMiddleware } from 'common/lib/github-middleware';
 
 import './styles.css';
 
-const persistConfig = { key: 'gitnews-state', storage };
+const stateFieldsToPersist = [
+	'token',
+	'notes',
+	'mutedRepos',
+	'isAutoLoadEnabled',
+	'filterType',
+];
+const persistConfig = {
+	key: 'gitnews-state',
+	storage,
+	whiteList: stateFieldsToPersist,
+};
 const persistedReducer = persistReducer(persistConfig, reducer);
 
 const logger = createLogger({
