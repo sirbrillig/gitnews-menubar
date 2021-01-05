@@ -128,6 +128,18 @@ function getSecondsUntilNextFetch(lastChecked, fetchInterval) {
 	return interval < 0 ? 0 : msToSecs(interval);
 }
 
+function sortNotifications(notes) {
+	return notes.sort((noteA, noteB) => {
+		if (noteA.updatedAt < noteB.updatedAt) {
+			return 1;
+		}
+		if (noteA.updatedAt > noteB.updatedAt) {
+			return -1;
+		}
+		return 0;
+	});
+}
+
 module.exports = {
 	getNoteId,
 	getToken,
@@ -145,4 +157,5 @@ module.exports = {
 	findNoteInNotes,
 	hasNoteUpdated,
 	isNoteOutdated,
+	sortNotifications,
 };

@@ -5,6 +5,7 @@ import {
 	mergeNotifications,
 	removeOutdatedNotifications,
 	getFetchInterval,
+	sortNotifications,
 } from 'common/lib/helpers';
 import debugFactory from 'debug';
 
@@ -87,8 +88,10 @@ export function reducer(state, action) {
 				fetchRetryCount: state.fetchRetryCount + 1,
 			});
 		case 'NOTES_RETRIEVED': {
-			const notes = removeOutdatedNotifications(
-				mergeNotifications(state.notes, action.notes)
+			const notes = sortNotifications(
+				removeOutdatedNotifications(
+					mergeNotifications(state.notes, action.notes)
+				)
 			);
 			const didFetchReadNotifications = action.notes.some(note => !note.unread);
 			debug('notes retrieved, merged, and filtered', notes);
