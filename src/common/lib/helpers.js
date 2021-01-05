@@ -4,7 +4,7 @@ const config = new Conf();
 const maxFetchInterval = secsToMs(300); // 5 minutes
 
 function getNoteId(note) {
-	return note.id;
+	return note.api && note.api.subject ? note.api.subject.id : note.id;
 }
 
 function getToken() {
