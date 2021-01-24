@@ -38,11 +38,7 @@ const fetcher = store => next => action => {
 };
 
 function performFetch(
-	{
-		fetchingInProgress,
-		token,
-		fetchingStartedAt,
-	},
+	{ fetchingInProgress, token, fetchingStartedAt, lastSuccessfulCheck },
 	next
 ) {
 	const fetchingMaxTime = secsToMs(120); // 2 minutes
@@ -75,8 +71,18 @@ function performFetch(
 	// it's possible that fetching read and unread notifications might miss some
 	// unread ones, which the unread fetch should have a better chance of
 	// finding.
-	const getUnreadGithubNotifications = getFetcher(token, isDemoMode, 'unread');
-	const getReadGithubNotifications = getFetcher(token, isDemoMode, 'read');
+	const getUnreadGithubNotifications = getFetcher(
+		token,
+		isDemoMode,
+		'unread',
+		lastSuccessfulCheck
+	);
+	const getReadGithubNotifications = getFetcher(
+		token,
+		isDemoMode,
+		'read',
+		lastSuccessfulCheck
+	);
 	try {
 		const unreadGetter = getUnreadGithubNotifications().then(notes => {
 			debug('unread notifications retrieved', notes);
@@ -88,10 +94,10 @@ function performFetch(
 			next(gotNotes(notes));
 		});
 
-		Promise.all( [ unreadGetter, readGetter ] ).then(() => {
+		Promise.all([unreadGetter, readGetter]).then(() => {
 			debug('all notifications retrieval complete');
 			next(fetchDone());
-		})
+		});
 	} catch (err) {
 		debug('fetching notifications threw an error', err);
 		next(fetchDone());
@@ -99,7 +105,7 @@ function performFetch(
 	}
 }
 
-function getFetcher(token, isDemoMode, readOrUnread) {
+function getFetcher(token, isDemoMode, readOrUnread, lastSuccessfulCheck) {
 	if (isDemoMode) {
 		return () => getDemoNotifications();
 	}
@@ -107,6 +113,7 @@ function getFetcher(token, isDemoMode, readOrUnread) {
 		getNotifications(token, {
 			per_page: 100,
 			page: 1,
+			since: new Date(lastSuccessfulCheck).toISOString(),
 			all: readOrUnread === 'read', // ideally 'read' would fetch only read, but that's not possible right now
 		});
 }
