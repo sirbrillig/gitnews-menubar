@@ -10,7 +10,7 @@ import {
 import debugFactory from 'debug';
 
 const debug = debugFactory('gitnews-menubar');
-const defaultFetchInterval = secsToMs(120);
+const defaultFetchInterval = secsToMs(180);
 
 const initialState = {
 	token: getToken(),
