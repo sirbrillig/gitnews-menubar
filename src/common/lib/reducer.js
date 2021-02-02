@@ -5,11 +5,12 @@ import {
 	mergeNotifications,
 	removeOutdatedNotifications,
 	getFetchInterval,
+	sortNotifications,
 } from 'common/lib/helpers';
 import debugFactory from 'debug';
 
 const debug = debugFactory('gitnews-menubar');
-const defaultFetchInterval = secsToMs(120);
+const defaultFetchInterval = secsToMs(180);
 
 const initialState = {
 	token: getToken(),
@@ -19,7 +20,6 @@ const initialState = {
 	fetchingInProgress: false,
 	lastChecked: false,
 	lastSuccessfulCheck: false,
-	lastSuccessfulReadCheck: false,
 	fetchingStartedAt: false,
 	fetchInterval: defaultFetchInterval,
 	fetchRetryCount: 0,
@@ -87,18 +87,16 @@ export function reducer(state, action) {
 				fetchRetryCount: state.fetchRetryCount + 1,
 			});
 		case 'NOTES_RETRIEVED': {
-			const notes = removeOutdatedNotifications(
-				mergeNotifications(state.notes, action.notes)
+			const notes = sortNotifications(
+				removeOutdatedNotifications(
+					mergeNotifications(state.notes, action.notes)
+				)
 			);
-			const didFetchReadNotifications = action.notes.some(note => !note.unread);
 			debug('notes retrieved, merged, and filtered', notes);
 			return Object.assign({}, state, {
 				offline: false,
 				lastChecked: Date.now(),
 				lastSuccessfulCheck: Date.now(),
-				lastSuccessfulReadCheck: didFetchReadNotifications
-					? Date.now()
-					: state.lastSuccessfulReadCheck,
 				fetchRetryCount: 0,
 				errors: [],
 				fetchInterval: defaultFetchInterval,
