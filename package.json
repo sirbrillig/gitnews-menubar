@@ -12,7 +12,7 @@
     "build": "npm run install-deps && npm run compile-for-production && npm run build-osx-package",
     "compile-for-production": "electron-webpack compile",
     "build-osx-package": "electron-builder",
-    "test": "NODE_PATH=./src mocha --require '@babel/register' tests"
+    "test": "NODE_PATH=./src mocha tests"
   },
   "keywords": [
     "menu",
@@ -53,7 +53,6 @@
   },
   "devDependencies": {
     "@babel/preset-react": "^7.10.4",
-    "@babel/register": "^7.12.10",
     "chai": "^4.0.0",
     "chai-sinon": "^2.8.1",
     "electron": "^18.3.7",
