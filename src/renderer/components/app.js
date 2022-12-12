@@ -1,3 +1,4 @@
+import AutoLaunch from 'auto-launch';
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -53,8 +54,16 @@ class App extends React.Component {
 
 	componentDidMount() {
 		debug('App mounted');
-		debug('starting fetcher...');
 		this.fetcher.begin();
+		const autoLauncher = new AutoLaunch({ name: 'Gitnews' });
+		autoLauncher
+			.isEnabled()
+			.then(isEnabled => {
+				this.props.changeAutoLoad(isEnabled);
+			})
+			.catch(function(err) {
+				console.error('failed to fetch autoload', err); // eslint-disable-line no-console
+			});
 	}
 
 	componentWillUnmount() {
