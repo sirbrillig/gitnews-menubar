@@ -17,7 +17,7 @@ function setToken(token) {
 }
 
 function mergeNotifications(prevNotes, nextNotes) {
-	const didFetchReadNotifications = nextNotes.some(note => !note.unread);
+	const didFetchReadNotifications = nextNotes.notes.some(note => !note.unread);
 
 	return [
 		// Include all new notes, retaining custom properties unless the note has been updated
