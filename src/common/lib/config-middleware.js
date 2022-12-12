@@ -1,4 +1,4 @@
-const { ipcRenderer, remote } = require('electron');
+const { ipcRenderer, app } = require('electron');
 const { setToken } = require('common/lib/helpers');
 const { setAutoLoadState } = require('common/lib/reducer');
 const debugFactory = require('debug');
@@ -13,7 +13,7 @@ const configMiddleware = store => next => action => {
 			break;
 		case 'CHANGE_AUTO_LOAD': {
 			changeAutoLoad(action.isEnabled);
-			const settings = remote.app.getLoginItemSettings();
+			const settings = app.getLoginItemSettings();
 			return next(setAutoLoadState(settings.openAtLogin));
 		}
 	}
