@@ -17,8 +17,6 @@ function setToken(token) {
 }
 
 function mergeNotifications(prevNotes, nextNotes) {
-	const didFetchReadNotifications = nextNotes.notes.some(note => !note.unread);
-
 	return [
 		// Include all new notes, retaining custom properties unless the note has been updated
 		...nextNotes.map(note => {
@@ -40,21 +38,10 @@ function mergeNotifications(prevNotes, nextNotes) {
 			return note;
 		}),
 		// Include all notes previously downloaded that are not in the latest data set
-		...prevNotes
-			.filter(previousNote => !findNoteInNotes(previousNote, nextNotes))
-			.map(previousNote => {
-				// If a note has stopped being unread and we are not polling for read
-				// notifications, we will assume that note has been read.
-				const didNoteStopBeingUnread =
-					!didFetchReadNotifications && previousNote.unread;
-				if (didNoteStopBeingUnread) {
-					return {
-						...previousNote,
-						unread: false,
-					};
-				}
-				return previousNote;
-			}),
+		...prevNotes.filter(previousNote => {
+			const nextNote = findNoteInNotes(previousNote, nextNotes);
+			return !nextNote;
+		}),
 	];
 }
 
