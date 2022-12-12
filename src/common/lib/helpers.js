@@ -2,9 +2,10 @@ const Conf = require('conf');
 const config = new Conf();
 
 const maxFetchInterval = secsToMs(300); // 5 minutes
+const maxReadNoteAge = 6 * 30 * 24 * 60 * 60 * 1000; // about 6 months
 
 function getNoteId(note) {
-	return note.api && note.api.subject ? note.api.subject.id : note.id;
+	return note.id;
 }
 
 function getToken() {
@@ -16,61 +17,68 @@ function setToken(token) {
 }
 
 function mergeNotifications(prevNotes, nextNotes) {
-	const nextNotesUpdated = nextNotes.map(note => {
-		const previousNote = findNoteInNotes(note, prevNotes);
-		if (previousNote) {
-			return {
-				...note,
-				gitnewsSeen: hasNoteUpdated(note, previousNote)
-					? false
-					: previousNote.gitnewsSeen,
-				gitnewsMarkedUnread: previousNote.gitnewsMarkedUnread,
-			};
-		}
-		return note;
-	});
-	const prevNotesWithoutUpdated = prevNotes.filter(note => {
-		const nextNote = findNoteInNotes(note, nextNotes);
-		return !nextNote;
-	});
+	const didFetchReadNotifications = nextNotes.some(note => !note.unread);
 
-	return deduplicateNotes([...nextNotesUpdated, ...prevNotesWithoutUpdated]);
-}
-
-function deduplicateNotes(notes) {
-	return notes.reduce((deduplicatedNotes, note) => {
-		if (findNoteInNotes(note, deduplicatedNotes)) {
-			return deduplicatedNotes;
-		}
-		return [...deduplicatedNotes, note];
-	}, []);
-}
-
-function hasNoteUpdated(note, prevNote) {
-	return new Date(note.updatedAt) > new Date(prevNote.updatedAt);
+	return [
+		// Include all new notes, retaining custom properties unless the note has been updated
+		...nextNotes.map(note => {
+			const previousNote = findNoteInNotes(note, prevNotes);
+			if (previousNote && !hasNoteUpdated(note, previousNote)) {
+				return {
+					...note,
+					gitnewsSeen: previousNote.gitnewsSeen,
+					gitnewsMarkedUnread: previousNote.gitnewsMarkedUnread,
+				};
+			}
+			// Always preserve local marked unread status
+			if (note.gitnewsMarkedUnread) {
+				return {
+					...note,
+					gitnewsMarkedUnread: previousNote.gitnewsMarkedUnread,
+				};
+			}
+			return note;
+		}),
+		// Include all notes previously downloaded that are not in the latest data set
+		...prevNotes
+			.filter(previousNote => !findNoteInNotes(previousNote, nextNotes))
+			.map(previousNote => {
+				// If a note has stopped being unread and we are not polling for read
+				// notifications, we will assume that note has been read.
+				const didNoteStopBeingUnread =
+					!didFetchReadNotifications && previousNote.unread;
+				if (didNoteStopBeingUnread) {
+					return {
+						...previousNote,
+						unread: false,
+					};
+				}
+				return previousNote;
+			}),
+	];
 }
 
 function removeOutdatedNotifications(notes) {
+	const now = Date.now();
 	return notes.filter(note => {
 		const isUnread = note.unread || note.gitnewsMarkedUnread;
 		if (isUnread) {
 			return true;
 		}
-		return !isNoteOutdated(note);
+		const noteAge = now - new Date(note.updatedAt);
+		return noteAge < maxReadNoteAge;
 	});
 }
 
-function isNoteOutdated(note) {
-	const maxReadNoteDate = new Date();
-	maxReadNoteDate.setDate(maxReadNoteDate.getDate() - 180); // about 6 months
+const findNoteInNotes = (note, prevNotes) => {
+	const found = prevNotes.filter(
+		prevNote => getNoteId(prevNote) === getNoteId(note)
+	);
+	return found.length ? found[0] : null;
+};
 
-	const noteDate = new Date(note.updatedAt);
-	return maxReadNoteDate > noteDate;
-}
-
-function findNoteInNotes(note, notes) {
-	return notes.find(noteInNotes => getNoteId(noteInNotes) === getNoteId(note));
-}
+const hasNoteUpdated = (note, prevNote) =>
+	new Date(note.updatedAt) > new Date(prevNote.gitnewsSeenAt);
 
 function msToSecs(ms) {
 	return parseInt(ms * 0.001, 10);
@@ -128,18 +136,6 @@ function getSecondsUntilNextFetch(lastChecked, fetchInterval) {
 	return interval < 0 ? 0 : msToSecs(interval);
 }
 
-function sortNotifications(notes) {
-	return notes.sort((noteA, noteB) => {
-		if (noteA.updatedAt < noteB.updatedAt) {
-			return 1;
-		}
-		if (noteA.updatedAt > noteB.updatedAt) {
-			return -1;
-		}
-		return 0;
-	});
-}
-
 module.exports = {
 	getNoteId,
 	getToken,
@@ -154,8 +150,4 @@ module.exports = {
 	isInvalidJson,
 	getSecondsUntilNextFetch,
 	removeOutdatedNotifications,
-	findNoteInNotes,
-	hasNoteUpdated,
-	isNoteOutdated,
-	sortNotifications,
 };

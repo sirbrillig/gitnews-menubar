@@ -24,21 +24,29 @@ if (isDemoMode) {
 	debug('demo mode enabled!');
 }
 
+const maxIntervalForPollingReadNotifications = 20 * 60 * 60 * 1000; // 20 minutes
+
 const fetcher = store => next => action => {
 	if (action.type === 'CHANGE_TOKEN') {
 		performFetch({ ...store.getState(), token: action.token }, next);
 		return next(action);
 	}
 
-	if (action.type === 'GITNEWS_FETCH_NOTIFICATIONS') {
-		performFetch(store.getState(), next);
+	if (action.type !== 'GITNEWS_FETCH_NOTIFICATIONS') {
+		return next(action);
 	}
 
-	return next(action);
+	performFetch(store.getState(), next);
 };
 
 function performFetch(
-	{ fetchingInProgress, token, fetchingStartedAt, lastSuccessfulCheck },
+	{
+		fetchingInProgress,
+		token,
+		fetchingStartedAt,
+		notes,
+		lastSuccessfulReadCheck,
+	},
 	next
 ) {
 	const fetchingMaxTime = secsToMs(120); // 2 minutes
@@ -59,45 +67,30 @@ function performFetch(
 		next(changeToOffline());
 		return;
 	}
-
 	debug('fetching notifications in middleware');
 	// NOTE: After this point, any return action MUST disable fetchingInProgress
 	// or the app will get stuck never updating again.
 	next(fetchBegin());
-
-	// Fetch twice: once for unread notifications and once for read and unread
-	// notifications (it would be better to do the second fetch for just read,
-	// but that's not currently possible with the API). Because of pagination,
-	// it's possible that fetching read and unread notifications might miss some
-	// unread ones, which the unread fetch should have a better chance of
-	// finding.
-	const getUnreadGithubNotifications = getFetcher(
-		token,
-		isDemoMode,
-		'unread',
-		lastSuccessfulCheck
-	);
-	const getReadGithubNotifications = getFetcher(
-		token,
-		isDemoMode,
-		'read',
-		lastSuccessfulCheck
-	);
+	// Only fetch read notifications if we have none or if it's been a while since
+	// we last fetched them
+	const shouldFetchRead =
+		notes.length === 0 ||
+		new Date() - new Date(lastSuccessfulReadCheck) >
+			maxIntervalForPollingReadNotifications;
+	debug('should we fetch read notifications?', shouldFetchRead);
+	const getGithubNotifications = getFetcher(token, isDemoMode, shouldFetchRead);
 	try {
-		const unreadGetter = getUnreadGithubNotifications().then(notes => {
-			debug('unread notifications retrieved', notes);
-			next(gotNotes(notes));
-		});
-
-		const readGetter = getReadGithubNotifications().then(notes => {
-			debug('read notifications retrieved', notes);
-			next(gotNotes(notes));
-		});
-
-		Promise.all([unreadGetter, readGetter]).then(() => {
-			debug('all notifications retrieval complete');
-			next(fetchDone());
-		});
+		getGithubNotifications()
+			.then(notes => {
+				debug('notifications retrieved', notes);
+				next(fetchDone());
+				next(gotNotes(notes));
+			})
+			.catch(err => {
+				debug('fetching notifications failed with the error', err);
+				next(fetchDone());
+				getErrorHandler(next)(err);
+			});
 	} catch (err) {
 		debug('fetching notifications threw an error', err);
 		next(fetchDone());
@@ -105,7 +98,7 @@ function performFetch(
 	}
 }
 
-function getFetcher(token, isDemoMode, readOrUnread, lastSuccessfulCheck) {
+function getFetcher(token, isDemoMode, shouldFetchRead) {
 	if (isDemoMode) {
 		return () => getDemoNotifications();
 	}
@@ -113,8 +106,7 @@ function getFetcher(token, isDemoMode, readOrUnread, lastSuccessfulCheck) {
 		getNotifications(token, {
 			per_page: 100,
 			page: 1,
-			since: new Date(lastSuccessfulCheck).toISOString(),
-			all: readOrUnread === 'read', // ideally 'read' would fetch only read, but that's not possible right now
+			all: shouldFetchRead,
 		});
 }
 
@@ -165,8 +157,7 @@ async function getDemoNotifications() {
 			unread: true,
 			repositoryName: 'gitnews-menubar',
 			repositoryFullName: 'sirbrillig/gitnews-menubar',
-			title:
-				'Teapot is Broken with error ThisIsNotATeapotPleaseTryToMakeSureYouOnlyUseATeapot',
+			title: 'Teapot is Broken with error ThisIsNotATeapotPleaseTryToMakeSureYouOnlyUseATeapot',
 			type: 'Issue',
 			id: '2967500023477777222e6230b0190f26',
 			repositoryOwnerAvatar:
