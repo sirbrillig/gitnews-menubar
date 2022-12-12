@@ -105,7 +105,7 @@ export function reducer(state, action) {
 				notes,
 			});
 		}
-		case 'SET_AUTO_LOAD':
+		case 'CHANGE_AUTO_LOAD':
 			return Object.assign({}, state, { isAutoLoadEnabled: action.isEnabled });
 		case 'MUTE_REPO':
 			return { ...state, mutedRepos: [...state.mutedRepos, action.repo] };
@@ -188,10 +188,6 @@ export function setIcon(icon) {
 
 export function changeAutoLoad(isEnabled) {
 	return { type: 'CHANGE_AUTO_LOAD', isEnabled };
-}
-
-export function setAutoLoadState(isEnabled) {
-	return { type: 'SET_AUTO_LOAD', isEnabled };
 }
 
 export function scrollToTop() {
