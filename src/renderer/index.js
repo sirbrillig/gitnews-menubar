@@ -10,7 +10,6 @@ import { createLogger } from 'redux-logger';
 import unhandled from 'electron-unhandled';
 import { Provider } from 'react-redux';
 import { persistStore, persistReducer } from 'redux-persist';
-import { PersistGate } from 'redux-persist/es/integration/react';
 import storage from 'redux-persist/lib/storage';
 
 import App from './components/app';
@@ -24,18 +23,7 @@ import { githubMiddleware } from 'common/lib/github-middleware';
 
 import './styles.css';
 
-const stateFieldsToPersist = [
-	'token',
-	'notes',
-	'mutedRepos',
-	'isAutoLoadEnabled',
-	'filterType',
-];
-const persistConfig = {
-	key: 'gitnews-state',
-	storage,
-	whitelist: stateFieldsToPersist,
-};
+const persistConfig = { key: 'gitnews-state', storage };
 const persistedReducer = persistReducer(persistConfig, reducer);
 
 const logger = createLogger({
@@ -66,31 +54,15 @@ function runApp() {
 			logger
 		)
 	);
-	const persistor = persistStore(store);
+	persistStore(store);
 
 	ReactDOM.render(
 		<Provider store={store}>
-			<PersistGate loading={<Loading />} persistor={persistor}>
-				<AppWrapper quitApp={quitApp} version={version}>
-					<App version={version} quitApp={quitApp} />
-				</AppWrapper>
-			</PersistGate>
+			<AppWrapper quitApp={quitApp} version={version}>
+				<App version={version} quitApp={quitApp} />
+			</AppWrapper>
 		</Provider>,
 		main
-	);
-}
-
-function Loading() {
-	return (
-		<>
-			<div className="app-loading-spinner">
-				<div className="double-bounce1"></div>
-				<div className="double-bounce2"></div>
-			</div>
-			<div className="app-loading-text">
-				Loading. Restoring previous data...
-			</div>
-		</>
 	);
 }
 
