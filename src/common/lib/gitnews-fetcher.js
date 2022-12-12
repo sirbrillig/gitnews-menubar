@@ -24,11 +24,13 @@ if (isDemoMode) {
 	debug('demo mode enabled!');
 }
 
-const maxIntervalForPollingReadNotifications = 20 * 60 * 60 * 1000; // 20 minutes
-
 const fetcher = store => next => action => {
+	// eslint-disable-line no-unused-vars
 	if (action.type === 'CHANGE_TOKEN') {
-		performFetch({ ...store.getState(), token: action.token }, next);
+		performFetch(
+			Object.assign({}, store.getState(), { token: action.token }),
+			next
+		);
 		return next(action);
 	}
 
@@ -39,10 +41,7 @@ const fetcher = store => next => action => {
 	performFetch(store.getState(), next);
 };
 
-function performFetch(
-	{ fetchingInProgress, token, fetchingStartedAt, notes, lastSuccessfulCheck },
-	next
-) {
+function performFetch({ fetchingInProgress, token, fetchingStartedAt }, next) {
 	const fetchingMaxTime = secsToMs(120); // 2 minutes
 	if (fetchingInProgress) {
 		const timeSinceFetchingStarted = Date.now() - (fetchingStartedAt || 0);
@@ -65,16 +64,9 @@ function performFetch(
 	// NOTE: After this point, any return action MUST disable fetchingInProgress
 	// or the app will get stuck never updating again.
 	next(fetchBegin());
-	// Only fetch read notifications if we have none or if it's been a while since
-	// we last fetched them
-	const shouldFetchRead =
-		notes.length === 0 ||
-		new Date() - new Date(lastSuccessfulCheck) >
-			maxIntervalForPollingReadNotifications;
-	debug( 'should we fetch read notifications?', shouldFetchRead );
-	const getGithubNotifications = getFetcher(token, isDemoMode, shouldFetchRead);
+	const getGithubNotifications = getFetcher(token, isDemoMode);
 	try {
-		getGithubNotifications()
+		getGithubNotifications(1)
 			.then(notes => {
 				debug('notifications retrieved', notes);
 				next(fetchDone());
@@ -92,15 +84,14 @@ function performFetch(
 	}
 }
 
-function getFetcher(token, isDemoMode, shouldFetchRead) {
+function getFetcher(token, isDemoMode) {
 	if (isDemoMode) {
 		return () => getDemoNotifications();
 	}
-	return () =>
+	return pageNumber =>
 		getNotifications(token, {
 			per_page: 100,
-			page: 1,
-			all: shouldFetchRead,
+			page: pageNumber,
 		});
 }
 
