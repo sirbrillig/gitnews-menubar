@@ -1,18 +1,7 @@
-const Store = require('electron-store');
-const store = new Store();
-
 const maxFetchInterval = secsToMs( 300 ); // 5 minutes
 
 function getNoteId( note ) {
 	return note.id;
-}
-
-function getToken() {
-	return store.get( 'gitnews-token' ) || process.env.GITNEWS_TOKEN;
-}
-
-function setToken( token ) {
-	store.set( 'gitnews-token', token );
 }
 
 function mergeNotifications( prevNotes, nextNotes ) {
@@ -86,8 +75,6 @@ function getSecondsUntilNextFetch( lastChecked, fetchInterval ) {
 
 module.exports = {
 	getNoteId,
-	getToken,
-	setToken,
 	mergeNotifications,
 	msToSecs,
 	secsToMs,

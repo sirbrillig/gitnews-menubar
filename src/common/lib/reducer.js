@@ -1,5 +1,4 @@
 const {
-	getToken,
 	secsToMs,
 	getNoteId,
 	mergeNotifications,
@@ -9,7 +8,7 @@ const {
 const defaultFetchInterval = secsToMs(120);
 
 const initialState = {
-	token: getToken(),
+	token: undefined,
 	notes: [],
 	errors: [],
 	mutedRepos: [],
