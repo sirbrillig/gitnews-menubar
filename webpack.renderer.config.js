@@ -4,6 +4,7 @@ module.exports = {
     // 'react-hot-loader/patch',
     './src/renderer/index.js'
   ],
+  target: 'electron-renderer',
   resolve: {
     alias: {
       common: path.resolve(__dirname, 'src/common/'),
