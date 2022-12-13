@@ -8,7 +8,7 @@ import ReactDOM from 'react-dom';
 // import { remote } from 'electron';
 import { createStore, applyMiddleware } from 'redux';
 import { createLogger } from 'redux-logger';
-import unhandled from 'electron-unhandled';
+// import unhandled from 'electron-unhandled';
 import { Provider } from 'react-redux';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
@@ -33,7 +33,7 @@ const logger = createLogger({
 });
 
 // Catch unhandled Promise rejections
-unhandled();
+// unhandled();
 
 function quitApp() {
 	// remote.app.quit();

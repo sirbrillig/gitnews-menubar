@@ -13,7 +13,7 @@ const electronDebug = require('electron-debug');
 const { version } = require('../../package.json');
 // const { checkForUpdates } = require('../common/lib/updates');
 const { getIconForState } = require('../common/lib/icon-path');
-const unhandled = require('electron-unhandled');
+// const unhandled = require('electron-unhandled');
 const path = require('path');
 const { format: formatUrl } = require('url');
 const debugFactory = require('debug');
@@ -23,7 +23,7 @@ const debug = debugFactory('gitnews-menubar:main');
 debug('initializing');
 
 // Catch unhandled Promise rejections
-unhandled();
+// unhandled();
 
 // Allow devtools and reload in production
 electronDebug({
