@@ -1,5 +1,5 @@
-const Conf = require( 'conf' );
-const config = new Conf();
+const Store = require('electron-store');
+const store = new Store();
 
 const maxFetchInterval = secsToMs( 300 ); // 5 minutes
 
@@ -8,11 +8,11 @@ function getNoteId( note ) {
 }
 
 function getToken() {
-	return config.get( 'gitnews-token' ) || process.env.GITNEWS_TOKEN;
+	return store.get( 'gitnews-token' ) || process.env.GITNEWS_TOKEN;
 }
 
 function setToken( token ) {
-	config.set( 'gitnews-token', token );
+	store.set( 'gitnews-token', token );
 }
 
 function mergeNotifications( prevNotes, nextNotes ) {
