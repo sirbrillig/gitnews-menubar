@@ -4,6 +4,11 @@ module.exports = {
     // 'react-hot-loader/patch',
     './src/renderer/index.js'
   ],
+  resolve: {
+    alias: {
+      common: path.resolve(__dirname, 'src/common/'),
+    },
+  },
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js'
