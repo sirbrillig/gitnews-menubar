@@ -11,7 +11,7 @@ const isDev = require('electron-is-dev');
 const semver = require('semver');
 const electronDebug = require('electron-debug');
 const { version } = require('../../package.json');
-const { checkForUpdates } = require('../common/lib/updates');
+// const { checkForUpdates } = require('../common/lib/updates');
 const { getIconForState } = require('../common/lib/icon-path');
 const unhandled = require('electron-unhandled');
 const path = require('path');
@@ -51,19 +51,20 @@ bar.on('ready', () => {
 	app.dock.hide(); // Buggy behavior with showDockIcon: https://github.com/maxogden/menubar/issues/306
 	isDev || bar.window.setResizable(false);
 	isDev || attachAppMenu();
-	checkForUpdates({ version, semver, dialog, openUrl: shell.openExternal });
+	// checkForUpdates({ version, semver, dialog, openUrl: shell.openExternal });
 	bar.window.loadURL(getAppUrl());
 });
 
 function getAppUrl() {
-	if (process.env.NODE_ENV !== 'production') {
-		return `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`;
-	}
-	return formatUrl({
-		pathname: path.join(__dirname, 'index.html'),
-		protocol: 'file',
-		slashes: true,
-	});
+	return MAIN_WINDOW_WEBPACK_ENTRY;
+	// if (process.env.NODE_ENV !== 'production') {
+	// 	return `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`;
+	// }
+	// return formatUrl({
+	// 	pathname: path.join(__dirname, 'index.html'),
+	// 	protocol: 'file',
+	// 	slashes: true,
+	// });
 }
 
 bar.on('hide', () => {
@@ -94,15 +95,15 @@ ipcMain.on('set-icon', (event, arg) => {
 	setIcon(arg);
 });
 
-ipcMain.on('check-for-updates', () => {
-	checkForUpdates({
-		version,
-		semver,
-		dialog,
-		openUrl: shell.openExternal,
-		showCurrentVersion: true,
-	});
-});
+// ipcMain.on('check-for-updates', () => {
+// 	checkForUpdates({
+// 		version,
+// 		semver,
+// 		dialog,
+// 		openUrl: shell.openExternal,
+// 		showCurrentVersion: true,
+// 	});
+// });
 
 ipcMain.on('open-url', (event, url, options) => {
 	shell.openExternal(url, options);

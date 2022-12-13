@@ -3,7 +3,7 @@
   "version": "1.7.0",
   "description": "GitHub notifications in your menu bar",
   "productName": "Gitnews",
-  "main": "src/main/index.js",
+  "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",
     "install-deps": "yarn",
@@ -62,9 +62,10 @@
     "@electron-forge/maker-rpm": "^6.0.4",
     "@electron-forge/maker-squirrel": "^6.0.4",
     "@electron-forge/maker-zip": "^6.0.4",
+    "@electron-forge/plugin-webpack": "^6.0.4",
+    "@vercel/webpack-asset-relocator-loader": "1.7.3",
     "chai": "^4.0.0",
     "chai-sinon": "^2.8.1",
-    "devtron": "^1.4.0",
     "electron": "^22.0.0",
     "electron-react-devtools": "^0.5.3",
     "electron-webpack": "^2.8.2",
@@ -78,6 +79,7 @@
     "husky": "^4.2.5",
     "lint-staged": "^10.2.11",
     "mocha": "^8.1.0",
+    "node-loader": "^2.0.0",
     "prettier": "1.19.1",
     "sinon": "^7.5.0",
     "webpack": "^4.44.1"
