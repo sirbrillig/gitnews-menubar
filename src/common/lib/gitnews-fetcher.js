@@ -1,5 +1,5 @@
 /* globals window */
-require('dotenv').config();
+// require('dotenv').config();
 
 const debugFactory = require('debug');
 const {

@@ -1,5 +1,5 @@
 /* globals window */
-require('dotenv').config();
+// require('dotenv').config();
 
 const isDemoMode = process.env.GITNEWS_DEMO_MODE ? true : false;
 

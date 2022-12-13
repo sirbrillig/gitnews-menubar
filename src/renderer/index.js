@@ -1,11 +1,11 @@
-require('dotenv').config();
+// require('dotenv').config();
 
-import { version } from '../../package.json';
+// import { version } from '../../package.json';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
 // TODO: https://www.electronjs.org/docs/latest/breaking-changes#removed-remote-module
-import { remote } from 'electron';
+// import { remote } from 'electron';
 import { createStore, applyMiddleware } from 'redux';
 import { createLogger } from 'redux-logger';
 import unhandled from 'electron-unhandled';
@@ -36,8 +36,10 @@ const logger = createLogger({
 unhandled();
 
 function quitApp() {
-	remote.app.quit();
+	// remote.app.quit();
 }
+
+const version = '1.0.7'; // FXIME
 
 function runApp() {
 	const main = window.document.querySelector('#app');

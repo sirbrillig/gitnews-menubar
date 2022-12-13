@@ -1,4 +1,4 @@
-require('dotenv').config();
+// require('dotenv').config();
 
 const { markNotificationRead } = require('gitnews');
 const isDemoMode = process.env.GITNEWS_DEMO_MODE ? true : false;

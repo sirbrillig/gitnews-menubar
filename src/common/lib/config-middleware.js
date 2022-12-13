@@ -1,4 +1,4 @@
-const AutoLaunch = require( 'auto-launch' );
+// const AutoLaunch = require( 'auto-launch' );
 const { setToken } = require( 'common/lib/helpers' );
 const debugFactory = require( 'debug' );
 
@@ -15,26 +15,25 @@ const configMiddleware = store => next => action => { // eslint-disable-line no-
 };
 
 function changeAutoLoad( shouldEnable ) {
-	const autoLauncher = new AutoLaunch( { name: 'Gitnews' } );
-	autoLauncher.isEnabled()
-		.then( function( isEnabled ) {
-			if ( shouldEnable && ! isEnabled ) {
-				return autoLauncher.enable();
-			}
-			if ( ! shouldEnable && isEnabled ) {
-				return autoLauncher.disable();
-			}
-		} )
-		.then( function() {
-			debug( 'autoload changed to', shouldEnable );
-		} )
-		.catch( function( err ) {
-			console.error( 'failed to change autoload to', shouldEnable, err );
-			// TODO: maybe send to sentry?
-		} );
+	// const autoLauncher = new AutoLaunch( { name: 'Gitnews' } );
+	// autoLauncher.isEnabled()
+	// 	.then( function( isEnabled ) {
+	// 		if ( shouldEnable && ! isEnabled ) {
+	// 			return autoLauncher.enable();
+	// 		}
+	// 		if ( ! shouldEnable && isEnabled ) {
+	// 			return autoLauncher.disable();
+	// 		}
+	// 	} )
+	// 	.then( function() {
+	// 		debug( 'autoload changed to', shouldEnable );
+	// 	} )
+	// 	.catch( function( err ) {
+	// 		console.error( 'failed to change autoload to', shouldEnable, err );
+	// 		// TODO: maybe send to sentry?
+	// 	} );
 }
 
 module.exports = {
 	configMiddleware,
 };
-
