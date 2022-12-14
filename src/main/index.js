@@ -2,20 +2,20 @@ const {
 	ipcMain,
 	app,
 	Menu,
-	dialog,
+	// dialog,
 	shell,
 	systemPreferences,
 } = require('electron');
 const { menubar } = require('menubar');
 const isDev = require('electron-is-dev');
-const semver = require('semver');
+// const semver = require('semver');
 const electronDebug = require('electron-debug');
-const { version } = require('../../package.json');
+// const { version } = require('../../package.json');
 // const { checkForUpdates } = require('../common/lib/updates');
 const { getIconForState } = require('../common/lib/icon-path');
 // const unhandled = require('electron-unhandled');
-const path = require('path');
-const { format: formatUrl } = require('url');
+// const path = require('path');
+// const { format: formatUrl } = require('url');
 const debugFactory = require('debug');
 
 const debug = debugFactory('gitnews-menubar:main');
@@ -56,6 +56,7 @@ bar.on('ready', () => {
 });
 
 function getAppUrl() {
+	// eslint-disable-next-line no-undef
 	return MAIN_WINDOW_WEBPACK_ENTRY;
 	// if (process.env.NODE_ENV !== 'production') {
 	// 	return `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`;
