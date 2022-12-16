@@ -8,6 +8,7 @@ import ReactDOM from 'react-dom';
 // import { remote } from 'electron';
 import { createStore, applyMiddleware } from 'redux';
 import { createLogger } from 'redux-logger';
+// TODO: do we need unhandled?
 // import unhandled from 'electron-unhandled';
 import { Provider } from 'react-redux';
 import { persistStore, persistReducer } from 'redux-persist';
@@ -33,13 +34,15 @@ const logger = createLogger({
 });
 
 // Catch unhandled Promise rejections
+// TODO: do we need unhandled?
 // unhandled();
 
 function quitApp() {
 	window.electronApi.quitApp();
 }
 
-const version = '1.0.7'; // FXIME
+// TODO: get the version from the package.json
+const version = '1.0.7';
 
 function runApp() {
 	const main = window.document.querySelector('#app');

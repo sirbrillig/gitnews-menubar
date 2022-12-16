@@ -1,7 +1,10 @@
 /* globals window */
+// TODO: fix demo mode
 // require('dotenv').config();
 
-const isDemoMode = process.env.GITNEWS_DEMO_MODE ? true : false;
+// TODO: fix demo mode
+const isDemoMode = true;
+// const isDemoMode = process.env.GITNEWS_DEMO_MODE ? true : false;
 
 const serializeMiddleware = store => next => action => {
 	switch (action.type) {

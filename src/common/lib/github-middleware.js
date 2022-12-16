@@ -2,6 +2,7 @@
 
 const { markNotificationRead } = require('gitnews');
 const isDemoMode = true;
+// TODO: fix demo mode
 // const isDemoMode = process.env.GITNEWS_DEMO_MODE ? true : false;
 
 // eslint-disable-next-line no-unused-vars

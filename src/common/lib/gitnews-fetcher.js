@@ -1,4 +1,5 @@
 /* globals window */
+// TODO: fix demo mode
 // require('dotenv').config();
 
 const debugFactory = require('debug');
@@ -20,6 +21,7 @@ const {
 
 const debug = debugFactory('gitnews-menubar');
 const isDemoMode = true;
+// TODO: fix demo mode
 // const isDemoMode = process.env.GITNEWS_DEMO_MODE ? true : false;
 if (isDemoMode) {
 	debug('demo mode enabled!');

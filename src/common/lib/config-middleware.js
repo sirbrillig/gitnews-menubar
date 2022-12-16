@@ -1,3 +1,4 @@
+// TODO: Fix autolaunch
 // const AutoLaunch = require( 'auto-launch' );
 const { setToken } = require( 'common/lib/helpers' );
 const debugFactory = require( 'debug' );
@@ -8,6 +9,7 @@ const configMiddleware = store => next => action => { // eslint-disable-line no-
 	switch ( action.type ) {
 		case 'CHANGE_TOKEN':
 			setToken( action.token );
+			break;
 		case 'CHANGE_AUTO_LOAD':
 			changeAutoLoad( action.isEnabled );
 	}
@@ -15,6 +17,8 @@ const configMiddleware = store => next => action => { // eslint-disable-line no-
 };
 
 function changeAutoLoad( shouldEnable ) {
+  debug('setting autoload to', shouldEnable);
+  // TODO: Fix autolaunch
 	// const autoLauncher = new AutoLaunch( { name: 'Gitnews' } );
 	// autoLauncher.isEnabled()
 	// 	.then( function( isEnabled ) {
@@ -30,7 +34,6 @@ function changeAutoLoad( shouldEnable ) {
 	// 	} )
 	// 	.catch( function( err ) {
 	// 		console.error( 'failed to change autoload to', shouldEnable, err );
-	// 		// TODO: maybe send to sentry?
 	// 	} );
 }
 

@@ -10,12 +10,13 @@ const { menubar } = require('menubar');
 const isDev = require('electron-is-dev');
 // const semver = require('semver');
 const electronDebug = require('electron-debug');
+// TODO: get version from package.json
 // const { version } = require('../../package.json');
+// TODO: fix checkForUpdates
 // const { checkForUpdates } = require('../common/lib/updates');
 const { getIconForState } = require('../common/lib/icon-path');
+// TODO: do we need unhandled?
 // const unhandled = require('electron-unhandled');
-// const path = require('path');
-// const { format: formatUrl } = require('url');
 const debugFactory = require('debug');
 
 const debug = debugFactory('gitnews-menubar:main');
@@ -23,6 +24,7 @@ const debug = debugFactory('gitnews-menubar:main');
 debug('initializing');
 
 // Catch unhandled Promise rejections
+// TODO: do we need unhandled?
 // unhandled();
 
 // Allow devtools and reload in production
@@ -53,6 +55,7 @@ bar.on('ready', () => {
 	app.dock.hide(); // Buggy behavior with showDockIcon: https://github.com/maxogden/menubar/issues/306
 	isDev || bar.window.setResizable(false);
 	isDev || attachAppMenu();
+	// TODO: fix checking for updates
 	// checkForUpdates({ version, semver, dialog, openUrl: shell.openExternal });
 	bar.window.loadURL(getAppUrl());
 });
@@ -60,14 +63,6 @@ bar.on('ready', () => {
 function getAppUrl() {
 	// eslint-disable-next-line no-undef
 	return MAIN_WINDOW_WEBPACK_ENTRY;
-	// if (process.env.NODE_ENV !== 'production') {
-	// 	return `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`;
-	// }
-	// return formatUrl({
-	// 	pathname: path.join(__dirname, 'index.html'),
-	// 	protocol: 'file',
-	// 	slashes: true,
-	// });
 }
 
 bar.on('hide', () => {
@@ -99,6 +94,7 @@ ipcMain.on('set-icon', (event, arg) => {
 });
 
 ipcMain.on('check-for-updates', () => {
+	// TODO: fix checking for updates
 	// checkForUpdates({
 	// 	version,
 	// 	semver,

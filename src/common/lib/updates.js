@@ -1,3 +1,4 @@
+// TODO: can we replace this fetch? This only is used in the main process
 require('isomorphic-fetch');
 
 async function checkForNewVersion({ version, semver }) {
