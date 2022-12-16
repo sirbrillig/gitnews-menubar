@@ -19,7 +19,8 @@ const {
 } = require('common/lib/reducer');
 
 const debug = debugFactory('gitnews-menubar');
-const isDemoMode = process.env.GITNEWS_DEMO_MODE ? true : false;
+const isDemoMode = true;
+// const isDemoMode = process.env.GITNEWS_DEMO_MODE ? true : false;
 if (isDemoMode) {
 	debug('demo mode enabled!');
 }

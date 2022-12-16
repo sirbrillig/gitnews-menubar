@@ -1,5 +1,4 @@
 import PropTypes from 'prop-types';
-import { ipcRenderer } from 'electron';
 import React from 'react';
 import { connect } from 'react-redux';
 import {
@@ -12,13 +11,13 @@ import {
 class AppWrapper extends React.Component {
 	constructor(props) {
 		super(props);
-		ipcRenderer.on('hide-app', () => {
+		window.electronApi.onHide(() => {
 			this.props.markAppHidden();
 		});
-		ipcRenderer.on('show-app', () => {
+		window.electronApi.onShow(() => {
 			this.props.markAppShown();
 		});
-		ipcRenderer.on('menubar-click', () => {
+		window.electronApi.onClick(() => {
 			this.props.markAllNotesSeen();
 			this.props.scrollToTop();
 		});

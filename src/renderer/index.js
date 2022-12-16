@@ -13,19 +13,19 @@ import { Provider } from 'react-redux';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
-// import App from './components/app';
-// import AppWrapper from './components/app-wrapper';
+import App from './components/app';
+import AppWrapper from './components/app-wrapper';
 
-// import { reducer } from 'common/lib/reducer';
-// import { fetcher } from 'common/lib/gitnews-fetcher';
-// import { electronMiddleware } from 'common/lib/electron-middleware';
-// import { configMiddleware } from 'common/lib/config-middleware';
-// import { githubMiddleware } from 'common/lib/github-middleware';
+import { reducer } from 'common/lib/reducer';
+import { fetcher } from 'common/lib/gitnews-fetcher';
+import { electronMiddleware } from 'common/lib/electron-middleware';
+import { configMiddleware } from 'common/lib/config-middleware';
+import { githubMiddleware } from 'common/lib/github-middleware';
 
 import './styles.css';
 
 const persistConfig = { key: 'gitnews-state', storage };
-// const persistedReducer = persistReducer(persistConfig, reducer);
+const persistedReducer = persistReducer(persistConfig, reducer);
 
 const logger = createLogger({
 	collapsed: true,
@@ -47,30 +47,25 @@ function runApp() {
 		console.error('Could not find main element'); //eslint-disable-line no-console
 		return;
 	}
-	// const store = createStore(
-	// 	persistedReducer,
-	// 	applyMiddleware(
-	// 		configMiddleware,
-	// 		electronMiddleware,
-	// 		githubMiddleware,
-	// 		fetcher,
-	// 		logger
-	// 	)
-	// );
-	// persistStore(store);
+	const store = createStore(
+		persistedReducer,
+		applyMiddleware(
+			configMiddleware,
+			electronMiddleware,
+			githubMiddleware,
+			fetcher,
+			logger
+		)
+	);
+	persistStore(store);
 
 	ReactDOM.render(
-		<TestComp />,
+		<Provider store={store}>
+			<AppWrapper quitApp={quitApp} version={version}>
+				<App version={version} quitApp={quitApp} />
+			</AppWrapper>
+		</Provider>,
 		main
-	);
-}
-
-function TestComp() {
-	return (
-		<div>
-		<h2>Hello world</h2>
-			<button onClick={()=> quitApp()}>Quit</button>
-		</div>
 	);
 }
 
