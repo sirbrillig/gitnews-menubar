@@ -18,7 +18,7 @@ import AppWrapper from './components/app-wrapper';
 
 import { reducer } from 'common/lib/reducer';
 import { fetcher } from 'common/lib/gitnews-fetcher';
-import { electronMiddleware } from 'common/lib/electron-middleware';
+import { electronMiddleware } from './lib/electron-middleware';
 import { configMiddleware } from 'common/lib/config-middleware';
 import { githubMiddleware } from 'common/lib/github-middleware';
 

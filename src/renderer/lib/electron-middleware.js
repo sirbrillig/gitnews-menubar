@@ -1,16 +1,13 @@
-/* globals window */
-const { ipcRenderer } = require('electron');
-
 function openUrl(url, options = {}) {
-	ipcRenderer.send('open-url', url, options);
+	window.electronApi.openUrl(url, options);
 }
 
 function updateCheck() {
-	ipcRenderer.send('check-for-updates');
+	window.electronApi.checkForUpdate();
 }
 
 function setIcon(nextIcon) {
-	ipcRenderer.send('set-icon', nextIcon);
+	window.electronApi.setIcon(nextIcon);
 }
 
 function scrollToTopNotification() {

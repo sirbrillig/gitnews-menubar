@@ -98,15 +98,15 @@ ipcMain.on('set-icon', (event, arg) => {
 	setIcon(arg);
 });
 
-// ipcMain.on('check-for-updates', () => {
-// 	checkForUpdates({
-// 		version,
-// 		semver,
-// 		dialog,
-// 		openUrl: shell.openExternal,
-// 		showCurrentVersion: true,
-// 	});
-// });
+ipcMain.on('check-for-updates', () => {
+	// checkForUpdates({
+	// 	version,
+	// 	semver,
+	// 	dialog,
+	// 	openUrl: shell.openExternal,
+	// 	showCurrentVersion: true,
+	// });
+});
 
 ipcMain.on('open-url', (event, url, options) => {
 	shell.openExternal(url, options);
