@@ -1,23 +1,9 @@
 const path = require('path');
 module.exports = {
-  entry: [
-    // 'react-hot-loader/patch',
-    './src/renderer/index.js'
-  ],
-  target: 'electron-renderer',
   resolve: {
     alias: {
       common: path.resolve(__dirname, 'src/common/'),
     },
-  },
-  output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.js'
-  },
-  devServer: {
-    'static': {
-      directory: './dist'
-    }
   },
   module: {
     rules: [

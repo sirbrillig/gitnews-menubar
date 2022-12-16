@@ -1,6 +1,5 @@
 module.exports = {
   entry: './src/main/index.js',
-  target: 'electron-main',
   module: {
     rules: [
       {

@@ -41,6 +41,8 @@ const bar = menubar({
 		height: 500,
 		webPreferences: {
 			nodeIntegration: true,
+			// eslint-disable-next-line no-undef
+			preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
 		},
 	},
 });
@@ -108,6 +110,11 @@ ipcMain.on('set-icon', (event, arg) => {
 
 ipcMain.on('open-url', (event, url, options) => {
 	shell.openExternal(url, options);
+});
+
+ipcMain.on('quit-app', () => {
+	debug('Quit requested');
+	app.quit();
 });
 
 function setIcon(type) {
