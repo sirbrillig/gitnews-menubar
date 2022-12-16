@@ -20,7 +20,7 @@ export default function MainPane({
 	showEditToken,
 	showMutedReposList,
 	lastSuccessfulCheck,
-	version,
+	getVersion,
 	newNotes,
 	readNotes,
 	markRead,
@@ -56,7 +56,7 @@ export default function MainPane({
 				openUrl={openUrl}
 				showEditToken={showEditToken}
 				showMutedReposList={showMutedReposList}
-				version={version}
+				getVersion={getVersion}
 				quitApp={quitApp}
 				checkForUpdates={checkForUpdates}
 				isAutoLoadEnabled={isAutoLoadEnabled}

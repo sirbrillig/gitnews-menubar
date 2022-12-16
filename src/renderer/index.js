@@ -41,8 +41,9 @@ function quitApp() {
 	window.electronApi.quitApp();
 }
 
-// TODO: get the version from the package.json
-const version = '1.0.7';
+async function getVersion() {
+	return window.electronApi.getVersion();
+}
 
 function runApp() {
 	const main = window.document.querySelector('#app');
@@ -64,8 +65,8 @@ function runApp() {
 
 	ReactDOM.render(
 		<Provider store={store}>
-			<AppWrapper quitApp={quitApp} version={version}>
-				<App version={version} quitApp={quitApp} />
+			<AppWrapper quitApp={quitApp}>
+				<App getVersion={getVersion} quitApp={quitApp} />
 			</AppWrapper>
 		</Provider>,
 		main

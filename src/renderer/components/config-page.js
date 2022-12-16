@@ -6,7 +6,7 @@ export default function ConfigPage({
 	showEditToken,
 	showMutedReposList,
 	openUrl,
-	version,
+	getVersion,
 	quitApp,
 	checkForUpdates,
 	isAutoLoadEnabled,
@@ -60,7 +60,7 @@ export default function ConfigPage({
 					Check for Updates
 				</button>
 			</div>
-			<Copyright openUrl={openUrl} version={version} />
+			<Copyright openUrl={openUrl} getVersion={getVersion} />
 		</div>
 	);
 }

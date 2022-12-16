@@ -10,8 +10,7 @@ const { menubar } = require('menubar');
 const isDev = require('electron-is-dev');
 // const semver = require('semver');
 const electronDebug = require('electron-debug');
-// TODO: get version from package.json
-// const { version } = require('../../package.json');
+const { version } = require('../../package.json');
 // TODO: fix checkForUpdates
 // const { checkForUpdates } = require('../common/lib/updates');
 const { getIconForState } = require('../common/lib/icon-path');
@@ -21,7 +20,7 @@ const debugFactory = require('debug');
 
 const debug = debugFactory('gitnews-menubar:main');
 
-debug('initializing');
+debug('initializing version', version);
 
 // Catch unhandled Promise rejections
 // TODO: do we need unhandled?
@@ -112,6 +111,10 @@ ipcMain.on('quit-app', () => {
 	debug('Quit requested');
 	app.quit();
 });
+
+ipcMain.handle('version:get', async () => {
+	return version;
+})
 
 function setIcon(type) {
 	if (!type) {

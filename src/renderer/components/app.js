@@ -129,7 +129,7 @@ class App extends React.Component {
 			errors,
 			token,
 			lastSuccessfulCheck,
-			version,
+			getVersion,
 			fetchingInProgress,
 		} = this.props;
 		const newNotes = this.getUnreadNotifications();
@@ -192,7 +192,7 @@ class App extends React.Component {
 				<MainPane
 					token={token}
 					currentPane={currentPane}
-					version={version}
+					getVersion={getVersion}
 					newNotes={newNotes}
 					readNotes={readNotes}
 					lastSuccessfulCheck={lastSuccessfulCheck}
@@ -223,6 +223,7 @@ class App extends React.Component {
 App.propTypes = {
 	// Actions
 	quitApp: PropTypes.func.isRequired,
+	getVersion: PropTypes.func.isRequired,
 	// All following are provided by connect
 	changeToken: PropTypes.func.isRequired,
 	setIcon: PropTypes.func.isRequired,
@@ -237,8 +238,6 @@ App.propTypes = {
 	unmuteRepo: PropTypes.func.isRequired,
 	setFilterType: PropTypes.func.isRequired,
 
-	// Values
-	version: PropTypes.string.isRequired,
 	// All following are provided by connect
 	notes: PropTypes.array.isRequired,
 	mutedRepos: PropTypes.arrayOf(PropTypes.string).isRequired,

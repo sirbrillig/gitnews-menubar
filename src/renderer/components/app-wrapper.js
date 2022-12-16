@@ -34,9 +34,6 @@ AppWrapper.propTypes = {
 	// All following are provided by connect
 	markAllNotesSeen: PropTypes.func.isRequired,
 	scrollToTop: PropTypes.func.isRequired,
-
-	// Values
-	version: PropTypes.string.isRequired,
 };
 
 const actions = {
