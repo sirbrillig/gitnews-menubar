@@ -1,7 +1,8 @@
 // require('dotenv').config();
 
 const { markNotificationRead } = require('gitnews');
-const isDemoMode = process.env.GITNEWS_DEMO_MODE ? true : false;
+const isDemoMode = true;
+// const isDemoMode = process.env.GITNEWS_DEMO_MODE ? true : false;
 
 // eslint-disable-next-line no-unused-vars
 const githubMiddleware = store => next => action => {
