@@ -3,8 +3,7 @@ import Store from 'electron-store';
 const store = new Store();
 
 export function getToken() {
-  // TODO: fix process and store
-	return store.get( 'gitnews-token' ) || process.env.GITNEWS_TOKEN;
+	return store.get( 'gitnews-token' );
 }
 
 export function setToken( token ) {
