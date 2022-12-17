@@ -10,4 +10,5 @@ contextBridge.exposeInMainWorld('electronApi', {
 	onShow: callback => ipcRenderer.on('show-app', callback),
 	onClick: callback => ipcRenderer.on('menubar-click', callback),
 	getVersion: () => ipcRenderer.invoke('version:get'),
+	isDemoMode: () => ipcRenderer.invoke('is-demo-mode:get'),
 });

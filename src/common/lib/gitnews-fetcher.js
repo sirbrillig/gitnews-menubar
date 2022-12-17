@@ -1,6 +1,4 @@
 /* globals window */
-// TODO: fix demo mode
-// require('dotenv').config();
 
 import debugFactory from 'debug';
 import {
@@ -21,83 +19,86 @@ import {
 } from 'common/lib/reducer';
 
 const debug = debugFactory('gitnews-menubar');
-const isDemoMode = true;
-// TODO: fix demo mode
-// const isDemoMode = process.env.GITNEWS_DEMO_MODE ? true : false;
-if (isDemoMode) {
-	debug('demo mode enabled!');
-}
 
-export const fetcher = store => next => action => {
-	// eslint-disable-line no-unused-vars
-	if (action.type === 'CHANGE_TOKEN') {
-		performFetch(
-			Object.assign({}, store.getState(), { token: action.token }),
-			next
-		);
-		return next(action);
+export function createFetcher(isDemoMode) {
+	if (isDemoMode) {
+		debug('demo mode enabled!');
 	}
 
-	if (action.type !== 'GITNEWS_FETCH_NOTIFICATIONS') {
-		return next(action);
-	}
-
-	performFetch(store.getState(), next);
-};
-
-function performFetch({ fetchingInProgress, token, fetchingStartedAt }, next) {
-	const fetchingMaxTime = secsToMs(120); // 2 minutes
-	if (fetchingInProgress) {
-		const timeSinceFetchingStarted = Date.now() - (fetchingStartedAt || 0);
-		if (timeSinceFetchingStarted > fetchingMaxTime) {
-			debug(
-				`it has been too long since we started fetching (${timeSinceFetchingStarted} ms). Giving up.`
+	const fetcher = store => next => action => {
+		// eslint-disable-line no-unused-vars
+		if (action.type === 'CHANGE_TOKEN') {
+			performFetch(
+				Object.assign({}, store.getState(), { token: action.token }),
+				next
 			);
-			next(fetchDone());
+			return next(action);
+		}
+
+		if (action.type !== 'GITNEWS_FETCH_NOTIFICATIONS') {
+			return next(action);
+		}
+
+		performFetch(store.getState(), next);
+	};
+
+	function performFetch({ fetchingInProgress, token, fetchingStartedAt }, next) {
+		const fetchingMaxTime = secsToMs(120); // 2 minutes
+		if (fetchingInProgress) {
+			const timeSinceFetchingStarted = Date.now() - (fetchingStartedAt || 0);
+			if (timeSinceFetchingStarted > fetchingMaxTime) {
+				debug(
+					`it has been too long since we started fetching (${timeSinceFetchingStarted} ms). Giving up.`
+				);
+				next(fetchDone());
+				return;
+			}
+			debug('skipping notifications check because we are already fetching');
 			return;
 		}
-		debug('skipping notifications check because we are already fetching');
-		return;
+		if (!window.navigator.onLine) {
+			debug('skipping notifications check because we are offline');
+			next(changeToOffline());
+			return;
+		}
+		debug('fetching notifications in middleware');
+		// NOTE: After this point, any return action MUST disable fetchingInProgress
+		// or the app will get stuck never updating again.
+		next(fetchBegin());
+		const getGithubNotifications = getFetcher(token);
+		try {
+			getGithubNotifications(1)
+				.then(notes => {
+					debug('notifications retrieved', notes);
+					next(fetchDone());
+					next(gotNotes(notes));
+				})
+				.catch(err => {
+					debug('fetching notifications failed with the error', err);
+					next(fetchDone());
+					getErrorHandler(next)(err);
+				});
+		} catch (err) {
+			debug('fetching notifications threw an error', err);
+			next(fetchDone());
+			getErrorHandler(next)(err);
+		}
 	}
-	if (!window.navigator.onLine) {
-		debug('skipping notifications check because we are offline');
-		next(changeToOffline());
-		return;
-	}
-	debug('fetching notifications in middleware');
-	// NOTE: After this point, any return action MUST disable fetchingInProgress
-	// or the app will get stuck never updating again.
-	next(fetchBegin());
-	const getGithubNotifications = getFetcher(token, isDemoMode);
-	try {
-		getGithubNotifications(1)
-			.then(notes => {
-				debug('notifications retrieved', notes);
-				next(fetchDone());
-				next(gotNotes(notes));
-			})
-			.catch(err => {
-				debug('fetching notifications failed with the error', err);
-				next(fetchDone());
-				getErrorHandler(next)(err);
-			});
-	} catch (err) {
-		debug('fetching notifications threw an error', err);
-		next(fetchDone());
-		getErrorHandler(next)(err);
-	}
-}
 
-function getFetcher(token, isDemoMode) {
-	if (isDemoMode) {
-		return () => getDemoNotifications();
+	function getFetcher(token) {
+		if (isDemoMode) {
+			return () => getDemoNotifications();
+		}
+		token;
+		// TODO: fix fetcher
+		// return pageNumber =>
+		// 	getNotifications(token, {
+		// 		per_page: 100,
+		// 		page: pageNumber,
+		// 	});
 	}
-	// TODO: fix fetcher
-	// return pageNumber =>
-	// 	getNotifications(token, {
-	// 		per_page: 100,
-	// 		page: pageNumber,
-	// 	});
+
+	return fetcher;
 }
 
 async function getDemoNotifications() {
@@ -111,7 +112,7 @@ async function getDemoNotifications() {
 			type: 'PullRequest',
 			id: '5682942812944a3d2c3e6230b0190f26',
 			repositoryOwnerAvatar:
-				'https://avatars1.githubusercontent.com/u/887802?v=4',
+			'https://avatars1.githubusercontent.com/u/887802?v=4',
 			subjectUrl: 'https://github.com/sirbrillig/gitnews-menubar/pull/65',
 			commentUrl: 'https://github.com/sirbrillig/gitnews-menubar/pull/65',
 			commentAvatar: 'https://avatars2.githubusercontent.com/u/2036909?v=4',
@@ -131,7 +132,7 @@ async function getDemoNotifications() {
 			type: 'PullRequest',
 			id: '1234566b0a944a3d2c3e6230b0190f26',
 			repositoryOwnerAvatar:
-				'https://avatars1.githubusercontent.com/u/887802?v=4',
+			'https://avatars1.githubusercontent.com/u/887802?v=4',
 			subjectUrl: 'https://github.com/sirbrillig/gitnews-menubar/pull/44',
 			commentUrl: 'https://github.com/sirbrillig/gitnews-menubar/pull/44',
 			commentAvatar: 'https://avatars2.githubusercontent.com/u/2036909?v=4',
@@ -151,7 +152,7 @@ async function getDemoNotifications() {
 			type: 'Issue',
 			id: '2967500023477777222e6230b0190f26',
 			repositoryOwnerAvatar:
-				'https://avatars1.githubusercontent.com/u/887802?v=4',
+			'https://avatars1.githubusercontent.com/u/887802?v=4',
 			subjectUrl: 'https://github.com/sirbrillig/gitnews-menubar/pull/48',
 			commentUrl: 'https://github.com/sirbrillig/gitnews-menubar/pull/48',
 			commentAvatar: 'https://avatars2.githubusercontent.com/u/2036909?v=4',
@@ -171,7 +172,7 @@ async function getDemoNotifications() {
 			type: 'Issue',
 			id: '4582894865123099522e6230b0190f26',
 			repositoryOwnerAvatar:
-				'https://avatars1.githubusercontent.com/u/887802?v=4',
+			'https://avatars1.githubusercontent.com/u/887802?v=4',
 			subjectUrl: 'https://github.com/sirbrillig/gitnews-menubar/pull/35',
 			commentUrl: 'https://github.com/sirbrillig/gitnews-menubar/pull/35',
 			commentAvatar: 'https://avatars2.githubusercontent.com/u/2036909?v=4',
@@ -184,6 +185,7 @@ async function getDemoNotifications() {
 		},
 	];
 }
+
 
 export function getErrorHandler(dispatch) {
 	return function handleFetchError(err) {

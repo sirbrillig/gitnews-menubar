@@ -18,6 +18,7 @@ const { getIconForState } = require('../common/lib/icon-path');
 // TODO: do we need unhandled?
 // const unhandled = require('electron-unhandled');
 const debugFactory = require('debug');
+require('dotenv').config();
 
 const debug = debugFactory('gitnews-menubar:main');
 
@@ -120,6 +121,10 @@ ipcMain.on('save-token', (event, token) => {
 
 ipcMain.handle('version:get', async () => {
 	return version;
+})
+
+ipcMain.handle('is-demo-mode:get', async () => {
+	return Boolean(process.env.GITNEWS_DEMO_MODE);
 })
 
 function setIcon(type) {

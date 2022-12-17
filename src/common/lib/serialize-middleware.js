@@ -1,20 +1,18 @@
 /* globals window */
-// TODO: fix demo mode
-// require('dotenv').config();
 
-// TODO: fix demo mode
-const isDemoMode = true;
-// const isDemoMode = process.env.GITNEWS_DEMO_MODE ? true : false;
+// TODO: is there something that's supposed to use this file?
 
-export const serializeMiddleware = store => next => action => {
-	switch (action.type) {
-		case 'MARK_NOTE_UNREAD':
-		case 'MARK_NOTE_READ':
-		case 'MARK_ALL_NOTES_SEEN':
-			isDemoMode || writeState({ notes: store.getState().notes });
-	}
-	next(action);
-};
+export function createSerializeMiddleware(isDemoMode) {
+	return store => next => action => {
+		switch (action.type) {
+			case 'MARK_NOTE_UNREAD':
+			case 'MARK_NOTE_READ':
+			case 'MARK_ALL_NOTES_SEEN':
+				isDemoMode || writeState({ notes: store.getState().notes });
+		}
+		next(action);
+	};
+}
 
 function writeState(state) {
 	window.localStorage.setItem('gitnews-state', JSON.stringify(state));
