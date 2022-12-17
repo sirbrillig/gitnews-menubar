@@ -8,7 +8,7 @@ import {
 	PANE_CONFIG,
 	PANE_TOKEN,
 	PANE_MUTED_REPOS,
-} from 'common/lib/constants';
+} from '../lib/constants';
 
 export default function MainPane({
 	token,

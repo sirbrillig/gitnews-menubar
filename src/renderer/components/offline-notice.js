@@ -1,5 +1,5 @@
 import React from 'react';
-import { getSecondsUntilNextFetch } from 'common/lib/helpers';
+import { getSecondsUntilNextFetch } from '../lib/helpers';
 
 export default function OfflineNotice({
 	fetchNotifications,

@@ -3,7 +3,7 @@ import {
 	getNoteId,
 	mergeNotifications,
 	getFetchInterval,
-} from 'common/lib/helpers';
+} from '../lib/helpers';
 
 const defaultFetchInterval = secsToMs(120);
 

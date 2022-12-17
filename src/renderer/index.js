@@ -15,11 +15,11 @@ import storage from 'redux-persist/lib/storage';
 import App from './components/app';
 import AppWrapper from './components/app-wrapper';
 
-import { reducer } from 'common/lib/reducer';
-import { createFetcher } from 'common/lib/gitnews-fetcher';
+import { reducer } from './lib/reducer';
+import { createFetcher } from './lib/gitnews-fetcher';
 import { electronMiddleware } from './lib/electron-middleware';
-import { configMiddleware } from 'common/lib/config-middleware';
-import { createGitHubMiddleware } from 'common/lib/github-middleware';
+import { configMiddleware } from './lib/config-middleware';
+import { createGitHubMiddleware } from './lib/github-middleware';
 
 import './styles.css';
 

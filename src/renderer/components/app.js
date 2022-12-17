@@ -11,9 +11,9 @@ import {
 	PANE_NOTIFICATIONS,
 	PANE_TOKEN,
 	PANE_MUTED_REPOS,
-} from 'common/lib/constants';
-import Poller from 'common/lib/poller';
-import { getSecondsUntilNextFetch } from 'common/lib/helpers';
+} from '../lib/constants';
+import Poller from '../lib/poller';
+import { getSecondsUntilNextFetch } from '../lib/helpers';
 import {
 	markRead,
 	markUnread,
@@ -27,9 +27,9 @@ import {
 	muteRepo,
 	unmuteRepo,
 	setFilterType,
-} from 'common/lib/reducer';
+} from '../lib/reducer';
 import SearchNotifications from './search-notifications';
-import doesNoteMatchFilter from 'common/lib/does-note-match-filter';
+import doesNoteMatchFilter from '../lib/does-note-match-filter';
 
 const debug = debugFactory('gitnews-menubar');
 

@@ -7,7 +7,7 @@ import {
 	getErrorMessage,
 	isGitHubOffline,
 	isInvalidJson,
-} from 'common/lib/helpers';
+} from '../lib/helpers';
 // TODO: fix getNotifications
 // const { getNotifications } = require('gitnews');
 import {
@@ -16,7 +16,7 @@ import {
 	fetchDone,
 	gotNotes,
 	addConnectionError,
-} from 'common/lib/reducer';
+} from '../lib/reducer';
 
 const debug = debugFactory('gitnews-menubar');
 

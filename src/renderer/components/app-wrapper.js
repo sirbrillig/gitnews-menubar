@@ -6,7 +6,7 @@ import {
 	scrollToTop,
 	markAppHidden,
 	markAppShown,
-} from 'common/lib/reducer';
+} from '../lib/reducer';
 
 class AppWrapper extends React.Component {
 	constructor(props) {

@@ -1,10 +1,10 @@
 const maxFetchInterval = secsToMs( 300 ); // 5 minutes
 
-function getNoteId( note ) {
+export function getNoteId( note ) {
 	return note.id;
 }
 
-function mergeNotifications( prevNotes, nextNotes ) {
+export function mergeNotifications( prevNotes, nextNotes ) {
 	const getMatchingPrevNote = note => {
 		const found = prevNotes.filter( prevNote => getNoteId( prevNote ) === getNoteId( note ) );
 		return found.length ? found[ 0 ] : null;
@@ -19,15 +19,15 @@ function mergeNotifications( prevNotes, nextNotes ) {
 	} );
 }
 
-function msToSecs( ms ) {
+export function msToSecs( ms ) {
 	return parseInt( ms * 0.001, 10 );
 }
 
-function secsToMs( secs ) {
+export function secsToMs( secs ) {
 	return secs * 1000;
 }
 
-function isOfflineCode( code ) {
+export function isOfflineCode( code ) {
 	const offlineCodes = [
 		'ENETDOWN',
 		'ENOTFOUND',
@@ -40,7 +40,7 @@ function isOfflineCode( code ) {
 	return ( offlineCodes.includes( code ) );
 }
 
-function getFetchInterval( interval, retryCount ) {
+export function getFetchInterval( interval, retryCount ) {
 	const fetchInterval = interval * ( retryCount + 1 );
 	if ( fetchInterval > maxFetchInterval ) {
 		return maxFetchInterval;
@@ -48,7 +48,7 @@ function getFetchInterval( interval, retryCount ) {
 	return fetchInterval;
 }
 
-function getErrorMessage( error ) {
+export function getErrorMessage( error ) {
 	error = error || {};
 	return [
 		error.status,
@@ -60,28 +60,15 @@ function getErrorMessage( error ) {
 	].filter( Boolean ).join( '; ' );
 }
 
-function isGitHubOffline( error ) {
+export function isGitHubOffline( error ) {
 	return ( error.status && error.status.toString().startsWith( '5' ) );
 }
 
-function isInvalidJson( error ) {
+export function isInvalidJson( error ) {
 	return error.type === 'invalid-json';
 }
 
-function getSecondsUntilNextFetch( lastChecked, fetchInterval ) {
+export function getSecondsUntilNextFetch( lastChecked, fetchInterval ) {
 	const interval = ( fetchInterval - ( Date.now() - ( lastChecked || 0 ) ) );
 	return ( interval < 0 ) ? 0 : msToSecs( interval );
 }
-
-module.exports = {
-	getNoteId,
-	mergeNotifications,
-	msToSecs,
-	secsToMs,
-	isOfflineCode,
-	getErrorMessage,
-	getFetchInterval,
-	isGitHubOffline,
-	isInvalidJson,
-	getSecondsUntilNextFetch,
-};

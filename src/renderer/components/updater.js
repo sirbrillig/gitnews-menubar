@@ -1,5 +1,5 @@
 import React from 'react';
-import { secsToMs } from 'common/lib/helpers';
+import { secsToMs } from '../lib/helpers';
 
 export default function createUpdater(WrappedComponent) {
 	return class Updater extends React.Component {

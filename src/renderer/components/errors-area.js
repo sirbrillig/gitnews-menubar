@@ -1,5 +1,5 @@
 import React from 'react';
-import { getErrorMessage } from 'common/lib/helpers';
+import { getErrorMessage } from '../lib/helpers';
 
 function ClearErrorsButton({ clearErrors }) {
 	return (

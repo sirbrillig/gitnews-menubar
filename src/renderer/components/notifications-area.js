@@ -2,8 +2,8 @@ import React from 'react';
 import Gridicon from 'gridicons';
 import debugFactory from 'debug';
 import Notification from '../components/notification';
-import { getNoteId } from 'common/lib/helpers';
-import doesNoteMatchFilter from 'common/lib/does-note-match-filter';
+import { getNoteId } from '../lib/helpers';
+import doesNoteMatchFilter from '../lib/does-note-match-filter';
 
 const debug = debugFactory('gitnews-menubar');
 

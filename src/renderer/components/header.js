@@ -6,7 +6,7 @@ import OfflineNotice from '../components/offline-notice';
 import FetchingInProgress from '../components/fetching-in-progress';
 import createUpdater from '../components/updater';
 import FilterButton from './filter-button';
-import { PANE_NOTIFICATIONS } from 'common/lib/constants';
+import { PANE_NOTIFICATIONS } from '../lib/constants';
 
 const UpdatingLastChecked = createUpdater(LastChecked);
 const UpdatingOfflineNotice = createUpdater(OfflineNotice);
