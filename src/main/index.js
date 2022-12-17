@@ -10,6 +10,7 @@ const { menubar } = require('menubar');
 const isDev = require('electron-is-dev');
 // const semver = require('semver');
 const electronDebug = require('electron-debug');
+const { setToken } = require( 'common/lib/token' );
 const { version } = require('../../package.json');
 // TODO: fix checkForUpdates
 // const { checkForUpdates } = require('../common/lib/updates');
@@ -110,6 +111,11 @@ ipcMain.on('open-url', (event, url, options) => {
 ipcMain.on('quit-app', () => {
 	debug('Quit requested');
 	app.quit();
+});
+
+ipcMain.on('save-token', (event, token) => {
+	debug('Saving token');
+	setToken(token);
 });
 
 ipcMain.handle('version:get', async () => {
