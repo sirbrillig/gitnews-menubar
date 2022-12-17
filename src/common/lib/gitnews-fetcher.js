@@ -2,22 +2,23 @@
 // TODO: fix demo mode
 // require('dotenv').config();
 
-const debugFactory = require('debug');
-const {
+import debugFactory from 'debug';
+import {
 	secsToMs,
 	isOfflineCode,
 	getErrorMessage,
 	isGitHubOffline,
 	isInvalidJson,
-} = require('common/lib/helpers');
-const { getNotifications } = require('gitnews');
-const {
+} from 'common/lib/helpers';
+// TODO: fix getNotifications
+// const { getNotifications } = require('gitnews');
+import {
 	changeToOffline,
 	fetchBegin,
 	fetchDone,
 	gotNotes,
 	addConnectionError,
-} = require('common/lib/reducer');
+} from 'common/lib/reducer';
 
 const debug = debugFactory('gitnews-menubar');
 const isDemoMode = true;
@@ -27,7 +28,7 @@ if (isDemoMode) {
 	debug('demo mode enabled!');
 }
 
-const fetcher = store => next => action => {
+export const fetcher = store => next => action => {
 	// eslint-disable-line no-unused-vars
 	if (action.type === 'CHANGE_TOKEN') {
 		performFetch(
@@ -91,11 +92,12 @@ function getFetcher(token, isDemoMode) {
 	if (isDemoMode) {
 		return () => getDemoNotifications();
 	}
-	return pageNumber =>
-		getNotifications(token, {
-			per_page: 100,
-			page: pageNumber,
-		});
+	// TODO: fix fetcher
+	// return pageNumber =>
+	// 	getNotifications(token, {
+	// 		per_page: 100,
+	// 		page: pageNumber,
+	// 	});
 }
 
 async function getDemoNotifications() {
@@ -183,7 +185,7 @@ async function getDemoNotifications() {
 	];
 }
 
-function getErrorHandler(dispatch) {
+export function getErrorHandler(dispatch) {
 	return function handleFetchError(err) {
 		if (err.code === 'GitHubTokenNotFound') {
 			debug('notifications check failed because there is no token');
@@ -210,8 +212,3 @@ function getErrorHandler(dispatch) {
 		dispatch(addConnectionError(errorString));
 	};
 }
-
-module.exports = {
-	fetcher,
-	getErrorHandler,
-};

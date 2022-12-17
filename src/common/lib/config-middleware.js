@@ -1,10 +1,10 @@
 // TODO: Fix autolaunch
 // const AutoLaunch = require( 'auto-launch' );
-const debugFactory = require( 'debug' );
+import debugFactory from 'debug';
 
 const debug = debugFactory( 'gitnews-menubar' );
 
-const configMiddleware = store => next => action => { // eslint-disable-line no-unused-vars
+export const configMiddleware = store => next => action => { // eslint-disable-line no-unused-vars
 	switch ( action.type ) {
 		case 'CHANGE_TOKEN':
 			window.electronApi.saveToken( action.token );
@@ -35,7 +35,3 @@ function changeAutoLoad( shouldEnable ) {
 	// 		console.error( 'failed to change autoload to', shouldEnable, err );
 	// 	} );
 }
-
-module.exports = {
-	configMiddleware,
-};

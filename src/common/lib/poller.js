@@ -27,4 +27,4 @@ class Poller {
 	}
 }
 
-module.exports = Poller;
+export default Poller;

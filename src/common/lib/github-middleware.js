@@ -1,12 +1,12 @@
 // require('dotenv').config();
 
-const { markNotificationRead } = require('gitnews');
+// const { markNotificationRead } = require('gitnews');
 const isDemoMode = true;
 // TODO: fix demo mode
 // const isDemoMode = process.env.GITNEWS_DEMO_MODE ? true : false;
 
 // eslint-disable-next-line no-unused-vars
-const githubMiddleware = store => next => action => {
+export const githubMiddleware = store => next => action => {
 	switch (action.type) {
 		case 'MARK_NOTE_READ':
 			isDemoMode || markNoteRead(action.token, action.note);
@@ -15,9 +15,7 @@ const githubMiddleware = store => next => action => {
 };
 
 function markNoteRead(token, note) {
-	markNotificationRead(token, note);
+	note;
+	// TODO: fix marking notifications read
+	// markNotificationRead(token, note);
 }
-
-module.exports = {
-	githubMiddleware,
-};

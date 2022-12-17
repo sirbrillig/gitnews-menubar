@@ -10,7 +10,7 @@ const { menubar } = require('menubar');
 const isDev = require('electron-is-dev');
 // const semver = require('semver');
 const electronDebug = require('electron-debug');
-const { setToken } = require( 'common/lib/token' );
+const { setToken } = require( '../common/lib/token' );
 const { version } = require('../../package.json');
 // TODO: fix checkForUpdates
 // const { checkForUpdates } = require('../common/lib/updates');

@@ -6,7 +6,7 @@
 const isDemoMode = true;
 // const isDemoMode = process.env.GITNEWS_DEMO_MODE ? true : false;
 
-const serializeMiddleware = store => next => action => {
+export const serializeMiddleware = store => next => action => {
 	switch (action.type) {
 		case 'MARK_NOTE_UNREAD':
 		case 'MARK_NOTE_READ':
@@ -20,7 +20,7 @@ function writeState(state) {
 	window.localStorage.setItem('gitnews-state', JSON.stringify(state));
 }
 
-function getState() {
+export function getState() {
 	const stateSting = window.localStorage.getItem('gitnews-state');
 	if (!stateSting) {
 		return {};
@@ -31,5 +31,3 @@ function getState() {
 		return {};
 	}
 }
-
-module.exports = { serializeMiddleware, getState };

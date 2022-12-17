@@ -1,5 +1,5 @@
-const React = require( 'react' );
-const PropTypes = require( 'prop-types' );
+import React from 'react'
+import PropTypes from 'prop-types';
 
 const secsToMs = ( secs ) => secs * 1000;
 
@@ -80,4 +80,4 @@ function PlaceholderComponent() {
 	);
 }
 
-module.exports = EnsuredImage;
+export default EnsuredImage;

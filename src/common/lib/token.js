@@ -1,16 +1,12 @@
-const Store = require('electron-store');
+import Store from 'electron-store';
+
 const store = new Store();
 
-function getToken() {
+export function getToken() {
   // TODO: fix process and store
 	return store.get( 'gitnews-token' ) || process.env.GITNEWS_TOKEN;
 }
 
-function setToken( token ) {
+export function setToken( token ) {
 	store.set( 'gitnews-token', token );
 }
-
-module.exports = {
-	getToken,
-	setToken,
-};
