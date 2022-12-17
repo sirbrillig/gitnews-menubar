@@ -4,8 +4,6 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-// TODO: https://www.electronjs.org/docs/latest/breaking-changes#removed-remote-module
-// import { remote } from 'electron';
 import { createStore, applyMiddleware } from 'redux';
 import { createLogger } from 'redux-logger';
 // TODO: do we need unhandled?
