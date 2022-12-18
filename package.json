@@ -1,17 +1,14 @@
 {
   "name": "gitnews-menubar",
-  "version": "1.7.0",
+  "version": "1.9.0-beta.1",
   "description": "GitHub notifications in your menu bar",
   "productName": "Gitnews",
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",
-    "install-deps": "yarn",
     "dist-clean": "rm -rf dist && rm -rf node_modules",
     "prepare-release": "npm run dist-clean && npm run build",
-    "build": "npm run install-deps && npm run compile-for-production && npm run build-osx-package",
-    "compile-for-production": "electron-webpack compile",
-    "build-osx-package": "electron-builder",
+    "build": "yarn && yarn make",
     "test": "NODE_PATH=./src mocha tests",
     "package": "electron-forge package",
     "make": "electron-forge make"
