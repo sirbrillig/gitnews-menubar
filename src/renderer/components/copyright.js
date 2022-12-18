@@ -23,7 +23,7 @@ export default function Copyright({ openUrl, getVersion }) {
 					onClick={openLink}>
 					gitnews-menubar
 				</a>{' '}
-				- <span>v{version}</span> - <span>copyright 2017 Payton Swick</span>
+				- <span>v{version}</span> - <span>copyright 2022 Payton Swick</span>
 			</div>
 		</div>
 	);
