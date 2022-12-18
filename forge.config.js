@@ -3,6 +3,7 @@ module.exports = {
     {
       name: '@electron-forge/plugin-webpack',
       config: {
+        devContentSecurityPolicy: `default-src 'self' *.github.com *.githubusercontent.com localhost:3000 'unsafe-eval' 'unsafe-inline'`,
         mainConfig: './webpack.main.config.js',
         renderer: {
           config: './webpack.renderer.config.js',
