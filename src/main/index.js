@@ -15,8 +15,7 @@ const { version } = require('../../package.json');
 // TODO: fix checkForUpdates
 // const { checkForUpdates } = require('../common/lib/updates');
 const { getIconForState } = require('../common/lib/icon-path');
-// TODO: do we need unhandled?
-// const unhandled = require('electron-unhandled');
+const unhandled = require('electron-unhandled');
 const debugFactory = require('debug');
 require('dotenv').config();
 
@@ -25,8 +24,7 @@ const debug = debugFactory('gitnews-menubar:main');
 debug('initializing version', version);
 
 // Catch unhandled Promise rejections
-// TODO: do we need unhandled?
-// unhandled();
+unhandled();
 
 // Allow devtools and reload in production
 electronDebug({

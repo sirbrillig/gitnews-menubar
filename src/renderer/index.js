@@ -6,8 +6,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { createStore, applyMiddleware } from 'redux';
 import { createLogger } from 'redux-logger';
-// TODO: do we need unhandled?
-// import unhandled from 'electron-unhandled';
 import { Provider } from 'react-redux';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
@@ -30,10 +28,6 @@ const logger = createLogger({
 	collapsed: true,
 	level: 'info',
 });
-
-// Catch unhandled Promise rejections
-// TODO: do we need unhandled?
-// unhandled();
 
 function quitApp() {
 	window.electronApi.quitApp();
