@@ -13,6 +13,7 @@ const { version } = require('../../package.json');
 const { getIconForState } = require('../common/lib/icon-path');
 const unhandled = require('electron-unhandled');
 const debugFactory = require('debug');
+var AutoLaunch = require('easy-auto-launch');
 require('dotenv').config();
 
 const debug = debugFactory('gitnews-menubar:main');
@@ -99,6 +100,22 @@ ipcMain.on('save-token', (event, token) => {
 	debug('Saving token');
 	setToken(token);
 });
+
+const autoLauncher = new AutoLaunch({
+	name: 'Gitnews',
+});
+
+ipcMain.on('toggle-auto-launch', (event, isEnabled) => {
+	if (isEnabled) {
+		autoLauncher.enable();
+	} else {
+		autoLauncher.disable();
+	}
+});
+
+ipcMain.handle('is-auto-launch:get', async () => {
+	return autoLauncher.isEnabled();
+})
 
 ipcMain.handle('version:get', async () => {
 	return version;
