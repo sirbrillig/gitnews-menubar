@@ -8,8 +8,7 @@ import {
 	isGitHubOffline,
 	isInvalidJson,
 } from '../lib/helpers';
-// TODO: fix getNotifications
-// const { getNotifications } = require('gitnews');
+const { createNoteGetter } = require('gitnews');
 import {
 	changeToOffline,
 	fetchBegin,
@@ -85,17 +84,21 @@ export function createFetcher(isDemoMode) {
 		}
 	}
 
+	const getNotifications = createNoteGetter({
+		fetch: (url, options) => fetch(url, options),
+		log: (message) => console.log("Gitnews: " + message),
+	});
+
 	function getFetcher(token) {
 		if (isDemoMode) {
 			return () => getDemoNotifications();
 		}
 		token;
-		// TODO: fix fetcher
-		// return pageNumber =>
-		// 	getNotifications(token, {
-		// 		per_page: 100,
-		// 		page: pageNumber,
-		// 	});
+		return pageNumber =>
+			getNotifications(token, {
+				per_page: 100,
+				page: pageNumber,
+			});
 	}
 
 	return fetcher;
