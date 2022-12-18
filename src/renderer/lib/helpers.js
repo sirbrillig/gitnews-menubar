@@ -10,7 +10,7 @@ export function mergeNotifications( prevNotes, nextNotes ) {
 		return found.length ? found[ 0 ] : null;
 	};
 	const hasNoteUpdated = ( note, prevNote ) => ( note.updatedAt > prevNote.gitnewsSeenAt );
-	return nextNotes.map( note => {
+	return nextNotes.filter(x => x.api).map( note => {
 		const previousNote = getMatchingPrevNote( note );
 		if ( previousNote && ! hasNoteUpdated( note, previousNote ) ) {
 			return Object.assign( {}, note, { gitnewsSeen: previousNote.gitnewsSeen, gitnewsMarkedUnread: previousNote.gitnewsMarkedUnread } );

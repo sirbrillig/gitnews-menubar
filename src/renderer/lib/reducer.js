@@ -67,7 +67,7 @@ export function reducer(state, action) {
 				}),
 			});
 		case 'MARK_ALL_NOTES_SEEN': {
-			const notes = state.notes.map(note =>
+			const notes = state.notes.filter(x => x.api).map(note =>
 				Object.assign(note, { gitnewsSeen: true, gitnewsSeenAt: Date.now() })
 			);
 			return Object.assign({}, state, { notes });
