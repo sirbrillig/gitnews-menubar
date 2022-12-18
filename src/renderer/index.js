@@ -1,7 +1,3 @@
-// require('dotenv').config();
-
-// import { version } from '../../package.json';
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { createStore, applyMiddleware } from 'redux';

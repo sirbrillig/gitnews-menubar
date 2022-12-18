@@ -25,7 +25,6 @@ export default function MainPane({
 	readNotes,
 	markRead,
 	markUnread,
-	checkForUpdates,
 	fetchingInProgress,
 	isAutoLoadEnabled,
 	changeAutoLoad,
@@ -58,7 +57,6 @@ export default function MainPane({
 				showMutedReposList={showMutedReposList}
 				getVersion={getVersion}
 				quitApp={quitApp}
-				checkForUpdates={checkForUpdates}
 				isAutoLoadEnabled={isAutoLoadEnabled}
 				changeAutoLoad={changeAutoLoad}
 			/>

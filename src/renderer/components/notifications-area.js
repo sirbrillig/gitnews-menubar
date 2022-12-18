@@ -3,6 +3,7 @@ import Gridicon from 'gridicons';
 import debugFactory from 'debug';
 import Notification from '../components/notification';
 import { getNoteId } from '../lib/helpers';
+import { useGetGitnewsUpdate } from '../lib/updates';
 import doesNoteMatchFilter from '../lib/does-note-match-filter';
 
 const debug = debugFactory('gitnews-menubar');
@@ -42,6 +43,11 @@ export default function NotificationsArea({
 	filterType,
 	appVisible,
 }) {
+	const {
+		isUpdateAvailable,
+		updateUrl,
+		updatedVersion,
+	} = useGetGitnewsUpdate();
 	const [notesToOpen, setNotesToOpen] = React.useState([]);
 	const [isMultiOpenMode, setMultiOpenMode] = React.useState(false);
 	const saveNoteToOpen = note => {
@@ -128,6 +134,7 @@ export default function NotificationsArea({
 			{newNotes.length === 0 && readNotes.length === 0 && <NoNotifications />}
 			{noteRows}
 			{isMultiOpenMode && <MultiOpenNotice />}
+			{isUpdateAvailable && <UpdateAvailableNotice url={updateUrl} newVersion={updatedVersion} openUrl={openUrl} />}
 		</div>
 	);
 }
@@ -152,6 +159,16 @@ function MultiOpenNotice() {
 	return (
 		<div className="multi-open-notice">
 			<span>Click multiple notifications then release the Command key</span>
+		</div>
+	);
+}
+
+function UpdateAvailableNotice({url, newVersion, openUrl}) {
+	return (
+		<div className="update-available-notice">
+			<span>
+				<button onClick={() => openUrl(url)}>{`A new version (${newVersion}) of Gitnews is available.`}</button>
+			</span>
 		</div>
 	);
 }

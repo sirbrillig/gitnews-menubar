@@ -2,18 +2,14 @@ const {
 	ipcMain,
 	app,
 	Menu,
-	// dialog,
 	shell,
 	systemPreferences,
 } = require('electron');
 const { menubar } = require('menubar');
 const isDev = require('electron-is-dev');
-// const semver = require('semver');
 const electronDebug = require('electron-debug');
 const { setToken } = require( '../common/lib/token' );
 const { version } = require('../../package.json');
-// TODO: fix checkForUpdates
-// const { checkForUpdates } = require('../common/lib/updates');
 const { getIconForState } = require('../common/lib/icon-path');
 const unhandled = require('electron-unhandled');
 const debugFactory = require('debug');
@@ -54,8 +50,6 @@ bar.on('ready', () => {
 	app.dock.hide(); // Buggy behavior with showDockIcon: https://github.com/maxogden/menubar/issues/306
 	isDev || bar.window.setResizable(false);
 	isDev || attachAppMenu();
-	// TODO: fix checking for updates
-	// checkForUpdates({ version, semver, dialog, openUrl: shell.openExternal });
 	bar.window.loadURL(getAppUrl());
 });
 
@@ -90,17 +84,6 @@ systemPreferences.subscribeNotification(
 
 ipcMain.on('set-icon', (event, arg) => {
 	setIcon(arg);
-});
-
-ipcMain.on('check-for-updates', () => {
-	// TODO: fix checking for updates
-	// checkForUpdates({
-	// 	version,
-	// 	semver,
-	// 	dialog,
-	// 	openUrl: shell.openExternal,
-	// 	showCurrentVersion: true,
-	// });
 });
 
 ipcMain.on('open-url', (event, url, options) => {

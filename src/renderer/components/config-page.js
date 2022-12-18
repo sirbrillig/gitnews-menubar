@@ -8,7 +8,6 @@ export default function ConfigPage({
 	openUrl,
 	getVersion,
 	quitApp,
-	checkForUpdates,
 	isAutoLoadEnabled,
 	changeAutoLoad,
 }) {
@@ -52,12 +51,6 @@ export default function ConfigPage({
 			<div className="config-page__buttons">
 				<button className="btn--cancel quit-button" onClick={quitApp}>
 					Quit
-				</button>
-				<button
-					className="btn check-for-updates-button"
-					onClick={checkForUpdates}
-				>
-					Check for Updates
 				</button>
 			</div>
 			<Copyright openUrl={openUrl} getVersion={getVersion} />

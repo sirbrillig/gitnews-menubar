@@ -514,6 +514,35 @@ header h1 {
   border-radius: 20px;
 }
 
+.update-available-notice {
+  width: 100%;
+  padding: 4px 5px;
+  position: fixed;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  z-index: 350;
+}
+
+.update-available-notice span {
+  padding: 5px 20px;
+  background-color: #24292e;
+  color: #fff;
+  font-size: 0.9em;
+  border-radius: 20px;
+  display: flex;
+}
+
+.update-available-notice button {
+  color: #fff;
+  background: none!important;
+  border: none;
+  padding: 0!important;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .config-page {
   margin: 12px;
   display: flex;

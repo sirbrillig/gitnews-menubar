@@ -160,10 +160,6 @@ export function fetchNotifications() {
 	return { type: 'GITNEWS_FETCH_NOTIFICATIONS' };
 }
 
-export function checkForUpdates() {
-	return { type: 'CHECK_FOR_UPDATES' };
-}
-
 export function openUrl(url, options) {
 	return { type: 'OPEN_URL', url, options };
 }

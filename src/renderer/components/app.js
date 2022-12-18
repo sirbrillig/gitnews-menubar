@@ -20,7 +20,6 @@ import {
 	clearErrors,
 	fetchNotifications,
 	openUrl,
-	checkForUpdates,
 	setIcon,
 	changeToken,
 	changeAutoLoad,
@@ -204,7 +203,6 @@ class App extends React.Component {
 					showEditToken={showEditToken}
 					markRead={this.props.markRead}
 					markUnread={this.props.markUnread}
-					checkForUpdates={this.props.checkForUpdates}
 					isAutoLoadEnabled={this.props.isAutoLoadEnabled}
 					changeAutoLoad={this.props.changeAutoLoad}
 					muteRepo={this.props.muteRepo}
@@ -227,7 +225,6 @@ App.propTypes = {
 	// All following are provided by connect
 	changeToken: PropTypes.func.isRequired,
 	setIcon: PropTypes.func.isRequired,
-	checkForUpdates: PropTypes.func.isRequired,
 	openUrl: PropTypes.func.isRequired,
 	fetchNotifications: PropTypes.func.isRequired,
 	markRead: PropTypes.func.isRequired,
@@ -276,7 +273,6 @@ const actions = {
 	clearErrors,
 	fetchNotifications,
 	openUrl,
-	checkForUpdates,
 	setIcon,
 	changeToken,
 	changeAutoLoad,
