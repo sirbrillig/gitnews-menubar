@@ -1,4 +1,7 @@
 module.exports = {
+  packagerConfig: {
+    icon: './static/images/gitnews-menubar',
+  },
   plugins: [
     {
       name: '@electron-forge/plugin-webpack',
@@ -19,7 +22,6 @@ module.exports = {
       }
     }
   ],
-  packagerConfig: {},
   rebuildConfig: {},
   makers: [
     {
