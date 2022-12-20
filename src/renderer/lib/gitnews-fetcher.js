@@ -93,7 +93,6 @@ export function createFetcher(isDemoMode) {
 		if (isDemoMode) {
 			return () => getDemoNotifications();
 		}
-		token;
 		return pageNumber =>
 			getNotifications(token, {
 				per_page: 100,
