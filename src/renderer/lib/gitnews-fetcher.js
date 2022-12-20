@@ -68,7 +68,7 @@ export function createFetcher(isDemoMode) {
 		next(fetchBegin());
 		const getGithubNotifications = getFetcher(token);
 		try {
-			getGithubNotifications(1)
+			getGithubNotifications()
 				.then(notes => {
 					debug('notifications retrieved', notes);
 					next(fetchDone());
@@ -95,11 +95,8 @@ export function createFetcher(isDemoMode) {
 		if (isDemoMode) {
 			return () => getDemoNotifications();
 		}
-		return pageNumber =>
-			getNotifications(token, {
-				per_page: 100,
-				page: pageNumber,
-			});
+		return () =>
+			getNotifications(token);
 	}
 
 	return fetcher;
