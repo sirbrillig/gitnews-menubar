@@ -24,88 +24,90 @@ const initialState = {
 	appVisible: false,
 };
 
-export function reducer(state, action) {
-	if (!state) {
-		state = initialState;
-	}
-	switch (action.type) {
-		case 'NOTE_APP_VISIBLE':
-			return { ...state, appVisible: action.visible };
-		case 'FETCH_BEGIN':
-			return Object.assign({}, state, {
-				fetchingInProgress: true,
-				fetchingStartedAt: Date.now(),
-			});
-		case 'FETCH_END':
-			return Object.assign({}, state, { fetchingInProgress: false });
-		case 'ADD_CONNECTION_ERROR':
-			return Object.assign({}, state, {
-				errors: [...state.errors, action.error],
-				lastChecked: Date.now(),
-			});
-		case 'CLEAR_ERRORS':
-			return Object.assign({}, state, { errors: [] });
-		case 'MARK_NOTE_UNREAD':
-			return Object.assign({}, state, {
-				notes: state.notes.map(note => {
-					if (getNoteId(note) === getNoteId(action.note)) {
-						return Object.assign({}, note, { gitnewsMarkedUnread: true });
-					}
-					return note;
-				}),
-			});
-		case 'MARK_NOTE_READ':
-			return Object.assign({}, state, {
-				notes: state.notes.map(note => {
-					if (getNoteId(note) === getNoteId(action.note)) {
-						return Object.assign({}, note, {
-							unread: false,
-							gitnewsMarkedUnread: false,
-						});
-					}
-					return note;
-				}),
-			});
-		case 'MARK_ALL_NOTES_SEEN': {
-			const notes = state.notes.filter(x => x.api).map(note =>
-				Object.assign(note, { gitnewsSeen: true, gitnewsSeenAt: Date.now() })
-			);
-			return Object.assign({}, state, { notes });
+export function createReducer(initialToken) {
+	return function(state, action) {
+		if (!state) {
+			state = { ...initialState, token: initialToken };
 		}
-		case 'CHANGE_TOKEN':
-			return Object.assign({}, state, { token: action.token });
-		case 'OFFLINE':
-			return Object.assign({}, state, {
-				offline: true,
-				lastChecked: Date.now(),
-				fetchInterval: getFetchInterval(secsToMs(60), state.fetchRetryCount),
-				fetchRetryCount: state.fetchRetryCount + 1,
-			});
-		case 'NOTES_RETRIEVED':
-			return Object.assign({}, state, {
-				offline: false,
-				lastChecked: Date.now(),
-				lastSuccessfulCheck: Date.now(),
-				fetchRetryCount: 0,
-				errors: [],
-				fetchInterval: defaultFetchInterval,
-				notes: mergeNotifications(state.notes, action.notes),
-			});
-		case 'CHANGE_AUTO_LOAD':
-			return Object.assign({}, state, { isAutoLoadEnabled: action.isEnabled });
-		case 'MUTE_REPO':
-			return { ...state, mutedRepos: [...state.mutedRepos, action.repo] };
-		case 'UNMUTE_REPO':
-			return {
-				...state,
-				mutedRepos: state.mutedRepos.filter(
-					repoName => repoName !== action.repo
-				),
-			};
-		case 'SET_FILTER_TYPE':
-			return { ...state, filterType: action.filterType };
+		switch (action.type) {
+			case 'NOTE_APP_VISIBLE':
+				return { ...state, appVisible: action.visible };
+			case 'FETCH_BEGIN':
+				return Object.assign({}, state, {
+					fetchingInProgress: true,
+					fetchingStartedAt: Date.now(),
+				});
+			case 'FETCH_END':
+				return Object.assign({}, state, { fetchingInProgress: false });
+			case 'ADD_CONNECTION_ERROR':
+				return Object.assign({}, state, {
+					errors: [...state.errors, action.error],
+					lastChecked: Date.now(),
+				});
+			case 'CLEAR_ERRORS':
+				return Object.assign({}, state, { errors: [] });
+			case 'MARK_NOTE_UNREAD':
+				return Object.assign({}, state, {
+					notes: state.notes.map(note => {
+						if (getNoteId(note) === getNoteId(action.note)) {
+							return Object.assign({}, note, { gitnewsMarkedUnread: true });
+						}
+						return note;
+					}),
+				});
+			case 'MARK_NOTE_READ':
+				return Object.assign({}, state, {
+					notes: state.notes.map(note => {
+						if (getNoteId(note) === getNoteId(action.note)) {
+							return Object.assign({}, note, {
+								unread: false,
+								gitnewsMarkedUnread: false,
+							});
+						}
+						return note;
+					}),
+				});
+			case 'MARK_ALL_NOTES_SEEN': {
+				const notes = state.notes.filter(x => x.api).map(note =>
+					Object.assign(note, { gitnewsSeen: true, gitnewsSeenAt: Date.now() })
+				);
+				return Object.assign({}, state, { notes });
+			}
+			case 'CHANGE_TOKEN':
+				return Object.assign({}, state, { token: action.token });
+			case 'OFFLINE':
+				return Object.assign({}, state, {
+					offline: true,
+					lastChecked: Date.now(),
+					fetchInterval: getFetchInterval(secsToMs(60), state.fetchRetryCount),
+					fetchRetryCount: state.fetchRetryCount + 1,
+				});
+			case 'NOTES_RETRIEVED':
+				return Object.assign({}, state, {
+					offline: false,
+					lastChecked: Date.now(),
+					lastSuccessfulCheck: Date.now(),
+					fetchRetryCount: 0,
+					errors: [],
+					fetchInterval: defaultFetchInterval,
+					notes: mergeNotifications(state.notes, action.notes),
+				});
+			case 'CHANGE_AUTO_LOAD':
+				return Object.assign({}, state, { isAutoLoadEnabled: action.isEnabled });
+			case 'MUTE_REPO':
+				return { ...state, mutedRepos: [...state.mutedRepos, action.repo] };
+			case 'UNMUTE_REPO':
+				return {
+					...state,
+					mutedRepos: state.mutedRepos.filter(
+						repoName => repoName !== action.repo
+					),
+				};
+			case 'SET_FILTER_TYPE':
+				return { ...state, filterType: action.filterType };
+		}
+		return state;
 	}
-	return state;
 }
 
 export function muteRepo(repo) {

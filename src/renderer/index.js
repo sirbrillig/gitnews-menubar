@@ -9,7 +9,7 @@ import storage from 'redux-persist/lib/storage';
 import App from './components/app';
 import AppWrapper from './components/app-wrapper';
 
-import { reducer } from './lib/reducer';
+import { createReducer } from './lib/reducer';
 import { createFetcher } from './lib/gitnews-fetcher';
 import { electronMiddleware } from './lib/electron-middleware';
 import { configMiddleware } from './lib/config-middleware';
@@ -18,7 +18,6 @@ import { createGitHubMiddleware } from './lib/github-middleware';
 import './styles.css';
 
 const persistConfig = { key: 'gitnews-state', storage };
-const persistedReducer = persistReducer(persistConfig, reducer);
 
 const logger = createLogger({
 	collapsed: true,
@@ -40,8 +39,11 @@ async function runApp() {
 		return;
 	}
 	const isDemoMode = await window.electronApi.isDemoMode();
+	const token = await window.electronApi.getToken();
 	const githubMiddleware = createGitHubMiddleware(isDemoMode);
 	const fetcher = createFetcher(isDemoMode);
+	const reducer = createReducer(token);
+	const persistedReducer = persistReducer(persistConfig, reducer);
 	const store = createStore(
 		persistedReducer,
 		applyMiddleware(

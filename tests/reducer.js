@@ -1,7 +1,9 @@
 /* globals describe, it, beforeEach */
-const { reducer } = require( '../src/common/lib/reducer' );
+const { createReducer } = require( '../src/renderer/lib/reducer' );
 const { secsToMs } = require( '../src/common/lib/helpers' );
 const { expect } = require( 'chai' );
+
+const reducer = createReducer('');
 
 describe( 'reducer', function() {
 	describe( 'CLEAR_ERRORS', function() {

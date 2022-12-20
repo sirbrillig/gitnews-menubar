@@ -8,7 +8,7 @@ const {
 const { menubar } = require('menubar');
 const isDev = require('electron-is-dev');
 const electronDebug = require('electron-debug');
-const { setToken } = require( '../common/lib/token' );
+const { setToken, getToken } = require( '../common/lib/token' );
 const { version } = require('../../package.json');
 const { getIconForState } = require('../common/lib/icon-path');
 const unhandled = require('electron-unhandled');
@@ -112,6 +112,10 @@ ipcMain.on('toggle-auto-launch', (event, isEnabled) => {
 		autoLauncher.disable();
 	}
 });
+
+ipcMain.handle('token:get', async () => {
+	return getToken();
+})
 
 ipcMain.handle('is-auto-launch:get', async () => {
 	return autoLauncher.isEnabled();

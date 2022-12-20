@@ -27,6 +27,7 @@ export function createFetcher(isDemoMode) {
 	const fetcher = store => next => action => {
 		// eslint-disable-line no-unused-vars
 		if (action.type === 'CHANGE_TOKEN') {
+			debug('token being changed; fetching with new token');
 			performFetch(
 				Object.assign({}, store.getState(), { token: action.token }),
 				next
@@ -38,6 +39,7 @@ export function createFetcher(isDemoMode) {
 			return next(action);
 		}
 
+		debug('fetching with existing token');
 		performFetch(store.getState(), next);
 	};
 
@@ -75,12 +77,12 @@ export function createFetcher(isDemoMode) {
 				.catch(err => {
 					debug('fetching notifications failed with the error', err);
 					next(fetchDone());
-					getErrorHandler(next)(err);
+					getErrorHandler(next)(err, token);
 				});
 		} catch (err) {
 			debug('fetching notifications threw an error', err);
 			next(fetchDone());
-			getErrorHandler(next)(err);
+			getErrorHandler(next)(err, token);
 		}
 	}
 
@@ -190,10 +192,17 @@ async function getDemoNotifications() {
 
 
 export function getErrorHandler(dispatch) {
-	return function handleFetchError(err) {
-		if (err.code === 'GitHubTokenNotFound') {
-			debug('notifications check failed because there is no token');
+	return function handleFetchError(err, token = null) {
+		if (err.code === 'GitHubTokenNotFound' && ! token) {
+			debug('notifications check failed because there is no token; taking no action');
 			// Do nothing. The case of having no token is handled in the App component.
+			return;
+		}
+		if (err.code === 'GitHubTokenNotFound' && token) {
+			debug('notifications check failed because there is no token, even though one is set');
+			const errorString = 'Error fetching notifications: ' + getErrorMessage(err);
+			console.error(errorString); //eslint-disable-line no-console
+			dispatch(addConnectionError(errorString));
 			return;
 		}
 		if (isOfflineCode(err.code)) {
