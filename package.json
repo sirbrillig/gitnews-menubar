@@ -54,6 +54,7 @@
     "@vercel/webpack-asset-relocator-loader": "1.7.3",
     "chai": "^4.0.0",
     "chai-sinon": "^2.8.1",
+    "copy-webpack-plugin": "^11.0.0",
     "electron": "^22.0.0",
     "electron-react-devtools": "^0.5.3",
     "electron-webpack": "^2.8.2",
