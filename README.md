@@ -37,9 +37,7 @@ When you run Gitnews, you will need to generate an API key from your GitHub acco
 
 gitnews-menubar is built using [Electron](https://electron.atom.io/), [React](https://facebook.github.io/react/), and [gitnews](https://github.com/sirbrillig/gitnews).
 
-To run the development version from the source, first install all dependencies by running `yarn` (you must have [yarn](https://yarnpkg.com/en/) installed for this to work). Next run the command `npm start`.
-
-If you need to open the developer tools in the production build, you can do so by pressing `CMD-SHIFT-c`.
+To run the development version from the source, first install all dependencies by running `yarn` (you must have [yarn](https://yarnpkg.com/en/) installed for this to work). Next run the command `yarn start`.
 
 The app uses [debug](https://github.com/visionmedia/debug), so you can enable all sorts of debug output in the console by typing
 
@@ -57,6 +55,6 @@ GITNEWS_DEMO_MODE=y
 
 To create a packaged Mac OS App, first install dependencies by running `yarn` (you must have [yarn](https://yarnpkg.com/en/) installed for this to work).
 
-Next run the following command: `npm run build`.
+Next run the following command: `yarn run build`.
 
-You will then find an executable application in the `dist` directory.
+You will then find an executable application in the `out` directory.
