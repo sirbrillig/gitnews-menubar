@@ -1,6 +1,6 @@
 const path = require( 'path' );
 const debugFactory = require('debug');
-const { app, nativeImage, nativeTheme } = require( 'electron' );
+const { nativeImage, nativeTheme } = require( 'electron' );
 
 const debug = debugFactory('gitnews-menubar:main');
 
@@ -23,7 +23,7 @@ function getIconPathBuilder( appDir ) {
 }
 
 function getIconForState( state ) {
-	const getIconPathForState = getIconPathBuilder( './' );
+	const getIconPathForState = getIconPathBuilder( __dirname );
 	const iconPath = getIconPathForState( state );
 	debug('icon is', iconPath);
 	return nativeImage.createFromPath(iconPath);
@@ -32,5 +32,4 @@ function getIconForState( state ) {
 module.exports = {
 	getIconPathBuilder,
 	getIconForState,
-	getIconPathForState: getIconPathBuilder( app.getAppPath() ),
 };
