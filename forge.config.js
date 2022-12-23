@@ -15,7 +15,7 @@ module.exports = {
             html: './src/renderer/index.html',
             js: './src/renderer/index.tsx',
             preload: {
-              js: './src/preload.js',
+              js: './src/preload.ts',
             },
           }],
         }

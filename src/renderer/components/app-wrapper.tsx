@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import {
@@ -8,8 +7,17 @@ import {
 	markAppShown,
 } from '../lib/reducer';
 
-class AppWrapper extends React.Component {
-	constructor(props) {
+interface AppWrapperProps {
+	quitApp: () => void;
+	markAllNotesSeen: () => void;
+	scrollToTop: () => void;
+	markAppHidden: () => void;
+	markAppShown: () => void;
+	children: React.ReactNode;
+}
+
+class AppWrapper extends React.Component<AppWrapperProps> {
+	constructor(props: AppWrapperProps) {
 		super(props);
 		window.electronApi.onHide(() => {
 			this.props.markAppHidden();
@@ -27,14 +35,6 @@ class AppWrapper extends React.Component {
 		return this.props.children;
 	}
 }
-
-AppWrapper.propTypes = {
-	// Functions
-	quitApp: PropTypes.func.isRequired,
-	// All following are provided by connect
-	markAllNotesSeen: PropTypes.func.isRequired,
-	scrollToTop: PropTypes.func.isRequired,
-};
 
 const actions = {
 	markAllNotesSeen,
