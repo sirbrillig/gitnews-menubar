@@ -17,6 +17,10 @@ export interface Note {
 	gitnewsMarkedUnread: boolean;
 	gitnewsSeen: boolean;
 	api: NoteApi;
+	commentUrl: string;
+	updatedAt: number;
+	commentAvatar?: string;
+	repositoryOwnerAvatar?: string;
 }
 
 export interface AppReduxState {
