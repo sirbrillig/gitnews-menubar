@@ -4,6 +4,11 @@ module.exports = {
 		es6: true,
 		node: true,
 	},
+	overrides: [
+		{
+			"files": ["*.jsx", "*.js", "*.tsx"],
+		}
+	],
 	extends: ['eslint:recommended', 'plugin:react/recommended'],
 	globals: {
 		Atomics: 'readonly',
