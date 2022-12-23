@@ -27,7 +27,7 @@ import {
 } from '../lib/reducer';
 import SearchNotifications from './search-notifications';
 import doesNoteMatchFilter from '../lib/does-note-match-filter';
-import { Note, AppReduxState } from '../types';
+import { Note, AppReduxState, AppPane } from '../types';
 
 const debug = debugFactory('gitnews-menubar');
 
@@ -38,7 +38,7 @@ interface AppProps {
 	// All following are provided by connect
 	changeToken: (token: string) => void;
 	setIcon: (icon: string) => void;
-	openUrl: (url: string) => void;
+	openUrl: (url: string, options: Electron.OpenExternalOptions) => void;
 	fetchNotifications: () => void;
 	markRead: (token: string, note: Note) => void;
 	markUnread: (note: Note) => void;
@@ -52,9 +52,9 @@ interface AppProps {
 	offline: boolean;
 	errors: string[];
 	token: string | undefined;
-	lastSuccessfulCheck: number | boolean;
+	lastSuccessfulCheck: number | false;
 	fetchingInProgress: boolean;
-	lastChecked: number | boolean;
+	lastChecked: number | false;
 	fetchInterval: number;
 	isAutoLoadEnabled: boolean;
 	filterType: string;
@@ -62,11 +62,7 @@ interface AppProps {
 }
 
 interface AppState {
-	currentPane:
-		| typeof PANE_NOTIFICATIONS
-		| typeof PANE_TOKEN
-		| typeof PANE_CONFIG
-		| typeof PANE_MUTED_REPOS;
+	currentPane: AppPane;
 	searchValue: string;
 }
 

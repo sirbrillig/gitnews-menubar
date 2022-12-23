@@ -1,3 +1,10 @@
+import {
+	PANE_CONFIG,
+	PANE_NOTIFICATIONS,
+	PANE_TOKEN,
+	PANE_MUTED_REPOS,
+} from './lib/constants';
+
 export interface NoteApi {
 	subject?: { state?: string; merged?: boolean };
 }
@@ -86,3 +93,9 @@ export type AppReduxAction =
 	| ActionSetFilterType
 	| MarkAppHidden
 	| MarkAppShown;
+
+export type AppPane =
+		| typeof PANE_NOTIFICATIONS
+		| typeof PANE_TOKEN
+		| typeof PANE_CONFIG
+		| typeof PANE_MUTED_REPOS;
