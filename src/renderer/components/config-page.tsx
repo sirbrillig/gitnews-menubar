@@ -1,6 +1,7 @@
 import React from 'react';
 import Copyright from '../components/copyright';
 import Attributions from '../components/attributions';
+import { ChangeAutoload, OpenUrl } from '../types';
 
 export default function ConfigPage({
 	showEditToken,
@@ -10,8 +11,17 @@ export default function ConfigPage({
 	quitApp,
 	isAutoLoadEnabled,
 	changeAutoLoad,
+}: {
+	showEditToken: () => void;
+	showMutedReposList: () => void;
+	openUrl: OpenUrl;
+	getVersion: () => Promise<string>;
+	quitApp: () => void;
+	isAutoLoadEnabled: boolean;
+	changeAutoLoad: ChangeAutoload;
 }) {
-	const toggleAutoLoad = event => changeAutoLoad(event.target.checked);
+	const toggleAutoLoad = (event: { target: { checked: boolean } }) =>
+		changeAutoLoad(event.target.checked);
 
 	return (
 		<div className="config-page">
