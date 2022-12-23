@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 import debugFactory from 'debug';
 import Header from '../components/header';
 import ErrorsArea from '../components/errors-area';
@@ -28,11 +27,53 @@ import {
 } from '../lib/reducer';
 import SearchNotifications from './search-notifications';
 import doesNoteMatchFilter from '../lib/does-note-match-filter';
+import { Note, AppReduxState } from '../types';
 
 const debug = debugFactory('gitnews-menubar');
 
-class App extends React.Component {
-	constructor(props) {
+interface AppProps {
+	quitApp: () => void;
+	getVersion: () => Promise<string>;
+
+	// All following are provided by connect
+	changeToken: (token: string) => void;
+	setIcon: (icon: string) => void;
+	openUrl: (url: string) => void;
+	fetchNotifications: () => void;
+	markRead: () => void; // TODO
+	markUnread: () => void; // TODO
+	clearErrors: () => void;
+	changeAutoLoad: () => void; // TODO
+	muteRepo: () => void; // TODO
+	unmuteRepo: () => void; // TODO
+	setFilterType: (type: string) => void;
+	notes: Note[]; // TODO
+	mutedRepos: string[];
+	offline: boolean;
+	errors: string[];
+	token: string | undefined;
+	lastSuccessfulCheck: number | boolean;
+	fetchingInProgress: boolean;
+	lastChecked: number | boolean;
+	fetchInterval: number;
+	isAutoLoadEnabled: boolean;
+	filterType: string;
+	appVisible: boolean;
+}
+
+interface AppState {
+	currentPane:
+		| typeof PANE_NOTIFICATIONS
+		| typeof PANE_TOKEN
+		| typeof PANE_CONFIG
+		| typeof PANE_MUTED_REPOS;
+	searchValue: string;
+}
+
+class App extends React.Component<AppProps, AppState> {
+	fetcher: Poller;
+
+	constructor(props: AppProps) {
 		super(props);
 		const shouldComponentPoll = () =>
 			getSecondsUntilNextFetch(
@@ -90,7 +131,19 @@ class App extends React.Component {
 		return this.getUnreadNotifications().filter(note => !note.gitnewsSeen);
 	}
 
-	getNextIcon({ offline, errors, unseenNotes, unreadNotes, filterType }) {
+	getNextIcon({
+		offline,
+		errors,
+		unseenNotes,
+		unreadNotes,
+		filterType,
+	}: {
+		offline: boolean;
+		errors: string[];
+		unseenNotes: Note[];
+		unreadNotes: Note[];
+		filterType: string;
+	}) {
 		if (errors.length) {
 			return 'error';
 		}
@@ -142,7 +195,8 @@ class App extends React.Component {
 		const hideEditToken = () => this.setState({ currentPane: PANE_CONFIG });
 		const showMutedReposList = () =>
 			this.setState({ currentPane: PANE_MUTED_REPOS });
-		const setSearchTo = value => this.setState({ searchValue: value });
+		const setSearchTo = (value: string) =>
+			this.setState({ searchValue: value });
 
 		const showBackButton =
 			token &&
@@ -208,39 +262,7 @@ class App extends React.Component {
 	}
 }
 
-App.propTypes = {
-	// Actions
-	quitApp: PropTypes.func.isRequired,
-	getVersion: PropTypes.func.isRequired,
-	// All following are provided by connect
-	changeToken: PropTypes.func.isRequired,
-	setIcon: PropTypes.func.isRequired,
-	openUrl: PropTypes.func.isRequired,
-	fetchNotifications: PropTypes.func.isRequired,
-	markRead: PropTypes.func.isRequired,
-	markUnread: PropTypes.func.isRequired,
-	clearErrors: PropTypes.func.isRequired,
-	changeAutoLoad: PropTypes.func.isRequired,
-	muteRepo: PropTypes.func.isRequired,
-	unmuteRepo: PropTypes.func.isRequired,
-	setFilterType: PropTypes.func.isRequired,
-
-	// All following are provided by connect
-	notes: PropTypes.array.isRequired,
-	mutedRepos: PropTypes.arrayOf(PropTypes.string).isRequired,
-	offline: PropTypes.bool,
-	errors: PropTypes.array,
-	token: PropTypes.string,
-	lastSuccessfulCheck: PropTypes.oneOfType([PropTypes.number, PropTypes.bool]),
-	fetchingInProgress: PropTypes.bool,
-	lastChecked: PropTypes.oneOfType([PropTypes.number, PropTypes.bool]),
-	fetchInterval: PropTypes.number,
-	isAutoLoadEnabled: PropTypes.bool,
-	filterType: PropTypes.string.isRequired,
-	appVisible: PropTypes.bool.isRequired,
-};
-
-function mapStateToProps(state) {
+function mapStateToProps(state: AppReduxState) {
 	return {
 		notes: state.notes,
 		mutedRepos: state.mutedRepos,
