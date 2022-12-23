@@ -40,14 +40,14 @@ interface AppProps {
 	setIcon: (icon: string) => void;
 	openUrl: (url: string) => void;
 	fetchNotifications: () => void;
-	markRead: () => void; // TODO
-	markUnread: () => void; // TODO
+	markRead: (token: string, note: Note) => void;
+	markUnread: (note: Note) => void;
 	clearErrors: () => void;
-	changeAutoLoad: () => void; // TODO
-	muteRepo: () => void; // TODO
-	unmuteRepo: () => void; // TODO
+	changeAutoLoad: (isEnabled: boolean) => void;
+	muteRepo: (repo: string) => void;
+	unmuteRepo: (repo: string) => void;
 	setFilterType: (type: string) => void;
-	notes: Note[]; // TODO
+	notes: Note[];
 	mutedRepos: string[];
 	offline: boolean;
 	errors: string[];
