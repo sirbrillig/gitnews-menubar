@@ -1,14 +1,16 @@
-const { contextBridge, ipcRenderer } = require('electron');
+import { contextBridge, ipcRenderer } from 'electron';
 
 contextBridge.exposeInMainWorld('electronApi', {
 	quitApp: () => ipcRenderer.send('quit-app'),
-	toggleAutoLaunch: (isEnabled) => ipcRenderer.send('toggle-auto-launch', isEnabled),
-	openUrl: (url, options) => ipcRenderer.send('open-url', url, options),
-	saveToken: (token) => ipcRenderer.send('save-token', token),
-	setIcon: (nextIcon) => ipcRenderer.send('set-icon', nextIcon),
-	onHide: callback => ipcRenderer.on('hide-app', callback),
-	onShow: callback => ipcRenderer.on('show-app', callback),
-	onClick: callback => ipcRenderer.on('menubar-click', callback),
+	toggleAutoLaunch: (isEnabled: boolean) =>
+		ipcRenderer.send('toggle-auto-launch', isEnabled),
+	openUrl: (url: string, options: Electron.OpenExternalOptions) =>
+		ipcRenderer.send('open-url', url, options),
+	saveToken: (token: string) => ipcRenderer.send('save-token', token),
+	setIcon: (nextIcon: string) => ipcRenderer.send('set-icon', nextIcon),
+	onHide: (callback: () => void) => ipcRenderer.on('hide-app', callback),
+	onShow: (callback: () => void) => ipcRenderer.on('show-app', callback),
+	onClick: (callback: () => void) => ipcRenderer.on('menubar-click', callback),
 	getToken: () => ipcRenderer.invoke('token:get'),
 	getVersion: () => ipcRenderer.invoke('version:get'),
 	isDemoMode: () => ipcRenderer.invoke('is-demo-mode:get'),

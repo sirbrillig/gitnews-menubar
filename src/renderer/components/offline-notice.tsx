@@ -5,6 +5,10 @@ export default function OfflineNotice({
 	fetchNotifications,
 	lastChecked,
 	fetchInterval,
+}: {
+	fetchNotifications: () => void;
+	lastChecked: false | number;
+	fetchInterval: number;
 }) {
 	const secondsRemaining = getSecondsUntilNextFetch(lastChecked, fetchInterval);
 	if (secondsRemaining < 1) {
@@ -20,7 +24,11 @@ export default function OfflineNotice({
 				I&apos;m having trouble connecting. Retrying in {secondsRemaining}{' '}
 				seconds.
 			</span>{' '}
-			<button className="retry-button" onClick={fetchNotifications} aria-label="Retry fetching now">
+			<button
+				className="retry-button"
+				onClick={fetchNotifications}
+				aria-label="Retry fetching now"
+			>
 				Retry now
 			</button>
 		</div>
