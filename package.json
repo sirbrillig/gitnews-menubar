@@ -10,6 +10,7 @@
     "prepare-release": "npm run dist-clean && npm run build",
     "build": "yarn && yarn make",
     "test": "NODE_PATH=./src mocha tests",
+    "typecheck": "yarn tsc --noEmit",
     "package": "electron-forge package",
     "make": "electron-forge make"
   },
