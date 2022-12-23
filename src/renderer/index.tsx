@@ -17,6 +17,25 @@ import { createGitHubMiddleware } from './lib/github-middleware';
 
 import './styles.css';
 
+declare global {
+	interface Window {
+		electronApi: {
+			quitApp: () => void;
+			toggleAutoLaunch: (isEnabled: boolean) => void;
+			openUrl: (url: string, options: Electron.OpenExternalOptions) => void;
+			saveToken: (token: string) => void;
+			setIcon: (nextIcon: string) => void;
+			onHide: (callback: () => void) => void;
+			onShow: (callback: () => void) => void;
+			onClick: (callback: () => void) => void;
+			getToken: () => Promise<string>;
+			getVersion: () => Promise<string>;
+			isDemoMode: () => Promise<boolean>;
+			isAutoLaunchEnabled: () => Promise<boolean>;
+		};
+	}
+}
+
 const persistConfig = { key: 'gitnews-state', storage };
 
 const logger = createLogger({
@@ -24,11 +43,11 @@ const logger = createLogger({
 	level: 'info',
 });
 
-function quitApp() {
+function quitApp(): void {
 	window.electronApi.quitApp();
 }
 
-async function getVersion() {
+async function getVersion(): Promise<string> {
 	return window.electronApi.getVersion();
 }
 
