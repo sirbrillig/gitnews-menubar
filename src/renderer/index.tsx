@@ -16,26 +16,6 @@ import { configMiddleware } from './lib/config-middleware';
 import { createGitHubMiddleware } from './lib/github-middleware';
 
 import './styles.css';
-import { OpenUrl } from './types';
-
-declare global {
-	interface Window {
-		electronApi: {
-			quitApp: () => void;
-			toggleAutoLaunch: (isEnabled: boolean) => void;
-			openUrl: OpenUrl;
-			saveToken: (token: string) => void;
-			setIcon: (nextIcon: string) => void;
-			onHide: (callback: () => void) => void;
-			onShow: (callback: () => void) => void;
-			onClick: (callback: () => void) => void;
-			getToken: () => Promise<string>;
-			getVersion: () => Promise<string>;
-			isDemoMode: () => Promise<boolean>;
-			isAutoLaunchEnabled: () => Promise<boolean>;
-		};
-	}
-}
 
 const persistConfig = { key: 'gitnews-state', storage };
 
