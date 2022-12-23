@@ -50,13 +50,13 @@ export default function MainPane({
 	hideEditToken: () => void;
 	showEditToken: () => void;
 	showMutedReposList: () => void;
-	lastSuccessfulCheck: Pick<AppReduxState, 'lastSuccessfulCheck'>;
+	lastSuccessfulCheck: AppReduxState['lastSuccessfulCheck'];
 	getVersion: () => Promise<string>;
 	newNotes: Note[];
 	readNotes: Note[];
 	markRead: MarkRead;
 	markUnread: MarkUnread;
-	fetchingInProgress: Pick<AppReduxState, 'fetchingInProgress'>;
+	fetchingInProgress: AppReduxState['fetchingInProgress'];
 	isAutoLoadEnabled: boolean;
 	changeAutoLoad: ChangeAutoload;
 	muteRepo: MuteRepo;

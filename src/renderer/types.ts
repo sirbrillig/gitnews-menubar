@@ -10,6 +10,8 @@ export interface NoteApi {
 }
 
 export interface Note {
+	id: string;
+	title: string;
 	unread: boolean;
 	repositoryFullName: string;
 	gitnewsMarkedUnread: boolean;
@@ -96,7 +98,7 @@ export type AppReduxAction =
 
 export type OpenUrl = (
 	url: string,
-	options: Electron.OpenExternalOptions
+	options?: Electron.OpenExternalOptions
 ) => void;
 
 export type MarkRead = (token: string, note: Note) => void;

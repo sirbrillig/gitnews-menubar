@@ -16,13 +16,14 @@ import { configMiddleware } from './lib/config-middleware';
 import { createGitHubMiddleware } from './lib/github-middleware';
 
 import './styles.css';
+import { OpenUrl } from './types';
 
 declare global {
 	interface Window {
 		electronApi: {
 			quitApp: () => void;
 			toggleAutoLaunch: (isEnabled: boolean) => void;
-			openUrl: (url: string, options: Electron.OpenExternalOptions) => void;
+			openUrl: OpenUrl;
 			saveToken: (token: string) => void;
 			setIcon: (nextIcon: string) => void;
 			onHide: (callback: () => void) => void;

@@ -163,7 +163,7 @@ export function fetchNotifications() {
 	return { type: 'GITNEWS_FETCH_NOTIFICATIONS' };
 }
 
-export function openUrl(url: string, options: Electron.OpenExternalOptions) {
+export function openUrl(url: string, options?: Electron.OpenExternalOptions) {
 	return { type: 'OPEN_URL', url, options };
 }
 

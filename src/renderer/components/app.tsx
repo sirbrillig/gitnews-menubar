@@ -27,7 +27,17 @@ import {
 } from '../lib/reducer';
 import SearchNotifications from './search-notifications';
 import doesNoteMatchFilter from '../lib/does-note-match-filter';
-import { Note, AppReduxState, AppPane } from '../types';
+import {
+	Note,
+	AppReduxState,
+	AppPane,
+	OpenUrl,
+	MarkRead,
+	MarkUnread,
+	ChangeAutoload,
+	MuteRepo,
+	UnmuteRepo,
+} from '../types';
 
 const debug = debugFactory('gitnews-menubar');
 
@@ -38,14 +48,14 @@ interface AppProps {
 	// All following are provided by connect
 	changeToken: (token: string) => void;
 	setIcon: (icon: string) => void;
-	openUrl: (url: string, options: Electron.OpenExternalOptions) => void;
+	openUrl: OpenUrl;
 	fetchNotifications: () => void;
-	markRead: (token: string, note: Note) => void;
-	markUnread: (note: Note) => void;
+	markRead: MarkRead;
+	markUnread: MarkUnread;
 	clearErrors: () => void;
-	changeAutoLoad: (isEnabled: boolean) => void;
-	muteRepo: (repo: string) => void;
-	unmuteRepo: (repo: string) => void;
+	changeAutoLoad: ChangeAutoload;
+	muteRepo: MuteRepo;
+	unmuteRepo: UnmuteRepo;
 	setFilterType: (type: string) => void;
 	notes: Note[];
 	mutedRepos: string[];

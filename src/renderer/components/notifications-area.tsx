@@ -5,10 +5,18 @@ import Notification from '../components/notification';
 import { getNoteId } from '../lib/helpers';
 import { useGetGitnewsUpdate } from '../lib/updates';
 import doesNoteMatchFilter from '../lib/does-note-match-filter';
+import {
+	MarkRead,
+	MarkUnread,
+	MuteRepo,
+	Note,
+	OpenUrl,
+	UnmuteRepo,
+} from '../types';
 
 const debug = debugFactory('gitnews-menubar');
 
-function NoNotificationsIcon({ children }) {
+function NoNotificationsIcon({ children }: { children: React.ReactNode }) {
 	return (
 		<div>
 			<Gridicon
@@ -42,6 +50,19 @@ export default function NotificationsArea({
 	searchValue,
 	filterType,
 	appVisible,
+}: {
+	newNotes: Note[];
+	readNotes: Note[];
+	markRead: MarkRead;
+	muteRepo: MuteRepo;
+	unmuteRepo: UnmuteRepo;
+	mutedRepos: string[];
+	markUnread: MarkUnread;
+	openUrl: OpenUrl;
+	token: string;
+	searchValue: string;
+	filterType: string;
+	appVisible: boolean;
 }) {
 	const {
 		isUpdateAvailable,
@@ -50,7 +71,7 @@ export default function NotificationsArea({
 	} = useGetGitnewsUpdate();
 	const [notesToOpen, setNotesToOpen] = React.useState([]);
 	const [isMultiOpenMode, setMultiOpenMode] = React.useState(false);
-	const saveNoteToOpen = note => {
+	const saveNoteToOpen = (note: Note) => {
 		if (isNoteInNotes(note, notesToOpen)) {
 			setNotesToOpen(notes => notes.filter(noteToOpen => noteToOpen !== note));
 			return;
@@ -66,14 +87,14 @@ export default function NotificationsArea({
 		});
 		setNotesToOpen([]);
 	}, [notesToOpen, openUrl, markRead, token]);
-	const onKeyUp = React.useCallback(event => {
+	const onKeyUp = React.useCallback((event: KeyboardEvent) => {
 		debug('Notification keyUp', event.code);
 		if (event.code.includes('Meta')) {
 			setMultiOpenMode(false);
 		}
 	}, []);
 	const onKeyDown = React.useCallback(
-		event => {
+		(event: KeyboardEvent) => {
 			if (event.code.includes('Meta')) {
 				setMultiOpenMode(true);
 			}
@@ -105,7 +126,9 @@ export default function NotificationsArea({
 		};
 	}, [onKeyDown]);
 
-	const [muteRequestedFor, setMuteRequested] = React.useState(false);
+	const [muteRequestedFor, setMuteRequested] = React.useState<Note | false>(
+		false
+	);
 
 	const orderedNotes = [...newNotes, ...readNotes]
 		.filter(note => doesNoteMatchSearch(note, searchValue))
@@ -134,12 +157,18 @@ export default function NotificationsArea({
 			{newNotes.length === 0 && readNotes.length === 0 && <NoNotifications />}
 			{noteRows}
 			{isMultiOpenMode && <MultiOpenNotice />}
-			{isUpdateAvailable && <UpdateAvailableNotice url={updateUrl} newVersion={updatedVersion} openUrl={openUrl} />}
+			{isUpdateAvailable && (
+				<UpdateAvailableNotice
+					url={updateUrl}
+					newVersion={updatedVersion}
+					openUrl={openUrl}
+				/>
+			)}
 		</div>
 	);
 }
 
-function doesNoteMatchSearch(note, searchValue) {
+function doesNoteMatchSearch(note: Note, searchValue: string) {
 	if (note.title.toLowerCase().includes(searchValue.toLowerCase())) {
 		return true;
 	}
@@ -151,7 +180,7 @@ function doesNoteMatchSearch(note, searchValue) {
 	return false;
 }
 
-function isNoteInNotes(note, notes) {
+function isNoteInNotes(note: Note, notes: Note[]) {
 	return notes.some(item => item.id === note.id);
 }
 
@@ -163,11 +192,21 @@ function MultiOpenNotice() {
 	);
 }
 
-function UpdateAvailableNotice({url, newVersion, openUrl}) {
+function UpdateAvailableNotice({
+	url,
+	newVersion,
+	openUrl,
+}: {
+	url: string;
+	newVersion: string;
+	openUrl: OpenUrl;
+}) {
 	return (
 		<div className="update-available-notice">
 			<span>
-				<button onClick={() => openUrl(url)}>{`A new version (${newVersion}) of Gitnews is available.`}</button>
+				<button
+					onClick={() => openUrl(url)}
+				>{`A new version (${newVersion}) of Gitnews is available.`}</button>
 			</span>
 		</div>
 	);
