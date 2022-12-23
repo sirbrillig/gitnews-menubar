@@ -5,3 +5,4 @@ icon-experiments
 
 out/
 .webpack
+yarn-error.log
