@@ -4,11 +4,18 @@ import UncheckedNotice from '../components/unchecked-notice';
 import AddTokenForm from '../components/add-token-form';
 import NotificationsArea from '../components/notifications-area';
 import MutedReposList from '../components/muted-repos-list';
+import { PANE_CONFIG, PANE_TOKEN, PANE_MUTED_REPOS } from '../lib/constants';
 import {
-	PANE_CONFIG,
-	PANE_TOKEN,
-	PANE_MUTED_REPOS,
-} from '../lib/constants';
+	AppReduxState,
+	ChangeAutoload,
+	MarkRead,
+	MarkUnread,
+	MuteRepo,
+	Note,
+	OpenUrl,
+	UnmuteRepo,
+} from '../types';
+import { AppPane } from '../types';
 
 export default function MainPane({
 	token,
@@ -34,6 +41,30 @@ export default function MainPane({
 	searchValue,
 	filterType,
 	appVisible,
+}: {
+	token: string;
+	currentPane: AppPane;
+	openUrl: OpenUrl;
+	changeToken: (token: string) => void;
+	quitApp: () => void;
+	hideEditToken: () => void;
+	showEditToken: () => void;
+	showMutedReposList: () => void;
+	lastSuccessfulCheck: Pick<AppReduxState, 'lastSuccessfulCheck'>;
+	getVersion: () => Promise<string>;
+	newNotes: Note[];
+	readNotes: Note[];
+	markRead: MarkRead;
+	markUnread: MarkUnread;
+	fetchingInProgress: Pick<AppReduxState, 'fetchingInProgress'>;
+	isAutoLoadEnabled: boolean;
+	changeAutoLoad: ChangeAutoload;
+	muteRepo: MuteRepo;
+	unmuteRepo: UnmuteRepo;
+	mutedRepos: string[];
+	searchValue: string;
+	filterType: string;
+	appVisible: boolean;
 }) {
 	if (!token || currentPane === PANE_TOKEN) {
 		return (

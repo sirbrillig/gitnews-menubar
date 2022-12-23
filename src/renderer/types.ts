@@ -94,8 +94,23 @@ export type AppReduxAction =
 	| MarkAppHidden
 	| MarkAppShown;
 
+export type OpenUrl = (
+	url: string,
+	options: Electron.OpenExternalOptions
+) => void;
+
+export type MarkRead = (token: string, note: Note) => void;
+
+export type MarkUnread = (note: Note) => void;
+
+export type ChangeAutoload = (isEnabled: boolean) => void;
+
+export type MuteRepo = (repo: string) => void;
+
+export type UnmuteRepo = (repo: string) => void;
+
 export type AppPane =
-		| typeof PANE_NOTIFICATIONS
-		| typeof PANE_TOKEN
-		| typeof PANE_CONFIG
-		| typeof PANE_MUTED_REPOS;
+	| typeof PANE_NOTIFICATIONS
+	| typeof PANE_TOKEN
+	| typeof PANE_CONFIG
+	| typeof PANE_MUTED_REPOS;
