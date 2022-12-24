@@ -1,9 +1,16 @@
 import React from 'react';
+import { OpenUrl } from '../types';
 
-export default function UncheckedNotice({ fetchingInProgress, openUrl }) {
-	const openLink = event => {
+export default function UncheckedNotice({
+	fetchingInProgress,
+	openUrl,
+}: {
+	fetchingInProgress: boolean;
+	openUrl: OpenUrl;
+}) {
+	const openLink = (event: React.MouseEvent<HTMLAnchorElement>) => {
 		event.preventDefault();
-		openUrl(event.target.href);
+		openUrl((event.target as HTMLAnchorElement).href);
 	};
 	const message = fetchingInProgress
 		? 'Checking for notifications...'
@@ -15,7 +22,8 @@ export default function UncheckedNotice({ fetchingInProgress, openUrl }) {
 				If this message does not disappear, please create a new issue{' '}
 				<a
 					href="https://github.com/sirbrillig/gitnews-menubar/issues/new"
-					onClick={openLink}>
+					onClick={openLink}
+				>
 					here
 				</a>{' '}
 				describing what happened.
