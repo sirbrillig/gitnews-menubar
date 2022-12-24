@@ -16,6 +16,7 @@ export interface Note {
 	repositoryFullName: string;
 	gitnewsMarkedUnread: boolean;
 	gitnewsSeen: boolean;
+	gitnewsSeenAt: number;
 	api: NoteApi;
 	commentUrl: string;
 	updatedAt: number;

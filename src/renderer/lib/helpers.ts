@@ -1,13 +1,18 @@
+import { Note } from '../types';
+
 const maxFetchInterval = secsToMs(300); // 5 minutes
 
-export function getNoteId(note) {
+export function getNoteId(note: Note) {
 	return note.id;
 }
 
-export function mergeNotifications(prevNotes, nextNotes) {
-	const getMatchingPrevNote = note =>
+export function mergeNotifications(
+	prevNotes: Note[],
+	nextNotes: Note[]
+): Note[] {
+	const getMatchingPrevNote = (note: Note) =>
 		prevNotes.find(prevNote => getNoteId(prevNote) === getNoteId(note));
-	const hasNoteUpdated = (note, prevNote) =>
+	const hasNoteUpdated = (note: Note, prevNote: Note) =>
 		note.updatedAt > prevNote.gitnewsSeenAt;
 
 	return nextNotes.map(note => {
@@ -22,15 +27,15 @@ export function mergeNotifications(prevNotes, nextNotes) {
 	});
 }
 
-export function msToSecs(ms) {
-	return parseInt(ms * 0.001, 10);
+export function msToSecs(ms: number): number {
+	return Math.round(ms * 0.001);
 }
 
-export function secsToMs(secs) {
+export function secsToMs(secs: number): number {
 	return secs * 1000;
 }
 
-export function isOfflineCode(code) {
+export function isOfflineCode(code: string): boolean {
 	const offlineCodes = [
 		'ENETDOWN',
 		'ENOTFOUND',
@@ -43,7 +48,7 @@ export function isOfflineCode(code) {
 	return offlineCodes.includes(code);
 }
 
-export function getFetchInterval(interval, retryCount) {
+export function getFetchInterval(interval: number, retryCount: number): number {
 	const fetchInterval = interval * (retryCount + 1);
 	if (fetchInterval > maxFetchInterval) {
 		return maxFetchInterval;
@@ -51,8 +56,12 @@ export function getFetchInterval(interval, retryCount) {
 	return fetchInterval;
 }
 
-export function getErrorMessage(error) {
-	error = error || {};
+export function getErrorMessage(
+	error: undefined | null | Record<string, string>
+): string {
+	if (!error) {
+		error = {};
+	}
 	return [
 		error.status,
 		error.code,
@@ -65,15 +74,18 @@ export function getErrorMessage(error) {
 		.join('; ');
 }
 
-export function isGitHubOffline(error) {
+export function isGitHubOffline(error: Record<string, string>): boolean {
 	return error.status && error.status.toString().startsWith('5');
 }
 
-export function isInvalidJson(error) {
+export function isInvalidJson(error: Record<string, string>): boolean {
 	return error.type === 'invalid-json';
 }
 
-export function getSecondsUntilNextFetch(lastChecked, fetchInterval) {
+export function getSecondsUntilNextFetch(
+	lastChecked: number,
+	fetchInterval: number
+): number {
 	const interval = fetchInterval - (Date.now() - (lastChecked || 0));
 	return interval < 0 ? 0 : msToSecs(interval);
 }
