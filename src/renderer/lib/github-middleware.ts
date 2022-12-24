@@ -1,14 +1,15 @@
 // require('dotenv').config();
 
-const { createNoteMarkRead } = require('gitnews');
+import { Middleware } from 'redux';
+import { AppReduxState } from '../types';
+import { createNoteMarkRead, Note } from 'gitnews';
 
-export function createGitHubMiddleware() {
+export function createGitHubMiddleware(): Middleware<object, AppReduxState> {
 	const markNotificationRead = createNoteMarkRead({
 		fetch: (url, options) => fetch(url, options),
 		log: message => console.log('Gitnews: ' + message),
 	});
 
-	// eslint-disable-next-line no-unused-vars,no-undef
 	return store => next => action => {
 		switch (action.type) {
 			case 'MARK_NOTE_READ': {
@@ -21,7 +22,7 @@ export function createGitHubMiddleware() {
 		next(action);
 	};
 
-	function markNoteRead(token, note) {
+	function markNoteRead(token: string, note: Note) {
 		markNotificationRead(token, note);
 	}
 }

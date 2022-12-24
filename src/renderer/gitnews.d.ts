@@ -23,7 +23,11 @@ declare module 'gitnews' {
 		repositoryOwnerAvatar?: string;
 	}
 
-	export type NoteGetter = (token: string) => Promise<Note[]>;
+	export type GetNotes = (token: string) => Promise<Note[]>;
 
-	export function createNoteGetter(options: NoteGetterOptions): NoteGetter;
+	export type MarkNoteRead = (token, note: Note) => void;
+
+	export function createNoteGetter(options: NoteGetterOptions): GetNotes;
+
+	export function createNoteMarkRead(options: NoteGetterOptions): MarkNoteRead;
 }
