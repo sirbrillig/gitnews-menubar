@@ -1,0 +1,19 @@
+name: Tests
+
+on:
+  # Run on all pushes and pull requests.
+  push:
+  pull_request:
+  # Allow manually triggering the workflow.
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Run Jest
+    - run: yarn install
+    - run: yarn test
