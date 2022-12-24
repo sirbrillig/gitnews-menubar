@@ -24,11 +24,11 @@ const logger = createLogger({
 	level: 'info',
 });
 
-function quitApp() {
+function quitApp(): void {
 	window.electronApi.quitApp();
 }
 
-async function getVersion() {
+async function getVersion(): Promise<string> {
 	return window.electronApi.getVersion();
 }
 

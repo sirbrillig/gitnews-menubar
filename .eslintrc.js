@@ -25,4 +25,19 @@ module.exports = {
 		'no-console': 'off',
 	},
 	settings: { react: { version: 'detect' } },
+	overrides: [
+		{
+			files: ['**/*.ts', '**/*.tsx'],
+			extends: [
+				'eslint:recommended',
+				'plugin:@typescript-eslint/eslint-recommended',
+				'plugin:@typescript-eslint/recommended',
+			],
+			parser: '@typescript-eslint/parser',
+			parserOptions: {
+				project: './tsconfig.json',
+			},
+			plugins: ['@typescript-eslint'],
+		},
+	],
 };

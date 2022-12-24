@@ -4,6 +4,14 @@ import debugFactory from 'debug';
 import date from 'date-fns';
 import EnsuredImage from './ensured-image';
 import MuteIcon from './mute-icon';
+import {
+	Note,
+	OpenUrl,
+	MarkRead,
+	MarkUnread,
+	MuteRepo,
+	UnmuteRepo,
+} from '../types';
 
 const debug = debugFactory('gitnews-menubar');
 
@@ -21,6 +29,20 @@ export default function Notification({
 	isMultiOpenMode,
 	isMultiOpenPending,
 	saveNoteToOpen,
+}: {
+	note: Note;
+	openUrl: OpenUrl;
+	markRead: MarkRead;
+	markUnread: MarkUnread;
+	token: string;
+	muteRepo: MuteRepo;
+	unmuteRepo: UnmuteRepo;
+	isMuted: boolean;
+	isMuteRequested: boolean;
+	setMuteRequested: (n: Note | false) => void;
+	isMultiOpenMode: boolean;
+	isMultiOpenPending: boolean;
+	saveNoteToOpen: (n: Note) => void;
 }) {
 	const isUnread =
 		note.unread === true ? true : note.gitnewsMarkedUnread === true;
@@ -65,14 +87,10 @@ export default function Notification({
 		...(isMerged ? ['notification__type--merged'] : []),
 	];
 
-	const doMute = event => {
-		event.preventDefault();
-		event.stopPropagation();
+	const doMute = () => {
 		setMuteRequested(note);
 	};
-	const doUnmute = event => {
-		event.preventDefault();
-		event.stopPropagation();
+	const doUnmute = () => {
 		unmuteRepo(note.repositoryFullName);
 	};
 
@@ -156,7 +174,13 @@ export default function Notification({
 	);
 }
 
-function MuteRepoCancelButton({ onClick, disabled }) {
+function MuteRepoCancelButton({
+	onClick,
+	disabled,
+}: {
+	onClick: () => void;
+	disabled?: boolean;
+}) {
 	return (
 		<button
 			className="notification__mute-confirm__cancel btn--cancel"
@@ -169,7 +193,13 @@ function MuteRepoCancelButton({ onClick, disabled }) {
 	);
 }
 
-function MuteRepoButton({ onClick, disabled }) {
+function MuteRepoButton({
+	onClick,
+	disabled,
+}: {
+	onClick: () => void;
+	disabled?: boolean;
+}) {
 	return (
 		<button
 			className="notification__mute-confirm__confirm btn"
@@ -182,7 +212,13 @@ function MuteRepoButton({ onClick, disabled }) {
 	);
 }
 
-function MuteRepoRequestButton({ onClick, disabled }) {
+function MuteRepoRequestButton({
+	onClick,
+	disabled,
+}: {
+	onClick: () => void;
+	disabled?: boolean;
+}) {
 	if (disabled) {
 		return null;
 	}
@@ -198,7 +234,13 @@ function MuteRepoRequestButton({ onClick, disabled }) {
 	);
 }
 
-function UnmuteRepoButton({ onClick, disabled }) {
+function UnmuteRepoButton({
+	onClick,
+	disabled,
+}: {
+	onClick: () => void;
+	disabled?: boolean;
+}) {
 	if (disabled) {
 		return null;
 	}
@@ -214,11 +256,19 @@ function UnmuteRepoButton({ onClick, disabled }) {
 	);
 }
 
-function MarkReadButton({ note, token, markRead, disabled }) {
-	const onClick = event => {
+function MarkReadButton({
+	note,
+	token,
+	markRead,
+	disabled,
+}: {
+	note: Note;
+	token: string;
+	markRead: MarkRead;
+	disabled?: boolean;
+}) {
+	const onClick = () => {
 		debug('clicked to mark notification as read', note);
-		event.preventDefault();
-		event.stopPropagation();
 		markRead(token, note);
 	};
 	if (disabled) {
@@ -236,11 +286,17 @@ function MarkReadButton({ note, token, markRead, disabled }) {
 	);
 }
 
-function MarkUnreadButton({ note, markUnread, disabled }) {
-	const onClick = event => {
+function MarkUnreadButton({
+	note,
+	markUnread,
+	disabled,
+}: {
+	note: Note;
+	markUnread: MarkUnread;
+	disabled?: boolean;
+}) {
+	const onClick = () => {
 		debug('clicked to mark notification as unread', note);
-		event.preventDefault();
-		event.stopPropagation();
 		markUnread(note);
 	};
 	if (disabled) {
@@ -258,7 +314,13 @@ function MarkUnreadButton({ note, markUnread, disabled }) {
 	);
 }
 
-function getNoteClasses({ isMuted, isUnread }) {
+function getNoteClasses({
+	isMuted,
+	isUnread,
+}: {
+	isMuted?: boolean;
+	isUnread?: boolean;
+}) {
 	if (isMuted) {
 		return ['notification__muted'];
 	}

@@ -4,10 +4,11 @@ import {
 	mergeNotifications,
 	getFetchInterval,
 } from '../lib/helpers';
+import { AppReduxState, AppReduxAction, Note } from '../types';
 
 const defaultFetchInterval = secsToMs(120);
 
-const initialState = {
+const initialState: AppReduxState = {
 	token: undefined,
 	notes: [],
 	errors: [],
@@ -24,8 +25,8 @@ const initialState = {
 	appVisible: false,
 };
 
-export function createReducer(initialToken) {
-	return function(state, action) {
+export function createReducer(initialToken: string) {
+	return function(state: AppReduxState, action: AppReduxAction): AppReduxState {
 		if (!state) {
 			state = { ...initialState, token: initialToken };
 		}
@@ -110,19 +111,19 @@ export function createReducer(initialToken) {
 	}
 }
 
-export function muteRepo(repo) {
+export function muteRepo(repo: string) {
 	return { type: 'MUTE_REPO', repo };
 }
 
-export function unmuteRepo(repo) {
+export function unmuteRepo(repo: string) {
 	return { type: 'UNMUTE_REPO', repo };
 }
 
-export function markRead(token, note) {
+export function markRead(token: string, note: Note) {
 	return { type: 'MARK_NOTE_READ', token, note };
 }
 
-export function markUnread(note) {
+export function markUnread(note: Note) {
 	return { type: 'MARK_NOTE_UNREAD', note };
 }
 
@@ -134,7 +135,7 @@ export function markAllNotesSeen() {
 	return { type: 'MARK_ALL_NOTES_SEEN' };
 }
 
-export function changeToken(token) {
+export function changeToken(token: string) {
 	return { type: 'CHANGE_TOKEN', token };
 }
 
@@ -142,11 +143,11 @@ export function changeToOffline() {
 	return { type: 'OFFLINE' };
 }
 
-export function gotNotes(notes) {
+export function gotNotes(notes: Note[]) {
 	return { type: 'NOTES_RETRIEVED', notes };
 }
 
-export function addConnectionError(error) {
+export function addConnectionError(error: string) {
 	return { type: 'ADD_CONNECTION_ERROR', error };
 }
 
@@ -162,15 +163,15 @@ export function fetchNotifications() {
 	return { type: 'GITNEWS_FETCH_NOTIFICATIONS' };
 }
 
-export function openUrl(url, options) {
+export function openUrl(url: string, options?: Electron.OpenExternalOptions) {
 	return { type: 'OPEN_URL', url, options };
 }
 
-export function setIcon(icon) {
+export function setIcon(icon: string) {
 	return { type: 'SET_ICON', icon };
 }
 
-export function changeAutoLoad(isEnabled) {
+export function changeAutoLoad(isEnabled: boolean) {
 	return { type: 'CHANGE_AUTO_LOAD', isEnabled };
 }
 
@@ -178,7 +179,7 @@ export function scrollToTop() {
 	return { type: 'SCROLL_TO_TOP' };
 }
 
-export function setFilterType(filterType) {
+export function setFilterType(filterType: string) { // TODO
 	return { type: 'SET_FILTER_TYPE', filterType };
 }
 
