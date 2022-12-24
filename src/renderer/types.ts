@@ -7,6 +7,7 @@ import {
 
 export interface NoteApi {
 	subject?: { state?: string; merged?: boolean };
+	notification?: { reason?: string };
 }
 
 export interface Note {
