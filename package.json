@@ -87,9 +87,6 @@
     "typescript": "^4.9.4",
     "webpack": "^4.44.1"
   },
-  "resolutions": {
-    "js-yaml": "3.13.1"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sirbrillig/gitnews-menubar.git"
