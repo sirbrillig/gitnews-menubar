@@ -1,8 +1,11 @@
-function openUrl(url, options = {}) {
+import { Middleware } from 'redux';
+import { AppReduxState } from '../types';
+
+function openUrl(url: string, options = {}) {
 	window.electronApi.openUrl(url, options);
 }
 
-function setIcon(nextIcon) {
+function setIcon(nextIcon: string) {
 	window.electronApi.setIcon(nextIcon);
 }
 
@@ -10,8 +13,10 @@ function scrollToTopNotification() {
 	window.scrollTo(0, 0);
 }
 
-// eslint-disable-next-line no-unused-vars
-const electronMiddleware = store => next => action => {
+export const electronMiddleware: Middleware<
+	object,
+	AppReduxState
+> = store => next => action => {
 	switch (action.type) {
 		case 'OPEN_URL':
 			return openUrl(action.url, action.options);
@@ -21,8 +26,4 @@ const electronMiddleware = store => next => action => {
 			return scrollToTopNotification();
 	}
 	next(action);
-};
-
-module.exports = {
-	electronMiddleware,
 };
