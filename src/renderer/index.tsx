@@ -1,28 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { createStore, applyMiddleware } from 'redux';
-import { createLogger } from 'redux-logger';
 import { Provider } from 'react-redux';
-import { persistStore, persistReducer } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
 
 import App from './components/app';
 import AppWrapper from './components/app-wrapper';
-
-import { createReducer } from './lib/reducer';
-import { createFetcher } from './lib/gitnews-fetcher';
-import { electronMiddleware } from './lib/electron-middleware';
-import { configMiddleware } from './lib/config-middleware';
-import { createGitHubMiddleware } from './lib/github-middleware';
+import { changeToken, setIsDemoMode } from './lib/reducer';
+import { store } from './lib/store';
 
 import './styles.css';
-
-const persistConfig = { key: 'gitnews-state', storage };
-
-const logger = createLogger({
-	collapsed: true,
-	level: 'info',
-});
 
 function quitApp(): void {
 	window.electronApi.quitApp();
@@ -38,23 +23,11 @@ async function runApp() {
 		console.error('Could not find main element'); //eslint-disable-line no-console
 		return;
 	}
+
 	const isDemoMode = await window.electronApi.isDemoMode();
 	const token = await window.electronApi.getToken();
-	const githubMiddleware = createGitHubMiddleware(isDemoMode);
-	const fetcher = createFetcher(isDemoMode);
-	const reducer = createReducer(token);
-	const persistedReducer = persistReducer(persistConfig, reducer);
-	const store = createStore(
-		persistedReducer,
-		applyMiddleware(
-			configMiddleware,
-			electronMiddleware,
-			githubMiddleware,
-			fetcher,
-			logger
-		)
-	);
-	persistStore(store);
+	store.dispatch(changeToken(token));
+	store.dispatch(setIsDemoMode(isDemoMode));
 
 	ReactDOM.render(
 		<Provider store={store}>
