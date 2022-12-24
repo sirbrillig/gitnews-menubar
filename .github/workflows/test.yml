@@ -1,11 +1,6 @@
 name: Tests
 
-on:
-  # Run on all pushes and pull requests.
-  push:
-  pull_request:
-  # Allow manually triggering the workflow.
-  workflow_dispatch:
+on: [push]
 
 jobs:
   build:
