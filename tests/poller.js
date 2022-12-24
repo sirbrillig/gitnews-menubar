@@ -4,7 +4,7 @@ const sinon = require('sinon');
 const sinonChai = require('chai-sinon');
 chai.use(sinonChai);
 const { expect } = chai;
-const Poller = require('../src/renderer/lib/poller');
+import Poller from '../src/renderer/lib/poller';
 
 function getSinglePollFunction() {
 	const pollFunction = sinon.stub();
