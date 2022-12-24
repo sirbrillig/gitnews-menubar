@@ -83,7 +83,7 @@ export function isInvalidJson(error: Record<string, string>): boolean {
 }
 
 export function getSecondsUntilNextFetch(
-	lastChecked: number,
+	lastChecked: number | false,
 	fetchInterval: number
 ): number {
 	const interval = fetchInterval - (Date.now() - (lastChecked || 0));
