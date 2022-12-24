@@ -1,33 +1,36 @@
-const maxFetchInterval = secsToMs( 300 ); // 5 minutes
+const maxFetchInterval = secsToMs(300); // 5 minutes
 
-export function getNoteId( note ) {
+export function getNoteId(note) {
 	return note.id;
 }
 
-export function mergeNotifications( prevNotes, nextNotes ) {
-	const getMatchingPrevNote = note => {
-		const found = prevNotes.filter( prevNote => getNoteId( prevNote ) === getNoteId( note ) );
-		return found.length ? found[ 0 ] : null;
-	};
-	const hasNoteUpdated = ( note, prevNote ) => ( note.updatedAt > prevNote.gitnewsSeenAt );
-	return nextNotes.filter(x => x.api).map( note => {
-		const previousNote = getMatchingPrevNote( note );
-		if ( previousNote && ! hasNoteUpdated( note, previousNote ) ) {
-			return Object.assign( {}, note, { gitnewsSeen: previousNote.gitnewsSeen, gitnewsMarkedUnread: previousNote.gitnewsMarkedUnread } );
+export function mergeNotifications(prevNotes, nextNotes) {
+	const getMatchingPrevNote = note =>
+		prevNotes.find(prevNote => getNoteId(prevNote) === getNoteId(note));
+	const hasNoteUpdated = (note, prevNote) =>
+		note.updatedAt > prevNote.gitnewsSeenAt;
+
+	return nextNotes.map(note => {
+		const previousNote = getMatchingPrevNote(note);
+		if (previousNote && !hasNoteUpdated(note, previousNote)) {
+			return Object.assign({}, note, {
+				gitnewsSeen: previousNote.gitnewsSeen,
+				gitnewsMarkedUnread: previousNote.gitnewsMarkedUnread,
+			});
 		}
 		return note;
-	} );
+	});
 }
 
-export function msToSecs( ms ) {
-	return parseInt( ms * 0.001, 10 );
+export function msToSecs(ms) {
+	return parseInt(ms * 0.001, 10);
 }
 
-export function secsToMs( secs ) {
+export function secsToMs(secs) {
 	return secs * 1000;
 }
 
-export function isOfflineCode( code ) {
+export function isOfflineCode(code) {
 	const offlineCodes = [
 		'ENETDOWN',
 		'ENOTFOUND',
@@ -37,38 +40,40 @@ export function isOfflineCode( code ) {
 		'ENETUNREACH',
 		'Z_BUF_ERROR',
 	];
-	return ( offlineCodes.includes( code ) );
+	return offlineCodes.includes(code);
 }
 
-export function getFetchInterval( interval, retryCount ) {
-	const fetchInterval = interval * ( retryCount + 1 );
-	if ( fetchInterval > maxFetchInterval ) {
+export function getFetchInterval(interval, retryCount) {
+	const fetchInterval = interval * (retryCount + 1);
+	if (fetchInterval > maxFetchInterval) {
 		return maxFetchInterval;
 	}
 	return fetchInterval;
 }
 
-export function getErrorMessage( error ) {
+export function getErrorMessage(error) {
 	error = error || {};
 	return [
 		error.status,
 		error.code,
 		error.statusText,
 		error.message,
-		( typeof error === 'string' ) ? error : null,
-		error.url ? `for url ${ error.url }` : '',
-	].filter( Boolean ).join( '; ' );
+		typeof error === 'string' ? error : null,
+		error.url ? `for url ${error.url}` : '',
+	]
+		.filter(Boolean)
+		.join('; ');
 }
 
-export function isGitHubOffline( error ) {
-	return ( error.status && error.status.toString().startsWith( '5' ) );
+export function isGitHubOffline(error) {
+	return error.status && error.status.toString().startsWith('5');
 }
 
-export function isInvalidJson( error ) {
+export function isInvalidJson(error) {
 	return error.type === 'invalid-json';
 }
 
-export function getSecondsUntilNextFetch( lastChecked, fetchInterval ) {
-	const interval = ( fetchInterval - ( Date.now() - ( lastChecked || 0 ) ) );
-	return ( interval < 0 ) ? 0 : msToSecs( interval );
+export function getSecondsUntilNextFetch(lastChecked, fetchInterval) {
+	const interval = fetchInterval - (Date.now() - (lastChecked || 0));
+	return interval < 0 ? 0 : msToSecs(interval);
 }
