@@ -1,6 +1,13 @@
 import React from 'react';
+import { AppReduxState } from '../types';
 
-export default function MutedReposList({ mutedRepos, unmuteRepo }) {
+export default function MutedReposList({
+	mutedRepos,
+	unmuteRepo,
+}: {
+	mutedRepos: AppReduxState['mutedRepos'];
+	unmuteRepo: (note: string) => void;
+}) {
 	return (
 		<div className="muted-repos-list">
 			<h2>Muted repos</h2>
@@ -9,7 +16,13 @@ export default function MutedReposList({ mutedRepos, unmuteRepo }) {
 	);
 }
 
-function MutedRepos({ mutedRepos, unmuteRepo }) {
+function MutedRepos({
+	mutedRepos,
+	unmuteRepo,
+}: {
+	mutedRepos: AppReduxState['mutedRepos'];
+	unmuteRepo: (note: string) => void;
+}) {
 	if (mutedRepos.length === 0) {
 		return (
 			<div className="muted-repos-list__text">
@@ -41,7 +54,7 @@ function MutedRepos({ mutedRepos, unmuteRepo }) {
 	);
 }
 
-function UnmuteRepoButton({ onClick }) {
+function UnmuteRepoButton({ onClick }: { onClick: () => void }) {
 	return (
 		<button aria-label="Unmute notifications from this repo" onClick={onClick}>
 			unmute repo
