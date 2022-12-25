@@ -1,5 +1,6 @@
 const {
 	ipcMain,
+	nativeTheme,
 	app,
 	Menu,
 	shell,
@@ -8,7 +9,7 @@ const {
 const { menubar } = require('menubar');
 const isDev = require('electron-is-dev');
 const electronDebug = require('electron-debug');
-const { setToken, getToken } = require( '../common/lib/token' );
+const { setToken, getToken } = require('../common/lib/token');
 const { version } = require('../../package.json');
 const { getIconForState } = require('../common/lib/icon-path');
 const unhandled = require('electron-unhandled');
@@ -52,6 +53,10 @@ bar.on('ready', () => {
 	isDev || bar.window.setResizable(false);
 	isDev || attachAppMenu();
 	bar.window.loadURL(getAppUrl());
+
+	nativeTheme.on('updated', () => {
+		setIcon();
+	});
 });
 
 function getAppUrl() {
@@ -115,19 +120,19 @@ ipcMain.on('toggle-auto-launch', (event, isEnabled) => {
 
 ipcMain.handle('token:get', async () => {
 	return getToken();
-})
+});
 
 ipcMain.handle('is-auto-launch:get', async () => {
 	return autoLauncher.isEnabled();
-})
+});
 
 ipcMain.handle('version:get', async () => {
 	return version;
-})
+});
 
 ipcMain.handle('is-demo-mode:get', async () => {
 	return Boolean(process.env.GITNEWS_DEMO_MODE);
-})
+});
 
 function setIcon(type) {
 	if (!type) {
