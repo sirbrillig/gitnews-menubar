@@ -1,20 +1,27 @@
-const {
+import {
 	ipcMain,
+	nativeTheme,
 	app,
 	Menu,
 	shell,
 	systemPreferences,
-} = require('electron');
-const { menubar } = require('menubar');
-const isDev = require('electron-is-dev');
-const electronDebug = require('electron-debug');
-const { setToken, getToken } = require( '../common/lib/token' );
-const { version } = require('../../package.json');
-const { getIconForState } = require('../common/lib/icon-path');
-const unhandled = require('electron-unhandled');
-const debugFactory = require('debug');
-var AutoLaunch = require('easy-auto-launch');
-require('dotenv').config();
+} from 'electron';
+import { menubar } from 'menubar';
+import isDev from 'electron-is-dev';
+import electronDebug from 'electron-debug';
+import { setToken, getToken } from '../common/lib/token';
+import { version } from '../../package.json';
+import { getIconForState } from '../common/lib/icon-path';
+import unhandled from 'electron-unhandled';
+import debugFactory from 'debug';
+import AutoLaunch from 'easy-auto-launch';
+import dotEnv from 'dotenv';
+
+// These are provided by electron forge
+declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
+declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
+
+dotEnv.config();
 
 const debug = debugFactory('gitnews-menubar:main');
 
@@ -24,9 +31,7 @@ debug('initializing version', version);
 unhandled();
 
 // Allow devtools and reload in production
-electronDebug({
-	enabled: true,
-});
+electronDebug();
 
 let lastIconState = 'normal';
 
@@ -39,7 +44,6 @@ const bar = menubar({
 		height: 500,
 		webPreferences: {
 			nodeIntegration: true,
-			// eslint-disable-next-line no-undef
 			preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
 		},
 	},
@@ -52,6 +56,10 @@ bar.on('ready', () => {
 	isDev || bar.window.setResizable(false);
 	isDev || attachAppMenu();
 	bar.window.loadURL(getAppUrl());
+
+	nativeTheme.on('updated', () => {
+		setIcon();
+	});
 });
 
 function getAppUrl() {
@@ -70,10 +78,6 @@ bar.on('show', () => {
 bar.on('focus-lost', () => {
 	debug('focus was lost');
 	bar.hideWindow();
-});
-
-app.on('platform-theme-changed', () => {
-	setIcon();
 });
 
 systemPreferences.subscribeNotification(
@@ -115,21 +119,21 @@ ipcMain.on('toggle-auto-launch', (event, isEnabled) => {
 
 ipcMain.handle('token:get', async () => {
 	return getToken();
-})
+});
 
 ipcMain.handle('is-auto-launch:get', async () => {
 	return autoLauncher.isEnabled();
-})
+});
 
 ipcMain.handle('version:get', async () => {
 	return version;
-})
+});
 
 ipcMain.handle('is-demo-mode:get', async () => {
 	return Boolean(process.env.GITNEWS_DEMO_MODE);
-})
+});
 
-function setIcon(type) {
+function setIcon(type?: string) {
 	if (!type) {
 		type = lastIconState;
 	}
@@ -139,7 +143,7 @@ function setIcon(type) {
 	bar.tray.setImage(image);
 }
 
-function getIcon(type) {
+function getIcon(type: string) {
 	switch (type) {
 		case 'error':
 			return getIconForState('error');
@@ -156,11 +160,11 @@ function getIcon(type) {
 // Create the Application's main menu so it gets copy/paste
 // see: https://pracucci.com/atom-electron-enable-copy-and-paste.html
 function attachAppMenu() {
-	const template = [
+	const template: Electron.MenuItemConstructorOptions[] = [
 		{
 			label: 'Application',
 			submenu: [
-				{ label: 'About Gitnews', selector: 'orderFrontStandardAboutPanel:' },
+				{ label: 'About Gitnews' },
 				{ type: 'separator' },
 				{ label: 'Quit', accelerator: 'Command+Q', click: () => app.quit() },
 			],
@@ -168,16 +172,15 @@ function attachAppMenu() {
 		{
 			label: 'Edit',
 			submenu: [
-				{ label: 'Undo', accelerator: 'CmdOrCtrl+Z', selector: 'undo:' },
-				{ label: 'Redo', accelerator: 'Shift+CmdOrCtrl+Z', selector: 'redo:' },
+				{ label: 'Undo', accelerator: 'CmdOrCtrl+Z' },
+				{ label: 'Redo', accelerator: 'Shift+CmdOrCtrl+Z' },
 				{ type: 'separator' },
-				{ label: 'Cut', accelerator: 'CmdOrCtrl+X', selector: 'cut:' },
-				{ label: 'Copy', accelerator: 'CmdOrCtrl+C', selector: 'copy:' },
-				{ label: 'Paste', accelerator: 'CmdOrCtrl+V', selector: 'paste:' },
+				{ label: 'Cut', accelerator: 'CmdOrCtrl+X' },
+				{ label: 'Copy', accelerator: 'CmdOrCtrl+C' },
+				{ label: 'Paste', accelerator: 'CmdOrCtrl+V' },
 				{
 					label: 'Select All',
 					accelerator: 'CmdOrCtrl+A',
-					selector: 'selectAll:',
 				},
 			],
 		},
