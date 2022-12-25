@@ -1,4 +1,5 @@
 import React from 'react';
+import { OpenUrl } from '../types';
 
 export default function AddTokenForm({
 	token,
@@ -6,13 +7,19 @@ export default function AddTokenForm({
 	changeToken,
 	showCancel,
 	hideEditToken,
+}: {
+	token: string;
+	openUrl: OpenUrl;
+	changeToken: (token: string) => void;
+	showCancel: boolean;
+	hideEditToken: () => void;
 }) {
-	const openLink = event => {
+	const openLink = (event: React.MouseEvent<HTMLAnchorElement>) => {
 		event.preventDefault();
-		openUrl(event.target.href);
+		openUrl((event.target as HTMLAnchorElement).href);
 	};
-	let tokenField = null;
-	const saveTokenField = field => {
+	let tokenField: { value: string } = null;
+	const saveTokenField = (field: { value: string }) => {
 		tokenField = field;
 	};
 	const saveToken = () => {
