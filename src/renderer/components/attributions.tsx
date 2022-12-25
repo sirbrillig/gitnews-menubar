@@ -1,11 +1,12 @@
 import React from 'react';
 import BellIcon from '../components/bell-icon';
 import MuteIcon from '../components/mute-icon';
+import { OpenUrl } from '../types';
 
-export default function Attributions({ openUrl }) {
-	const openLink = event => {
+export default function Attributions({ openUrl }: { openUrl: OpenUrl }) {
+	const openLink = (event: React.MouseEvent<HTMLAnchorElement>) => {
 		event.preventDefault();
-		openUrl(event.target.href);
+		openUrl((event.target as HTMLAnchorElement).href);
 	};
 	return (
 		<div className="attributions">
