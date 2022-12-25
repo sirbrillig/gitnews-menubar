@@ -1,7 +1,12 @@
 import React from 'react';
 import date from 'date-fns';
+import { AppReduxState } from '../types';
 
-export default function LastChecked({ lastSuccessfulCheck }) {
+export default function LastChecked({
+	lastSuccessfulCheck,
+}: {
+	lastSuccessfulCheck: AppReduxState['lastSuccessfulCheck'];
+}) {
 	if (!lastSuccessfulCheck) {
 		return null;
 	}

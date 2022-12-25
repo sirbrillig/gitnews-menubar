@@ -1,9 +1,18 @@
 import React from 'react';
 import { secsToMs } from '../lib/helpers';
 
-export default function createUpdater(WrappedComponent) {
-	return class Updater extends React.Component {
-		constructor(props) {
+interface UpdaterState {
+	lastUpdated: number;
+}
+
+export default function createUpdater<W extends object>(
+	WrappedComponent: React.ComponentType<W>
+) {
+	return class Updater extends React.Component<W, UpdaterState> {
+		lastCheckedUpdater: number;
+		updateInterval: number;
+
+		constructor(props: W) {
 			super(props);
 			this.lastCheckedUpdater = null;
 			this.updateInterval = secsToMs(1);
@@ -37,7 +46,11 @@ export default function createUpdater(WrappedComponent) {
 				componentLastUpdated: this.state.lastUpdated,
 				...this.props,
 			};
-			return <WrappedComponent {...mergedProps} />;
+			return (
+				<WrappedComponent
+					{...(mergedProps as W & { componentLastUpdated: number })}
+				/>
+			);
 		}
 	};
 }

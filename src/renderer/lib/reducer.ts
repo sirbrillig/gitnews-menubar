@@ -4,7 +4,24 @@ import {
 	mergeNotifications,
 	getFetchInterval,
 } from '../lib/helpers';
-import { AppReduxState, AppReduxAction, Note } from '../types';
+import {
+	AppReduxState,
+	AppReduxAction,
+	Note,
+	ActionChangeToken,
+	ActionSetDemoMode,
+	ActionChangeToOffline,
+	ActionGotNotes,
+	ActionAddConnectionError,
+	ActionFetchBegin,
+	ActionFetchEnd,
+	ActionMarkAllNotesSeen,
+	ActionClearErrors,
+	ActionMarkUnread,
+	ActionMarkRead,
+	ActionUnmuteRepo,
+	ActionMuteRepo,
+} from '../types';
 
 const defaultFetchInterval = secsToMs(120);
 
@@ -23,14 +40,17 @@ const initialState: AppReduxState = {
 	isAutoLoadEnabled: false,
 	filterType: 'all',
 	appVisible: false,
+	isDemoMode: false,
 };
 
-export function createReducer(initialToken: string) {
+export function createReducer() {
 	return function(state: AppReduxState, action: AppReduxAction): AppReduxState {
 		if (!state) {
-			state = { ...initialState, token: initialToken };
+			state = { ...initialState };
 		}
 		switch (action.type) {
+			case 'SET_DEMO_MODE':
+				return { ...state, isDemoMode: action.isDemoMode };
 			case 'NOTE_APP_VISIBLE':
 				return { ...state, appVisible: action.visible };
 			case 'FETCH_BEGIN':
@@ -69,9 +89,14 @@ export function createReducer(initialToken: string) {
 					}),
 				});
 			case 'MARK_ALL_NOTES_SEEN': {
-				const notes = state.notes.filter(x => x.api).map(note =>
-					Object.assign(note, { gitnewsSeen: true, gitnewsSeenAt: Date.now() })
-				);
+				const notes = state.notes
+					.filter(x => x.api)
+					.map(note =>
+						Object.assign(note, {
+							gitnewsSeen: true,
+							gitnewsSeenAt: Date.now(),
+						})
+					);
 				return Object.assign({}, state, { notes });
 			}
 			case 'CHANGE_TOKEN':
@@ -94,7 +119,9 @@ export function createReducer(initialToken: string) {
 					notes: mergeNotifications(state.notes, action.notes),
 				});
 			case 'CHANGE_AUTO_LOAD':
-				return Object.assign({}, state, { isAutoLoadEnabled: action.isEnabled });
+				return Object.assign({}, state, {
+					isAutoLoadEnabled: action.isEnabled,
+				});
 			case 'MUTE_REPO':
 				return { ...state, mutedRepos: [...state.mutedRepos, action.repo] };
 			case 'UNMUTE_REPO':
@@ -108,54 +135,58 @@ export function createReducer(initialToken: string) {
 				return { ...state, filterType: action.filterType };
 		}
 		return state;
-	}
+	};
 }
 
-export function muteRepo(repo: string) {
+export function muteRepo(repo: string): ActionMuteRepo {
 	return { type: 'MUTE_REPO', repo };
 }
 
-export function unmuteRepo(repo: string) {
+export function unmuteRepo(repo: string): ActionUnmuteRepo {
 	return { type: 'UNMUTE_REPO', repo };
 }
 
-export function markRead(token: string, note: Note) {
+export function markRead(token: string, note: Note): ActionMarkRead {
 	return { type: 'MARK_NOTE_READ', token, note };
 }
 
-export function markUnread(note: Note) {
+export function markUnread(note: Note): ActionMarkUnread {
 	return { type: 'MARK_NOTE_UNREAD', note };
 }
 
-export function clearErrors() {
+export function clearErrors(): ActionClearErrors {
 	return { type: 'CLEAR_ERRORS' };
 }
 
-export function markAllNotesSeen() {
+export function markAllNotesSeen(): ActionMarkAllNotesSeen {
 	return { type: 'MARK_ALL_NOTES_SEEN' };
 }
 
-export function changeToken(token: string) {
+export function changeToken(token: string): ActionChangeToken {
 	return { type: 'CHANGE_TOKEN', token };
 }
 
-export function changeToOffline() {
+export function setIsDemoMode(isDemoMode: boolean): ActionSetDemoMode {
+	return { type: 'SET_DEMO_MODE', isDemoMode };
+}
+
+export function changeToOffline(): ActionChangeToOffline {
 	return { type: 'OFFLINE' };
 }
 
-export function gotNotes(notes: Note[]) {
+export function gotNotes(notes: Note[]): ActionGotNotes {
 	return { type: 'NOTES_RETRIEVED', notes };
 }
 
-export function addConnectionError(error: string) {
+export function addConnectionError(error: string): ActionAddConnectionError {
 	return { type: 'ADD_CONNECTION_ERROR', error };
 }
 
-export function fetchBegin() {
+export function fetchBegin(): ActionFetchBegin {
 	return { type: 'FETCH_BEGIN' };
 }
 
-export function fetchDone() {
+export function fetchDone(): ActionFetchEnd {
 	return { type: 'FETCH_END' };
 }
 
@@ -179,7 +210,8 @@ export function scrollToTop() {
 	return { type: 'SCROLL_TO_TOP' };
 }
 
-export function setFilterType(filterType: string) { // TODO
+export function setFilterType(filterType: string) {
+	// TODO
 	return { type: 'SET_FILTER_TYPE', filterType };
 }
 

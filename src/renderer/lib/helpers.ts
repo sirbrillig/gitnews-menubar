@@ -57,17 +57,19 @@ export function getFetchInterval(interval: number, retryCount: number): number {
 }
 
 export function getErrorMessage(
-	error: undefined | null | Record<string, string>
+	error: undefined | null | Record<string, string> | string
 ): string {
 	if (!error) {
-		error = {};
+		return '';
+	}
+	if (typeof error === 'string') {
+		return error;
 	}
 	return [
 		error.status,
 		error.code,
 		error.statusText,
 		error.message,
-		typeof error === 'string' ? error : null,
 		error.url ? `for url ${error.url}` : '',
 	]
 		.filter(Boolean)

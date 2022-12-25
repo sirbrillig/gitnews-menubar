@@ -7,6 +7,7 @@ import {
 
 export interface NoteApi {
 	subject?: { state?: string; merged?: boolean };
+	notification?: { reason?: string };
 }
 
 export interface Note {
@@ -14,12 +15,15 @@ export interface Note {
 	title: string;
 	unread: boolean;
 	repositoryFullName: string;
-	gitnewsMarkedUnread: boolean;
-	gitnewsSeen: boolean;
-	gitnewsSeenAt: number;
+	gitnewsMarkedUnread?: boolean;
+	gitnewsSeen?: boolean;
+	gitnewsSeenAt?: number;
 	api: NoteApi;
 	commentUrl: string;
 	updatedAt: number;
+	repositoryName: string;
+	type: string;
+	subjectUrl: string;
 	commentAvatar?: string;
 	repositoryOwnerAvatar?: string;
 }
@@ -39,6 +43,7 @@ export interface AppReduxState {
 	isAutoLoadEnabled: boolean;
 	filterType: string; // TODO: let's be more specific
 	appVisible: boolean;
+	isDemoMode: boolean;
 }
 
 export type ActionMuteRepo = { type: 'MUTE_REPO'; repo: string };
@@ -78,6 +83,7 @@ export type ActionSetFilterType = {
 }; // TODO
 export type MarkAppHidden = { type: 'NOTE_APP_VISIBLE'; visible: false };
 export type MarkAppShown = { type: 'NOTE_APP_VISIBLE'; visible: true };
+export type ActionSetDemoMode = { type: 'SET_DEMO_MODE'; isDemoMode: boolean };
 
 export type AppReduxAction =
 	| ActionMuteRepo
@@ -99,7 +105,8 @@ export type AppReduxAction =
 	| ActionScrollToTop
 	| ActionSetFilterType
 	| MarkAppHidden
-	| MarkAppShown;
+	| MarkAppShown
+	| ActionSetDemoMode;
 
 export type OpenUrl = (
 	url: string,
