@@ -87,10 +87,14 @@ export default function Notification({
 		...(isMerged ? ['notification__type--merged'] : []),
 	];
 
-	const doMute = () => {
+	const doMute = (event: React.MouseEvent<HTMLButtonElement>) => {
+		event.preventDefault();
+		event.stopPropagation();
 		setMuteRequested(note);
 	};
-	const doUnmute = () => {
+	const doUnmute = (event: React.MouseEvent<HTMLButtonElement>) => {
+		event.preventDefault();
+		event.stopPropagation();
 		unmuteRepo(note.repositoryFullName);
 	};
 
@@ -178,7 +182,7 @@ function MuteRepoCancelButton({
 	onClick,
 	disabled,
 }: {
-	onClick: () => void;
+	onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
 	disabled?: boolean;
 }) {
 	return (
@@ -197,7 +201,7 @@ function MuteRepoButton({
 	onClick,
 	disabled,
 }: {
-	onClick: () => void;
+	onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
 	disabled?: boolean;
 }) {
 	return (
@@ -216,7 +220,7 @@ function MuteRepoRequestButton({
 	onClick,
 	disabled,
 }: {
-	onClick: () => void;
+	onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
 	disabled?: boolean;
 }) {
 	if (disabled) {
@@ -238,7 +242,7 @@ function UnmuteRepoButton({
 	onClick,
 	disabled,
 }: {
-	onClick: () => void;
+	onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
 	disabled?: boolean;
 }) {
 	if (disabled) {
@@ -267,7 +271,9 @@ function MarkReadButton({
 	markRead: MarkRead;
 	disabled?: boolean;
 }) {
-	const onClick = () => {
+	const onClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+		event.preventDefault();
+		event.stopPropagation();
 		debug('clicked to mark notification as read', note);
 		markRead(token, note);
 	};
@@ -295,7 +301,9 @@ function MarkUnreadButton({
 	markUnread: MarkUnread;
 	disabled?: boolean;
 }) {
-	const onClick = () => {
+	const onClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+		event.preventDefault();
+		event.stopPropagation();
 		debug('clicked to mark notification as unread', note);
 		markUnread(note);
 	};
