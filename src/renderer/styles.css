@@ -28,6 +28,7 @@
 	--multi-open-notification-pending-overlay: rgba(255,255,255,0.85);
 	--notification-image-background-color: #fff;
 	--bell-icon-color: #030104;
+	--no-notifications-icon-color: #000;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -50,6 +51,7 @@
 		--notification-border-color: #595959;
 		--multi-open-notification-pending-overlay: rgba(4, 12, 18, 0.85);
 		--bell-icon-color: #fff;
+		--no-notifications-icon-color: #fff;
 	}
 }
 
@@ -543,6 +545,7 @@ header h1 {
 .no-notifications-icon {
 	vertical-align: middle;
 	margin: 0.5em;
+	fill: var(--no-notifications-icon-color);
 }
 
 .multi-open-pending-notice {
