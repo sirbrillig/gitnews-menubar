@@ -98,7 +98,7 @@ ipcMain.on(
 				log.error(message);
 				break;
 			default:
-				log.error(`Unknown log level ${level}: ${message}`);
+				log.error(`Unknown log level '${level}': ${message}`);
 		}
 	}
 );
@@ -156,8 +156,12 @@ function setIcon(type?: string) {
 	if (!type) {
 		type = lastIconState;
 	}
-	debug('setting icon to', type);
-	log.info(`Icon changed to ${type}`);
+	if (lastIconState !== type) {
+		debug('setting icon to', type);
+		log.info(`Icon changed to ${type}`);
+	}
+	// Even if the icon type hasn't changed, still reset it because `getIcon()`
+	// has other inputs than just the type (eg: dark mode or light mode).
 	const image = getIcon(type);
 	lastIconState = type;
 	bar.tray.setImage(image);
