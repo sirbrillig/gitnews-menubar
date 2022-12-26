@@ -23,7 +23,7 @@
 	--notification-unread-background-color: rgba(245, 112, 35, 0.1);
 	--notification-timestamp-color: rgb(146, 146, 146);
 	--error-message-color: #d60000;
-	--notification-border-color: #595959;
+	--notification-border-color: #ccc;
 	--search-icon-color: #24292e;
 	--multi-open-notification-pending-overlay: rgba(255,255,255,0.85);
 }
@@ -45,6 +45,7 @@
 		--search-icon-color: #c9c9c9;
 		--notification-unread-background-color: rgba(0, 130, 255, 0.5);
 		--notification-timestamp-color: #d7d7d7;
+		--notification-border-color: #595959;
 		--multi-open-notification-pending-overlay: rgba(4, 12, 18, 0.85);
 	}
 }
