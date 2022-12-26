@@ -26,6 +26,8 @@
 	--notification-border-color: #ccc;
 	--search-icon-color: #24292e;
 	--multi-open-notification-pending-overlay: rgba(255,255,255,0.85);
+	--notification-image-background-color: #fff;
+	--bell-icon-color: #030104;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -43,10 +45,11 @@
 		--dropdown-selected-background-color: #2764ff;
 		--dropdown-selected-text-color: #fff;
 		--search-icon-color: #c9c9c9;
-		--notification-unread-background-color: rgba(0, 130, 255, 0.5);
-		--notification-timestamp-color: #d7d7d7;
+		--notification-unread-background-color: #172527;
+		--notification-timestamp-color: #a8a8a8;
 		--notification-border-color: #595959;
 		--multi-open-notification-pending-overlay: rgba(4, 12, 18, 0.85);
+		--bell-icon-color: #fff;
 	}
 }
 
@@ -264,6 +267,10 @@ header svg {
   padding: 2px;
 }
 
+.bell-icon {
+	fill: var(--bell-icon-color);
+}
+
 .attributions__icon {
   vertical-align: middle;
   padding-right: 0.5em;
@@ -394,7 +401,7 @@ header h1 {
 }
 
 .notification__type--merged {
-  fill: #6f42c1;
+  fill: #8957e5;
 }
 
 .notification__type svg {
@@ -405,6 +412,7 @@ header h1 {
 .notification__image img {
   width: 32px;
   border-radius: 50%;
+  background-color: var(--notification-image-background-color);
 }
 
 .notification__image {
