@@ -51,6 +51,10 @@ Rather than use real data, you can use mock data by enabling demo mode. This als
 GITNEWS_DEMO_MODE=y
 ```
 
+### Logging
+
+The app logs its activity to a file on the local machine using the library [electon-log](https://github.com/megahertz/electron-log). On the Mac OS this produces a file in `~/Library/Logs/Gitnews/main.log`.
+
 ### Building a package
 
 To create a packaged Mac OS App, first install dependencies by running `yarn` (you must have [yarn](https://yarnpkg.com/en/) installed for this to work).
