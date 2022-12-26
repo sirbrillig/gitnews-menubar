@@ -41,7 +41,7 @@ export function createFetcher(): Middleware<object, AppReduxState> {
 		performFetch(store.getState(), next);
 	};
 
-	function performFetch(
+	async function performFetch(
 		{ fetchingInProgress, token, fetchingStartedAt, isDemoMode }: AppReduxState,
 		next: Dispatch<AppReduxAction>
 	) {
@@ -69,17 +69,10 @@ export function createFetcher(): Middleware<object, AppReduxState> {
 		next(fetchBegin());
 		const getGithubNotifications = getFetcher(token, isDemoMode);
 		try {
-			getGithubNotifications()
-				.then((notes: Note[]) => {
-					debug('notifications retrieved', notes);
-					next(fetchDone());
-					next(gotNotes(notes));
-				})
-				.catch(err => {
-					debug('fetching notifications failed with the error', err);
-					next(fetchDone());
-					getErrorHandler(next)(err, token);
-				});
+			const notes = await getGithubNotifications();
+			debug('notifications retrieved', notes);
+			next(fetchDone());
+			next(gotNotes(notes));
 		} catch (err) {
 			debug('fetching notifications threw an error', err);
 			next(fetchDone());
@@ -203,7 +196,9 @@ export function getErrorHandler(dispatch: Dispatch<AppReduxAction>) {
 			// Do nothing. The case of having no token is handled in the App component.
 			return;
 		}
+
 		if (err.code === 'GitHubTokenNotFound' && token) {
+			// This should never happen, I hope!
 			debug(
 				'notifications check failed because there is no token, even though one is set'
 			);
@@ -213,21 +208,30 @@ export function getErrorHandler(dispatch: Dispatch<AppReduxAction>) {
 			dispatch(addConnectionError(errorString));
 			return;
 		}
+
 		if (isOfflineCode(err.code)) {
+			// This is normal. We'll just wait.
 			debug('notifications check failed because we are offline');
 			dispatch(changeToOffline());
 			return;
 		}
+
 		if (isGitHubOffline(err)) {
+			// This is normal. We'll just wait.
 			debug('notifications check failed because GitHub is offline');
 			dispatch(changeToOffline());
 			return;
 		}
+
 		if (isInvalidJson(err)) {
+			// This is less normal but still not too bad. We'll just wait.
 			debug('notifications check failed because json fetch failed');
 			dispatch(changeToOffline());
 			return;
 		}
+
+		// If we get here, something really unknown has happened. Let's really try
+		// to avoid getting here.
 		const errorString = 'Error fetching notifications: ' + getErrorMessage(err);
 		console.error(errorString); //eslint-disable-line no-console
 		dispatch(addConnectionError(errorString));
