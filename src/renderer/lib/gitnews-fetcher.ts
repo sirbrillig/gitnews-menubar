@@ -26,6 +26,10 @@ export function createFetcher(): Middleware<object, AppReduxState> {
 	> = store => next => action => {
 		if (action.type === 'CHANGE_TOKEN') {
 			debug('token being changed; fetching with new token');
+			window.electronApi.logMessage(
+				'token being changed; fetching with new token',
+				'info'
+			);
 			performFetch(
 				Object.assign({}, store.getState(), { token: action.token }),
 				next
@@ -38,6 +42,7 @@ export function createFetcher(): Middleware<object, AppReduxState> {
 		}
 
 		debug('fetching with existing token');
+		window.electronApi.logMessage('fetching with existing token', 'info');
 		performFetch(store.getState(), next);
 	};
 
@@ -49,9 +54,9 @@ export function createFetcher(): Middleware<object, AppReduxState> {
 		if (fetchingInProgress) {
 			const timeSinceFetchingStarted = Date.now() - (fetchingStartedAt || 0);
 			if (timeSinceFetchingStarted > fetchingMaxTime) {
-				debug(
-					`it has been too long since we started fetching (${timeSinceFetchingStarted} ms). Giving up.`
-				);
+				const message = `it has been too long since we started fetching (${timeSinceFetchingStarted} ms). Giving up.`;
+				debug(message);
+				window.electronApi.logMessage(message, 'info');
 				next(fetchDone());
 				return;
 			}
@@ -60,6 +65,10 @@ export function createFetcher(): Middleware<object, AppReduxState> {
 		}
 		if (!window.navigator.onLine) {
 			debug('skipping notifications check because we are offline');
+			window.electronApi.logMessage(
+				'skipping notifications check because we are offline',
+				'info'
+			);
 			next(changeToOffline());
 			return;
 		}
@@ -190,18 +199,20 @@ export function getErrorHandler(dispatch: Dispatch<AppReduxAction>) {
 		token: string = null
 	) {
 		if (err.code === 'GitHubTokenNotFound' && !token) {
-			debug(
-				'notifications check failed because there is no token; taking no action'
-			);
+			const message =
+				'notifications check failed because there is no token; taking no action';
+			debug(message);
+			window.electronApi.logMessage(message, 'info');
 			// Do nothing. The case of having no token is handled in the App component.
 			return;
 		}
 
 		if (err.code === 'GitHubTokenNotFound' && token) {
 			// This should never happen, I hope!
-			debug(
-				'notifications check failed because there is no token, even though one is set'
-			);
+			const message =
+				'notifications check failed because there is no token, even though one is set';
+			debug(message);
+			window.electronApi.logMessage(message, 'error');
 			const errorString =
 				'Error fetching notifications: ' + getErrorMessage(err);
 			console.error(errorString); //eslint-disable-line no-console
@@ -211,27 +222,36 @@ export function getErrorHandler(dispatch: Dispatch<AppReduxAction>) {
 
 		if (isOfflineCode(err.code)) {
 			// This is normal. We'll just wait.
-			debug('notifications check failed because we are offline');
+			const message = 'notifications check failed because we are offline';
+			debug(message);
+			window.electronApi.logMessage(message, 'warn');
 			dispatch(changeToOffline());
 			return;
 		}
 
 		if (isGitHubOffline(err)) {
 			// This is normal. We'll just wait.
-			debug('notifications check failed because GitHub is offline');
+			const message = 'notifications check failed because GitHub is offline';
+			debug(message);
+			window.electronApi.logMessage(message, 'warn');
 			dispatch(changeToOffline());
 			return;
 		}
 
 		if (isInvalidJson(err)) {
 			// This is less normal but still not too bad. We'll just wait.
-			debug('notifications check failed because json fetch failed');
+			const message = 'notifications check failed because json fetch failed';
+			debug(message);
+			window.electronApi.logMessage(message, 'warn');
 			dispatch(changeToOffline());
 			return;
 		}
 
 		// If we get here, something really unknown has happened. Let's really try
 		// to avoid getting here.
+		const message = `notifications check failed but we do not know why: ${err}`;
+		debug(message);
+		window.electronApi.logMessage(message, 'error');
 		const errorString = 'Error fetching notifications: ' + getErrorMessage(err);
 		console.error(errorString); //eslint-disable-line no-console
 		dispatch(addConnectionError(errorString));

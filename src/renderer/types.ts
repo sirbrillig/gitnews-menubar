@@ -129,21 +129,24 @@ export type AppPane =
 	| typeof PANE_CONFIG
 	| typeof PANE_MUTED_REPOS;
 
+export interface MainBridge {
+	quitApp: () => void;
+	logMessage: (message: string, level: 'info' | 'warn' | 'error') => void;
+	toggleAutoLaunch: (isEnabled: boolean) => void;
+	openUrl: OpenUrl;
+	saveToken: (token: string) => void;
+	setIcon: (nextIcon: string) => void;
+	onHide: (callback: () => void) => void;
+	onShow: (callback: () => void) => void;
+	onClick: (callback: () => void) => void;
+	getToken: () => Promise<string>;
+	getVersion: () => Promise<string>;
+	isDemoMode: () => Promise<boolean>;
+	isAutoLaunchEnabled: () => Promise<boolean>;
+}
+
 declare global {
 	interface Window {
-		electronApi: {
-			quitApp: () => void;
-			toggleAutoLaunch: (isEnabled: boolean) => void;
-			openUrl: OpenUrl;
-			saveToken: (token: string) => void;
-			setIcon: (nextIcon: string) => void;
-			onHide: (callback: () => void) => void;
-			onShow: (callback: () => void) => void;
-			onClick: (callback: () => void) => void;
-			getToken: () => Promise<string>;
-			getVersion: () => Promise<string>;
-			isDemoMode: () => Promise<boolean>;
-			isAutoLaunchEnabled: () => Promise<boolean>;
-		};
+		electronApi: MainBridge;
 	}
 }
