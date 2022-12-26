@@ -147,6 +147,18 @@ export interface MainBridge {
 	isAutoLaunchEnabled: () => Promise<boolean>;
 }
 
+export type UnknownFetchError =
+	| {
+			code?: string;
+			name?: string;
+			message?: string;
+			statusText?: string;
+			status?: number;
+			url?: string;
+			type?: string;
+	  }
+	| string;
+
 declare global {
 	interface Window {
 		electronApi: MainBridge;

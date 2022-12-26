@@ -15,7 +15,12 @@ import {
 	gotNotes,
 	addConnectionError,
 } from '../lib/reducer';
-import { AppReduxAction, AppReduxState, Note } from '../types';
+import {
+	AppReduxAction,
+	AppReduxState,
+	Note,
+	UnknownFetchError,
+} from '../types';
 
 const debug = debugFactory('gitnews-menubar');
 
@@ -205,10 +210,14 @@ async function getDemoNotifications(): Promise<Note[]> {
 
 export function getErrorHandler(dispatch: Dispatch<AppReduxAction>) {
 	return function handleFetchError(
-		err: { code: string; name?: string; message?: string }, // TODO: make this type more accurate
+		err: UnknownFetchError,
 		token: string = null
 	) {
-		if (err.code === 'GitHubTokenNotFound' && !token) {
+		if (
+			typeof err === 'object' &&
+			err.code === 'GitHubTokenNotFound' &&
+			!token
+		) {
 			const message =
 				'Notifications check failed because there is no token; taking no action';
 			debug(message);
@@ -217,7 +226,11 @@ export function getErrorHandler(dispatch: Dispatch<AppReduxAction>) {
 			return;
 		}
 
-		if (err.code === 'GitHubTokenNotFound' && token) {
+		if (
+			typeof err === 'object' &&
+			err.code === 'GitHubTokenNotFound' &&
+			token
+		) {
 			// This should never happen, I hope!
 			const message =
 				'Notifications check failed because there is no token, even though one is set';
@@ -230,7 +243,7 @@ export function getErrorHandler(dispatch: Dispatch<AppReduxAction>) {
 			return;
 		}
 
-		if (isOfflineCode(err.code)) {
+		if (typeof err === 'object' && isOfflineCode(err.code)) {
 			// This is normal. We'll just wait.
 			const message = 'Notifications check failed because we are offline';
 			debug(message);
@@ -257,7 +270,11 @@ export function getErrorHandler(dispatch: Dispatch<AppReduxAction>) {
 			return;
 		}
 
-		if (err.name === 'TypeError' && err.message === 'Failed to fetch') {
+		if (
+			typeof err === 'object' &&
+			err.name === 'TypeError' &&
+			err.message === 'Failed to fetch'
+		) {
 			// This is less normal but still not too bad. We'll just wait.
 			const message = `Notifications check failed with a fetching error: ${err}`;
 			debug(message);
@@ -268,7 +285,7 @@ export function getErrorHandler(dispatch: Dispatch<AppReduxAction>) {
 
 		// If we get here, something really unknown has happened. Let's really try
 		// to avoid getting here.
-		const message = `Notifications check failed but we do not know why. Code: ${err.code}. Name: ${err.name}. Error: ${err}`;
+		const message = `Notifications check failed but we do not know why. Error: ${err}`;
 		debug(message);
 		window.electronApi.logMessage(message, 'error');
 		const errorString = 'Error fetching notifications: ' + getErrorMessage(err);
