@@ -608,6 +608,7 @@ header h1 {
 
 .config-page {
 	margin: 12px;
+	height: 100%;
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
@@ -639,4 +640,8 @@ main {
 	display: flex;
 	flex-direction: column;
 	width: 100%;
+}
+
+main.config-pane {
+	height: 100vh;
 }

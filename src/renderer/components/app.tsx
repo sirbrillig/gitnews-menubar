@@ -216,7 +216,7 @@ class App extends React.Component<AppProps, AppState> {
 		};
 
 		return (
-			<main>
+			<main className={currentPane}>
 				<Header
 					offline={offline}
 					fetchNotifications={this.props.fetchNotifications}
