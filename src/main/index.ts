@@ -103,8 +103,9 @@ ipcMain.on(
 			case 'error':
 				log.error(message);
 				break;
+			default:
+				log.error(`Unknown log level ${level}: ${message}`);
 		}
-		log.error(`Unknown log level ${level}: ${message}`);
 	}
 );
 
