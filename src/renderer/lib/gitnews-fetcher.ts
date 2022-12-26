@@ -250,7 +250,16 @@ export function getErrorHandler(dispatch: Dispatch<AppReduxAction>) {
 
 		if (isInvalidJson(err)) {
 			// This is less normal but still not too bad. We'll just wait.
-			const message = 'notifications check failed because json fetch failed';
+			const message = 'Notifications check failed because json fetch failed';
+			debug(message);
+			window.electronApi.logMessage(message, 'warn');
+			dispatch(changeToOffline());
+			return;
+		}
+
+		if (err.name === 'TypeError' && err.message === 'Failed to fetch') {
+			// This is less normal but still not too bad. We'll just wait.
+			const message = `Notifications check failed with a fetching error: ${err}`;
 			debug(message);
 			window.electronApi.logMessage(message, 'warn');
 			dispatch(changeToOffline());
@@ -259,7 +268,7 @@ export function getErrorHandler(dispatch: Dispatch<AppReduxAction>) {
 
 		// If we get here, something really unknown has happened. Let's really try
 		// to avoid getting here.
-		const message = `notifications check failed but we do not know why: ${err}`;
+		const message = `Notifications check failed but we do not know why. Code: ${err.code}. Name: ${err.name}. Error: ${err}`;
 		debug(message);
 		window.electronApi.logMessage(message, 'error');
 		const errorString = 'Error fetching notifications: ' + getErrorMessage(err);
