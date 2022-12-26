@@ -21,6 +21,7 @@ import {
 	ActionMarkRead,
 	ActionUnmuteRepo,
 	ActionMuteRepo,
+	ActionInitToken,
 } from '../types';
 
 const defaultFetchInterval = secsToMs(120);
@@ -101,6 +102,8 @@ export function createReducer() {
 			}
 			case 'CHANGE_TOKEN':
 				return Object.assign({}, state, { token: action.token });
+			case 'SET_INITIAL_TOKEN':
+				return Object.assign({}, state, { token: action.token });
 			case 'OFFLINE':
 				return Object.assign({}, state, {
 					offline: true,
@@ -164,6 +167,10 @@ export function markAllNotesSeen(): ActionMarkAllNotesSeen {
 
 export function changeToken(token: string): ActionChangeToken {
 	return { type: 'CHANGE_TOKEN', token };
+}
+
+export function initToken(token: string): ActionInitToken {
+	return { type: 'SET_INITIAL_TOKEN', token };
 }
 
 export function setIsDemoMode(isDemoMode: boolean): ActionSetDemoMode {

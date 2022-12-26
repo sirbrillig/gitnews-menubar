@@ -57,6 +57,7 @@ export type ActionMarkUnread = { type: 'MARK_NOTE_UNREAD'; note: Note };
 export type ActionClearErrors = { type: 'CLEAR_ERRORS' };
 export type ActionMarkAllNotesSeen = { type: 'MARK_ALL_NOTES_SEEN' };
 export type ActionChangeToken = { type: 'CHANGE_TOKEN'; token: string };
+export type ActionInitToken = { type: 'SET_INITIAL_TOKEN'; token: string };
 export type ActionChangeToOffline = { type: 'OFFLINE' };
 export type ActionGotNotes = { type: 'NOTES_RETRIEVED'; notes: Note[] };
 export type ActionAddConnectionError = {
@@ -93,6 +94,7 @@ export type AppReduxAction =
 	| ActionClearErrors
 	| ActionMarkAllNotesSeen
 	| ActionChangeToken
+	| ActionInitToken
 	| ActionChangeToOffline
 	| ActionGotNotes
 	| ActionAddConnectionError

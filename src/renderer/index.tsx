@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 
 import App from './components/app';
 import AppWrapper from './components/app-wrapper';
-import { changeToken, setIsDemoMode } from './lib/reducer';
+import { initToken, setIsDemoMode } from './lib/reducer';
 import { store } from './lib/store';
 
 import './styles.css';
@@ -18,6 +18,7 @@ async function getVersion(): Promise<string> {
 }
 
 async function runApp() {
+	window.electronApi.logMessage('Initializing renderer', 'info');
 	const main = window.document.querySelector('#app');
 	if (!main) {
 		console.error('Could not find main element'); //eslint-disable-line no-console
@@ -26,8 +27,9 @@ async function runApp() {
 
 	const isDemoMode = await window.electronApi.isDemoMode();
 	const token = await window.electronApi.getToken();
-	store.dispatch(changeToken(token));
+	window.electronApi.logMessage('Initializing token to saved value', 'info');
 	store.dispatch(setIsDemoMode(isDemoMode));
+	store.dispatch(initToken(token));
 
 	ReactDOM.render(
 		<Provider store={store}>

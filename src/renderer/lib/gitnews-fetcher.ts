@@ -25,9 +25,9 @@ export function createFetcher(): Middleware<object, AppReduxState> {
 		AppReduxState
 	> = store => next => action => {
 		if (action.type === 'CHANGE_TOKEN') {
-			debug('token being changed; fetching with new token');
+			debug('Token being changed; fetching with new token');
 			window.electronApi.logMessage(
-				'token being changed; fetching with new token',
+				'Token being changed; fetching with new token',
 				'info'
 			);
 			performFetch(
@@ -42,7 +42,7 @@ export function createFetcher(): Middleware<object, AppReduxState> {
 		}
 
 		debug('fetching with existing token');
-		window.electronApi.logMessage('fetching with existing token', 'info');
+		window.electronApi.logMessage('Fetching with existing token', 'info');
 		performFetch(store.getState(), next);
 	};
 
@@ -54,7 +54,7 @@ export function createFetcher(): Middleware<object, AppReduxState> {
 		if (fetchingInProgress) {
 			const timeSinceFetchingStarted = Date.now() - (fetchingStartedAt || 0);
 			if (timeSinceFetchingStarted > fetchingMaxTime) {
-				const message = `it has been too long since we started fetching (${timeSinceFetchingStarted} ms). Giving up.`;
+				const message = `It has been too long since we started fetching (${timeSinceFetchingStarted} ms). Giving up.`;
 				debug(message);
 				window.electronApi.logMessage(message, 'info');
 				next(fetchDone());
@@ -66,7 +66,7 @@ export function createFetcher(): Middleware<object, AppReduxState> {
 		if (!window.navigator.onLine) {
 			debug('skipping notifications check because we are offline');
 			window.electronApi.logMessage(
-				'skipping notifications check because we are offline',
+				'Skipping notifications check because we are offline',
 				'info'
 			);
 			next(changeToOffline());
@@ -80,10 +80,18 @@ export function createFetcher(): Middleware<object, AppReduxState> {
 		try {
 			const notes = await getGithubNotifications();
 			debug('notifications retrieved', notes);
+			window.electronApi.logMessage(
+				`Notifications retrieved (${notes.length} found)`,
+				'info'
+			);
 			next(fetchDone());
 			next(gotNotes(notes));
 		} catch (err) {
 			debug('fetching notifications threw an error', err);
+			window.electronApi.logMessage(
+				`Fetching notifications threw an error`,
+				'warn'
+			);
 			next(fetchDone());
 			getErrorHandler(next)(err, token);
 		}
@@ -91,7 +99,9 @@ export function createFetcher(): Middleware<object, AppReduxState> {
 
 	const getNotifications = createNoteGetter({
 		fetch: (url, options) => fetch(url, options),
-		log: message => console.log('Gitnews: ' + message),
+		log: message => {
+			console.log('Gitnews: ' + message);
+		},
 	});
 
 	function getFetcher(
@@ -195,12 +205,12 @@ async function getDemoNotifications(): Promise<Note[]> {
 
 export function getErrorHandler(dispatch: Dispatch<AppReduxAction>) {
 	return function handleFetchError(
-		err: { code: string },
+		err: { code: string; name?: string; message?: string }, // TODO: make this type more accurate
 		token: string = null
 	) {
 		if (err.code === 'GitHubTokenNotFound' && !token) {
 			const message =
-				'notifications check failed because there is no token; taking no action';
+				'Notifications check failed because there is no token; taking no action';
 			debug(message);
 			window.electronApi.logMessage(message, 'info');
 			// Do nothing. The case of having no token is handled in the App component.
@@ -210,7 +220,7 @@ export function getErrorHandler(dispatch: Dispatch<AppReduxAction>) {
 		if (err.code === 'GitHubTokenNotFound' && token) {
 			// This should never happen, I hope!
 			const message =
-				'notifications check failed because there is no token, even though one is set';
+				'Notifications check failed because there is no token, even though one is set';
 			debug(message);
 			window.electronApi.logMessage(message, 'error');
 			const errorString =
@@ -222,7 +232,7 @@ export function getErrorHandler(dispatch: Dispatch<AppReduxAction>) {
 
 		if (isOfflineCode(err.code)) {
 			// This is normal. We'll just wait.
-			const message = 'notifications check failed because we are offline';
+			const message = 'Notifications check failed because we are offline';
 			debug(message);
 			window.electronApi.logMessage(message, 'warn');
 			dispatch(changeToOffline());
@@ -231,7 +241,7 @@ export function getErrorHandler(dispatch: Dispatch<AppReduxAction>) {
 
 		if (isGitHubOffline(err)) {
 			// This is normal. We'll just wait.
-			const message = 'notifications check failed because GitHub is offline';
+			const message = 'Notifications check failed because GitHub is offline';
 			debug(message);
 			window.electronApi.logMessage(message, 'warn');
 			dispatch(changeToOffline());
