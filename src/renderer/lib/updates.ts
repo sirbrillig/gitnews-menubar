@@ -51,16 +51,23 @@ export function useGetGitnewsUpdate() {
 		updatedVersion: undefined,
 	});
 	React.useEffect(() => {
-		getInfoIfUpdateAvailable().then(latestVersionInfo => {
-			if (!latestVersionInfo) {
-				return;
-			}
-			setUpdateData({
-				isUpdateAvailable: true,
-				updateUrl: latestVersionInfo.url,
-				updatedVersion: latestVersionInfo.version,
+		getInfoIfUpdateAvailable()
+			.then(latestVersionInfo => {
+				if (!latestVersionInfo) {
+					return;
+				}
+				setUpdateData({
+					isUpdateAvailable: true,
+					updateUrl: latestVersionInfo.url,
+					updatedVersion: latestVersionInfo.version,
+				});
+			})
+			.catch(error => {
+				//eslint-disable-next-line no-console
+				console.error(
+					`Error fetching updated version: ${(error as Error).message}`
+				);
 			});
-		});
 	});
 	return updateData;
 }

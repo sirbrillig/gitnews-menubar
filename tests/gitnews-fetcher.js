@@ -6,6 +6,22 @@ chai.use(sinonChai);
 const { expect } = chai;
 const { getErrorHandler } = require('../src/renderer/lib/gitnews-fetcher');
 
+window.electronApi = {
+	quitApp: () => undefined,
+	logMessage: () => undefined,
+	toggleAutoLaunch: () => undefined,
+	openUrl: () => undefined,
+	saveToken: () => undefined,
+	setIcon: () => undefined,
+	onHide: () => undefined,
+	onShow: () => undefined,
+	onClick: () => undefined,
+	getToken: () => Promise.resolve(''),
+	getVersion: () => Promise.resolve('v1'),
+	isDemoMode: () => Promise.resolve(false),
+	isAutoLaunchEnabled: () => Promise.resolve(false),
+};
+
 describe('handleFetchError()', function() {
 	it('does nothing if the error is GitHubTokenNotFound', function() {
 		const dispatch = sinon.spy();

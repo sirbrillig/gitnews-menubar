@@ -14,6 +14,7 @@ import { version } from '../../package.json';
 import { getIconForState } from '../common/lib/icon-path';
 import unhandled from 'electron-unhandled';
 import debugFactory from 'debug';
+import log from 'electron-log';
 import AutoLaunch from 'easy-auto-launch';
 import dotEnv from 'dotenv';
 
@@ -37,7 +38,7 @@ let lastIconState = 'normal';
 
 const bar = menubar({
 	preloadWindow: true,
-	index: getAppUrl(),
+	index: MAIN_WINDOW_WEBPACK_ENTRY,
 	icon: getIconForState('normal'),
 	browserWindow: {
 		width: 390,
@@ -55,17 +56,13 @@ bar.on('ready', () => {
 	app.dock.hide(); // Buggy behavior with showDockIcon: https://github.com/maxogden/menubar/issues/306
 	isDev || bar.window.setResizable(false);
 	isDev || attachAppMenu();
-	bar.window.loadURL(getAppUrl());
 
 	nativeTheme.on('updated', () => {
 		setIcon();
 	});
-});
 
-function getAppUrl() {
-	// eslint-disable-next-line no-undef
-	return MAIN_WINDOW_WEBPACK_ENTRY;
-}
+	log.info('Starting');
+});
 
 bar.on('hide', () => {
 	bar.window.webContents.send('menubar-click', true);
@@ -87,11 +84,31 @@ systemPreferences.subscribeNotification(
 	}
 );
 
+ipcMain.on(
+	'log-message',
+	(event, message: string, level: 'info' | 'warn' | 'error') => {
+		switch (level) {
+			case 'info':
+				log.info(message);
+				break;
+			case 'warn':
+				log.warn(message);
+				break;
+			case 'error':
+				log.error(message);
+				break;
+			default:
+				log.error(`Unknown log level ${level}: ${message}`);
+		}
+	}
+);
+
 ipcMain.on('set-icon', (event, arg) => {
 	setIcon(arg);
 });
 
 ipcMain.on('open-url', (event, url, options) => {
+	log.info(`Opening url: ${url}`);
 	shell.openExternal(url, options);
 });
 
@@ -102,6 +119,7 @@ ipcMain.on('quit-app', () => {
 
 ipcMain.on('save-token', (event, token) => {
 	debug('Saving token');
+	log.info('Token saved');
 	setToken(token);
 });
 
@@ -110,6 +128,7 @@ const autoLauncher = new AutoLaunch({
 });
 
 ipcMain.on('toggle-auto-launch', (event, isEnabled) => {
+	log.info(`AutoLaunch changed to ${isEnabled}`);
 	if (isEnabled) {
 		autoLauncher.enable();
 	} else {
@@ -138,6 +157,7 @@ function setIcon(type?: string) {
 		type = lastIconState;
 	}
 	debug('setting icon to', type);
+	log.info(`Icon changed to ${type}`);
 	const image = getIcon(type);
 	lastIconState = type;
 	bar.tray.setImage(image);

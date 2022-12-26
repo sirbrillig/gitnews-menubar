@@ -57,6 +57,7 @@ export type ActionMarkUnread = { type: 'MARK_NOTE_UNREAD'; note: Note };
 export type ActionClearErrors = { type: 'CLEAR_ERRORS' };
 export type ActionMarkAllNotesSeen = { type: 'MARK_ALL_NOTES_SEEN' };
 export type ActionChangeToken = { type: 'CHANGE_TOKEN'; token: string };
+export type ActionInitToken = { type: 'SET_INITIAL_TOKEN'; token: string };
 export type ActionChangeToOffline = { type: 'OFFLINE' };
 export type ActionGotNotes = { type: 'NOTES_RETRIEVED'; notes: Note[] };
 export type ActionAddConnectionError = {
@@ -93,6 +94,7 @@ export type AppReduxAction =
 	| ActionClearErrors
 	| ActionMarkAllNotesSeen
 	| ActionChangeToken
+	| ActionInitToken
 	| ActionChangeToOffline
 	| ActionGotNotes
 	| ActionAddConnectionError
@@ -129,21 +131,36 @@ export type AppPane =
 	| typeof PANE_CONFIG
 	| typeof PANE_MUTED_REPOS;
 
+export interface MainBridge {
+	quitApp: () => void;
+	logMessage: (message: string, level: 'info' | 'warn' | 'error') => void;
+	toggleAutoLaunch: (isEnabled: boolean) => void;
+	openUrl: OpenUrl;
+	saveToken: (token: string) => void;
+	setIcon: (nextIcon: string) => void;
+	onHide: (callback: () => void) => void;
+	onShow: (callback: () => void) => void;
+	onClick: (callback: () => void) => void;
+	getToken: () => Promise<string>;
+	getVersion: () => Promise<string>;
+	isDemoMode: () => Promise<boolean>;
+	isAutoLaunchEnabled: () => Promise<boolean>;
+}
+
+export type UnknownFetchError =
+	| {
+			code?: string;
+			name?: string;
+			message?: string;
+			statusText?: string;
+			status?: number;
+			url?: string;
+			type?: string;
+	  }
+	| string;
+
 declare global {
 	interface Window {
-		electronApi: {
-			quitApp: () => void;
-			toggleAutoLaunch: (isEnabled: boolean) => void;
-			openUrl: OpenUrl;
-			saveToken: (token: string) => void;
-			setIcon: (nextIcon: string) => void;
-			onHide: (callback: () => void) => void;
-			onShow: (callback: () => void) => void;
-			onClick: (callback: () => void) => void;
-			getToken: () => Promise<string>;
-			getVersion: () => Promise<string>;
-			isDemoMode: () => Promise<boolean>;
-			isAutoLaunchEnabled: () => Promise<boolean>;
-		};
+		electronApi: MainBridge;
 	}
 }

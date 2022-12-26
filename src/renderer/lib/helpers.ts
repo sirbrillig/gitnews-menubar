@@ -1,4 +1,4 @@
-import { Note } from '../types';
+import { Note, UnknownFetchError } from '../types';
 
 const maxFetchInterval = secsToMs(300); // 5 minutes
 
@@ -56,9 +56,7 @@ export function getFetchInterval(interval: number, retryCount: number): number {
 	return fetchInterval;
 }
 
-export function getErrorMessage(
-	error: undefined | null | Record<string, string> | string
-): string {
+export function getErrorMessage(error: UnknownFetchError): string {
 	if (!error) {
 		return '';
 	}
@@ -76,12 +74,16 @@ export function getErrorMessage(
 		.join('; ');
 }
 
-export function isGitHubOffline(error: Record<string, string>): boolean {
-	return error.status && error.status.toString().startsWith('5');
+export function isGitHubOffline(error: UnknownFetchError): boolean {
+	return (
+		typeof error === 'object' &&
+		error.status &&
+		error.status.toString().startsWith('5')
+	);
 }
 
-export function isInvalidJson(error: Record<string, string>): boolean {
-	return error.type === 'invalid-json';
+export function isInvalidJson(error: UnknownFetchError): boolean {
+	return typeof error === 'object' && error.type === 'invalid-json';
 }
 
 export function getSecondsUntilNextFetch(

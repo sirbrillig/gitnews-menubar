@@ -1,7 +1,10 @@
 import { contextBridge, ipcRenderer } from 'electron';
+import { MainBridge } from './renderer/types';
 
-contextBridge.exposeInMainWorld('electronApi', {
+const bridge: MainBridge = {
 	quitApp: () => ipcRenderer.send('quit-app'),
+	logMessage: (message: string, level: 'info' | 'warn' | 'error') =>
+		ipcRenderer.send('log-message', message, level),
 	toggleAutoLaunch: (isEnabled: boolean) =>
 		ipcRenderer.send('toggle-auto-launch', isEnabled),
 	openUrl: (url: string, options: Electron.OpenExternalOptions) =>
@@ -15,4 +18,6 @@ contextBridge.exposeInMainWorld('electronApi', {
 	getVersion: () => ipcRenderer.invoke('version:get'),
 	isDemoMode: () => ipcRenderer.invoke('is-demo-mode:get'),
 	isAutoLaunchEnabled: () => ipcRenderer.invoke('is-auto-launch:get'),
-});
+};
+
+contextBridge.exposeInMainWorld('electronApi', bridge);
