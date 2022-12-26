@@ -38,7 +38,7 @@ let lastIconState = 'normal';
 
 const bar = menubar({
 	preloadWindow: true,
-	index: getAppUrl(),
+	index: MAIN_WINDOW_WEBPACK_ENTRY,
 	icon: getIconForState('normal'),
 	browserWindow: {
 		width: 390,
@@ -56,7 +56,6 @@ bar.on('ready', () => {
 	app.dock.hide(); // Buggy behavior with showDockIcon: https://github.com/maxogden/menubar/issues/306
 	isDev || bar.window.setResizable(false);
 	isDev || attachAppMenu();
-	bar.window.loadURL(getAppUrl());
 
 	nativeTheme.on('updated', () => {
 		setIcon();
@@ -64,11 +63,6 @@ bar.on('ready', () => {
 
 	log.info('Starting');
 });
-
-function getAppUrl() {
-	// eslint-disable-next-line no-undef
-	return MAIN_WINDOW_WEBPACK_ENTRY;
-}
 
 bar.on('hide', () => {
 	bar.window.webContents.send('menubar-click', true);
