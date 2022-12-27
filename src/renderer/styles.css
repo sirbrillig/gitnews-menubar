@@ -147,6 +147,10 @@ header svg {
 	grid-row-gap: 0px;
 }
 
+.left-button {
+	text-align: left;
+}
+
 .filter-button__area {
 	display: flex;
 	justify-content: flex-end;

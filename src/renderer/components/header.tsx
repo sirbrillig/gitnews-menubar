@@ -22,7 +22,7 @@ function LeftButton({
 	if (hideConfig) {
 		return (
 			<button
-				className="back-button"
+				className="back-button left-button"
 				onClick={hideConfig}
 				aria-label="Close settings"
 			>
@@ -33,7 +33,7 @@ function LeftButton({
 	if (showConfig) {
 		return (
 			<button
-				className="config-button"
+				className="config-button left-button"
 				onClick={showConfig}
 				aria-label="Open settings"
 			>
@@ -41,7 +41,7 @@ function LeftButton({
 			</button>
 		);
 	}
-	return <span className="config-spacer" />;
+	return <span className="config-spacer left-button" />;
 }
 
 export default function Header({
