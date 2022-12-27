@@ -139,9 +139,23 @@ header svg {
 
 .header__primary {
 	margin: 10px 10px 5px 10px;
-	display: flex;
-	justify-content: space-between;
 	width: 100%;
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	grid-template-rows: 1fr;
+	grid-column-gap: 0px;
+	grid-row-gap: 0px;
+}
+
+.filter-button__area {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	font-size: 0.7em;
+}
+
+.filter-label {
+	margin-bottom: 2px;
 }
 
 .header__primary a,
@@ -291,6 +305,7 @@ header svg {
 header h1 {
 	font-size: 1.4em;
 	margin: 0;
+	text-align: center;
 }
 
 .last-checked {
