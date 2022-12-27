@@ -73,6 +73,20 @@ body {
 	box-sizing: border-box;
 }
 
+input {
+	background-color: var(--main-bg-color);
+	color: var(--main-text-color);
+	accent-color: var(--main-bg-color);
+}
+
+button {
+	background-color: var(--main-bg-color);
+	color: var(--main-text-color);
+	accent-color: var(--main-bg-color);
+	border: 1px solid #777;
+	border-radius: 3px;
+}
+
 .btn {
 	box-shadow:inset 0px 1px 0px 0px var(--primary-button-shadow-color);
 	background-color: var(--primary-button-background-color);
