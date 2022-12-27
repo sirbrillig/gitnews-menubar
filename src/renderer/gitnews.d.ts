@@ -4,8 +4,24 @@ declare module 'gitnews' {
 		fetch: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
 	}
 
+	export type NoteReason =
+		| 'assign'
+		| 'author'
+		| 'ci_activity'
+		| 'comment'
+		| 'manual'
+		| 'mention'
+		| 'push'
+		| 'review_requested'
+		| 'security_alert'
+		| 'state_change'
+		| 'subscribed'
+		| 'team_mention'
+		| 'your_activity';
+
 	export interface NoteApi {
 		subject?: { state?: string; merged?: boolean };
+		notification?: { reason?: NoteReason };
 	}
 
 	export interface Note {

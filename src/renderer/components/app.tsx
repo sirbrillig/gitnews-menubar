@@ -37,6 +37,7 @@ import {
 	ChangeAutoload,
 	MuteRepo,
 	UnmuteRepo,
+	FilterType,
 } from '../types';
 
 const debug = debugFactory('gitnews-menubar');
@@ -67,7 +68,7 @@ interface AppProps {
 	lastChecked: number | false;
 	fetchInterval: number;
 	isAutoLoadEnabled: boolean;
-	filterType: string;
+	filterType: FilterType;
 	appVisible: boolean;
 }
 
@@ -108,12 +109,12 @@ class App extends React.Component<AppProps, AppState> {
 
 	getUnmutedNotifications() {
 		return this.props.notes.filter(
-			note => !this.props.mutedRepos.includes(note.repositoryFullName)
+			(note) => !this.props.mutedRepos.includes(note.repositoryFullName)
 		);
 	}
 
 	getReadNotifications() {
-		return this.props.notes.filter(note => {
+		return this.props.notes.filter((note) => {
 			if (!note.unread && !note.gitnewsMarkedUnread) {
 				return true;
 			}
@@ -129,12 +130,12 @@ class App extends React.Component<AppProps, AppState> {
 
 	getUnreadNotifications() {
 		return this.getUnmutedNotifications().filter(
-			note => note.unread || note.gitnewsMarkedUnread
+			(note) => note.unread || note.gitnewsMarkedUnread
 		);
 	}
 
 	getUnseenNotifications() {
-		return this.getUnreadNotifications().filter(note => !note.gitnewsSeen);
+		return this.getUnreadNotifications().filter((note) => !note.gitnewsSeen);
 	}
 
 	getNextIcon({
@@ -148,18 +149,18 @@ class App extends React.Component<AppProps, AppState> {
 		errors: string[];
 		unseenNotes: Note[];
 		unreadNotes: Note[];
-		filterType: string;
+		filterType: FilterType;
 	}) {
 		if (errors.length) {
 			return 'error';
 		}
-		const unseenNotesFiltered = unseenNotes.filter(note =>
+		const unseenNotesFiltered = unseenNotes.filter((note) =>
 			doesNoteMatchFilter(note, filterType)
 		);
 		if (unseenNotesFiltered.length) {
 			return 'unseen';
 		}
-		const unreadNotesFiltered = unreadNotes.filter(note =>
+		const unreadNotesFiltered = unreadNotes.filter((note) =>
 			doesNoteMatchFilter(note, filterType)
 		);
 		if (unreadNotesFiltered.length) {

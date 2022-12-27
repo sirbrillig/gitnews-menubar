@@ -1,17 +1,17 @@
 import React from 'react';
 import Gridicon from 'gridicons';
-import { AppReduxState } from '../types';
+import { FilterType } from '../types';
 
 export default function FilterButton({
 	filterType,
 	setFilterType,
 }: {
-	filterType: AppReduxState['filterType'];
+	filterType: FilterType;
 	setFilterType: (type: string) => void;
 }) {
 	const [isFiltersVisible, setFiltersVisible] = React.useState(false);
-	const toggleFiltersVisible = () => setFiltersVisible(value => !value);
-	const setFilter = (type: string) => {
+	const toggleFiltersVisible = () => setFiltersVisible((value) => !value);
+	const setFilter = (type: FilterType) => {
 		setFilterType(type);
 		setFiltersVisible(false);
 	};
@@ -35,8 +35,8 @@ function FilterMenu({
 	filterType,
 	setFilterType,
 }: {
-	filterType: AppReduxState['filterType'];
-	setFilterType: (type: string) => void;
+	filterType: FilterType;
+	setFilterType: (type: FilterType) => void;
 }) {
 	return (
 		<div className="filter-menu">

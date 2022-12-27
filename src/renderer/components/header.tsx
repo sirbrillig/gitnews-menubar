@@ -7,7 +7,7 @@ import FetchingInProgress from '../components/fetching-in-progress';
 import createUpdater from '../components/updater';
 import FilterButton from './filter-button';
 import { PANE_NOTIFICATIONS } from '../lib/constants';
-import { AppPane } from '../types';
+import { AppPane, FilterType } from '../types';
 
 const UpdatingLastChecked = createUpdater(LastChecked);
 const UpdatingOfflineNotice = createUpdater(OfflineNotice);
@@ -67,7 +67,7 @@ export default function Header({
 	hideConfig: () => void;
 	fetchingInProgress: boolean;
 	children: React.ReactNode;
-	filterType: string;
+	filterType: FilterType;
 	setFilterType: (type: string) => void;
 	currentPane: AppPane;
 }) {
