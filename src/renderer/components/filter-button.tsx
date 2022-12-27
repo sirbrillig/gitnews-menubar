@@ -55,10 +55,28 @@ function FilterMenu({
 					Assigned
 				</FilterMenuItem>
 				<FilterMenuItem
+					selected={filterType === 'author' ? true : false}
+					onClick={() => setFilterType('author')}
+				>
+					Author
+				</FilterMenuItem>
+				<FilterMenuItem
+					selected={filterType === 'comment' ? true : false}
+					onClick={() => setFilterType('comment')}
+				>
+					Commented
+				</FilterMenuItem>
+				<FilterMenuItem
 					selected={filterType === 'mention' ? true : false}
 					onClick={() => setFilterType('mention')}
 				>
 					Mentioned
+				</FilterMenuItem>
+				<FilterMenuItem
+					selected={filterType === 'review_requested' ? true : false}
+					onClick={() => setFilterType('review_requested')}
+				>
+					Review requested
 				</FilterMenuItem>
 				<FilterMenuItem
 					selected={filterType === 'team_mention' ? true : false}
