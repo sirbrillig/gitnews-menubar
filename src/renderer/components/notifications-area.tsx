@@ -6,6 +6,7 @@ import { getNoteId } from '../lib/helpers';
 import { useGetGitnewsUpdate } from '../lib/updates';
 import doesNoteMatchFilter from '../lib/does-note-match-filter';
 import {
+	FilterType,
 	MarkRead,
 	MarkUnread,
 	MuteRepo,
@@ -61,27 +62,26 @@ export default function NotificationsArea({
 	openUrl: OpenUrl;
 	token: string;
 	searchValue: string;
-	filterType: string;
+	filterType: FilterType;
 	appVisible: boolean;
 }) {
-	const {
-		isUpdateAvailable,
-		updateUrl,
-		updatedVersion,
-	} = useGetGitnewsUpdate();
+	const { isUpdateAvailable, updateUrl, updatedVersion } =
+		useGetGitnewsUpdate();
 	const [notesToOpen, setNotesToOpen] = React.useState([]);
 	const [isMultiOpenMode, setMultiOpenMode] = React.useState(false);
 	const saveNoteToOpen = (note: Note) => {
 		if (isNoteInNotes(note, notesToOpen)) {
-			setNotesToOpen(notes => notes.filter(noteToOpen => noteToOpen !== note));
+			setNotesToOpen((notes) =>
+				notes.filter((noteToOpen) => noteToOpen !== note)
+			);
 			return;
 		}
-		setNotesToOpen(notes => [...notes, note]);
+		setNotesToOpen((notes) => [...notes, note]);
 	};
 
 	const openSavedNotes = React.useCallback(() => {
 		debug('opening notes', notesToOpen);
-		notesToOpen.forEach(note => {
+		notesToOpen.forEach((note) => {
 			markRead(token, note);
 			openUrl(note.commentUrl);
 		});
@@ -131,9 +131,9 @@ export default function NotificationsArea({
 	);
 
 	const orderedNotes = [...newNotes, ...readNotes]
-		.filter(note => doesNoteMatchSearch(note, searchValue))
-		.filter(note => doesNoteMatchFilter(note, filterType));
-	const noteRows = orderedNotes.map(note => (
+		.filter((note) => doesNoteMatchSearch(note, searchValue))
+		.filter((note) => doesNoteMatchFilter(note, filterType));
+	const noteRows = orderedNotes.map((note) => (
 		<Notification
 			note={note}
 			key={getNoteId(note)}
@@ -181,7 +181,7 @@ function doesNoteMatchSearch(note: Note, searchValue: string) {
 }
 
 function isNoteInNotes(note: Note, notes: Note[]) {
-	return notes.some(item => item.id === note.id);
+	return notes.some((item) => item.id === note.id);
 }
 
 function MultiOpenNotice() {

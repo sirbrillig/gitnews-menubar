@@ -21,7 +21,7 @@ export default function Attributions({ openUrl }: { openUrl: OpenUrl }) {
 				>
 					Daniel Bruce
 				</a>
-				&nbsp; from&nbsp;
+				&nbsp;from&nbsp;
 				<a onClick={openLink} href="http://www.flaticon.com" title="Flaticon">
 					Flaticon
 				</a>

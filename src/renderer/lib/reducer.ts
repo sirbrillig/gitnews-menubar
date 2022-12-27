@@ -22,6 +22,7 @@ import {
 	ActionUnmuteRepo,
 	ActionMuteRepo,
 	ActionInitToken,
+	FilterType,
 } from '../types';
 
 const defaultFetchInterval = secsToMs(120);
@@ -45,7 +46,10 @@ const initialState: AppReduxState = {
 };
 
 export function createReducer() {
-	return function(state: AppReduxState, action: AppReduxAction): AppReduxState {
+	return function (
+		state: AppReduxState,
+		action: AppReduxAction
+	): AppReduxState {
 		if (!state) {
 			state = { ...initialState };
 		}
@@ -70,7 +74,7 @@ export function createReducer() {
 				return Object.assign({}, state, { errors: [] });
 			case 'MARK_NOTE_UNREAD':
 				return Object.assign({}, state, {
-					notes: state.notes.map(note => {
+					notes: state.notes.map((note) => {
 						if (getNoteId(note) === getNoteId(action.note)) {
 							return Object.assign({}, note, { gitnewsMarkedUnread: true });
 						}
@@ -79,7 +83,7 @@ export function createReducer() {
 				});
 			case 'MARK_NOTE_READ':
 				return Object.assign({}, state, {
-					notes: state.notes.map(note => {
+					notes: state.notes.map((note) => {
 						if (getNoteId(note) === getNoteId(action.note)) {
 							return Object.assign({}, note, {
 								unread: false,
@@ -91,8 +95,8 @@ export function createReducer() {
 				});
 			case 'MARK_ALL_NOTES_SEEN': {
 				const notes = state.notes
-					.filter(x => x.api)
-					.map(note =>
+					.filter((x) => x.api)
+					.map((note) =>
 						Object.assign(note, {
 							gitnewsSeen: true,
 							gitnewsSeenAt: Date.now(),
@@ -131,7 +135,7 @@ export function createReducer() {
 				return {
 					...state,
 					mutedRepos: state.mutedRepos.filter(
-						repoName => repoName !== action.repo
+						(repoName) => repoName !== action.repo
 					),
 				};
 			case 'SET_FILTER_TYPE':
@@ -217,8 +221,7 @@ export function scrollToTop() {
 	return { type: 'SCROLL_TO_TOP' };
 }
 
-export function setFilterType(filterType: string) {
-	// TODO
+export function setFilterType(filterType: FilterType) {
 	return { type: 'SET_FILTER_TYPE', filterType };
 }
 

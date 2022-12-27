@@ -7,7 +7,7 @@ import FetchingInProgress from '../components/fetching-in-progress';
 import createUpdater from '../components/updater';
 import FilterButton from './filter-button';
 import { PANE_NOTIFICATIONS } from '../lib/constants';
-import { AppPane } from '../types';
+import { AppPane, FilterType } from '../types';
 
 const UpdatingLastChecked = createUpdater(LastChecked);
 const UpdatingOfflineNotice = createUpdater(OfflineNotice);
@@ -22,7 +22,7 @@ function LeftButton({
 	if (hideConfig) {
 		return (
 			<button
-				className="back-button"
+				className="back-button left-button"
 				onClick={hideConfig}
 				aria-label="Close settings"
 			>
@@ -33,7 +33,7 @@ function LeftButton({
 	if (showConfig) {
 		return (
 			<button
-				className="config-button"
+				className="config-button left-button"
 				onClick={showConfig}
 				aria-label="Open settings"
 			>
@@ -41,7 +41,7 @@ function LeftButton({
 			</button>
 		);
 	}
-	return <span className="config-spacer" />;
+	return <span className="config-spacer left-button" />;
 }
 
 export default function Header({
@@ -67,7 +67,7 @@ export default function Header({
 	hideConfig: () => void;
 	fetchingInProgress: boolean;
 	children: React.ReactNode;
-	filterType: string;
+	filterType: FilterType;
 	setFilterType: (type: string) => void;
 	currentPane: AppPane;
 }) {

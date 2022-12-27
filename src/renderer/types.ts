@@ -5,9 +5,26 @@ import {
 	PANE_MUTED_REPOS,
 } from './lib/constants';
 
+export type NoteReason =
+	| 'assign'
+	| 'author'
+	| 'ci_activity'
+	| 'comment'
+	| 'manual'
+	| 'mention'
+	| 'push'
+	| 'review_requested'
+	| 'security_alert'
+	| 'state_change'
+	| 'subscribed'
+	| 'team_mention'
+	| 'your_activity';
+
+export type FilterType = NoteReason | 'all';
+
 export interface NoteApi {
 	subject?: { state?: string; merged?: boolean };
-	notification?: { reason?: string };
+	notification?: { reason?: NoteReason };
 }
 
 export interface Note {
@@ -41,7 +58,7 @@ export interface AppReduxState {
 	fetchRetryCount: number;
 	offline: boolean;
 	isAutoLoadEnabled: boolean;
-	filterType: string; // TODO: let's be more specific
+	filterType: FilterType;
 	appVisible: boolean;
 	isDemoMode: boolean;
 }
@@ -80,8 +97,8 @@ export type ActionChangeAutoLoad = {
 export type ActionScrollToTop = { type: 'SCROLL_TO_TOP' };
 export type ActionSetFilterType = {
 	type: 'SET_FILTER_TYPE';
-	filterType: string;
-}; // TODO
+	filterType: FilterType;
+};
 export type MarkAppHidden = { type: 'NOTE_APP_VISIBLE'; visible: false };
 export type MarkAppShown = { type: 'NOTE_APP_VISIBLE'; visible: true };
 export type ActionSetDemoMode = { type: 'SET_DEMO_MODE'; isDemoMode: boolean };
@@ -147,17 +164,17 @@ export interface MainBridge {
 	isAutoLaunchEnabled: () => Promise<boolean>;
 }
 
-export type UnknownFetchError =
-	| {
-			code?: string;
-			name?: string;
-			message?: string;
-			statusText?: string;
-			status?: number;
-			url?: string;
-			type?: string;
-	  }
-	| string;
+export interface FetchErrorObject {
+	code?: string;
+	name?: string;
+	message?: string;
+	statusText?: string;
+	status?: number;
+	url?: string;
+	type?: string;
+}
+
+export type UnknownFetchError = FetchErrorObject | string;
 
 declare global {
 	interface Window {

@@ -8,6 +8,7 @@ import { PANE_CONFIG, PANE_TOKEN, PANE_MUTED_REPOS } from '../lib/constants';
 import {
 	AppReduxState,
 	ChangeAutoload,
+	FilterType,
 	MarkRead,
 	MarkUnread,
 	MuteRepo,
@@ -63,7 +64,7 @@ export default function MainPane({
 	unmuteRepo: UnmuteRepo;
 	mutedRepos: string[];
 	searchValue: string;
-	filterType: string;
+	filterType: FilterType;
 	appVisible: boolean;
 }) {
 	if (!token || currentPane === PANE_TOKEN) {

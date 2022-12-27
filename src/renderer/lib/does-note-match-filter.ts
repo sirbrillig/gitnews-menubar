@@ -1,8 +1,8 @@
-import { Note } from '../types';
+import { FilterType, Note } from '../types';
 
 export default function doesNoteMatchFilter(
 	note: Note,
-	filterType: string
+	filterType: FilterType
 ): boolean {
 	if (filterType === 'all') {
 		return true;
