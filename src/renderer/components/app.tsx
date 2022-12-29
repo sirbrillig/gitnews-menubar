@@ -43,11 +43,7 @@ import {
 
 const debug = debugFactory('gitnews-menubar');
 
-interface AppProps {
-	quitApp: () => void;
-	getVersion: () => Promise<string>;
-
-	// All following are provided by connect
+interface AppConnectedProps {
 	changeToken: (token: string) => void;
 	setIcon: (icon: IconType) => void;
 	openUrl: OpenUrl;
@@ -71,6 +67,11 @@ interface AppProps {
 	isAutoLoadEnabled: boolean;
 	filterType: FilterType;
 	appVisible: boolean;
+}
+
+interface AppProps extends AppConnectedProps {
+	quitApp: () => void;
+	getVersion: () => Promise<string>;
 }
 
 interface AppState {
