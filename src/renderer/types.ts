@@ -89,7 +89,7 @@ export type ActionOpenUrl = {
 	url: string;
 	options: Electron.OpenExternalOptions;
 };
-export type ActionSetIcon = { type: 'SET_ICON'; icon: string };
+export type ActionSetIcon = { type: 'SET_ICON'; icon: IconType };
 export type ActionChangeAutoLoad = {
 	type: 'CHANGE_AUTO_LOAD';
 	isEnabled: boolean;
@@ -142,6 +142,8 @@ export type MuteRepo = (repo: string) => void;
 
 export type UnmuteRepo = (repo: string) => void;
 
+export type IconType = 'normal' | 'unseen' | 'unread' | 'offline' | 'error';
+
 export type AppPane =
 	| typeof PANE_NOTIFICATIONS
 	| typeof PANE_TOKEN
@@ -154,7 +156,7 @@ export interface MainBridge {
 	toggleAutoLaunch: (isEnabled: boolean) => void;
 	openUrl: OpenUrl;
 	saveToken: (token: string) => void;
-	setIcon: (nextIcon: string) => void;
+	setIcon: (nextIcon: IconType) => void;
 	onHide: (callback: () => void) => void;
 	onShow: (callback: () => void) => void;
 	onClick: (callback: () => void) => void;

@@ -38,6 +38,7 @@ import {
 	MuteRepo,
 	UnmuteRepo,
 	FilterType,
+	IconType,
 } from '../types';
 
 const debug = debugFactory('gitnews-menubar');
@@ -48,7 +49,7 @@ interface AppProps {
 
 	// All following are provided by connect
 	changeToken: (token: string) => void;
-	setIcon: (icon: string) => void;
+	setIcon: (icon: IconType) => void;
 	openUrl: OpenUrl;
 	fetchNotifications: () => void;
 	markRead: MarkRead;

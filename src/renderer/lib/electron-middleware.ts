@@ -1,11 +1,11 @@
 import { Middleware } from 'redux';
-import { AppReduxAction, AppReduxState } from '../types';
+import { AppReduxAction, AppReduxState, IconType } from '../types';
 
 function openUrl(url: string, options = {}) {
 	window.electronApi.openUrl(url, options);
 }
 
-function setIcon(nextIcon: string) {
+function setIcon(nextIcon: IconType) {
 	window.electronApi.setIcon(nextIcon);
 }
 
