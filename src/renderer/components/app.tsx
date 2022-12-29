@@ -44,17 +44,6 @@ import {
 const debug = debugFactory('gitnews-menubar');
 
 interface AppConnectedProps {
-	changeToken: (token: string) => void;
-	setIcon: (icon: IconType) => void;
-	openUrl: OpenUrl;
-	fetchNotifications: () => void;
-	markRead: MarkRead;
-	markUnread: MarkUnread;
-	clearErrors: () => void;
-	changeAutoLoad: ChangeAutoload;
-	muteRepo: MuteRepo;
-	unmuteRepo: UnmuteRepo;
-	setFilterType: (type: string) => void;
 	notes: Note[];
 	mutedRepos: string[];
 	offline: boolean;
@@ -69,10 +58,26 @@ interface AppConnectedProps {
 	appVisible: boolean;
 }
 
-interface AppProps extends AppConnectedProps {
+interface AppConnectedActions {
+	changeToken: (token: string) => void;
+	setIcon: (icon: IconType) => void;
+	openUrl: OpenUrl;
+	fetchNotifications: () => void;
+	markRead: MarkRead;
+	markUnread: MarkUnread;
+	clearErrors: () => void;
+	changeAutoLoad: ChangeAutoload;
+	muteRepo: MuteRepo;
+	unmuteRepo: UnmuteRepo;
+	setFilterType: (type: string) => void;
+}
+
+interface AppProvidedProps {
 	quitApp: () => void;
 	getVersion: () => Promise<string>;
 }
+
+type AppProps = AppConnectedProps & AppConnectedActions & AppProvidedProps;
 
 interface AppState {
 	currentPane: AppPane;
@@ -271,7 +276,7 @@ class App extends React.Component<AppProps, AppState> {
 	}
 }
 
-function mapStateToProps(state: AppReduxState) {
+function mapStateToProps(state: AppReduxState): AppConnectedProps {
 	return {
 		notes: state.notes,
 		mutedRepos: state.mutedRepos,
