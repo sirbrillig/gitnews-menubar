@@ -103,12 +103,20 @@ ipcMain.on(
 	}
 );
 
-ipcMain.on('set-icon', (event, arg) => {
+ipcMain.on('set-icon', (event, arg: unknown) => {
+	if (typeof arg !== 'string') {
+		log.error('Failed to set icon: it is invalid');
+		return;
+	}
 	setIcon(arg);
 });
 
-ipcMain.on('open-url', (event, url, options) => {
+ipcMain.on('open-url', (event, url: unknown, options) => {
 	log.info(`Opening url: ${url}`);
+	if (typeof url !== 'string') {
+		log.error('Failed to open URL: it is invalid');
+		return;
+	}
 	shell.openExternal(url, options);
 });
 
@@ -117,10 +125,14 @@ ipcMain.on('quit-app', () => {
 	app.quit();
 });
 
-ipcMain.on('save-token', (event, token) => {
+ipcMain.on('save-token', (event, token: unknown) => {
 	debug('Saving token');
-	log.info('Token saved');
+	if (typeof token !== 'string') {
+		log.error('Failed to save token: it is invalid');
+		return;
+	}
 	setToken(token);
+	log.info('Token saved');
 });
 
 const autoLauncher = new AutoLaunch({
