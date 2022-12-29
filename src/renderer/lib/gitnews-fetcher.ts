@@ -25,31 +25,29 @@ import {
 const debug = debugFactory('gitnews-menubar');
 
 export function createFetcher(): Middleware<object, AppReduxState> {
-	const fetcher: Middleware<
-		object,
-		AppReduxState
-	> = store => next => action => {
-		if (action.type === 'CHANGE_TOKEN') {
-			debug('Token being changed; fetching with new token');
-			window.electronApi.logMessage(
-				'Token being changed; fetching with new token',
-				'info'
-			);
-			performFetch(
-				Object.assign({}, store.getState(), { token: action.token }),
-				next
-			);
-			return next(action);
-		}
+	const fetcher: Middleware<object, AppReduxState> =
+		(store) => (next) => (action: AppReduxAction) => {
+			if (action.type === 'CHANGE_TOKEN') {
+				debug('Token being changed; fetching with new token');
+				window.electronApi.logMessage(
+					'Token being changed; fetching with new token',
+					'info'
+				);
+				performFetch(
+					Object.assign({}, store.getState(), { token: action.token }),
+					next
+				);
+				return next(action);
+			}
 
-		if (action.type !== 'GITNEWS_FETCH_NOTIFICATIONS') {
-			return next(action);
-		}
+			if (action.type !== 'GITNEWS_FETCH_NOTIFICATIONS') {
+				return next(action);
+			}
 
-		debug('fetching with existing token');
-		window.electronApi.logMessage('Fetching with existing token', 'info');
-		performFetch(store.getState(), next);
-	};
+			debug('fetching with existing token');
+			window.electronApi.logMessage('Fetching with existing token', 'info');
+			performFetch(store.getState(), next);
+		};
 
 	async function performFetch(
 		{ fetchingInProgress, token, fetchingStartedAt, isDemoMode }: AppReduxState,
@@ -104,7 +102,7 @@ export function createFetcher(): Middleware<object, AppReduxState> {
 
 	const getNotifications = createNoteGetter({
 		fetch: (url, options) => fetch(url, options),
-		log: message => {
+		log: (message) => {
 			console.log('Gitnews: ' + message);
 		},
 	});
