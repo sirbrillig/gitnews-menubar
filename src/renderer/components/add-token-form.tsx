@@ -18,13 +18,11 @@ export default function AddTokenForm({
 		event.preventDefault();
 		openUrl((event.target as HTMLAnchorElement).href);
 	};
-	let tokenField: { value: string } = null;
-	const saveTokenField = (field: { value: string }) => {
-		tokenField = field;
-	};
+	const [tempToken, setTempToken] = React.useState<string | undefined>(token);
+
 	const saveToken = () => {
-		if (tokenField) {
-			changeToken(tokenField.value);
+		if (tempToken) {
+			changeToken(tempToken);
 			hideEditToken();
 		}
 	};
@@ -45,7 +43,8 @@ export default function AddTokenForm({
 				className="add-token-form__input"
 				id="add-token-form__input"
 				defaultValue={token}
-				ref={saveTokenField}
+				value={tempToken}
+				onChange={(event) => setTempToken(event.target.value)}
 			/>
 			{showCancel && (
 				<button

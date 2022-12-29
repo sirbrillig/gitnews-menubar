@@ -1,8 +1,8 @@
 import { Middleware } from 'redux';
 import { AppReduxAction, AppReduxState, IconType } from '../types';
 
-function openUrl(url: string, options = {}) {
-	window.electronApi.openUrl(url, options);
+function openUrl(url: string) {
+	window.electronApi.openUrl(url);
 }
 
 function setIcon(nextIcon: IconType) {
@@ -17,7 +17,7 @@ export const electronMiddleware: Middleware<object, AppReduxState> =
 	(store) => (next) => (action: AppReduxAction) => {
 		switch (action.type) {
 			case 'OPEN_URL':
-				return openUrl(action.url, action.options);
+				return openUrl(action.url);
 			case 'SET_ICON':
 				return setIcon(action.icon);
 			case 'SCROLL_TO_TOP':

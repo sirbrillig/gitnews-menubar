@@ -7,8 +7,7 @@ const bridge: MainBridge = {
 		ipcRenderer.send('log-message', message, level),
 	toggleAutoLaunch: (isEnabled: boolean) =>
 		ipcRenderer.send('toggle-auto-launch', isEnabled),
-	openUrl: (url: string, options: Electron.OpenExternalOptions) =>
-		ipcRenderer.send('open-url', url, options),
+	openUrl: (url: string) => ipcRenderer.send('open-url', url),
 	saveToken: (token: string) => ipcRenderer.send('save-token', token),
 	setIcon: (nextIcon: IconType) => ipcRenderer.send('set-icon', nextIcon),
 	onHide: (callback: () => void) => ipcRenderer.on('hide-app', callback),

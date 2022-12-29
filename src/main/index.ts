@@ -54,7 +54,7 @@ debug('menubar created');
 bar.on('ready', () => {
 	debug('app is ready');
 	app.dock.hide(); // Buggy behavior with showDockIcon: https://github.com/maxogden/menubar/issues/306
-	isDev || bar.window.setResizable(false);
+	isDev || bar.window?.setResizable(false);
 	isDev || attachAppMenu();
 
 	nativeTheme.on('updated', () => {
@@ -65,12 +65,12 @@ bar.on('ready', () => {
 });
 
 bar.on('hide', () => {
-	bar.window.webContents.send('menubar-click', true);
-	bar.window.webContents.send('hide-app', true);
+	bar.window?.webContents.send('menubar-click', true);
+	bar.window?.webContents.send('hide-app', true);
 });
 bar.on('show', () => {
-	bar.window.webContents.send('menubar-click', true);
-	bar.window.webContents.send('show-app', true);
+	bar.window?.webContents.send('menubar-click', true);
+	bar.window?.webContents.send('show-app', true);
 });
 bar.on('focus-lost', () => {
 	debug('focus was lost');

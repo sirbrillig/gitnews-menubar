@@ -47,6 +47,7 @@ export function createFetcher(): Middleware<object, AppReduxState> {
 			debug('fetching with existing token');
 			window.electronApi.logMessage('Fetching with existing token', 'info');
 			performFetch(store.getState(), next);
+			return;
 		};
 
 	async function performFetch(
@@ -75,6 +76,10 @@ export function createFetcher(): Middleware<object, AppReduxState> {
 			next(changeToOffline());
 			return;
 		}
+		if (!token) {
+			next(changeToOffline());
+			return;
+		}
 		debug('fetching notifications in middleware');
 		// NOTE: After this point, any return action MUST disable fetchingInProgress
 		// or the app will get stuck never updating again.
@@ -96,7 +101,7 @@ export function createFetcher(): Middleware<object, AppReduxState> {
 				'warn'
 			);
 			next(fetchDone());
-			getErrorHandler(next)(err, token);
+			getErrorHandler(next)(err as Error, token);
 		}
 	}
 
@@ -209,7 +214,7 @@ async function getDemoNotifications(): Promise<Note[]> {
 export function getErrorHandler(dispatch: Dispatch<AppReduxAction>) {
 	return function handleFetchError(
 		err: UnknownFetchError,
-		token: string = null
+		token: string | undefined = undefined
 	) {
 		if (
 			typeof err === 'object' &&
@@ -241,7 +246,7 @@ export function getErrorHandler(dispatch: Dispatch<AppReduxAction>) {
 			return;
 		}
 
-		if (typeof err === 'object' && isOfflineCode(err.code)) {
+		if (typeof err === 'object' && isOfflineCode(err.code ?? '')) {
 			// This is normal. We'll just wait.
 			const message = 'Notifications check failed because we are offline';
 			debug(message);

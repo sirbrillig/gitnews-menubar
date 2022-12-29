@@ -127,10 +127,7 @@ export type AppReduxAction =
 	| MarkAppShown
 	| ActionSetDemoMode;
 
-export type OpenUrl = (
-	url: string,
-	options?: Electron.OpenExternalOptions
-) => void;
+export type OpenUrl = (url: string) => void;
 
 export type MarkRead = (token: string, note: Note) => void;
 

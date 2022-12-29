@@ -29,7 +29,7 @@ export default function FilterButton({
 	setFilterType,
 }: {
 	filterType: FilterType;
-	setFilterType: (type: string) => void;
+	setFilterType: (type: FilterType) => void;
 }) {
 	const [isFiltersVisible, setFiltersVisible] = React.useState(false);
 	const toggleFiltersVisible = () => setFiltersVisible((value) => !value);

@@ -67,7 +67,7 @@ export default function NotificationsArea({
 }) {
 	const { isUpdateAvailable, updateUrl, updatedVersion } =
 		useGetGitnewsUpdate();
-	const [notesToOpen, setNotesToOpen] = React.useState([]);
+	const [notesToOpen, setNotesToOpen] = React.useState<Note[]>([]);
 	const [isMultiOpenMode, setMultiOpenMode] = React.useState(false);
 	const saveNoteToOpen = (note: Note) => {
 		if (isNoteInNotes(note, notesToOpen)) {

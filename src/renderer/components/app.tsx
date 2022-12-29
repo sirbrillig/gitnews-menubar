@@ -69,7 +69,7 @@ interface AppConnectedActions {
 	changeAutoLoad: ChangeAutoload;
 	muteRepo: MuteRepo;
 	unmuteRepo: UnmuteRepo;
-	setFilterType: (type: string) => void;
+	setFilterType: (type: FilterType) => void;
 }
 
 interface AppProvidedProps {
@@ -231,8 +231,12 @@ class App extends React.Component<AppProps, AppState> {
 					lastSuccessfulCheck={lastSuccessfulCheck}
 					lastChecked={this.props.lastChecked}
 					fetchInterval={this.props.fetchInterval}
-					showConfig={token && currentPane === PANE_NOTIFICATIONS && showConfig}
-					hideConfig={showBackButton ? onBack : null}
+					showConfig={
+						token && currentPane === PANE_NOTIFICATIONS && showConfig
+							? showConfig
+							: undefined
+					}
+					hideConfig={showBackButton ? onBack : undefined}
 					fetchingInProgress={fetchingInProgress}
 					filterType={this.props.filterType}
 					setFilterType={this.props.setFilterType}
@@ -247,7 +251,7 @@ class App extends React.Component<AppProps, AppState> {
 				</Header>
 				<ErrorsArea errors={errors} clearErrors={this.props.clearErrors} />
 				<MainPane
-					token={token}
+					token={token ?? ''}
 					currentPane={currentPane}
 					getVersion={getVersion}
 					newNotes={newNotes}

@@ -9,7 +9,7 @@ export default function createUpdater<W extends object>(
 	WrappedComponent: React.ComponentType<W>
 ) {
 	return class Updater extends React.Component<W, UpdaterState> {
-		lastCheckedUpdater: number;
+		lastCheckedUpdater: number | null;
 		updateInterval: number;
 
 		constructor(props: W) {
