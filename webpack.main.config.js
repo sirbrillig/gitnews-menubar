@@ -2,7 +2,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 const path = require('path');
 
 const assets = ['static'];
-const copyPlugins = assets.map(asset => {
+const copyPlugins = assets.map((asset) => {
 	return new CopyPlugin({
 		patterns: [
 			{
@@ -15,6 +15,9 @@ const copyPlugins = assets.map(asset => {
 
 module.exports = {
 	entry: './src/main/index.ts',
+	resolve: {
+		extensions: ['.js', '.ts', '.jsx', '.tsx', '.css'],
+	},
 	plugins: [...copyPlugins],
 	module: {
 		rules: [
