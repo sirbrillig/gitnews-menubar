@@ -9,7 +9,12 @@ import {
 import { menubar } from 'menubar';
 import isDev from 'electron-is-dev';
 import electronDebug from 'electron-debug';
-import { setToken, getToken } from './lib/token';
+import {
+	setToken,
+	getToken,
+	isLoggingEnabled,
+	toggleLogging,
+} from './lib/main-store';
 import { getIconForState } from './lib/icon-path';
 import { version } from '../../package.json';
 import unhandled from 'electron-unhandled';
@@ -36,12 +41,10 @@ electronDebug();
 
 let lastIconState = 'normal';
 
-let isLoggingEnabled = false;
-
 // Only use this function for logging!
 function logMessage(message: string, level: 'info' | 'warn' | 'error'): void {
 	debug(message);
-	if (!isLoggingEnabled) {
+	if (!isLoggingEnabled()) {
 		return;
 	}
 	switch (level) {
@@ -112,7 +115,7 @@ ipcMain.on(
 );
 
 ipcMain.on('toggle-logging', (event, isLogging: boolean) => {
-	isLoggingEnabled = isLogging;
+	toggleLogging(isLogging);
 });
 
 ipcMain.on('set-icon', (event, arg: unknown) => {
