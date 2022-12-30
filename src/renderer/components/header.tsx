@@ -50,6 +50,7 @@ export default function Header({
 	fetchInterval,
 	showConfig,
 	offline,
+	isTokenInvalid,
 	fetchNotifications,
 	hideConfig,
 	fetchingInProgress,
@@ -63,6 +64,7 @@ export default function Header({
 	fetchInterval: number;
 	showConfig?: () => void;
 	offline: boolean;
+	isTokenInvalid: boolean;
 	fetchNotifications: () => void;
 	hideConfig?: () => void;
 	fetchingInProgress: boolean;
@@ -86,7 +88,8 @@ export default function Header({
 				fetchingInProgress={fetchingInProgress}
 				lastSuccessfulCheck={lastSuccessfulCheck}
 			/>
-			{offline && (
+			{isTokenInvalid && <InvalidTokenNotice />}
+			{!isTokenInvalid && offline && (
 				<UpdatingOfflineNotice
 					fetchNotifications={fetchNotifications}
 					lastChecked={lastChecked}
@@ -117,6 +120,16 @@ function SecondaryHeader({
 			{lastSuccessfulCheck && (
 				<UpdatingLastChecked lastSuccessfulCheck={lastSuccessfulCheck} />
 			)}
+		</div>
+	);
+}
+
+function InvalidTokenNotice() {
+	return (
+		<div className="offline-notice">
+			<span>
+				The token is not working. Please double-check that it is correct!
+			</span>
 		</div>
 	);
 }

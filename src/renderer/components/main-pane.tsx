@@ -20,6 +20,7 @@ import { AppPane } from '../types';
 
 export default function MainPane({
 	token,
+	isTokenInvalid,
 	currentPane,
 	openUrl,
 	changeToken,
@@ -70,8 +71,9 @@ export default function MainPane({
 	appVisible: boolean;
 	isLogging: boolean;
 	toggleLogging: (newValue: boolean) => void;
+	isTokenInvalid: boolean;
 }) {
-	if (!token || currentPane === PANE_TOKEN) {
+	if (!token || isTokenInvalid || currentPane === PANE_TOKEN) {
 		return (
 			<AddTokenForm
 				token={token}
@@ -79,6 +81,7 @@ export default function MainPane({
 				changeToken={changeToken}
 				hideEditToken={hideEditToken}
 				showCancel={currentPane === PANE_TOKEN}
+				isTokenInvalid={isTokenInvalid}
 			/>
 		);
 	}

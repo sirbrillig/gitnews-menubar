@@ -6,6 +6,7 @@ import {
 	getErrorMessage,
 	isGitHubOffline,
 	isInvalidJson,
+	isTokenInvalid,
 } from '../lib/helpers';
 import { createNoteGetter } from 'gitnews';
 import {
@@ -14,6 +15,7 @@ import {
 	fetchDone,
 	gotNotes,
 	addConnectionError,
+	setIsTokenInvalid,
 } from '../lib/reducer';
 import {
 	AppReduxAction,
@@ -246,6 +248,15 @@ export function getErrorHandler(dispatch: Dispatch<AppReduxAction>) {
 			return;
 		}
 
+		if (typeof err === 'object' && isTokenInvalid(err)) {
+			const message = 'Notifications check failed the token is invalid';
+			debug(message);
+			window.electronApi.logMessage(message, 'warn');
+			dispatch(changeToOffline());
+			dispatch(setIsTokenInvalid(true));
+			return;
+		}
+
 		if (typeof err === 'object' && isOfflineCode(err.code ?? '')) {
 			// This is normal. We'll just wait.
 			const message = 'Notifications check failed because we are offline';
@@ -288,11 +299,14 @@ export function getErrorHandler(dispatch: Dispatch<AppReduxAction>) {
 
 		// If we get here, something really unknown has happened. Let's really try
 		// to avoid getting here.
-		const message = `Notifications check failed but we do not know why. Error: ${err}`;
+		const message = `Notifications check failed but we do not know why. Error: ${getErrorMessage(
+			err
+		)}`;
 		debug(message);
 		window.electronApi.logMessage(message, 'error');
 		const errorString = 'Error fetching notifications: ' + getErrorMessage(err);
 		console.error(errorString); //eslint-disable-line no-console
+		console.error(err); //eslint-disable-line no-console
 		dispatch(addConnectionError(errorString));
 	};
 }

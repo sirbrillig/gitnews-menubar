@@ -86,6 +86,14 @@ export function isGitHubOffline(error: UnknownFetchError): boolean {
 	);
 }
 
+export function isTokenInvalid(error: UnknownFetchError): boolean {
+	return Boolean(
+		typeof error === 'object' &&
+			error.status &&
+			error.status.toString() === '401'
+	);
+}
+
 export function isInvalidJson(error: UnknownFetchError): boolean {
 	return typeof error === 'object' && error.type === 'invalid-json';
 }

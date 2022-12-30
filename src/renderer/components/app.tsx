@@ -58,6 +58,7 @@ interface AppConnectedProps {
 	filterType: FilterType;
 	appVisible: boolean;
 	isLogging: boolean;
+	isTokenInvalid: boolean;
 }
 
 interface AppConnectedActions {
@@ -185,6 +186,7 @@ class App extends React.Component<AppProps, AppState> {
 	render() {
 		const {
 			offline,
+			isTokenInvalid,
 			errors,
 			token,
 			lastSuccessfulCheck,
@@ -230,6 +232,7 @@ class App extends React.Component<AppProps, AppState> {
 			<main className={currentPane}>
 				<Header
 					offline={offline}
+					isTokenInvalid={isTokenInvalid}
 					fetchNotifications={this.props.fetchNotifications}
 					lastSuccessfulCheck={lastSuccessfulCheck}
 					lastChecked={this.props.lastChecked}
@@ -253,6 +256,7 @@ class App extends React.Component<AppProps, AppState> {
 				<ErrorsArea errors={errors} clearErrors={this.props.clearErrors} />
 				<MainPane
 					token={token ?? ''}
+					isTokenInvalid={isTokenInvalid}
 					currentPane={currentPane}
 					getVersion={getVersion}
 					newNotes={newNotes}
@@ -298,6 +302,7 @@ function mapStateToProps(state: AppReduxState): AppConnectedProps {
 		filterType: state.filterType,
 		appVisible: state.appVisible,
 		isLogging: state.isLogging,
+		isTokenInvalid: state.isTokenInvalid,
 	};
 }
 
