@@ -206,7 +206,7 @@ function getIcon(type: string) {
 }
 
 // Create the Application's main menu so it gets copy/paste
-// see: https://pracucci.com/atom-electron-enable-copy-and-paste.html
+// See: https://stackoverflow.com/questions/43584851/is-it-possible-to-copy-paste-with-electron
 function attachAppMenu() {
 	const template: Electron.MenuItemConstructorOptions[] = [
 		{
@@ -220,15 +220,16 @@ function attachAppMenu() {
 		{
 			label: 'Edit',
 			submenu: [
-				{ label: 'Undo', accelerator: 'CmdOrCtrl+Z' },
-				{ label: 'Redo', accelerator: 'Shift+CmdOrCtrl+Z' },
+				{ label: 'Undo', accelerator: 'CmdOrCtrl+Z', role: 'undo' },
+				{ label: 'Redo', accelerator: 'Shift+CmdOrCtrl+Z', role: 'redo' },
 				{ type: 'separator' },
-				{ label: 'Cut', accelerator: 'CmdOrCtrl+X' },
-				{ label: 'Copy', accelerator: 'CmdOrCtrl+C' },
-				{ label: 'Paste', accelerator: 'CmdOrCtrl+V' },
+				{ label: 'Cut', accelerator: 'CmdOrCtrl+X', role: 'cut' },
+				{ label: 'Copy', accelerator: 'CmdOrCtrl+C', role: 'copy' },
+				{ label: 'Paste', accelerator: 'CmdOrCtrl+V', role: 'paste' },
 				{
 					label: 'Select All',
 					accelerator: 'CmdOrCtrl+A',
+					role: 'selectAll',
 				},
 			],
 		},
