@@ -232,9 +232,7 @@ class App extends React.Component<AppProps, AppState> {
 					lastChecked={this.props.lastChecked}
 					fetchInterval={this.props.fetchInterval}
 					showConfig={
-						token && currentPane === PANE_NOTIFICATIONS && showConfig
-							? showConfig
-							: undefined
+						token && currentPane === PANE_NOTIFICATIONS ? showConfig : undefined
 					}
 					hideConfig={showBackButton ? onBack : undefined}
 					fetchingInProgress={fetchingInProgress}
