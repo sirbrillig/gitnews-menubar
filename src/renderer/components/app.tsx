@@ -24,6 +24,7 @@ import {
 	muteRepo,
 	unmuteRepo,
 	setFilterType,
+	toggleLogging,
 } from '../lib/reducer';
 import SearchNotifications from './search-notifications';
 import doesNoteMatchFilter from '../lib/does-note-match-filter';
@@ -56,6 +57,7 @@ interface AppConnectedProps {
 	isAutoLoadEnabled: boolean;
 	filterType: FilterType;
 	appVisible: boolean;
+	isLogging: boolean;
 }
 
 interface AppConnectedActions {
@@ -70,6 +72,7 @@ interface AppConnectedActions {
 	muteRepo: MuteRepo;
 	unmuteRepo: UnmuteRepo;
 	setFilterType: (type: FilterType) => void;
+	toggleLogging: (newValue: boolean) => void;
 }
 
 interface AppProvidedProps {
@@ -272,6 +275,8 @@ class App extends React.Component<AppProps, AppState> {
 					searchValue={this.state.searchValue}
 					filterType={this.props.filterType}
 					appVisible={this.props.appVisible}
+					isLogging={this.props.isLogging}
+					toggleLogging={this.props.toggleLogging}
 				/>
 			</main>
 		);
@@ -292,6 +297,7 @@ function mapStateToProps(state: AppReduxState): AppConnectedProps {
 		isAutoLoadEnabled: state.isAutoLoadEnabled,
 		filterType: state.filterType,
 		appVisible: state.appVisible,
+		isLogging: state.isLogging,
 	};
 }
 
@@ -307,6 +313,7 @@ const actions = {
 	muteRepo,
 	unmuteRepo,
 	setFilterType,
+	toggleLogging,
 };
 
 export default connect(mapStateToProps, actions)(App);

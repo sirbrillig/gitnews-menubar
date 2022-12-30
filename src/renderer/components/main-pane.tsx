@@ -42,6 +42,8 @@ export default function MainPane({
 	searchValue,
 	filterType,
 	appVisible,
+	isLogging,
+	toggleLogging,
 }: {
 	token: string;
 	currentPane: AppPane;
@@ -66,6 +68,8 @@ export default function MainPane({
 	searchValue: string;
 	filterType: FilterType;
 	appVisible: boolean;
+	isLogging: boolean;
+	toggleLogging: (newValue: boolean) => void;
 }) {
 	if (!token || currentPane === PANE_TOKEN) {
 		return (
@@ -91,6 +95,8 @@ export default function MainPane({
 				quitApp={quitApp}
 				isAutoLoadEnabled={isAutoLoadEnabled}
 				changeAutoLoad={changeAutoLoad}
+				isLogging={isLogging}
+				toggleLogging={toggleLogging}
 			/>
 		);
 	}

@@ -61,6 +61,7 @@ export interface AppReduxState {
 	filterType: FilterType;
 	appVisible: boolean;
 	isDemoMode: boolean;
+	isLogging: boolean;
 }
 
 export type ActionMuteRepo = { type: 'MUTE_REPO'; repo: string };
@@ -75,6 +76,10 @@ export type ActionClearErrors = { type: 'CLEAR_ERRORS' };
 export type ActionMarkAllNotesSeen = { type: 'MARK_ALL_NOTES_SEEN' };
 export type ActionChangeToken = { type: 'CHANGE_TOKEN'; token: string };
 export type ActionInitToken = { type: 'SET_INITIAL_TOKEN'; token: string };
+export type ActionToggleLogging = {
+	type: 'TOGGLE_LOGGING';
+	isLogging: boolean;
+};
 export type ActionChangeToOffline = { type: 'OFFLINE' };
 export type ActionGotNotes = { type: 'NOTES_RETRIEVED'; notes: Note[] };
 export type ActionAddConnectionError = {
@@ -125,7 +130,8 @@ export type AppReduxAction =
 	| ActionSetFilterType
 	| MarkAppHidden
 	| MarkAppShown
-	| ActionSetDemoMode;
+	| ActionSetDemoMode
+	| ActionToggleLogging;
 
 export type OpenUrl = (url: string) => void;
 
@@ -150,6 +156,7 @@ export type AppPane =
 export interface MainBridge {
 	quitApp: () => void;
 	logMessage: (message: string, level: 'info' | 'warn' | 'error') => void;
+	toggleLogging: (isLogging: boolean) => void;
 	toggleAutoLaunch: (isEnabled: boolean) => void;
 	openUrl: OpenUrl;
 	saveToken: (token: string) => void;
