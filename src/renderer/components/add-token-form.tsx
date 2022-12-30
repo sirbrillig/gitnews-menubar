@@ -42,7 +42,6 @@ export default function AddTokenForm({
 				type="text"
 				className="add-token-form__input"
 				id="add-token-form__input"
-				defaultValue={token}
 				value={tempToken}
 				onChange={(event) => setTempToken(event.target.value)}
 			/>
