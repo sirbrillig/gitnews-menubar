@@ -12,6 +12,10 @@ export const configMiddleware: Middleware<object, AppReduxState> =
 				break;
 			case 'CHANGE_AUTO_LOAD':
 				window.electronApi.toggleAutoLaunch(action.isEnabled);
+				break;
+			case 'TOGGLE_LOGGING':
+				window.electronApi.toggleLogging(action.isLogging);
+				break;
 		}
 		next(action);
 	};

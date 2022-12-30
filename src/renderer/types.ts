@@ -156,6 +156,7 @@ export type AppPane =
 export interface MainBridge {
 	quitApp: () => void;
 	logMessage: (message: string, level: 'info' | 'warn' | 'error') => void;
+	toggleLogging: (isLogging: boolean) => void;
 	toggleAutoLaunch: (isEnabled: boolean) => void;
 	openUrl: OpenUrl;
 	saveToken: (token: string) => void;

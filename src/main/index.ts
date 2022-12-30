@@ -36,6 +36,29 @@ electronDebug();
 
 let lastIconState = 'normal';
 
+let isLoggingEnabled = false;
+
+// Only use this function for logging!
+function logMessage(message: string, level: 'info' | 'warn' | 'error'): void {
+	debug(message);
+	if (!isLoggingEnabled) {
+		return;
+	}
+	switch (level) {
+		case 'info':
+			log.info(message);
+			break;
+		case 'warn':
+			log.warn(message);
+			break;
+		case 'error':
+			log.error(message);
+			break;
+		default:
+			log.error(`Unknown log level '${level}': ${message}`);
+	}
+}
+
 const bar = menubar({
 	preloadWindow: true,
 	index: MAIN_WINDOW_WEBPACK_ENTRY,
@@ -49,10 +72,8 @@ const bar = menubar({
 		},
 	},
 });
-debug('menubar created');
 
 bar.on('ready', () => {
-	debug('app is ready');
 	app.dock.hide(); // Buggy behavior with showDockIcon: https://github.com/maxogden/menubar/issues/306
 	isDev || bar.window?.setResizable(false);
 	isDev || attachAppMenu();
@@ -61,7 +82,7 @@ bar.on('ready', () => {
 		setIcon();
 	});
 
-	log.info('Starting');
+	logMessage('Starting', 'info');
 });
 
 bar.on('hide', () => {
@@ -73,7 +94,6 @@ bar.on('show', () => {
 	bar.window?.webContents.send('show-app', true);
 });
 bar.on('focus-lost', () => {
-	debug('focus was lost');
 	bar.hideWindow();
 });
 
@@ -87,52 +107,42 @@ systemPreferences.subscribeNotification(
 ipcMain.on(
 	'log-message',
 	(event, message: string, level: 'info' | 'warn' | 'error') => {
-		switch (level) {
-			case 'info':
-				log.info(message);
-				break;
-			case 'warn':
-				log.warn(message);
-				break;
-			case 'error':
-				log.error(message);
-				break;
-			default:
-				log.error(`Unknown log level '${level}': ${message}`);
-		}
+		logMessage(message, level);
 	}
 );
 
+ipcMain.on('toggle-logging', (event, isLogging: boolean) => {
+	isLoggingEnabled = isLogging;
+});
+
 ipcMain.on('set-icon', (event, arg: unknown) => {
 	if (typeof arg !== 'string') {
-		log.error('Failed to set icon: it is invalid');
+		logMessage('Failed to set icon: it is invalid', 'error');
 		return;
 	}
 	setIcon(arg);
 });
 
 ipcMain.on('open-url', (event, url: unknown, options) => {
-	log.info(`Opening url: ${url}`);
+	logMessage(`Opening url: ${url}`, 'info');
 	if (typeof url !== 'string') {
-		log.error('Failed to open URL: it is invalid');
+		logMessage('Failed to open URL: it is invalid', 'error');
 		return;
 	}
 	shell.openExternal(url, options);
 });
 
 ipcMain.on('quit-app', () => {
-	debug('Quit requested');
 	app.quit();
 });
 
 ipcMain.on('save-token', (event, token: unknown) => {
-	debug('Saving token');
 	if (typeof token !== 'string') {
-		log.error('Failed to save token: it is invalid');
+		logMessage('Failed to save token: it is invalid', 'error');
 		return;
 	}
 	setToken(token);
-	log.info('Token saved');
+	logMessage('Token saved', 'info');
 });
 
 const autoLauncher = new AutoLaunch({
@@ -140,7 +150,7 @@ const autoLauncher = new AutoLaunch({
 });
 
 ipcMain.on('toggle-auto-launch', (event, isEnabled) => {
-	log.info(`AutoLaunch changed to ${isEnabled}`);
+	logMessage(`AutoLaunch changed to ${isEnabled}`, 'info');
 	if (isEnabled) {
 		autoLauncher.enable();
 	} else {
@@ -169,8 +179,7 @@ function setIcon(type?: string) {
 		type = lastIconState;
 	}
 	if (lastIconState !== type) {
-		debug('setting icon to', type);
-		log.info(`Icon changed to ${type}`);
+		logMessage(`Icon changed to ${type}`, 'info');
 	}
 	// Even if the icon type hasn't changed, still reset it because `getIcon()`
 	// has other inputs than just the type (eg: dark mode or light mode).

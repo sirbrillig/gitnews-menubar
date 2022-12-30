@@ -3,6 +3,8 @@ import { IconType, MainBridge } from './renderer/types';
 
 const bridge: MainBridge = {
 	quitApp: () => ipcRenderer.send('quit-app'),
+	toggleLogging: (isLogging: boolean) =>
+		ipcRenderer.send('toggle-logging', isLogging),
 	logMessage: (message: string, level: 'info' | 'warn' | 'error') =>
 		ipcRenderer.send('log-message', message, level),
 	toggleAutoLaunch: (isEnabled: boolean) =>
