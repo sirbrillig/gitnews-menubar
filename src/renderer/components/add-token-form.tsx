@@ -7,12 +7,14 @@ export default function AddTokenForm({
 	changeToken,
 	showCancel,
 	hideEditToken,
+	isTokenInvalid,
 }: {
 	token: string;
 	openUrl: OpenUrl;
 	changeToken: (token: string) => void;
 	showCancel: boolean;
 	hideEditToken: () => void;
+	isTokenInvalid: boolean;
 }) {
 	const openLink = (event: React.MouseEvent<HTMLAnchorElement>) => {
 		event.preventDefault();
@@ -45,6 +47,7 @@ export default function AddTokenForm({
 				value={tempToken}
 				onChange={(event) => setTempToken(event.target.value)}
 			/>
+			{isTokenInvalid && <div>Sorry! That token is invalid.</div>}
 			{showCancel && (
 				<button
 					className="add-token-form__cancel-button btn--cancel"

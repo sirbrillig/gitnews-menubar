@@ -62,6 +62,7 @@ export interface AppReduxState {
 	appVisible: boolean;
 	isDemoMode: boolean;
 	isLogging: boolean;
+	isTokenInvalid: boolean;
 }
 
 export type ActionMuteRepo = { type: 'MUTE_REPO'; repo: string };
@@ -76,6 +77,10 @@ export type ActionClearErrors = { type: 'CLEAR_ERRORS' };
 export type ActionMarkAllNotesSeen = { type: 'MARK_ALL_NOTES_SEEN' };
 export type ActionChangeToken = { type: 'CHANGE_TOKEN'; token: string };
 export type ActionInitToken = { type: 'SET_INITIAL_TOKEN'; token: string };
+export type ActionToggleTokenInvalid = {
+	type: 'SET_TOKEN_INVALID';
+	isInvalid: boolean;
+};
 export type ActionToggleLogging = {
 	type: 'TOGGLE_LOGGING';
 	isLogging: boolean;
@@ -131,6 +136,7 @@ export type AppReduxAction =
 	| MarkAppHidden
 	| MarkAppShown
 	| ActionSetDemoMode
+	| ActionToggleTokenInvalid
 	| ActionToggleLogging;
 
 export type OpenUrl = (url: string) => void;

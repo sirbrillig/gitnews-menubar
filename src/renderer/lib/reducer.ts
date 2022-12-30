@@ -23,6 +23,7 @@ import {
 	ActionMuteRepo,
 	ActionInitToken,
 	FilterType,
+	ActionToggleTokenInvalid,
 } from '../types';
 
 const defaultFetchInterval = secsToMs(120);
@@ -44,6 +45,7 @@ const initialState: AppReduxState = {
 	appVisible: false,
 	isDemoMode: false,
 	isLogging: false,
+	isTokenInvalid: false,
 };
 
 export function createReducer() {
@@ -55,6 +57,8 @@ export function createReducer() {
 			state = { ...initialState };
 		}
 		switch (action.type) {
+			case 'SET_TOKEN_INVALID':
+				return { ...state, isTokenInvalid: action.isInvalid };
 			case 'TOGGLE_LOGGING':
 				return { ...state, isLogging: action.isLogging };
 			case 'SET_DEMO_MODE':
@@ -108,9 +112,15 @@ export function createReducer() {
 				return Object.assign({}, state, { notes });
 			}
 			case 'CHANGE_TOKEN':
-				return Object.assign({}, state, { token: action.token });
+				return Object.assign({}, state, {
+					token: action.token,
+					isTokenInvalid: false,
+				});
 			case 'SET_INITIAL_TOKEN':
-				return Object.assign({}, state, { token: action.token });
+				return Object.assign({}, state, {
+					token: action.token,
+					isTokenInvalid: false,
+				});
 			case 'OFFLINE':
 				return Object.assign({}, state, {
 					offline: true,
@@ -121,6 +131,7 @@ export function createReducer() {
 			case 'NOTES_RETRIEVED':
 				return Object.assign({}, state, {
 					offline: false,
+					isTokenInvalid: false,
 					lastChecked: Date.now(),
 					lastSuccessfulCheck: Date.now(),
 					fetchRetryCount: 0,
@@ -182,6 +193,12 @@ export function initToken(token: string): ActionInitToken {
 
 export function setIsDemoMode(isDemoMode: boolean): ActionSetDemoMode {
 	return { type: 'SET_DEMO_MODE', isDemoMode };
+}
+
+export function setIsTokenInvalid(
+	isInvalid: boolean
+): ActionToggleTokenInvalid {
+	return { type: 'SET_TOKEN_INVALID', isInvalid };
 }
 
 export function changeToOffline(): ActionChangeToOffline {
