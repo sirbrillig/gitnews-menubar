@@ -9,9 +9,9 @@ import {
 import { menubar } from 'menubar';
 import isDev from 'electron-is-dev';
 import electronDebug from 'electron-debug';
-import { setToken, getToken } from '../common/lib/token';
+import { setToken, getToken } from './lib/token';
+import { getIconForState } from './lib/icon-path';
 import { version } from '../../package.json';
-import { getIconForState } from '../common/lib/icon-path';
 import unhandled from 'electron-unhandled';
 import debugFactory from 'debug';
 import log from 'electron-log';
