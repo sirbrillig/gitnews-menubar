@@ -11,6 +11,8 @@ export default function ConfigPage({
 	quitApp,
 	isAutoLoadEnabled,
 	changeAutoLoad,
+	isLogging,
+	toggleLogging,
 }: {
 	showEditToken: () => void;
 	showMutedReposList: () => void;
@@ -19,9 +21,13 @@ export default function ConfigPage({
 	quitApp: () => void;
 	isAutoLoadEnabled: boolean;
 	changeAutoLoad: ChangeAutoload;
+	isLogging: boolean;
+	toggleLogging: (newSetting: boolean) => void;
 }) {
 	const toggleAutoLoad = (event: { target: { checked: boolean } }) =>
 		changeAutoLoad(event.target.checked);
+	const toggleIsLogging = (event: { target: { checked: boolean } }) =>
+		toggleLogging(event.target.checked);
 
 	return (
 		<div className="config-page">
@@ -54,6 +60,18 @@ export default function ConfigPage({
 						className="auto-load-setting-label"
 					>
 						Launch Gitnews at login
+					</label>
+				</li>
+				<li>
+					<input
+						type="checkbox"
+						id="logging-setting"
+						className="logging-setting"
+						checked={isLogging}
+						onChange={toggleIsLogging}
+					/>
+					<label htmlFor="logging-setting" className="logging-setting-label">
+						Enable error logging
 					</label>
 				</li>
 			</ul>

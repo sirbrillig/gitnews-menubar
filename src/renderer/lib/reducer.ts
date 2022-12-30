@@ -43,6 +43,7 @@ const initialState: AppReduxState = {
 	filterType: 'all',
 	appVisible: false,
 	isDemoMode: false,
+	isLogging: false,
 };
 
 export function createReducer() {
@@ -54,6 +55,8 @@ export function createReducer() {
 			state = { ...initialState };
 		}
 		switch (action.type) {
+			case 'TOGGLE_LOGGING':
+				return { ...state, isLogging: action.isLogging };
 			case 'SET_DEMO_MODE':
 				return { ...state, isDemoMode: action.isDemoMode };
 			case 'NOTE_APP_VISIBLE':
@@ -231,4 +234,8 @@ export function markAppHidden() {
 
 export function markAppShown() {
 	return { type: 'NOTE_APP_VISIBLE', visible: true };
+}
+
+export function toggleLogging(isLogging: boolean) {
+	return { type: 'TOGGLE_LOGGING', isLogging };
 }
