@@ -38,26 +38,12 @@ import {
 	MuteRepo,
 	UnmuteRepo,
 	FilterType,
+	IconType,
 } from '../types';
 
 const debug = debugFactory('gitnews-menubar');
 
-interface AppProps {
-	quitApp: () => void;
-	getVersion: () => Promise<string>;
-
-	// All following are provided by connect
-	changeToken: (token: string) => void;
-	setIcon: (icon: string) => void;
-	openUrl: OpenUrl;
-	fetchNotifications: () => void;
-	markRead: MarkRead;
-	markUnread: MarkUnread;
-	clearErrors: () => void;
-	changeAutoLoad: ChangeAutoload;
-	muteRepo: MuteRepo;
-	unmuteRepo: UnmuteRepo;
-	setFilterType: (type: string) => void;
+interface AppConnectedProps {
 	notes: Note[];
 	mutedRepos: string[];
 	offline: boolean;
@@ -71,6 +57,27 @@ interface AppProps {
 	filterType: FilterType;
 	appVisible: boolean;
 }
+
+interface AppConnectedActions {
+	changeToken: (token: string) => void;
+	setIcon: (icon: IconType) => void;
+	openUrl: OpenUrl;
+	fetchNotifications: () => void;
+	markRead: MarkRead;
+	markUnread: MarkUnread;
+	clearErrors: () => void;
+	changeAutoLoad: ChangeAutoload;
+	muteRepo: MuteRepo;
+	unmuteRepo: UnmuteRepo;
+	setFilterType: (type: FilterType) => void;
+}
+
+interface AppProvidedProps {
+	quitApp: () => void;
+	getVersion: () => Promise<string>;
+}
+
+type AppProps = AppConnectedProps & AppConnectedActions & AppProvidedProps;
 
 interface AppState {
 	currentPane: AppPane;
@@ -224,8 +231,10 @@ class App extends React.Component<AppProps, AppState> {
 					lastSuccessfulCheck={lastSuccessfulCheck}
 					lastChecked={this.props.lastChecked}
 					fetchInterval={this.props.fetchInterval}
-					showConfig={token && currentPane === PANE_NOTIFICATIONS && showConfig}
-					hideConfig={showBackButton ? onBack : null}
+					showConfig={
+						token && currentPane === PANE_NOTIFICATIONS ? showConfig : undefined
+					}
+					hideConfig={showBackButton ? onBack : undefined}
 					fetchingInProgress={fetchingInProgress}
 					filterType={this.props.filterType}
 					setFilterType={this.props.setFilterType}
@@ -240,7 +249,7 @@ class App extends React.Component<AppProps, AppState> {
 				</Header>
 				<ErrorsArea errors={errors} clearErrors={this.props.clearErrors} />
 				<MainPane
-					token={token}
+					token={token ?? ''}
 					currentPane={currentPane}
 					getVersion={getVersion}
 					newNotes={newNotes}
@@ -269,7 +278,7 @@ class App extends React.Component<AppProps, AppState> {
 	}
 }
 
-function mapStateToProps(state: AppReduxState) {
+function mapStateToProps(state: AppReduxState): AppConnectedProps {
 	return {
 		notes: state.notes,
 		mutedRepos: state.mutedRepos,

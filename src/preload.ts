@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { MainBridge } from './renderer/types';
+import { IconType, MainBridge } from './renderer/types';
 
 const bridge: MainBridge = {
 	quitApp: () => ipcRenderer.send('quit-app'),
@@ -7,10 +7,9 @@ const bridge: MainBridge = {
 		ipcRenderer.send('log-message', message, level),
 	toggleAutoLaunch: (isEnabled: boolean) =>
 		ipcRenderer.send('toggle-auto-launch', isEnabled),
-	openUrl: (url: string, options: Electron.OpenExternalOptions) =>
-		ipcRenderer.send('open-url', url, options),
+	openUrl: (url: string) => ipcRenderer.send('open-url', url),
 	saveToken: (token: string) => ipcRenderer.send('save-token', token),
-	setIcon: (nextIcon: string) => ipcRenderer.send('set-icon', nextIcon),
+	setIcon: (nextIcon: IconType) => ipcRenderer.send('set-icon', nextIcon),
 	onHide: (callback: () => void) => ipcRenderer.on('hide-app', callback),
 	onShow: (callback: () => void) => ipcRenderer.on('show-app', callback),
 	onClick: (callback: () => void) => ipcRenderer.on('menubar-click', callback),

@@ -1,11 +1,11 @@
 import { Middleware } from 'redux';
-import { AppReduxState } from '../types';
+import { AppReduxAction, AppReduxState, IconType } from '../types';
 
-function openUrl(url: string, options = {}) {
-	window.electronApi.openUrl(url, options);
+function openUrl(url: string) {
+	window.electronApi.openUrl(url);
 }
 
-function setIcon(nextIcon: string) {
+function setIcon(nextIcon: IconType) {
 	window.electronApi.setIcon(nextIcon);
 }
 
@@ -13,17 +13,15 @@ function scrollToTopNotification() {
 	window.scrollTo(0, 0);
 }
 
-export const electronMiddleware: Middleware<
-	object,
-	AppReduxState
-> = store => next => action => {
-	switch (action.type) {
-		case 'OPEN_URL':
-			return openUrl(action.url, action.options);
-		case 'SET_ICON':
-			return setIcon(action.icon);
-		case 'SCROLL_TO_TOP':
-			return scrollToTopNotification();
-	}
-	next(action);
-};
+export const electronMiddleware: Middleware<object, AppReduxState> =
+	(store) => (next) => (action: AppReduxAction) => {
+		switch (action.type) {
+			case 'OPEN_URL':
+				return openUrl(action.url);
+			case 'SET_ICON':
+				return setIcon(action.icon);
+			case 'SCROLL_TO_TOP':
+				return scrollToTopNotification();
+		}
+		next(action);
+	};

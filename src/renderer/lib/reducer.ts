@@ -47,7 +47,7 @@ const initialState: AppReduxState = {
 
 export function createReducer() {
 	return function (
-		state: AppReduxState,
+		state: AppReduxState | undefined,
 		action: AppReduxAction
 	): AppReduxState {
 		if (!state) {
@@ -205,8 +205,8 @@ export function fetchNotifications() {
 	return { type: 'GITNEWS_FETCH_NOTIFICATIONS' };
 }
 
-export function openUrl(url: string, options?: Electron.OpenExternalOptions) {
-	return { type: 'OPEN_URL', url, options };
+export function openUrl(url: string) {
+	return { type: 'OPEN_URL', url };
 }
 
 export function setIcon(icon: string) {

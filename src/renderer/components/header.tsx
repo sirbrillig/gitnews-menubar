@@ -16,8 +16,8 @@ function LeftButton({
 	hideConfig,
 	showConfig,
 }: {
-	hideConfig: () => void;
-	showConfig: () => void;
+	hideConfig?: () => void;
+	showConfig?: () => void;
 }) {
 	if (hideConfig) {
 		return (
@@ -61,14 +61,14 @@ export default function Header({
 	lastSuccessfulCheck: number | false;
 	lastChecked: number | false;
 	fetchInterval: number;
-	showConfig: () => void;
+	showConfig?: () => void;
 	offline: boolean;
 	fetchNotifications: () => void;
-	hideConfig: () => void;
+	hideConfig?: () => void;
 	fetchingInProgress: boolean;
 	children: React.ReactNode;
 	filterType: FilterType;
-	setFilterType: (type: string) => void;
+	setFilterType: (type: FilterType) => void;
 	currentPane: AppPane;
 }) {
 	return (

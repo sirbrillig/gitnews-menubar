@@ -7,7 +7,7 @@ export default function doesNoteMatchFilter(
 	if (filterType === 'all') {
 		return true;
 	}
-	if (filterType === note.api.notification.reason) {
+	if (filterType === note.api.notification?.reason) {
 		return true;
 	}
 	return false;

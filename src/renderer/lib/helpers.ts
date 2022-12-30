@@ -11,11 +11,15 @@ export function mergeNotifications(
 	nextNotes: Note[]
 ): Note[] {
 	const getMatchingPrevNote = (note: Note) =>
-		prevNotes.find(prevNote => getNoteId(prevNote) === getNoteId(note));
+		prevNotes.find((prevNote) => getNoteId(prevNote) === getNoteId(note));
 	const hasNoteUpdated = (note: Note, prevNote: Note) =>
-		note.updatedAt > prevNote.gitnewsSeenAt;
+		Boolean(
+			note.updatedAt &&
+				prevNote.gitnewsSeenAt &&
+				note.updatedAt > prevNote.gitnewsSeenAt
+		);
 
-	return nextNotes.map(note => {
+	return nextNotes.map((note) => {
 		const previousNote = getMatchingPrevNote(note);
 		if (previousNote && !hasNoteUpdated(note, previousNote)) {
 			return Object.assign({}, note, {
@@ -75,10 +79,10 @@ export function getErrorMessage(error: UnknownFetchError): string {
 }
 
 export function isGitHubOffline(error: UnknownFetchError): boolean {
-	return (
+	return Boolean(
 		typeof error === 'object' &&
-		error.status &&
-		error.status.toString().startsWith('5')
+			error.status &&
+			error.status.toString().startsWith('5')
 	);
 }
 

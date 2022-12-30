@@ -18,7 +18,7 @@ async function getLatestRelease() {
 	const response = await fetch(url);
 	const responseData: LatestReleaseResponse = await response.json();
 	const asset = responseData.assets
-		? responseData.assets.find(asset => asset.name.includes('dmg'))
+		? responseData.assets.find((asset) => asset.name.includes('dmg'))
 		: null;
 	if (!asset) {
 		console.error('Latest release not found in', responseData);
@@ -44,15 +44,27 @@ async function getInfoIfUpdateAvailable() {
 	return undefined;
 }
 
-export function useGetGitnewsUpdate() {
-	const [updateData, setUpdateData] = React.useState({
+export type GitnewsUpdateData =
+	| {
+			isUpdateAvailable: false;
+			updateUrl: undefined;
+			updatedVersion: undefined;
+	  }
+	| {
+			isUpdateAvailable: true;
+			updateUrl: string;
+			updatedVersion: string;
+	  };
+
+export function useGetGitnewsUpdate(): GitnewsUpdateData {
+	const [updateData, setUpdateData] = React.useState<GitnewsUpdateData>({
 		isUpdateAvailable: false,
 		updateUrl: undefined,
 		updatedVersion: undefined,
 	});
 	React.useEffect(() => {
 		getInfoIfUpdateAvailable()
-			.then(latestVersionInfo => {
+			.then((latestVersionInfo) => {
 				if (!latestVersionInfo) {
 					return;
 				}
@@ -62,7 +74,7 @@ export function useGetGitnewsUpdate() {
 					updatedVersion: latestVersionInfo.version,
 				});
 			})
-			.catch(error => {
+			.catch((error) => {
 				//eslint-disable-next-line no-console
 				console.error(
 					`Error fetching updated version: ${(error as Error).message}`
