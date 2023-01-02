@@ -2,6 +2,8 @@ import React from 'react';
 import MuteIcon from '../components/mute-icon';
 import { OpenUrl } from '../types';
 
+import bellIcon from './bell-icon.png';
+
 export default function Attributions({ openUrl }: { openUrl: OpenUrl }) {
 	const openLink = (event: React.MouseEvent<HTMLAnchorElement>) => {
 		event.preventDefault();
@@ -11,6 +13,22 @@ export default function Attributions({ openUrl }: { openUrl: OpenUrl }) {
 		<div className="attributions">
 			<h3>Attribution</h3>
 			<div className="attributions__text">
+				<p>
+					<img className="attributions__icon" src={bellIcon} />
+					App icons based on images from{' '}
+					<a onClick={openLink} href="https://iconoir.com/" title="iconoir">
+						Iconoir
+					</a>
+					&nbsp; (
+					<a
+						onClick={openLink}
+						href="https://github.com/iconoir-icons/iconoir/blob/main/LICENSE"
+						title="MIT License"
+					>
+						MIT
+					</a>
+					)
+				</p>
 				<p>
 					<MuteIcon className="attributions__icon" />
 					Mute icons by{' '}
