@@ -2,7 +2,13 @@ import path from 'path';
 import debugFactory from 'debug';
 import { nativeImage } from 'electron';
 
-export type IconType = 'normal' | 'unseen' | 'unread' | 'offline' | 'error';
+export type IconType =
+	| 'normal'
+	| 'unseen'
+	| 'unread'
+	| 'offline'
+	| 'error'
+	| 'loading';
 
 const debug = debugFactory('gitnews-menubar:main');
 
@@ -12,6 +18,8 @@ export function getIconPathBuilder(appDir: string) {
 		path.join(appDir, imagesDir, fileName);
 	return function getIconPathForState(state: IconType): string {
 		switch (state) {
+			case 'loading':
+				return getIconPathForFilename('BellDisabledTemplate.png');
 			case 'error':
 				return getIconPathForFilename('BellOfflineTemplate.png');
 			case 'unseen':

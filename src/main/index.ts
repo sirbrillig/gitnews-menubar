@@ -39,7 +39,7 @@ unhandled();
 // Allow devtools and reload in production
 electronDebug();
 
-let lastIconState = 'normal';
+let lastIconState = 'loading';
 
 // Only use this function for logging!
 function logMessage(message: string, level: 'info' | 'warn' | 'error'): void {
@@ -65,7 +65,7 @@ function logMessage(message: string, level: 'info' | 'warn' | 'error'): void {
 const bar = menubar({
 	preloadWindow: true,
 	index: MAIN_WINDOW_WEBPACK_ENTRY,
-	icon: getIconForState('normal'),
+	icon: getIconForState('loading'),
 	browserWindow: {
 		width: 390,
 		height: 500,
@@ -201,8 +201,12 @@ function getIcon(type: string) {
 			return getIconForState('unread');
 		case 'offline':
 			return getIconForState('offline');
+		case 'loading':
+			return getIconForState('loading');
+		case 'normal':
+			return getIconForState('normal');
 	}
-	return getIconForState('normal');
+	return getIconForState('loading');
 }
 
 // Create the Application's main menu so it gets copy/paste
