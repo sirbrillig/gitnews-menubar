@@ -23,7 +23,7 @@ export function getIconPathBuilder(appDir: string) {
 			case 'error':
 				return getIconPathForFilename('BellOfflineTemplate.png');
 			case 'unseen':
-				return getIconPathForFilename('BellSolidDotTemplate.png');
+				return getIconPathForFilename('BellSoundTemplate.png');
 			case 'unread':
 				return getIconPathForFilename('BellOpenDotTemplate.png');
 			case 'offline':
