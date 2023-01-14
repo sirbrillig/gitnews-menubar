@@ -25,7 +25,7 @@ function createDemoNotification(initialDate: Date): Note {
 
 	return {
 		updatedAt: new Date(
-			initialDate.getTime() + hourInMiliseconds * randomNumber(1, 23)
+			initialDate.getTime() - hourInMiliseconds * randomNumber(1, 23)
 		).getTime(),
 		unread: isUnread,
 		repositoryName,
