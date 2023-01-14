@@ -31,7 +31,7 @@ When you run Gitnews, you will need to generate an API key from your GitHub acco
 
 ## Attributions
 
-<img src="./static/images/IconTemplateNormal.png" /> Bell icon made by <a href="http://www.flaticon.com/authors/daniel-bruce">Daniel Bruce</a> from <a href="http://www.flaticon.com">Flaticon</a> (<a href="http://creativecommons.org/licenses/by/3.0/">CC 3.0 BY</a>).
+<img src="./static/images/BellNormalTemplate.png" /> App icons based on images from <a href="https://iconoir.com/" title="iconoir">Iconoir</a> ( <a href="https://github.com/iconoir-icons/iconoir/blob/main/LICENSE" title="MIT License">MIT</a>).
 
 ## Development
 
