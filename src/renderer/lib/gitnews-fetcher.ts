@@ -27,9 +27,21 @@ import { createDemoNotifications } from './demo-mode';
 
 const debug = debugFactory('gitnews-menubar');
 
+let currentDemoNotifications = createDemoNotifications();
+
 export function createFetcher(): Middleware<object, AppReduxState> {
 	const fetcher: Middleware<object, AppReduxState> =
 		(store) => (next) => (action: AppReduxAction) => {
+			if (action.type === 'MARK_NOTE_READ' && store.getState().isDemoMode) {
+				currentDemoNotifications = currentDemoNotifications.map((note) => {
+					if (note.id === action.note.id) {
+						note.unread = false;
+					}
+					return note;
+				});
+				return next(action);
+			}
+
 			if (action.type === 'CHANGE_TOKEN') {
 				debug('Token being changed; fetching with new token');
 				window.electronApi.logMessage(
@@ -128,9 +140,12 @@ export function createFetcher(): Middleware<object, AppReduxState> {
 	return fetcher;
 }
 
-const currentDemoNotifications = createDemoNotifications();
 async function getDemoNotifications(): Promise<Note[]> {
-	return [...currentDemoNotifications, ...createDemoNotifications()];
+	currentDemoNotifications = [
+		...currentDemoNotifications,
+		...createDemoNotifications(),
+	];
+	return currentDemoNotifications;
 }
 
 export function getErrorHandler(dispatch: Dispatch<AppReduxAction>) {
