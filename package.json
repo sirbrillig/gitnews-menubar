@@ -40,7 +40,7 @@
     "gridicons": "^3.3.1",
     "jest": "^29.3.1",
     "jest-environment-jsdom": "^29.3.1",
-    "menubar": "^9.0.1",
+    "menubar": "^9.2.3",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-redux": "^5.1.2",

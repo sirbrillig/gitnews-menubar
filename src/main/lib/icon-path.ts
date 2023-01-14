@@ -1,8 +1,14 @@
 import path from 'path';
 import debugFactory from 'debug';
-import { nativeImage, nativeTheme } from 'electron';
+import { nativeImage } from 'electron';
 
-export type IconType = 'normal' | 'unseen' | 'unread' | 'offline' | 'error';
+export type IconType =
+	| 'normal'
+	| 'unseen'
+	| 'unread'
+	| 'offline'
+	| 'error'
+	| 'loading';
 
 const debug = debugFactory('gitnews-menubar:main');
 
@@ -12,24 +18,18 @@ export function getIconPathBuilder(appDir: string) {
 		path.join(appDir, imagesDir, fileName);
 	return function getIconPathForState(state: IconType): string {
 		switch (state) {
+			case 'loading':
+				return getIconPathForFilename('BellDisabledTemplate.png');
 			case 'error':
-				return getIconPathForFilename('IconTemplateError.png');
+				return getIconPathForFilename('BellOfflineTemplate.png');
 			case 'unseen':
-				return nativeTheme.shouldUseDarkColors
-					? getIconPathForFilename('IconTemplateAlertDark.png')
-					: getIconPathForFilename('IconTemplateAlert.png');
+				return getIconPathForFilename('BellSoundTemplate.png');
 			case 'unread':
-				return nativeTheme.shouldUseDarkColors
-					? getIconPathForFilename('IconTemplateWarnDark.png')
-					: getIconPathForFilename('IconTemplateWarn.png');
+				return getIconPathForFilename('BellOpenDotTemplate.png');
 			case 'offline':
-				return nativeTheme.shouldUseDarkColors
-					? getIconPathForFilename('IconTemplateOfflineDark.png')
-					: getIconPathForFilename('IconTemplateOffline.png');
+				return getIconPathForFilename('BellOfflineTemplate.png');
 		}
-		return nativeTheme.shouldUseDarkColors
-			? getIconPathForFilename('IconTemplateNormalDark.png')
-			: getIconPathForFilename('IconTemplateNormal.png');
+		return getIconPathForFilename('BellNormalTemplate.png');
 	};
 }
 
