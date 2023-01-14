@@ -14,6 +14,7 @@ export function createGitHubMiddleware(): Middleware<object, AppReduxState> {
 		switch (action.type) {
 			case 'MARK_NOTE_READ': {
 				if (store.getState().isDemoMode) {
+					next(action);
 					return;
 				}
 				markNoteRead(action.token, action.note);
