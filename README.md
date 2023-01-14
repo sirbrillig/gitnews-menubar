@@ -1,6 +1,8 @@
 # Gitnews
 
-<img src="./gitnews-menubar-app-icon.png" />
+<p align="center">
+  <img src="./gitnews-menubar-app-icon.png" />
+</p>
 
 An app to display GitHub notifications in your menu bar.
 
