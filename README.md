@@ -4,9 +4,11 @@
   <img src="./gitnews-menubar-app-icon.png" />
 </p>
 
-An app to display GitHub notifications in your menu bar.
+An app to display GitHub notifications in your Mac OS menu bar.
 
 <img src="./gitnews-demo.png" />
+
+https://user-images.githubusercontent.com/2036909/212501847-f298251e-ab6e-4439-88f8-696a5b0d2edd.mov
 
 ## Why not use another app?
 
@@ -17,11 +19,28 @@ There are several other apps that are similar to this one. Notably, you might wa
 - [Gitify](https://www.gitify.io/)
 - [Trailer](http://ptsochantaris.github.io/trailer/)
 
-I developed Gitnews primarily because it easily allows you to see private notifications, which many of the other apps do not. I think it's also quite a lot simpler, but try it out for yourself and make your own decision.
+However, Gitnews has several unique features that I love and I hope you'll like them too:
+
+- Supports light and dark modes.
+- Supports notifications on private repos.
+- Shows read notifications as well as unread ones.
+- Allows marking notifications as unread.
+- Allows temporarily muting notifications from repos that you want to exclude.
+- The menubar icon is different when there are notifications that you've seen but not read.
+
+## Icons
+
+Gitnews has three icons that you'll normally see:
+
+<img width="45" alt="read" src="https://user-images.githubusercontent.com/2036909/212502174-6713ca3d-7a02-4b0e-98c9-1a640b4ddfaa.png"> No unread notifications.
+
+<img width="45" alt="unread" src="https://user-images.githubusercontent.com/2036909/212502177-f3e0bb29-65b2-4fe6-bda6-3815c9da6f56.png"> Unread notifications that you've already seen. This means there are unread notifications but nothing new since the last time you clicked.
+
+<img width="45" alt="unseen-unread" src="https://user-images.githubusercontent.com/2036909/212502180-9a8e1317-bec8-433d-be32-a25a1eb3bf59.png"> Unseen notifications. This means that there are notifications that probably just arrived.
 
 ## ✨ Download ✨
 
-Currently the packaged version of Gitnews is only built for Mac OS but the app should work on any platform. If anyone wants to try running it in Windows or Linux I'd be happy to discuss it; please [create an issue](https://github.com/sirbrillig/gitnews-menubar/issues/new).
+Currently the packaged version of Gitnews is only built for Mac OS but the app could work on any platform. If anyone wants to try running it in Windows or Linux I'd be happy to discuss adding support; please [create an issue](https://github.com/sirbrillig/gitnews-menubar/issues/new).
 
 💡 **Note:** I don't have a paid Apple developer account, so the package will warn you that the app is from an "Unidentified developer". The first time you open the app you will need to right-click on it and select "Open" from the context menu. [This Apple support doc](https://support.apple.com/kb/ph18657?locale=en_US) explains how to do this in more detail.
 
