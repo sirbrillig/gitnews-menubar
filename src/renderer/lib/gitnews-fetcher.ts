@@ -23,6 +23,7 @@ import {
 	Note,
 	UnknownFetchError,
 } from '../types';
+import { createDemoNotifications } from './demo-mode';
 
 const debug = debugFactory('gitnews-menubar');
 
@@ -127,90 +128,9 @@ export function createFetcher(): Middleware<object, AppReduxState> {
 	return fetcher;
 }
 
+const currentDemoNotifications = createDemoNotifications();
 async function getDemoNotifications(): Promise<Note[]> {
-	return [
-		{
-			updatedAt: new Date('21 December 2019 14:48 UTC').getTime(),
-			unread: true,
-			repositoryName: 'gitnews-menubar',
-			repositoryFullName: 'sirbrillig/gitnews-menubar',
-			title: 'Brew Tea Properly',
-			type: 'PullRequest',
-			id: '5682942812944a3d2c3e6230b0190f26',
-			repositoryOwnerAvatar:
-				'https://avatars1.githubusercontent.com/u/887802?v=4',
-			subjectUrl: 'https://github.com/sirbrillig/gitnews-menubar/pull/65',
-			commentUrl: 'https://github.com/sirbrillig/gitnews-menubar/pull/65',
-			commentAvatar: 'https://avatars2.githubusercontent.com/u/2036909?v=4',
-			api: {
-				subject: {
-					state: 'open',
-					merged: false,
-				},
-			},
-		},
-		{
-			updatedAt: new Date('20 December 2019 14:52 UTC').getTime(),
-			unread: true,
-			repositoryName: 'gitnews-menubar',
-			repositoryFullName: 'sirbrillig/gitnews-menubar',
-			title: 'Fix Teapot',
-			type: 'PullRequest',
-			id: '1234566b0a944a3d2c3e6230b0190f26',
-			repositoryOwnerAvatar:
-				'https://avatars1.githubusercontent.com/u/887802?v=4',
-			subjectUrl: 'https://github.com/sirbrillig/gitnews-menubar/pull/44',
-			commentUrl: 'https://github.com/sirbrillig/gitnews-menubar/pull/44',
-			commentAvatar: 'https://avatars2.githubusercontent.com/u/2036909?v=4',
-			api: {
-				subject: {
-					state: 'closed',
-					merged: true,
-				},
-			},
-		},
-		{
-			updatedAt: new Date('20 December 2019 10:52 UTC').getTime(),
-			unread: true,
-			repositoryName: 'gitnews-menubar',
-			repositoryFullName: 'sirbrillig/gitnews-menubar',
-			title:
-				'Teapot is Broken with error ThisIsNotATeapotPleaseTryToMakeSureYouOnlyUseATeapot',
-			type: 'Issue',
-			id: '2967500023477777222e6230b0190f26',
-			repositoryOwnerAvatar:
-				'https://avatars1.githubusercontent.com/u/887802?v=4',
-			subjectUrl: 'https://github.com/sirbrillig/gitnews-menubar/pull/48',
-			commentUrl: 'https://github.com/sirbrillig/gitnews-menubar/pull/48',
-			commentAvatar: 'https://avatars2.githubusercontent.com/u/2036909?v=4',
-			api: {
-				subject: {
-					state: 'open',
-					merged: false,
-				},
-			},
-		},
-		{
-			updatedAt: new Date('20 November 2019 16:20 UTC').getTime(),
-			unread: true,
-			repositoryName: 'gitnews-menubar',
-			repositoryFullName: 'sirbrillig/gitnews-menubar',
-			title: 'Tea is bitter',
-			type: 'Issue',
-			id: '4582894865123099522e6230b0190f26',
-			repositoryOwnerAvatar:
-				'https://avatars1.githubusercontent.com/u/887802?v=4',
-			subjectUrl: 'https://github.com/sirbrillig/gitnews-menubar/pull/35',
-			commentUrl: 'https://github.com/sirbrillig/gitnews-menubar/pull/35',
-			commentAvatar: 'https://avatars2.githubusercontent.com/u/2036909?v=4',
-			api: {
-				subject: {
-					state: 'closed',
-					merged: false,
-				},
-			},
-		},
-	];
+	return [...currentDemoNotifications, ...createDemoNotifications()];
 }
 
 export function getErrorHandler(dispatch: Dispatch<AppReduxAction>) {
