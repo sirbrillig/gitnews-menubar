@@ -26,6 +26,7 @@ However, Gitnews has several unique features that I love and I hope you'll like 
 - Shows read notifications as well as unread ones.
 - Allows marking notifications as unread.
 - Allows temporarily muting notifications from repos that you want to exclude.
+- Allows holding down the Command key to open multiple notifications at once.
 - The menubar icon is different when there are notifications that you've seen but not read.
 
 ## Icons
