@@ -132,12 +132,12 @@ export function createReducer() {
 				const newNotes = mergeNotifications(state.notes, action.notes);
 				const unseen = newNotes.filter((note) => !note.gitnewsSeen);
 				const unread = newNotes.filter((note) => note.unread);
-				window.electronApi.logMessage(
+				window.electronApi?.logMessage(
 					`Storing notifications in store. ${unseen.length} unseen/${unread.length} unread/${newNotes.length} total`,
 					'info'
 				);
 				unseen.forEach((note) => {
-					window.electronApi.logMessage(`Unseen: ${note.title}`, 'info');
+					window.electronApi?.logMessage(`Unseen: ${note.title}`, 'info');
 				});
 				return Object.assign({}, state, {
 					offline: false,
