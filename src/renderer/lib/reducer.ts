@@ -128,7 +128,17 @@ export function createReducer() {
 					fetchInterval: getFetchInterval(secsToMs(60), state.fetchRetryCount),
 					fetchRetryCount: state.fetchRetryCount + 1,
 				});
-			case 'NOTES_RETRIEVED':
+			case 'NOTES_RETRIEVED': {
+				const newNotes = mergeNotifications(state.notes, action.notes);
+				const unseen = newNotes.filter((note) => !note.gitnewsSeen);
+				const unread = newNotes.filter((note) => note.unread);
+				window.electronApi?.logMessage(
+					`Storing notifications in store. ${unseen.length} unseen/${unread.length} unread/${newNotes.length} total`,
+					'info'
+				);
+				unseen.forEach((note) => {
+					window.electronApi?.logMessage(`Unseen: ${note.title}`, 'info');
+				});
 				return Object.assign({}, state, {
 					offline: false,
 					isTokenInvalid: false,
@@ -139,6 +149,7 @@ export function createReducer() {
 					fetchInterval: defaultFetchInterval,
 					notes: mergeNotifications(state.notes, action.notes),
 				});
+			}
 			case 'CHANGE_AUTO_LOAD':
 				return Object.assign({}, state, {
 					isAutoLoadEnabled: action.isEnabled,

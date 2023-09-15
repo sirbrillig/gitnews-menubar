@@ -17,9 +17,10 @@ async function getLatestRelease() {
 		'https://api.github.com/repos/sirbrillig/gitnews-menubar/releases/latest';
 	const response = await fetch(url);
 	const responseData: LatestReleaseResponse = await response.json();
-	const asset = responseData.assets
-		? responseData.assets.find((asset) => asset.name.includes('dmg'))
-		: null;
+	const asset =
+		responseData.assets && responseData.assets.length > 0
+			? responseData.assets[0]
+			: null;
 	if (!asset) {
 		console.error('Latest release not found in', responseData);
 		throw new Error("Couldn't find latest release.");
@@ -38,6 +39,10 @@ async function getInfoIfUpdateAvailable() {
 	const newVersion = latestVersionInfo.version;
 	const isUpdateAvailable =
 		semver.gt(newVersion, oldVersion) && !semver.prerelease(newVersion);
+	window.electronApi.logMessage(
+		`Found latest release ${newVersion}. Current version ${oldVersion}. Is update available? ${isUpdateAvailable}.`,
+		'info'
+	);
 	if (isUpdateAvailable) {
 		return latestVersionInfo;
 	}
