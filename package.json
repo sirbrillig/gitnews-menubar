@@ -14,11 +14,14 @@
 		"package": "electron-forge package",
 		"make": "electron-forge make"
 	},
-	"keywords": ["menu", "github", "notifications"],
+	"keywords": [
+		"menu",
+		"github",
+		"notifications"
+	],
 	"author": "Payton Swick <payton@foolord.com>",
 	"license": "MIT",
 	"dependencies": {
-		"@octokit/rest": "^21.0.2",
 		"date-fns": "^3.6.0",
 		"debug": "^4.3.7",
 		"dotenv": "^16.4.5",
@@ -86,6 +89,8 @@
 		}
 	},
 	"lint-staged": {
-		"*.{js,ts,tsx}": ["prettier --write"]
+		"*.{js,ts,tsx}": [
+			"prettier --write"
+		]
 	}
 }
