@@ -1,5 +1,6 @@
 import { Middleware } from 'redux';
-import { AppReduxAction, AppReduxState, IconType } from '../types';
+import { AppReduxState, IconType } from '../types';
+import { isAction } from './helpers';
 
 function openUrl(url: string) {
 	window.electronApi.openUrl(url);
@@ -13,8 +14,11 @@ function scrollToTopNotification() {
 	window.scrollTo(0, 0);
 }
 
-export const electronMiddleware: Middleware<object, AppReduxState> =
-	(store) => (next) => (action: AppReduxAction) => {
+export const electronMiddleware: Middleware<{}, AppReduxState> =
+	(_store) => (next) => (action) => {
+		if (!isAction(action)) {
+			throw new Error('Invalid action dispatched');
+		}
 		switch (action.type) {
 			case 'OPEN_URL':
 				return openUrl(action.url);
