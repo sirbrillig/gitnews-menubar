@@ -16,7 +16,7 @@ export function mergeNotifications(
 		Boolean(
 			note.updatedAt &&
 				prevNote.gitnewsSeenAt &&
-				note.updatedAt > prevNote.gitnewsSeenAt
+				Date.parse(note.updatedAt) > prevNote.gitnewsSeenAt
 		);
 
 	return nextNotes.map((note) => {

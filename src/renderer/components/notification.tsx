@@ -58,7 +58,7 @@ export default function Notification({
 		openUrl(note.commentUrl);
 	};
 
-	const lastUpdated = new Date(note.updatedAt * 1000);
+	const lastUpdated = new Date(note.updatedAt);
 	const timeString = formatDistanceToNow(lastUpdated, { addSuffix: true });
 	const noteClasses = [
 		'notification',

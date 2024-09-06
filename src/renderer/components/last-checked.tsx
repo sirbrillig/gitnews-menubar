@@ -10,10 +10,9 @@ export default function LastChecked({
 	if (!lastSuccessfulCheck) {
 		return null;
 	}
-	const lastCheckedString = formatDistanceToNow(
-		new Date(lastSuccessfulCheck * 1000),
-		{ addSuffix: true }
-	);
+	const lastCheckedString = formatDistanceToNow(new Date(lastSuccessfulCheck), {
+		addSuffix: true,
+	});
 
 	return (
 		<div className="last-checked">{'last checked: ' + lastCheckedString}</div>
