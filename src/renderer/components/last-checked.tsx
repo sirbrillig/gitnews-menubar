@@ -1,5 +1,5 @@
 import React from 'react';
-import date from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
 import { AppReduxState } from '../types';
 
 export default function LastChecked({
@@ -10,9 +10,8 @@ export default function LastChecked({
 	if (!lastSuccessfulCheck) {
 		return null;
 	}
-	const lastCheckedString = date.distanceInWords(
-		Date.now(),
-		date.parse(lastSuccessfulCheck),
+	const lastCheckedString = formatDistanceToNow(
+		new Date(lastSuccessfulCheck * 1000),
 		{ addSuffix: true }
 	);
 
