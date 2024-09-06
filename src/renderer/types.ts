@@ -3,7 +3,7 @@ import {
 	PANE_NOTIFICATIONS,
 	PANE_TOKEN,
 	PANE_MUTED_REPOS,
-} from './lib/constants';
+} from './lib/constants.js';
 
 export type NoteReason =
 	| 'assign'

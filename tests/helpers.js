@@ -1,8 +1,5 @@
 /* globals describe, it */
-const {
-	getErrorMessage,
-	isOfflineCode,
-} = require('../src/renderer/lib/helpers');
+import { getErrorMessage, isOfflineCode } from '../src/renderer/lib/helpers';
 
 describe('getErrorMessage()', function () {
 	it('returns the error if the error is a string', function () {

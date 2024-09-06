@@ -1,4 +1,4 @@
-import { FilterType, Note } from '../types';
+import { FilterType, Note } from '../types.ts';
 
 export default function doesNoteMatchFilter(
 	note: Note,

@@ -2,8 +2,8 @@ import React from 'react';
 import Gridicon from 'gridicons';
 import debugFactory from 'debug';
 import { formatDistanceToNow } from 'date-fns';
-import EnsuredImage from './ensured-image';
-import MuteIcon from './mute-icon';
+import EnsuredImage from './ensured-image.tsx';
+import MuteIcon from './mute-icon.tsx';
 import {
 	Note,
 	OpenUrl,
@@ -11,7 +11,7 @@ import {
 	MarkUnread,
 	MuteRepo,
 	UnmuteRepo,
-} from '../types';
+} from '../types.ts';
 
 const debug = debugFactory('gitnews-menubar');
 

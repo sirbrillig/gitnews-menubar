@@ -14,9 +14,8 @@ import {
 	getToken,
 	isLoggingEnabled,
 	toggleLogging,
-} from './lib/main-store';
-import { getIconForState } from './lib/icon-path';
-import { version } from '../../package.json';
+} from './lib/main-store.js';
+import { getIconForState } from './lib/icon-path.js';
 import unhandled from 'electron-unhandled';
 import debugFactory from 'debug';
 import log from 'electron-log';
@@ -31,6 +30,8 @@ dotEnv.config();
 
 const debug = debugFactory('gitnews-menubar:main');
 
+// TODO: make version dynamic
+const version = '1.9.0';
 debug('initializing version', version);
 
 // Catch unhandled Promise rejections

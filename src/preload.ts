@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { IconType, MainBridge } from './renderer/types';
+import type { IconType, MainBridge } from './renderer/types.js';
 
 const bridge: MainBridge = {
 	quitApp: () => ipcRenderer.send('quit-app'),

@@ -1,8 +1,12 @@
 import { Middleware } from 'redux';
-import { AppReduxState, AppReduxAction } from '../types';
+import { AppReduxState } from '../types.ts';
+import { isAction } from './helpers.ts';
 
-export const configMiddleware: Middleware<object, AppReduxState> =
-	(store) => (next) => (action: AppReduxAction) => {
+export const configMiddleware: Middleware<{}, AppReduxState> =
+	(_store) => (next) => (action) => {
+		if (!isAction(action)) {
+			throw new Error('Invalid action dispatched');
+		}
 		switch (action.type) {
 			case 'SET_INITIAL_TOKEN':
 				window.electronApi.saveToken(action.token);

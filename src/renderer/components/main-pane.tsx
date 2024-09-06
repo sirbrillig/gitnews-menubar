@@ -1,10 +1,10 @@
 import React from 'react';
-import ConfigPage from '../components/config-page';
-import UncheckedNotice from '../components/unchecked-notice';
-import AddTokenForm from '../components/add-token-form';
-import NotificationsArea from '../components/notifications-area';
-import MutedReposList from '../components/muted-repos-list';
-import { PANE_CONFIG, PANE_TOKEN, PANE_MUTED_REPOS } from '../lib/constants';
+import ConfigPage from '../components/config-page.tsx';
+import UncheckedNotice from '../components/unchecked-notice.tsx';
+import AddTokenForm from '../components/add-token-form.tsx';
+import NotificationsArea from '../components/notifications-area.tsx';
+import MutedReposList from '../components/muted-repos-list.tsx';
+import { PANE_CONFIG, PANE_TOKEN, PANE_MUTED_REPOS } from '../lib/constants.ts';
 import {
 	AppReduxState,
 	ChangeAutoload,
@@ -15,8 +15,8 @@ import {
 	Note,
 	OpenUrl,
 	UnmuteRepo,
-} from '../types';
-import { AppPane } from '../types';
+	AppPane,
+} from '../types.ts';
 
 export default function MainPane({
 	token,

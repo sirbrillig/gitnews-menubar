@@ -1,5 +1,5 @@
 import React from 'react';
-import { secsToMs } from '../lib/helpers';
+import { secsToMs } from '../lib/helpers.ts';
 
 interface UpdaterState {
 	lastUpdated: number;

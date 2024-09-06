@@ -1,5 +1,5 @@
-import { Note } from '../types';
-import { words } from './random-words';
+import { Note } from '../types.ts';
+import { words } from './random-words.ts';
 
 const hourInMiliseconds = 3600000;
 

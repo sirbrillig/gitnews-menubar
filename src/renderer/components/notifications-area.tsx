@@ -1,10 +1,10 @@
 import React from 'react';
 import Gridicon from 'gridicons';
 import debugFactory from 'debug';
-import Notification from '../components/notification';
-import { getNoteId } from '../lib/helpers';
-import { useGetGitnewsUpdate } from '../lib/updates';
-import doesNoteMatchFilter from '../lib/does-note-match-filter';
+import Notification from '../components/notification.tsx';
+import { getNoteId } from '../lib/helpers.ts';
+import { useGetGitnewsUpdate } from '../lib/updates.ts';
+import doesNoteMatchFilter from '../lib/does-note-match-filter.ts';
 import {
 	FilterType,
 	MarkRead,
@@ -13,7 +13,7 @@ import {
 	Note,
 	OpenUrl,
 	UnmuteRepo,
-} from '../types';
+} from '../types.ts';
 
 const debug = debugFactory('gitnews-menubar');
 

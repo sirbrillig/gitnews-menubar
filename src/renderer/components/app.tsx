@@ -1,17 +1,17 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import debugFactory from 'debug';
-import Header from '../components/header';
-import ErrorsArea from '../components/errors-area';
-import MainPane from '../components/main-pane';
+import Header from '../components/header.tsx';
+import ErrorsArea from '../components/errors-area.tsx';
+import MainPane from '../components/main-pane.tsx';
 import {
 	PANE_CONFIG,
 	PANE_NOTIFICATIONS,
 	PANE_TOKEN,
 	PANE_MUTED_REPOS,
-} from '../lib/constants';
-import Poller from '../lib/poller';
-import { getSecondsUntilNextFetch } from '../lib/helpers';
+} from '../lib/constants.ts';
+import Poller from '../lib/poller.ts';
+import { getSecondsUntilNextFetch } from '../lib/helpers.ts';
 import {
 	markRead,
 	markUnread,
@@ -25,9 +25,9 @@ import {
 	unmuteRepo,
 	setFilterType,
 	toggleLogging,
-} from '../lib/reducer';
-import SearchNotifications from './search-notifications';
-import doesNoteMatchFilter from '../lib/does-note-match-filter';
+} from '../lib/reducer.ts';
+import SearchNotifications from './search-notifications.tsx';
+import doesNoteMatchFilter from '../lib/does-note-match-filter.ts';
 import {
 	Note,
 	AppReduxState,
@@ -40,7 +40,7 @@ import {
 	UnmuteRepo,
 	FilterType,
 	IconType,
-} from '../types';
+} from '../types.ts';
 
 const debug = debugFactory('gitnews-menubar');
 

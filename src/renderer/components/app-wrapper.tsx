@@ -5,7 +5,7 @@ import {
 	scrollToTop,
 	markAppHidden,
 	markAppShown,
-} from '../lib/reducer';
+} from '../lib/reducer.ts';
 
 interface AppWrapperProps {
 	quitApp: () => void;

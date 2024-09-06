@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppReduxState } from '../types';
+import { AppReduxState } from '../types.ts';
 
 export default function MutedReposList({
 	mutedRepos,
@@ -39,7 +39,7 @@ function MutedRepos({
 				icon. You can unmute repos below.
 			</div>
 			<ul>
-				{mutedRepos.map(repoName => {
+				{mutedRepos.map((repoName) => {
 					const onClick = () => {
 						unmuteRepo(repoName);
 					};
