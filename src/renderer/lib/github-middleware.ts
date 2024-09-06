@@ -1,16 +1,20 @@
 // require('dotenv').config();
 
 import { Middleware } from 'redux';
-import { AppReduxAction, AppReduxState } from '../types';
+import { AppReduxState } from '../types.ts';
+import { isAction } from './helpers.ts';
 import { createNoteMarkRead, Note } from 'gitnews';
 
-export function createGitHubMiddleware(): Middleware<object, AppReduxState> {
+export function createGitHubMiddleware(): Middleware<{}, AppReduxState> {
 	const markNotificationRead = createNoteMarkRead({
 		fetch: (url, options) => fetch(url, options),
 		log: (message) => console.log('Gitnews: ' + message),
 	});
 
-	return (store) => (next) => (action: AppReduxAction) => {
+	return (store) => (next) => (action) => {
+		if (!isAction(action)) {
+			throw new Error('Invalid action dispatched');
+		}
 		switch (action.type) {
 			case 'MARK_NOTE_READ': {
 				if (store.getState().isDemoMode) {

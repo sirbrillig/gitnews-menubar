@@ -1,6 +1,6 @@
 import React from 'react';
 import Gridicon from 'gridicons';
-import { FilterType } from '../types';
+import { FilterType } from '../types.ts';
 
 function getReadableFilterType(filterType: FilterType): string {
 	switch (filterType) {

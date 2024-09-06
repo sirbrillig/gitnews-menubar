@@ -1,13 +1,15 @@
 import debugFactory from 'debug';
-import { Middleware, Dispatch } from 'redux';
+import { Middleware } from 'redux';
 import {
+	isAction,
+	isDispatch,
 	secsToMs,
 	isOfflineCode,
 	getErrorMessage,
 	isGitHubOffline,
 	isInvalidJson,
 	isTokenInvalid,
-} from '../lib/helpers';
+} from '../lib/helpers.ts';
 import { createNoteGetter } from 'gitnews';
 import {
 	changeToOffline,
@@ -16,22 +18,21 @@ import {
 	gotNotes,
 	addConnectionError,
 	setIsTokenInvalid,
-} from '../lib/reducer';
-import {
-	AppReduxAction,
-	AppReduxState,
-	Note,
-	UnknownFetchError,
-} from '../types';
-import { createDemoNotifications } from './demo-mode';
+} from '../lib/reducer.ts';
+import { AppReduxState, Note, UnknownFetchError } from '../types.ts';
+import { AppDispatch } from './store.ts';
+import { createDemoNotifications } from './demo-mode.ts';
 
 const debug = debugFactory('gitnews-menubar');
 
 let currentDemoNotifications = createDemoNotifications();
 
-export function createFetcher(): Middleware<object, AppReduxState> {
+export function createFetcher(): Middleware<{}, AppReduxState> {
 	const fetcher: Middleware<object, AppReduxState> =
-		(store) => (next) => (action: AppReduxAction) => {
+		(store) => (next) => (action) => {
+			if (!isAction(action) || !isDispatch(next)) {
+				throw new Error('Invalid action dispatched');
+			}
 			if (action.type === 'MARK_NOTE_READ' && store.getState().isDemoMode) {
 				currentDemoNotifications = currentDemoNotifications.map((note) => {
 					if (note.id === action.note.id) {
@@ -67,7 +68,7 @@ export function createFetcher(): Middleware<object, AppReduxState> {
 
 	async function performFetch(
 		{ fetchingInProgress, token, fetchingStartedAt, isDemoMode }: AppReduxState,
-		next: Dispatch<AppReduxAction>
+		next: AppDispatch
 	) {
 		const fetchingMaxTime = secsToMs(120); // 2 minutes
 		if (fetchingInProgress) {
@@ -148,7 +149,7 @@ async function getDemoNotifications(): Promise<Note[]> {
 	return currentDemoNotifications;
 }
 
-export function getErrorHandler(dispatch: Dispatch<AppReduxAction>) {
+export function getErrorHandler(dispatch: AppDispatch) {
 	return function handleFetchError(
 		err: UnknownFetchError,
 		token: string | undefined = undefined

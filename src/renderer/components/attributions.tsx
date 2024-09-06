@@ -1,6 +1,6 @@
 import React from 'react';
-import MuteIcon from '../components/mute-icon';
-import { OpenUrl } from '../types';
+import MuteIcon from '../components/mute-icon.tsx';
+import { OpenUrl } from '../types.ts';
 
 import bellIcon from './bell-icon.png';
 

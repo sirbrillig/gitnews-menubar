@@ -1,5 +1,5 @@
 import React from 'react';
-import { getErrorMessage } from '../lib/helpers';
+import { getErrorMessage } from '../lib/helpers.ts';
 
 function ClearErrorsButton({ clearErrors }: { clearErrors: () => void }) {
 	return (
@@ -30,7 +30,7 @@ export default function ErrorsArea({
 					uniqueErrors[getErrorMessage(error)] = error;
 					return uniqueErrors;
 				}, {})
-			).map(error => (
+			).map((error) => (
 				<ErrorMessage error={error} key={getErrorMessage(error)} />
 			))}
 		</div>

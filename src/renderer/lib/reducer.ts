@@ -3,7 +3,7 @@ import {
 	getNoteId,
 	mergeNotifications,
 	getFetchInterval,
-} from '../lib/helpers';
+} from '../lib/helpers.ts';
 import {
 	AppReduxState,
 	AppReduxAction,
@@ -24,7 +24,7 @@ import {
 	ActionInitToken,
 	FilterType,
 	ActionToggleTokenInvalid,
-} from '../types';
+} from '../types.ts';
 
 const defaultFetchInterval = secsToMs(120);
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import { AppReduxState } from '../types';
+import { AppReduxState } from '../types.ts';
 
 export default function LastChecked({
 	lastSuccessfulCheck,

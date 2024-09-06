@@ -1,5 +1,5 @@
 import React from 'react';
-import { OpenUrl } from '../types';
+import { OpenUrl } from '../types.ts';
 
 export default function AddTokenForm({
 	token,

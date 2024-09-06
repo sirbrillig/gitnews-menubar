@@ -1,29 +1,30 @@
 {
-  "compilerOptions": {
-    "jsx": "react",
-    "target": "ESNext",
-    "strict": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "strictPropertyInitialization": true,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "allowJs": true,
-    "module": "commonjs",
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "noImplicitAny": true,
-    "sourceMap": true,
-    "baseUrl": ".",
-    "outDir": "dist",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "paths": {
-      "*": ["node_modules/*"]
-    }
-  },
-  "include": ["src/"]
+	"compilerOptions": {
+		"allowJs": true,
+		"alwaysStrict": true,
+		"baseUrl": ".",
+		"esModuleInterop": true,
+		"jsx": "react",
+		"module": "node16",
+		"moduleResolution": "node16",
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitAny": true,
+		"noImplicitReturns": true,
+		"noImplicitThis": true,
+		"outDir": "dist",
+		"resolveJsonModule": true,
+		"skipLibCheck": true,
+		"sourceMap": true,
+		"strict": true,
+		"strictBindCallApply": true,
+		"strictFunctionTypes": true,
+		"strictNullChecks": true,
+		"strictPropertyInitialization": true,
+		"allowImportingTsExtensions": true,
+		"target": "ES2022",
+		"paths": {
+			"*": ["node_modules/*"]
+		}
+	},
+	"include": ["./src/"]
 }

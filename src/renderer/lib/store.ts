@@ -3,11 +3,11 @@ import { persistStore, persistReducer } from 'redux-persist';
 import { createLogger } from 'redux-logger';
 import storage from 'redux-persist/lib/storage';
 
-import { createReducer } from '../lib/reducer';
-import { createFetcher } from '../lib/gitnews-fetcher';
-import { electronMiddleware } from '../lib/electron-middleware';
-import { configMiddleware } from '../lib/config-middleware';
-import { createGitHubMiddleware } from '../lib/github-middleware';
+import { createReducer } from '../lib/reducer.ts';
+import { createFetcher } from '../lib/gitnews-fetcher.ts';
+import { electronMiddleware } from '../lib/electron-middleware.ts';
+import { configMiddleware } from '../lib/config-middleware.ts';
+import { createGitHubMiddleware } from '../lib/github-middleware.ts';
 
 const persistConfig = { key: 'gitnews-state', storage };
 

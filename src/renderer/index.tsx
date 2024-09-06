@@ -2,10 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 
-import App from './components/app';
-import AppWrapper from './components/app-wrapper';
-import { initToken, setIsDemoMode } from './lib/reducer';
-import { store } from './lib/store';
+import App from './components/app.tsx';
+import AppWrapper from './components/app-wrapper.tsx';
+import { initToken, setIsDemoMode } from './lib/reducer.ts';
+import { store } from './lib/store.ts';
 
 import './styles.css';
 

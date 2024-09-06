@@ -1,7 +1,7 @@
 import React from 'react';
-import Copyright from '../components/copyright';
-import Attributions from '../components/attributions';
-import { ChangeAutoload, OpenUrl } from '../types';
+import Copyright from '../components/copyright.tsx';
+import Attributions from '../components/attributions.tsx';
+import { ChangeAutoload, OpenUrl } from '../types.ts';
 
 export default function ConfigPage({
 	showEditToken,

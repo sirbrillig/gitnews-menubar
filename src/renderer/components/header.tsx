@@ -1,13 +1,13 @@
 import React from 'react';
 import Gridicon from 'gridicons';
-import Logo from '../components/logo';
-import LastChecked from '../components/last-checked';
-import OfflineNotice from '../components/offline-notice';
-import FetchingInProgress from '../components/fetching-in-progress';
-import createUpdater from '../components/updater';
-import FilterButton from './filter-button';
-import { PANE_NOTIFICATIONS } from '../lib/constants';
-import { AppPane, FilterType } from '../types';
+import Logo from '../components/logo.tsx';
+import LastChecked from '../components/last-checked.tsx';
+import OfflineNotice from '../components/offline-notice.tsx';
+import FetchingInProgress from '../components/fetching-in-progress.tsx';
+import createUpdater from '../components/updater.tsx';
+import FilterButton from './filter-button.tsx';
+import { PANE_NOTIFICATIONS } from '../lib/constants.ts';
+import { AppPane, FilterType } from '../types.ts';
 
 const UpdatingLastChecked = createUpdater(LastChecked);
 const UpdatingOfflineNotice = createUpdater(OfflineNotice);
