@@ -1,5 +1,5 @@
 /* globals describe, it */
-const { getErrorHandler } = require('../src/renderer/lib/gitnews-fetcher');
+import { getErrorHandler } from '../src/renderer/lib/gitnews-fetcher';
 
 window.electronApi = {
 	quitApp: () => undefined,

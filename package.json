@@ -4,7 +4,7 @@
 	"description": "GitHub notifications in your menu bar",
 	"productName": "Gitnews",
 	"type": "module",
-	"exports": "./src/main/index.js",
+	"main": "./.webpack/main",
 	"scripts": {
 		"start": "electron-forge start",
 		"dist-clean": "rm -rf dist && rm -rf node_modules",

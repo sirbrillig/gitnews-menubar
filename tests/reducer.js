@@ -1,6 +1,6 @@
 /* globals describe, it, beforeEach */
-const { createReducer } = require('../src/renderer/lib/reducer');
-const { secsToMs } = require('../src/renderer/lib/helpers');
+import { createReducer } from '../src/renderer/lib/reducer';
+import { secsToMs } from '../src/renderer/lib/helpers';
 
 const reducer = createReducer('');
 
