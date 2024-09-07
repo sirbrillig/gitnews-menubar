@@ -8,6 +8,7 @@ import {
 	AppReduxState,
 	AppReduxAction,
 	Note,
+	ActionSetAccounts,
 	ActionChangeToken,
 	ActionSetDemoMode,
 	ActionChangeToOffline,
@@ -24,6 +25,7 @@ import {
 	ActionInitToken,
 	FilterType,
 	ActionToggleTokenInvalid,
+	AccountInfo,
 } from '../types';
 
 const defaultFetchInterval = secsToMs(120);
@@ -46,6 +48,7 @@ const initialState: AppReduxState = {
 	isDemoMode: false,
 	isLogging: false,
 	isTokenInvalid: false,
+	accounts: [],
 };
 
 export function createReducer() {
@@ -111,6 +114,11 @@ export function createReducer() {
 					);
 				return Object.assign({}, state, { notes });
 			}
+			case 'SET_ACCOUNTS':
+				return {
+					...state,
+					accounts: action.accounts,
+				};
 			case 'CHANGE_TOKEN':
 				return Object.assign({}, state, {
 					token: action.token,
@@ -176,6 +184,10 @@ export function muteRepo(repo: string): ActionMuteRepo {
 
 export function unmuteRepo(repo: string): ActionUnmuteRepo {
 	return { type: 'UNMUTE_REPO', repo };
+}
+
+export function setAccounts(accounts: AccountInfo[]): ActionSetAccounts {
+	return { type: 'SET_ACCOUNTS', accounts };
 }
 
 export function markRead(token: string, note: Note): ActionMarkRead {

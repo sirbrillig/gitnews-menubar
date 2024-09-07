@@ -4,7 +4,7 @@ import Attributions from '../components/attributions';
 import { ChangeAutoload, OpenUrl } from '../types';
 
 export default function ConfigPage({
-	showEditToken,
+	showAccounts,
 	showMutedReposList,
 	openUrl,
 	getVersion,
@@ -14,7 +14,7 @@ export default function ConfigPage({
 	isLogging,
 	toggleLogging,
 }: {
-	showEditToken: () => void;
+	showAccounts: () => void;
 	showMutedReposList: () => void;
 	openUrl: OpenUrl;
 	getVersion: () => Promise<string>;
@@ -35,8 +35,8 @@ export default function ConfigPage({
 			<h3>Settings</h3>
 			<ul className="config-page__settings">
 				<li>
-					<button className="edit-token-button" onClick={showEditToken}>
-						Edit authentication token
+					<button className="edit-token-button" onClick={showAccounts}>
+						Edit account information
 					</button>
 				</li>
 				<li>

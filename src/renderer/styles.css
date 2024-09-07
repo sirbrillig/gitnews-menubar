@@ -7,14 +7,14 @@
 	--button-text-color: #000;
 	--button-background-color: #eee;
 	--primary-button-text-color: #000;
-	--primary-button-background-color: #F5E2C8;
+	--primary-button-background-color: #f5e2c8;
 	--primary-button-shadow-color: #c1ab8c;
 	--bottom-bar-background-color: #24292e;
 	--bottom-bar-text-color: #fff;
 	--bottom-bar-action-text-color: #fff;
 	--header-background-color: #24292e;
-	--header-text-color: rgba(255,255,255,0.75);
-	--header-link-color: rgba(255,255,255,0.75);
+	--header-text-color: rgba(255, 255, 255, 0.75);
+	--header-link-color: rgba(255, 255, 255, 0.75);
 	--dropdown-background-color: #24292e;
 	--dropdown-selected-background-color: #fff;
 	--dropdown-selected-text-color: #000;
@@ -25,7 +25,7 @@
 	--error-message-color: #d60000;
 	--notification-border-color: #ccc;
 	--search-icon-color: #24292e;
-	--multi-open-notification-pending-overlay: rgba(255,255,255,0.85);
+	--multi-open-notification-pending-overlay: rgba(255, 255, 255, 0.85);
 	--notification-image-background-color: #fff;
 	--no-notifications-icon-color: #000;
 }
@@ -86,17 +86,17 @@ button {
 }
 
 .btn {
-	box-shadow:inset 0px 1px 0px 0px var(--primary-button-shadow-color);
+	box-shadow: inset 0px 1px 0px 0px var(--primary-button-shadow-color);
 	background-color: var(--primary-button-background-color);
-	border-radius:3px;
-	border:1px solid #24292E;
-	display:inline-block;
-	cursor:pointer;
+	border-radius: 3px;
+	border: 1px solid #24292e;
+	display: inline-block;
+	cursor: pointer;
 	color: var(--primary-button-text-color);
-	font-family:Arial;
-	font-size:13px;
-	padding:6px 24px;
-	text-decoration:none;
+	font-family: Arial;
+	font-size: 13px;
+	padding: 6px 24px;
+	text-decoration: none;
 	margin-right: 10px;
 }
 
@@ -146,7 +146,7 @@ header {
 }
 
 header svg {
-	fill: rgba(255,255,255,0.75);
+	fill: rgba(255, 255, 255, 0.75);
 }
 
 .header__primary {
@@ -195,7 +195,7 @@ header svg {
 	right: 8px;
 	top: 38px;
 	font-size: 0.9rem;
-	box-shadow: 0px 2px 4px 4px rgba(130,130,130,0.1);
+	box-shadow: 0px 2px 4px 4px rgba(130, 130, 130, 0.1);
 	padding: 15px;
 }
 
@@ -241,22 +241,35 @@ header svg {
 
 .retry-button {
 	color: var(--retry-button-text-color);
-	background: none!important;
+	background: none !important;
 	border: none;
-	padding: 0!important;
+	padding: 0 !important;
 	text-decoration: underline;
 	cursor: pointer;
 }
 
+.account-page-actions {
+	margin-bottom: 5px;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	align-items: flex-start;
+}
+
+.account-list-selected {
+	background-color: #fff;
+}
+
+.add-account-button,
 .edit-token-button,
 .edit-muted-repos-button,
 .config-button,
 .filter-button,
 .back-button {
 	color: var(--config-action-text-color);
-	background: none!important;
+	background: none !important;
 	border: none;
-	padding: 0!important;
+	padding: 0 !important;
 	text-decoration: underline;
 	cursor: pointer;
 }
@@ -292,7 +305,7 @@ header svg {
 	position: absolute;
 	left: -9px;
 	top: 20px;
-	background-color: rgba(255,255,255,0.75);
+	background-color: rgba(255, 255, 255, 0.75);
 	border-radius: 20px;
 	vertical-align: middle;
 	width: 16px;
@@ -389,7 +402,7 @@ header h1 {
 }
 
 .notification--multi-open-clicked {
-	border-left: 4px solid #4FB477;
+	border-left: 4px solid #4fb477;
 }
 
 .notification__muted {
@@ -471,17 +484,17 @@ header h1 {
 }
 
 .btn--cancel {
-	box-shadow:inset 0px 1px 0px 0px var(--notification-border-color);
+	box-shadow: inset 0px 1px 0px 0px var(--notification-border-color);
 	background-color: var(--button-background-color);
-	border-radius:3px;
-	border:1px solid #999;
-	display:inline-block;
-	cursor:pointer;
+	border-radius: 3px;
+	border: 1px solid #999;
+	display: inline-block;
+	cursor: pointer;
 	color: var(--button-text-color);
-	font-family:Arial;
-	font-size:13px;
-	padding:6px 24px;
-	text-decoration:none;
+	font-family: Arial;
+	font-size: 13px;
+	padding: 6px 24px;
+	text-decoration: none;
 	margin-right: 10px;
 }
 
@@ -490,9 +503,9 @@ header h1 {
 .notification__mark-read {
 	font-size: 0.7em;
 	color: var(--notification-action-text-color);
-	background: none!important;
+	background: none !important;
 	border: none;
-	padding: 0!important;
+	padding: 0 !important;
 	text-decoration: underline;
 	cursor: pointer;
 	flex: 0 0 auto;
@@ -551,13 +564,26 @@ header h1 {
 
 .add-token-form__input {
 	display: block;
-	font-size: 1.5em;
+	font-size: 1em;
 	padding: 5px;
+	border: 1px solid #fff;
 	width: 100%;
 }
 
 .add-token-form__save-button {
 	margin: 10px 10px 10px 0;
+}
+
+.edit-account-form {
+	margin: 10px 0;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.edit-account-form__done {
+	width: 100%;
 }
 
 .no-notifications {
@@ -629,11 +655,25 @@ header h1 {
 
 .update-available-notice button {
 	color: var(--bottom-bar-action-text-color);
-	background: none!important;
+	background: none !important;
 	border: none;
-	padding: 0!important;
+	padding: 0 !important;
 	text-decoration: underline;
 	cursor: pointer;
+}
+
+.account-list {
+	height: 150px;
+	border: 1px solid #fff;
+	overflow-y: scroll;
+	padding: 5px;
+	margin: 0;
+}
+
+.account-list li {
+	list-style-type: none;
+	padding: 5px;
+	margin: 0;
 }
 
 .config-page {

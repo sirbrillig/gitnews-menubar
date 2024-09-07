@@ -3,6 +3,7 @@ import {
 	PANE_NOTIFICATIONS,
 	PANE_TOKEN,
 	PANE_MUTED_REPOS,
+	PANE_ACCOUNTS,
 } from './lib/constants';
 
 export type NoteReason =
@@ -73,6 +74,7 @@ export interface AppReduxState {
 	isDemoMode: boolean;
 	isLogging: boolean;
 	isTokenInvalid: boolean;
+	accounts: AccountInfo[];
 }
 
 export type ActionMuteRepo = { type: 'MUTE_REPO'; repo: string };
@@ -87,6 +89,10 @@ export type ActionClearErrors = { type: 'CLEAR_ERRORS' };
 export type ActionMarkAllNotesSeen = { type: 'MARK_ALL_NOTES_SEEN' };
 export type ActionChangeToken = { type: 'CHANGE_TOKEN'; token: string };
 export type ActionInitToken = { type: 'SET_INITIAL_TOKEN'; token: string };
+export type ActionSetAccounts = {
+	type: 'SET_ACCOUNTS';
+	accounts: AccountInfo[];
+};
 export type ActionToggleTokenInvalid = {
 	type: 'SET_TOKEN_INVALID';
 	isInvalid: boolean;
@@ -131,6 +137,7 @@ export type AppReduxAction =
 	| ActionClearErrors
 	| ActionMarkAllNotesSeen
 	| ActionChangeToken
+	| ActionSetAccounts
 	| ActionInitToken
 	| ActionChangeToOffline
 	| ActionGotNotes
@@ -164,6 +171,7 @@ export type UnmuteRepo = (repo: string) => void;
 export type IconType = 'normal' | 'unseen' | 'unread' | 'offline' | 'error';
 
 export type AppPane =
+	| typeof PANE_ACCOUNTS
 	| typeof PANE_NOTIFICATIONS
 	| typeof PANE_TOKEN
 	| typeof PANE_CONFIG
@@ -184,6 +192,12 @@ export interface MainBridge {
 	getVersion: () => Promise<string>;
 	isDemoMode: () => Promise<boolean>;
 	isAutoLaunchEnabled: () => Promise<boolean>;
+}
+
+export interface AccountInfo {
+	id: string;
+	apiKey: string;
+	serverUrl: string;
 }
 
 export interface FetchErrorObject {

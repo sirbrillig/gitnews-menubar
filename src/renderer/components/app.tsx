@@ -9,6 +9,7 @@ import {
 	PANE_NOTIFICATIONS,
 	PANE_TOKEN,
 	PANE_MUTED_REPOS,
+	PANE_ACCOUNTS,
 } from '../lib/constants';
 import Poller from '../lib/poller';
 import { getSecondsUntilNextFetch } from '../lib/helpers';
@@ -210,6 +211,7 @@ class App extends React.Component<AppProps, AppState> {
 		const { currentPane } = this.state;
 		const hideConfig = () => this.setState({ currentPane: PANE_NOTIFICATIONS });
 		const showConfig = () => this.setState({ currentPane: PANE_CONFIG });
+		const showAccounts = () => this.setState({ currentPane: PANE_ACCOUNTS });
 		const showEditToken = () => this.setState({ currentPane: PANE_TOKEN });
 		const hideEditToken = () => this.setState({ currentPane: PANE_CONFIG });
 		const showMutedReposList = () =>
@@ -217,16 +219,31 @@ class App extends React.Component<AppProps, AppState> {
 		const setSearchTo = (value: string) =>
 			this.setState({ searchValue: value });
 
-		const showBackButton =
-			token &&
-			(currentPane === PANE_CONFIG || currentPane === PANE_MUTED_REPOS);
+		const backButtonPanes = [PANE_CONFIG, PANE_MUTED_REPOS, PANE_ACCOUNTS];
+		const confugSubPanes = [PANE_MUTED_REPOS, PANE_ACCOUNTS];
+		const showBackButton = (() => {
+			if (!token) {
+				return false;
+			}
+			if (backButtonPanes.includes(currentPane)) {
+				return true;
+			}
+			return false;
+		})();
 		const onBack = () => {
-			if (currentPane === PANE_MUTED_REPOS) {
+			if (confugSubPanes.includes(currentPane)) {
 				showConfig();
 				return;
 			}
 			hideConfig();
 		};
+
+		const headerOnClickConfig = (() => {
+			if (token && currentPane === PANE_NOTIFICATIONS) {
+				return showConfig;
+			}
+			return undefined;
+		})();
 
 		return (
 			<main className={currentPane}>
@@ -237,9 +254,7 @@ class App extends React.Component<AppProps, AppState> {
 					lastSuccessfulCheck={lastSuccessfulCheck}
 					lastChecked={this.props.lastChecked}
 					fetchInterval={this.props.fetchInterval}
-					showConfig={
-						token && currentPane === PANE_NOTIFICATIONS ? showConfig : undefined
-					}
+					showConfig={headerOnClickConfig}
 					hideConfig={showBackButton ? onBack : undefined}
 					fetchingInProgress={fetchingInProgress}
 					filterType={this.props.filterType}
@@ -268,6 +283,7 @@ class App extends React.Component<AppProps, AppState> {
 					quitApp={this.props.quitApp}
 					hideEditToken={hideEditToken}
 					showEditToken={showEditToken}
+					showAccounts={showAccounts}
 					markRead={this.props.markRead}
 					markUnread={this.props.markUnread}
 					isAutoLoadEnabled={this.props.isAutoLoadEnabled}

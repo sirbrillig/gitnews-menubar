@@ -4,7 +4,12 @@ import UncheckedNotice from '../components/unchecked-notice';
 import AddTokenForm from '../components/add-token-form';
 import NotificationsArea from '../components/notifications-area';
 import MutedReposList from '../components/muted-repos-list';
-import { PANE_CONFIG, PANE_TOKEN, PANE_MUTED_REPOS } from '../lib/constants';
+import {
+	PANE_CONFIG,
+	PANE_TOKEN,
+	PANE_MUTED_REPOS,
+	PANE_ACCOUNTS,
+} from '../lib/constants';
 import {
 	AppReduxState,
 	ChangeAutoload,
@@ -17,6 +22,10 @@ import {
 	UnmuteRepo,
 } from '../types';
 import { AppPane } from '../types';
+import AccountList from './account-list';
+import { setAccounts } from '../lib/reducer';
+import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 export default function MainPane({
 	token,
@@ -27,6 +36,7 @@ export default function MainPane({
 	quitApp,
 	hideEditToken,
 	showEditToken,
+	showAccounts,
 	showMutedReposList,
 	lastSuccessfulCheck,
 	getVersion,
@@ -53,6 +63,7 @@ export default function MainPane({
 	quitApp: () => void;
 	hideEditToken: () => void;
 	showEditToken: () => void;
+	showAccounts: () => void;
 	showMutedReposList: () => void;
 	lastSuccessfulCheck: AppReduxState['lastSuccessfulCheck'];
 	getVersion: () => Promise<string>;
@@ -73,6 +84,8 @@ export default function MainPane({
 	toggleLogging: (newValue: boolean) => void;
 	isTokenInvalid: boolean;
 }) {
+	const accounts = useSelector((state: AppReduxState) => state.accounts);
+	const dispatch = useDispatch();
 	if (!token || isTokenInvalid || currentPane === PANE_TOKEN) {
 		return (
 			<AddTokenForm
@@ -88,11 +101,20 @@ export default function MainPane({
 	if (currentPane === PANE_MUTED_REPOS) {
 		return <MutedReposList mutedRepos={mutedRepos} unmuteRepo={unmuteRepo} />;
 	}
+	if (currentPane === PANE_ACCOUNTS) {
+		return (
+			<AccountList
+				goBack={hideEditToken}
+				accounts={accounts}
+				setAccounts={(newAccounts) => dispatch(setAccounts(newAccounts))}
+			/>
+		);
+	}
 	if (currentPane === PANE_CONFIG) {
 		return (
 			<ConfigPage
 				openUrl={openUrl}
-				showEditToken={showEditToken}
+				showAccounts={showAccounts}
 				showMutedReposList={showMutedReposList}
 				getVersion={getVersion}
 				quitApp={quitApp}
