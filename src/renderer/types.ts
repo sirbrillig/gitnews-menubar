@@ -34,10 +34,20 @@ export interface Note {
 	repositoryFullName: string;
 	gitnewsMarkedUnread?: boolean;
 	gitnewsSeen?: boolean;
+
+	/**
+	 * Number of milliseconds since the epoc (what Date.now() returns).
+	 */
 	gitnewsSeenAt?: number;
+
 	api: NoteApi;
 	commentUrl: string;
-	updatedAt: number;
+
+	/**
+	 * ISO 8601 formatted date string like `2017-08-23T18:20:00Z`.
+	 */
+	updatedAt: string;
+
 	repositoryName: string;
 	type: string;
 	subjectUrl: string;

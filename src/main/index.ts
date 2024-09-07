@@ -109,16 +109,16 @@ systemPreferences.subscribeNotification(
 
 ipcMain.on(
 	'log-message',
-	(event, message: string, level: 'info' | 'warn' | 'error') => {
+	(_event, message: string, level: 'info' | 'warn' | 'error') => {
 		logMessage(message, level);
 	}
 );
 
-ipcMain.on('toggle-logging', (event, isLogging: boolean) => {
+ipcMain.on('toggle-logging', (_event, isLogging: boolean) => {
 	toggleLogging(isLogging);
 });
 
-ipcMain.on('set-icon', (event, arg: unknown) => {
+ipcMain.on('set-icon', (_event, arg: unknown) => {
 	if (typeof arg !== 'string') {
 		logMessage('Failed to set icon: it is invalid', 'error');
 		return;
@@ -126,7 +126,7 @@ ipcMain.on('set-icon', (event, arg: unknown) => {
 	setIcon(arg);
 });
 
-ipcMain.on('open-url', (event, url: unknown, options) => {
+ipcMain.on('open-url', (_event, url: unknown, options) => {
 	logMessage(`Opening url: ${url}`, 'info');
 	if (typeof url !== 'string') {
 		logMessage('Failed to open URL: it is invalid', 'error');
@@ -139,7 +139,7 @@ ipcMain.on('quit-app', () => {
 	app.quit();
 });
 
-ipcMain.on('save-token', (event, token: unknown) => {
+ipcMain.on('save-token', (_event, token: unknown) => {
 	if (typeof token !== 'string') {
 		logMessage('Failed to save token: it is invalid', 'error');
 		return;
@@ -152,7 +152,7 @@ const autoLauncher = new AutoLaunch({
 	name: 'Gitnews',
 });
 
-ipcMain.on('toggle-auto-launch', (event, isEnabled) => {
+ipcMain.on('toggle-auto-launch', (_event, isEnabled) => {
 	logMessage(`AutoLaunch changed to ${isEnabled}`, 'info');
 	if (isEnabled) {
 		autoLauncher.enable();

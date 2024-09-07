@@ -1,7 +1,7 @@
 import React from 'react';
 import Gridicon from 'gridicons';
 import debugFactory from 'debug';
-import date from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
 import EnsuredImage from './ensured-image';
 import MuteIcon from './mute-icon';
 import {
@@ -58,11 +58,8 @@ export default function Notification({
 		openUrl(note.commentUrl);
 	};
 
-	const timeString = date.distanceInWords(
-		Date.now(),
-		date.parse(note.updatedAt),
-		{ addSuffix: true }
-	);
+	const lastUpdated = new Date(note.updatedAt);
+	const timeString = formatDistanceToNow(lastUpdated, { addSuffix: true });
 	const noteClasses = [
 		'notification',
 		...(isMultiOpenMode && !isMultiOpenPending

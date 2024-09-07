@@ -1,4 +1,5 @@
-import { Note, UnknownFetchError } from '../types';
+import { Note, UnknownFetchError, AppReduxAction } from '../types';
+import { AppDispatch } from './store';
 
 const maxFetchInterval = secsToMs(300); // 5 minutes
 
@@ -16,7 +17,7 @@ export function mergeNotifications(
 		Boolean(
 			note.updatedAt &&
 				prevNote.gitnewsSeenAt &&
-				note.updatedAt > prevNote.gitnewsSeenAt
+				Date.parse(note.updatedAt) > prevNote.gitnewsSeenAt
 		);
 
 	return nextNotes.map((note) => {
@@ -104,4 +105,19 @@ export function getSecondsUntilNextFetch(
 ): number {
 	const interval = fetchInterval - (Date.now() - (lastChecked || 0));
 	return interval < 0 ? 0 : msToSecs(interval);
+}
+
+export function isAction(action: unknown): action is AppReduxAction {
+	const typedAction = action as AppReduxAction;
+	if (!('type' in typedAction) || !('token' in typedAction)) {
+		return false;
+	}
+	return true;
+}
+
+export function isDispatch(dispatch: unknown): dispatch is AppDispatch {
+	if (typeof dispatch === 'function') {
+		return true;
+	}
+	return false;
 }
