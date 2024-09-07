@@ -14,11 +14,7 @@
 		"package": "electron-forge package",
 		"make": "electron-forge make"
 	},
-	"keywords": [
-		"menu",
-		"github",
-		"notifications"
-	],
+	"keywords": ["menu", "github", "notifications"],
 	"author": "Payton Swick <payton@foolord.com>",
 	"license": "MIT",
 	"dependencies": {
@@ -31,7 +27,7 @@
 		"electron-is-dev": "^3.0.1",
 		"electron-log": "^5.2.0",
 		"electron-squirrel-startup": "^1.0.1",
-		"electron-store": "^10.0.0",
+		"electron-store": "^8.2.0",
 		"electron-unhandled": "^5.0.0",
 		"gitnews": "^3.1.3",
 		"gridicons": "^3.4.2",
@@ -90,8 +86,6 @@
 		}
 	},
 	"lint-staged": {
-		"*.{js,ts,tsx}": [
-			"prettier --write"
-		]
+		"*.{js,ts,tsx}": ["prettier --write"]
 	}
 }
