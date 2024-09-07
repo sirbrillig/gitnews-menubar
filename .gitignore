@@ -1,4 +1,5 @@
 .env
+extras
 node_modules
 dist
 icon-experiments
