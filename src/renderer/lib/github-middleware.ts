@@ -13,7 +13,10 @@ export function createGitHubMiddleware(): Middleware<{}, AppReduxState> {
 
 	return (store) => (next) => (action) => {
 		if (!isAction(action)) {
-			throw new Error('Invalid action dispatched');
+			throw new Error(
+				'Invalid action dispatched in github controls: ' +
+					JSON.stringify(action)
+			);
 		}
 		switch (action.type) {
 			case 'MARK_NOTE_READ': {

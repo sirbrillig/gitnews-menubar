@@ -17,7 +17,9 @@ function scrollToTopNotification() {
 export const electronMiddleware: Middleware<{}, AppReduxState> =
 	(_store) => (next) => (action) => {
 		if (!isAction(action)) {
-			throw new Error('Invalid action dispatched');
+			throw new Error(
+				'Invalid action dispatched in electron: ' + JSON.stringify(action)
+			);
 		}
 		switch (action.type) {
 			case 'OPEN_URL':

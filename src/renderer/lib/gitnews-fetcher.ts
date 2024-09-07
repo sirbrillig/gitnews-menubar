@@ -30,8 +30,13 @@ let currentDemoNotifications = createDemoNotifications();
 export function createFetcher(): Middleware<{}, AppReduxState> {
 	const fetcher: Middleware<object, AppReduxState> =
 		(store) => (next) => (action) => {
-			if (!isAction(action) || !isDispatch(next)) {
-				throw new Error('Invalid action dispatched');
+			if (!isAction(action)) {
+				throw new Error(
+					'Invalid action dispatched in fetcher: ' + JSON.stringify(action)
+				);
+			}
+			if (!isDispatch(next)) {
+				throw new Error('Invalid dispatcher in fetcher');
 			}
 			if (action.type === 'MARK_NOTE_READ' && store.getState().isDemoMode) {
 				currentDemoNotifications = currentDemoNotifications.map((note) => {
