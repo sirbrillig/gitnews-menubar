@@ -5,7 +5,9 @@ import { isAction } from './helpers';
 export const configMiddleware: Middleware<{}, AppReduxState> =
 	(_store) => (next) => (action) => {
 		if (!isAction(action)) {
-			throw new Error('Invalid action dispatched');
+			throw new Error(
+				'Invalid action dispatched in config: ' + JSON.stringify(action)
+			);
 		}
 		switch (action.type) {
 			case 'SET_INITIAL_TOKEN':

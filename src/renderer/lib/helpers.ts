@@ -109,7 +109,7 @@ export function getSecondsUntilNextFetch(
 
 export function isAction(action: unknown): action is AppReduxAction {
 	const typedAction = action as AppReduxAction;
-	if (!('type' in typedAction) || !('token' in typedAction)) {
+	if (!('type' in typedAction)) {
 		return false;
 	}
 	return true;
