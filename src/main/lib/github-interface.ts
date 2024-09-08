@@ -1,15 +1,46 @@
 import type { AccountInfo, Note, NoteReason } from '../../shared-types';
 import { Octokit } from '@octokit/rest';
 import { fetch as undiciFetch, ProxyAgent } from 'undici';
+import { socksDispatcher } from 'fetch-socks';
 
 const userAgent = 'gitnews-menubar';
 const mainGithubApiUrl = 'https://api.github.com';
+
+function getSocksVersionFromProtocol(protocol: string): 4 | 5 {
+	const lastCharNum = parseInt(protocol.charAt(-1), 10);
+	if (Number.isInteger(lastCharNum) && lastCharNum === 4) {
+		return 4;
+	}
+	return 5;
+}
+
+function makeProxyDispatcher(proxyUrl: string) {
+	if (proxyUrl.startsWith('socks')) {
+		// eg: `socks5://user:pass@host:port` (user and pass are optional so
+		// `socks5://host:port` also works)
+		const proxyUrlData = new URL(proxyUrl);
+		const socksVersion = getSocksVersionFromProtocol(proxyUrlData.protocol);
+		// FIXME: support user and pass
+		const slashParts = proxyUrl.split('/');
+		const hostParts = slashParts.at(-1)?.split('@').at(-1)?.split(':') ?? [];
+		const socksHost = hostParts[0];
+		const socksPort = hostParts[1];
+		if (socksVersion && socksHost && socksPort) {
+			return socksDispatcher({
+				type: socksVersion,
+				host: socksHost,
+				port: parseInt(socksPort, 10),
+			});
+		}
+	}
+	return new ProxyAgent(proxyUrl);
+}
 
 function makeProxyFetch(proxyUrl: string) {
 	return (url: string, options: any) => {
 		return undiciFetch(url, {
 			...options,
-			dispatcher: new ProxyAgent(proxyUrl),
+			dispatcher: makeProxyDispatcher(proxyUrl),
 		});
 	};
 }
@@ -42,19 +73,27 @@ function getBaseUrlForServer(account: AccountInfo): string | undefined {
 	return `${serverUrl}/api/v3`;
 }
 
+function getOctokitRequestPathFromUrl(
+	account: AccountInfo,
+	urlString: string
+): string {
+	const baseUrl = getBaseUrlForServer(account) ?? mainGithubApiUrl;
+	return urlString.replace(baseUrl, '');
+}
+
 export async function markNotficationAsRead(
 	note: Note,
 	account: AccountInfo
 ): Promise<void> {
 	const octokit = createOctokit(account);
+	const path = getOctokitRequestPathFromUrl(account, note.url);
 	try {
-		const threadUrl = new URL(note.url);
-		const threadUrlPath = threadUrl.pathname;
-		await octokit.request(`PATCH ${threadUrlPath}`, {
+		await octokit.request(`PATCH ${path}`, {
 			thread_id: note.id,
 		});
 	} catch (error) {
-		console.error(`Failed to mark notification read for ${note.id}`, note);
+		// FIXME: log these errors in the main logger
+		console.error(`Failed to mark notification read for ${path}`, note);
 		return;
 	}
 }
@@ -73,35 +112,36 @@ export async function fetchNotificationsForAccount(
 	for (const notification of notificationsResponse.data) {
 		let commentAvatar: string;
 		let commentHtmlUrl: string;
+		const commentPath = getOctokitRequestPathFromUrl(
+			account,
+			notification.subject.latest_comment_url ?? notification.subject.url
+		);
 		try {
-			const commentUrl = new URL(
-				notification.subject.latest_comment_url ?? notification.subject.url
-			);
-			const commentUrlPath = commentUrl.pathname;
-			const comment = await octokit.request(`GET ${commentUrlPath}`, {});
+			const comment = await octokit.request(`GET ${commentPath}`, {});
 			commentAvatar = comment.data.user.avatar_url;
 			commentHtmlUrl = comment.data.html_url;
 		} catch (error) {
-			console.error(
-				`Failed to fetch comment for ${notification.subject.latest_comment_url ?? notification.subject.url}`,
-				notification
-			);
+			// FIXME: log these errors in the main logger
+			console.error(`Failed to fetch comment for ${commentPath}`, notification);
 			continue;
 		}
 
 		let noteState: string;
 		let noteMerged: boolean;
 		let subjectHtmlUrl: string;
+		const subjectPath = getOctokitRequestPathFromUrl(
+			account,
+			notification.subject.url
+		);
 		try {
-			const subjectUrl = new URL(notification.subject.url);
-			const subjectUrlPath = subjectUrl.pathname;
-			const subject = await octokit.request(`GET ${subjectUrlPath}`, {});
+			const subject = await octokit.request(`GET ${subjectPath}`, {});
 			noteState = subject.data.state;
 			noteMerged = subject.data.merged;
 			subjectHtmlUrl = subject.data.html_url;
 		} catch (error) {
+			// FIXME: log these errors in the main logger
 			console.error(
-				`Failed to fetch subject for ${notification.subject.url}`,
+				`Failed to fetch subject for ${subjectPath}`,
 				notification.subject
 			);
 			continue;
