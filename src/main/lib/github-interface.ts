@@ -1,13 +1,36 @@
 import type { AccountInfo, Note, NoteReason } from '../../shared-types';
 import { Octokit } from '@octokit/rest';
 
+const userAgent = 'gitnews-menubar';
+
+export async function markNotficationAsRead(
+	note: Note,
+	account: AccountInfo
+): Promise<void> {
+	const octokit = new Octokit({
+		auth: account.apiKey,
+		baseUrl: account.serverUrl,
+		userAgent,
+	});
+	try {
+		const threadUrl = new URL(note.url);
+		const threadUrlPath = threadUrl.pathname;
+		await octokit.request(`PATCH ${threadUrlPath}`, {
+			thread_id: note.id,
+		});
+	} catch (error) {
+		console.error(`Failed to mark notification read for ${note.id}`, note);
+		return;
+	}
+}
+
 export async function fetchNotificationsForAccount(
 	account: AccountInfo
 ): Promise<Note[]> {
 	const octokit = new Octokit({
 		auth: account.apiKey,
 		baseUrl: account.serverUrl,
-		userAgent: 'gitnews-menubar',
+		userAgent,
 	});
 	const notificationsResponse =
 		await octokit.rest.activity.listNotificationsForAuthenticatedUser({
@@ -56,6 +79,7 @@ export async function fetchNotificationsForAccount(
 		notes.push({
 			gitnewsAccountId: account.id,
 			id: notification.id,
+			url: notification.url,
 			title: notification.subject.title,
 			unread: notification.unread,
 			repositoryFullName: notification.repository.full_name,

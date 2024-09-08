@@ -21,16 +21,11 @@ import {
 import { AccountInfo, AppReduxState, Note, UnknownFetchError } from '../types';
 import { AppDispatch } from './store';
 import { createDemoNotifications } from './demo-mode';
+import { defaultAccountInfo } from './constants';
 
 const debug = debugFactory('gitnews-menubar');
 
 let currentDemoNotifications = createDemoNotifications();
-
-export const defaultAccountInfo = {
-	id: 'main-github-api',
-	serverUrl: 'https://api.github.com',
-	apiKey: '',
-};
 
 export function createFetcher(): Middleware<{}, AppReduxState> {
 	const fetcher: Middleware<object, AppReduxState> =

@@ -146,6 +146,7 @@ export interface MainBridge {
 	getToken: () => Promise<string>;
 	getVersion: () => Promise<string>;
 	getNotificationsForAccount: (account: AccountInfo) => Promise<Note[]>;
+	markNotificationRead: (note: Note, account: AccountInfo) => void;
 	isDemoMode: () => Promise<boolean>;
 	isAutoLaunchEnabled: () => Promise<boolean>;
 }

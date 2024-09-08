@@ -1,5 +1,5 @@
 import { Note } from '../types';
-import { defaultAccountInfo } from './gitnews-fetcher';
+import { defaultAccountInfo } from './constants';
 import { words } from './random-words';
 
 const hourInMiliseconds = 3600000;
@@ -26,6 +26,7 @@ function createDemoNotification(initialDate: Date): Note {
 
 	return {
 		gitnewsAccountId: defaultAccountInfo.id,
+		url: '',
 		updatedAt: new Date(
 			initialDate.getTime() - hourInMiliseconds * randomNumber(1, 23)
 		).toISOString(),

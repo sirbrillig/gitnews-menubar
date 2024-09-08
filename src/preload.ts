@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { AccountInfo, IconType, MainBridge } from './renderer/types';
+import { AccountInfo, IconType, MainBridge, Note } from './renderer/types';
 
 const bridge: MainBridge = {
 	quitApp: () => ipcRenderer.send('quit-app'),
@@ -21,6 +21,8 @@ const bridge: MainBridge = {
 	isAutoLaunchEnabled: () => ipcRenderer.invoke('is-auto-launch:get'),
 	getNotificationsForAccount: (account: AccountInfo) =>
 		ipcRenderer.invoke('notifications-for-account:get', account),
+	markNotificationRead: (note: Note, account: AccountInfo) =>
+		ipcRenderer.invoke('mark-note-as-read', note, account),
 };
 
 contextBridge.exposeInMainWorld('electronApi', bridge);

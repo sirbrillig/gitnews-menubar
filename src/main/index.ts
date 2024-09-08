@@ -22,8 +22,11 @@ import debugFactory from 'debug';
 import log from 'electron-log';
 import AutoLaunch from 'easy-auto-launch';
 import dotEnv from 'dotenv';
-import { fetchNotificationsForAccount } from './lib/github-interface';
-import type { AccountInfo } from '../shared-types';
+import {
+	fetchNotificationsForAccount,
+	markNotficationAsRead,
+} from './lib/github-interface';
+import type { AccountInfo, Note } from '../shared-types';
 
 // These are provided by electron forge
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -183,6 +186,13 @@ ipcMain.handle(
 	'notifications-for-account:get',
 	async (_event, account: AccountInfo) => {
 		return fetchNotificationsForAccount(account);
+	}
+);
+
+ipcMain.handle(
+	'mark-note-as-read',
+	async (_event, note: Note, account: AccountInfo) => {
+		return markNotficationAsRead(note, account);
 	}
 );
 

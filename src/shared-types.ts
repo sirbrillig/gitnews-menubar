@@ -20,6 +20,7 @@ export interface NoteApi {
 
 export interface Note {
 	id: string;
+	url: string;
 	title: string;
 	unread: boolean;
 	repositoryFullName: string;
