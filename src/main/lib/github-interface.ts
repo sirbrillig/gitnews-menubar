@@ -2,6 +2,7 @@ import type { AccountInfo, Note, NoteReason } from '../../shared-types';
 import { Octokit } from '@octokit/rest';
 import { fetch as undiciFetch, ProxyAgent } from 'undici';
 import { socksDispatcher } from 'fetch-socks';
+import { logMessage } from './logging';
 
 const userAgent = 'gitnews-menubar';
 const mainGithubApiUrl = 'https://api.github.com';
@@ -92,8 +93,10 @@ export async function markNotficationAsRead(
 			thread_id: note.id,
 		});
 	} catch (error) {
-		// FIXME: log these errors in the main logger
-		console.error(`Failed to mark notification read for ${path}`, note);
+		logMessage(
+			`Failed to mark notification read for ${path} (${note.url})`,
+			'error'
+		);
 		return;
 	}
 }
@@ -121,8 +124,10 @@ export async function fetchNotificationsForAccount(
 			commentAvatar = comment.data.user.avatar_url;
 			commentHtmlUrl = comment.data.html_url;
 		} catch (error) {
-			// FIXME: log these errors in the main logger
-			console.error(`Failed to fetch comment for ${commentPath}`, notification);
+			logMessage(
+				`Failed to fetch comment for ${commentPath} (${notification.subject.latest_comment_url ?? notification.subject.url})`,
+				'error'
+			);
 			continue;
 		}
 
@@ -139,10 +144,9 @@ export async function fetchNotificationsForAccount(
 			noteMerged = subject.data.merged;
 			subjectHtmlUrl = subject.data.html_url;
 		} catch (error) {
-			// FIXME: log these errors in the main logger
-			console.error(
-				`Failed to fetch subject for ${subjectPath}`,
-				notification.subject
+			logMessage(
+				`Failed to fetch comment for ${subjectPath} (${notification.subject.url})`,
+				'error'
 			);
 			continue;
 		}

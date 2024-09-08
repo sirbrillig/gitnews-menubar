@@ -9,23 +9,18 @@ import {
 import { menubar } from 'menubar';
 import isDev from 'electron-is-dev';
 import electronDebug from 'electron-debug';
-import {
-	setToken,
-	getToken,
-	isLoggingEnabled,
-	toggleLogging,
-} from './lib/main-store';
+import { setToken, getToken, toggleLogging } from './lib/main-store';
 import { getIconForState } from './lib/icon-path';
 import { version } from '../../package.json';
 import unhandled from 'electron-unhandled';
 import debugFactory from 'debug';
-import log from 'electron-log';
 import AutoLaunch from 'easy-auto-launch';
 import dotEnv from 'dotenv';
 import {
 	fetchNotificationsForAccount,
 	markNotficationAsRead,
 } from './lib/github-interface';
+import { logMessage } from './lib/logging';
 import type { AccountInfo, Note } from '../shared-types';
 
 // These are provided by electron forge
@@ -45,27 +40,6 @@ unhandled();
 electronDebug();
 
 let lastIconState = 'loading';
-
-// Only use this function for logging!
-function logMessage(message: string, level: 'info' | 'warn' | 'error'): void {
-	debug(message);
-	if (!isLoggingEnabled()) {
-		return;
-	}
-	switch (level) {
-		case 'info':
-			log.info(message);
-			break;
-		case 'warn':
-			log.warn(message);
-			break;
-		case 'error':
-			log.error(message);
-			break;
-		default:
-			log.error(`Unknown log level '${level}': ${message}`);
-	}
-}
 
 const bar = menubar({
 	preloadWindow: true,
