@@ -95,6 +95,22 @@ export default function AccountList({
 							setAccounts(newAccounts);
 						}}
 					/>
+					<label htmlFor="add-token-form__input">(Optional) Proxy:</label>
+					<input
+						type="text"
+						className="add-token-form__input"
+						id="add-token-form__input"
+						value={editingAccount.proxyUrl}
+						onChange={(event) => {
+							const newAccounts = accounts.map((account) => {
+								if (account.id === editingAccount.id) {
+									account.proxyUrl = event.target.value;
+								}
+								return account;
+							});
+							setAccounts(newAccounts);
+						}}
+					/>
 				</div>
 			)}
 			<button

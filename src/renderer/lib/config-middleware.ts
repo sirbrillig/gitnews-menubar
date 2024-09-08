@@ -10,6 +10,7 @@ export const configMiddleware: Middleware<{}, AppReduxState> =
 			);
 		}
 		switch (action.type) {
+			// FIXME: handle changing accounts
 			case 'SET_INITIAL_TOKEN':
 				window.electronApi.saveToken(action.token);
 				break;

@@ -29,6 +29,7 @@ export default function ConfigPage({
 	const toggleIsLogging = (event: { target: { checked: boolean } }) =>
 		toggleLogging(event.target.checked);
 
+	// FIXME: handle no accounts
 	return (
 		<div className="config-page">
 			<h2 className="config-page__title">Configuration</h2>
