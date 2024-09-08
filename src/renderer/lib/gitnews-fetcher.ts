@@ -21,7 +21,7 @@ import {
 import { AccountInfo, AppReduxState, Note, UnknownFetchError } from '../types';
 import { AppDispatch } from './store';
 import { createDemoNotifications } from './demo-mode';
-import { defaultAccountInfo } from './constants';
+import { getAllAccounts } from './accounts';
 
 const debug = debugFactory('gitnews-menubar');
 
@@ -71,19 +71,11 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 			return;
 		};
 
-	async function performFetch(
-		{
-			fetchingInProgress,
-			token,
-			fetchingStartedAt,
-			isDemoMode,
-			accounts,
-		}: AppReduxState,
-		next: AppDispatch
-	) {
+	async function performFetch(state: AppReduxState, next: AppDispatch) {
 		const fetchingMaxTime = secsToMs(120); // 2 minutes
-		if (fetchingInProgress) {
-			const timeSinceFetchingStarted = Date.now() - (fetchingStartedAt || 0);
+		if (state.fetchingInProgress) {
+			const timeSinceFetchingStarted =
+				Date.now() - (state.fetchingStartedAt || 0);
 			if (timeSinceFetchingStarted > fetchingMaxTime) {
 				const message = `It has been too long since we started fetching (${timeSinceFetchingStarted} ms). Giving up.`;
 				debug(message);
@@ -103,7 +95,7 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 			next(changeToOffline());
 			return;
 		}
-		if (!token) {
+		if (!state.token) {
 			next(changeToOffline());
 			return;
 		}
@@ -112,21 +104,8 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 		// or the app will get stuck never updating again.
 		next(fetchBegin());
 
-		// FIXME: This should be a permanent migration to the account system somewhere
-		const doesIncludeMainGithubAccount = accounts.some(
-			(account) => account.serverUrl === defaultAccountInfo.serverUrl
-		);
-		if (!doesIncludeMainGithubAccount) {
-			accounts = [
-				...accounts,
-				{
-					...defaultAccountInfo,
-					apiKey: token,
-				},
-			];
-		}
-
-		const getGithubNotifications = getFetcher(accounts, isDemoMode);
+		const accounts = getAllAccounts(state);
+		const getGithubNotifications = getFetcher(accounts, state.isDemoMode);
 		try {
 			const notes = await getGithubNotifications();
 			debug('notifications retrieved', notes);
@@ -143,7 +122,7 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 				'warn'
 			);
 			next(fetchDone());
-			getErrorHandler(next)(err as Error, token);
+			getErrorHandler(next)(err as Error, state.token);
 		}
 	}
 
