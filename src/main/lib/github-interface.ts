@@ -18,16 +18,37 @@ export async function fetchNotificationsForAccount(
 
 	for (const notification of notificationsResponse.data) {
 		let commentAvatar;
-
+		let commentHtmlUrl;
 		if (notification.subject.latest_comment_url) {
 			try {
 				const commentUrl = new URL(notification.subject.latest_comment_url);
 				const commentUrlPath = commentUrl.pathname;
 				const comment = await octokit.request(`GET ${commentUrlPath}`, {});
 				commentAvatar = comment.data.user.avatar_url;
+				commentHtmlUrl = comment.data.html_url;
 			} catch (error) {
 				console.error(
 					`Failed to fetch comment for ${notification.subject.latest_comment_url}`
+				);
+				// This might fail but it's not that important so we will ignore it if
+				// that happens.
+			}
+		}
+
+		let noteState;
+		let noteMerged;
+		let subjectHtmlUrl;
+		if (notification.subject.url) {
+			try {
+				const subjectUrl = new URL(notification.subject.url);
+				const subjectUrlPath = subjectUrl.pathname;
+				const subject = await octokit.request(`GET ${subjectUrlPath}`, {});
+				noteState = subject.data.state;
+				noteMerged = subject.data.merged;
+				subjectHtmlUrl = subject.data.html_url;
+			} catch (error) {
+				console.error(
+					`Failed to fetch subject for ${notification.subject.url}`
 				);
 				// This might fail but it's not that important so we will ignore it if
 				// that happens.
@@ -39,15 +60,15 @@ export async function fetchNotificationsForAccount(
 			title: notification.subject.title,
 			unread: notification.unread,
 			repositoryFullName: notification.repository.full_name,
-			commentUrl: notification.subject.latest_comment_url,
+			commentUrl: commentHtmlUrl,
 			updatedAt: notification.updated_at,
 			repositoryName: notification.repository.name,
 			type: notification.subject.type,
-			subjectUrl: notification.subject.url,
+			subjectUrl: subjectHtmlUrl,
 			commentAvatar: commentAvatar ?? notification.repository.owner.avatar_url,
 			repositoryOwnerAvatar: notification.repository.owner.avatar_url,
 			api: {
-				subject: { state: undefined, merged: undefined }, // FIXME I think this comes from the subjectUrl
+				subject: { state: noteState, merged: noteMerged },
 				notification: { reason: notification.reason as NoteReason },
 			},
 		});
