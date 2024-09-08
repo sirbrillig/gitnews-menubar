@@ -3,6 +3,7 @@ import { Octokit } from '@octokit/rest';
 import { fetch as undiciFetch, ProxyAgent } from 'undici';
 
 const userAgent = 'gitnews-menubar';
+const mainGithubApiUrl = 'https://api.github.com';
 
 function makeProxyFetch(proxyUrl: string) {
 	return (url: string, options: any) => {
@@ -16,7 +17,7 @@ function makeProxyFetch(proxyUrl: string) {
 function createOctokit(account: AccountInfo) {
 	const options = {
 		auth: account.apiKey,
-		baseUrl: account.serverUrl,
+		baseUrl: getBaseUrlForServer(account),
 		userAgent,
 	};
 	if (account.proxyUrl) {
@@ -29,6 +30,16 @@ function createOctokit(account: AccountInfo) {
 		});
 	}
 	return new Octokit(options);
+}
+
+function getBaseUrlForServer(account: AccountInfo): string | undefined {
+	if (account.serverUrl === mainGithubApiUrl) {
+		return undefined;
+	}
+	// GitHub Enterprise Servers use this URL structure:
+	// https://github.com/octokit/octokit.js/?tab=readme-ov-file#octokit-api-client
+	const serverUrl = account.serverUrl.replace(/\/$/, '');
+	return `${serverUrl}/api/v3`;
 }
 
 export async function markNotficationAsRead(
