@@ -1,9 +1,13 @@
 // require('dotenv').config();
 
 import { Middleware } from 'redux';
-import { AppReduxState } from '../types';
+import type { AppReduxState, Note } from '../types';
 import { isAction } from './helpers';
-import { createNoteMarkRead, Note } from 'gitnews';
+
+// FIXME: find a new way to do this
+function createNoteMarkRead(data: any) {
+	return (token: string, note: Note) => {};
+}
 
 export function createGitHubMiddleware(): Middleware<{}, AppReduxState> {
 	const markNotificationRead = createNoteMarkRead({
