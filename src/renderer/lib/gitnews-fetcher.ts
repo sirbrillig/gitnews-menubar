@@ -18,19 +18,19 @@ import {
 	addConnectionError,
 	setIsTokenInvalid,
 } from '../lib/reducer';
-import {
-	AccountInfo,
-	AppReduxState,
-	Note,
-	NoteReason,
-	UnknownFetchError,
-} from '../types';
+import { AccountInfo, AppReduxState, Note, UnknownFetchError } from '../types';
 import { AppDispatch } from './store';
 import { createDemoNotifications } from './demo-mode';
 
 const debug = debugFactory('gitnews-menubar');
 
 let currentDemoNotifications = createDemoNotifications();
+
+const defaultAccountInfo = {
+	id: 'main-github-api',
+	serverUrl: 'https://api.github.com',
+	apiKey: '',
+};
 
 export function createFetcher(): Middleware<{}, AppReduxState> {
 	const fetcher: Middleware<object, AppReduxState> =
@@ -77,7 +77,13 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 		};
 
 	async function performFetch(
-		{ fetchingInProgress, token, fetchingStartedAt, isDemoMode }: AppReduxState,
+		{
+			fetchingInProgress,
+			token,
+			fetchingStartedAt,
+			isDemoMode,
+			accounts,
+		}: AppReduxState,
 		next: AppDispatch
 	) {
 		const fetchingMaxTime = secsToMs(120); // 2 minutes
@@ -110,7 +116,22 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 		// NOTE: After this point, any return action MUST disable fetchingInProgress
 		// or the app will get stuck never updating again.
 		next(fetchBegin());
-		const getGithubNotifications = getFetcher(token, isDemoMode);
+
+		// FIXME: This should be a permanent migration to the account system somewhere
+		const doesIncludeMainGithubAccount = accounts.some(
+			(account) => account.serverUrl === defaultAccountInfo.serverUrl
+		);
+		if (!doesIncludeMainGithubAccount) {
+			accounts = [
+				...accounts,
+				{
+					...defaultAccountInfo,
+					apiKey: token,
+				},
+			];
+		}
+
+		const getGithubNotifications = getFetcher(accounts, isDemoMode);
 		try {
 			const notes = await getGithubNotifications();
 			debug('notifications retrieved', notes);
@@ -132,18 +153,20 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 	}
 
 	function getFetcher(
-		token: string,
+		accounts: AccountInfo[],
 		isDemoMode: boolean
 	): () => Promise<Note[]> {
 		if (isDemoMode) {
 			return () => getDemoNotifications();
 		}
-		return () =>
-			fetchNotifications({
-				id: 'main-github-api', // FIXME: use the account info from the state
-				serverUrl: 'https://api.github.com',
-				apiKey: token,
-			});
+		return async () => {
+			let allNotes: Note[] = [];
+			for (const account of accounts) {
+				const notes = await fetchNotifications(account);
+				allNotes = [...allNotes, ...notes];
+			}
+			return allNotes;
+		};
 	}
 
 	return fetcher;
