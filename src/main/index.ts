@@ -22,6 +22,8 @@ import debugFactory from 'debug';
 import log from 'electron-log';
 import AutoLaunch from 'easy-auto-launch';
 import dotEnv from 'dotenv';
+import { fetchNotificationsForAccount } from './lib/github-interface';
+import type { AccountInfo } from '../shared-types';
 
 // These are provided by electron forge
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -176,6 +178,13 @@ ipcMain.handle('version:get', async () => {
 ipcMain.handle('is-demo-mode:get', async () => {
 	return Boolean(process.env.GITNEWS_DEMO_MODE);
 });
+
+ipcMain.handle(
+	'notifications-for-account:get',
+	async (_event, account: AccountInfo) => {
+		return fetchNotificationsForAccount(account);
+	}
+);
 
 function setIcon(type?: string) {
 	if (!type) {

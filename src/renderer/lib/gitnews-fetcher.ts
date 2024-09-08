@@ -10,7 +10,6 @@ import {
 	isInvalidJson,
 	isTokenInvalid,
 } from '../lib/helpers';
-import { createNoteGetter } from 'gitnews';
 import {
 	changeToOffline,
 	fetchBegin,
@@ -19,7 +18,13 @@ import {
 	addConnectionError,
 	setIsTokenInvalid,
 } from '../lib/reducer';
-import { AppReduxState, Note, UnknownFetchError } from '../types';
+import {
+	AccountInfo,
+	AppReduxState,
+	Note,
+	NoteReason,
+	UnknownFetchError,
+} from '../types';
 import { AppDispatch } from './store';
 import { createDemoNotifications } from './demo-mode';
 
@@ -126,13 +131,6 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 		}
 	}
 
-	const getNotifications = createNoteGetter({
-		fetch: (url, options) => fetch(url, options),
-		log: (message) => {
-			console.log('Gitnews: ' + message);
-		},
-	});
-
 	function getFetcher(
 		token: string,
 		isDemoMode: boolean
@@ -140,10 +138,19 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 		if (isDemoMode) {
 			return () => getDemoNotifications();
 		}
-		return () => getNotifications(token);
+		return () =>
+			fetchNotifications({
+				id: 'main-github-api', // FIXME: use the account info from the state
+				serverUrl: 'https://api.github.com',
+				apiKey: token,
+			});
 	}
 
 	return fetcher;
+}
+
+async function fetchNotifications(account: AccountInfo): Promise<Note[]> {
+	return window.electronApi.getNotificationsForAccount(account);
 }
 
 async function getDemoNotifications(): Promise<Note[]> {
