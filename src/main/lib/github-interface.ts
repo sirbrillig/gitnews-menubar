@@ -17,42 +17,40 @@ export async function fetchNotificationsForAccount(
 	const notes: Note[] = [];
 
 	for (const notification of notificationsResponse.data) {
-		let commentAvatar;
-		let commentHtmlUrl;
-		if (notification.subject.latest_comment_url) {
-			try {
-				const commentUrl = new URL(notification.subject.latest_comment_url);
-				const commentUrlPath = commentUrl.pathname;
-				const comment = await octokit.request(`GET ${commentUrlPath}`, {});
-				commentAvatar = comment.data.user.avatar_url;
-				commentHtmlUrl = comment.data.html_url;
-			} catch (error) {
-				console.error(
-					`Failed to fetch comment for ${notification.subject.latest_comment_url}`
-				);
-				// This might fail but it's not that important so we will ignore it if
-				// that happens.
-			}
+		let commentAvatar: string;
+		let commentHtmlUrl: string;
+		try {
+			const commentUrl = new URL(
+				notification.subject.latest_comment_url ?? notification.subject.url
+			);
+			const commentUrlPath = commentUrl.pathname;
+			const comment = await octokit.request(`GET ${commentUrlPath}`, {});
+			commentAvatar = comment.data.user.avatar_url;
+			commentHtmlUrl = comment.data.html_url;
+		} catch (error) {
+			console.error(
+				`Failed to fetch comment for ${notification.subject.latest_comment_url ?? notification.subject.url}`,
+				notification
+			);
+			continue;
 		}
 
-		let noteState;
-		let noteMerged;
-		let subjectHtmlUrl;
-		if (notification.subject.url) {
-			try {
-				const subjectUrl = new URL(notification.subject.url);
-				const subjectUrlPath = subjectUrl.pathname;
-				const subject = await octokit.request(`GET ${subjectUrlPath}`, {});
-				noteState = subject.data.state;
-				noteMerged = subject.data.merged;
-				subjectHtmlUrl = subject.data.html_url;
-			} catch (error) {
-				console.error(
-					`Failed to fetch subject for ${notification.subject.url}`
-				);
-				// This might fail but it's not that important so we will ignore it if
-				// that happens.
-			}
+		let noteState: string;
+		let noteMerged: boolean;
+		let subjectHtmlUrl: string;
+		try {
+			const subjectUrl = new URL(notification.subject.url);
+			const subjectUrlPath = subjectUrl.pathname;
+			const subject = await octokit.request(`GET ${subjectUrlPath}`, {});
+			noteState = subject.data.state;
+			noteMerged = subject.data.merged;
+			subjectHtmlUrl = subject.data.html_url;
+		} catch (error) {
+			console.error(
+				`Failed to fetch subject for ${notification.subject.url}`,
+				notification.subject
+			);
+			continue;
 		}
 
 		notes.push({
