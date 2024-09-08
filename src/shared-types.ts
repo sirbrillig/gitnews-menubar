@@ -53,4 +53,5 @@ export interface AccountInfo {
 	id: string;
 	apiKey: string;
 	serverUrl: string;
+	proxyUrl?: string;
 }

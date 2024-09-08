@@ -45,7 +45,8 @@
 		"redux-logger": "^3.0.6",
 		"redux-persist": "^6.0.0",
 		"semver": "^7.6.3",
-		"source-map-support": "^0.5.19"
+		"source-map-support": "^0.5.19",
+		"undici": "^6.19.8"
 	},
 	"devDependencies": {
 		"@babel/plugin-proposal-class-properties": "^7.18.6",

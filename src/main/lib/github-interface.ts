@@ -1,17 +1,41 @@
 import type { AccountInfo, Note, NoteReason } from '../../shared-types';
 import { Octokit } from '@octokit/rest';
+import { fetch as undiciFetch, ProxyAgent } from 'undici';
 
 const userAgent = 'gitnews-menubar';
+
+function makeProxyFetch(proxyUrl: string) {
+	return (url: string, options: any) => {
+		return undiciFetch(url, {
+			...options,
+			dispatcher: new ProxyAgent(proxyUrl),
+		});
+	};
+}
+
+function createOctokit(account: AccountInfo) {
+	const options = {
+		auth: account.apiKey,
+		baseUrl: account.serverUrl,
+		userAgent,
+	};
+	if (account.proxyUrl) {
+		const proxyFetch = makeProxyFetch(account.proxyUrl);
+		return new Octokit({
+			...options,
+			request: {
+				fetch: proxyFetch,
+			},
+		});
+	}
+	return new Octokit(options);
+}
 
 export async function markNotficationAsRead(
 	note: Note,
 	account: AccountInfo
 ): Promise<void> {
-	const octokit = new Octokit({
-		auth: account.apiKey,
-		baseUrl: account.serverUrl,
-		userAgent,
-	});
+	const octokit = createOctokit(account);
 	try {
 		const threadUrl = new URL(note.url);
 		const threadUrlPath = threadUrl.pathname;
@@ -27,11 +51,7 @@ export async function markNotficationAsRead(
 export async function fetchNotificationsForAccount(
 	account: AccountInfo
 ): Promise<Note[]> {
-	const octokit = new Octokit({
-		auth: account.apiKey,
-		baseUrl: account.serverUrl,
-		userAgent,
-	});
+	const octokit = createOctokit(account);
 	const notificationsResponse =
 		await octokit.rest.activity.listNotificationsForAuthenticatedUser({
 			all: false,
