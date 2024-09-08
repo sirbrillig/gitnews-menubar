@@ -26,7 +26,7 @@ const debug = debugFactory('gitnews-menubar');
 
 let currentDemoNotifications = createDemoNotifications();
 
-const defaultAccountInfo = {
+export const defaultAccountInfo = {
 	id: 'main-github-api',
 	serverUrl: 'https://api.github.com',
 	apiKey: '',

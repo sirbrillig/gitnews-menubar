@@ -44,6 +44,8 @@ export interface Note {
 	subjectUrl: string;
 	commentAvatar?: string;
 	repositoryOwnerAvatar?: string;
+
+	gitnewsAccountId: AccountInfo['id'];
 }
 
 export interface AccountInfo {

@@ -54,6 +54,7 @@ export async function fetchNotificationsForAccount(
 		}
 
 		notes.push({
+			gitnewsAccountId: account.id,
 			id: notification.id,
 			title: notification.subject.title,
 			unread: notification.unread,
