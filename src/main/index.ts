@@ -22,6 +22,7 @@ import debugFactory from 'debug';
 import AutoLaunch from 'easy-auto-launch';
 import dotEnv from 'dotenv';
 import {
+	fetchImage,
 	fetchNotificationsForAccount,
 	markNotficationAsRead,
 } from './lib/github-interface';
@@ -159,6 +160,13 @@ ipcMain.handle('version:get', async () => {
 ipcMain.handle('is-demo-mode:get', async () => {
 	return Boolean(process.env.GITNEWS_DEMO_MODE);
 });
+
+ipcMain.handle(
+	'image:get',
+	async (_event, account: AccountInfo, url: string) => {
+		return fetchImage(account, url);
+	}
+);
 
 ipcMain.handle(
 	'notifications-for-account:get',

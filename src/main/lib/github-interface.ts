@@ -46,12 +46,16 @@ function makeProxyFetch(proxyUrl: string) {
 	};
 }
 
-function createOctokit(account: AccountInfo) {
-	const options = {
+function getFetchOptionsForAccount(account: AccountInfo) {
+	return {
 		auth: account.apiKey,
 		baseUrl: getBaseUrlForServer(account),
 		userAgent,
 	};
+}
+
+function createOctokit(account: AccountInfo) {
+	const options = getFetchOptionsForAccount(account);
 	if (account.proxyUrl) {
 		const proxyFetch = makeProxyFetch(account.proxyUrl);
 		return new Octokit({
@@ -80,6 +84,23 @@ function getOctokitRequestPathFromUrl(
 ): string {
 	const baseUrl = getBaseUrlForServer(account) ?? mainGithubApiUrl;
 	return urlString.replace(baseUrl, '');
+}
+
+export async function fetchImage(
+	account: AccountInfo,
+	url: string
+): Promise<string> {
+	if (!account.proxyUrl) {
+		return '';
+	}
+	// FIXME: this doesn't work. It seems to get a 302 redirect to the login
+	// page. I guess the proxy isn't enough to get the images and we also need a
+	// cookie.
+	const proxyFetch = makeProxyFetch(account.proxyUrl);
+	const options = getFetchOptionsForAccount(account);
+	const result = await proxyFetch(url, options);
+	const blob = await result.blob();
+	return blob.text();
 }
 
 export async function markNotficationAsRead(

@@ -25,6 +25,8 @@ const bridge: MainBridge = {
 	saveAccounts: (accounts: AccountInfo[]) =>
 		ipcRenderer.send('accounts:set', accounts),
 	getAccounts: () => ipcRenderer.invoke('accounts:get'),
+	getImageFromAccount: (account: AccountInfo, url: string) =>
+		ipcRenderer.invoke('image:get', account, url),
 };
 
 contextBridge.exposeInMainWorld('electronApi', bridge);

@@ -11,7 +11,9 @@ import {
 	MarkUnread,
 	MuteRepo,
 	UnmuteRepo,
+	AppReduxState,
 } from '../types';
+import { useSelector } from 'react-redux';
 
 const debug = debugFactory('gitnews-menubar');
 
@@ -44,6 +46,7 @@ export default function Notification({
 	isMultiOpenPending: boolean;
 	saveNoteToOpen: (n: Note) => void;
 }) {
+	const accounts = useSelector((state: AppReduxState) => state.accounts);
 	const isUnread =
 		note.unread === true ? true : note.gitnewsMarkedUnread === true;
 
@@ -122,6 +125,18 @@ export default function Notification({
 				</div>
 			</div>
 		);
+	}
+
+	const account = accounts.find((acc) => acc.id === note.gitnewsAccountId);
+	if (account) {
+		// FIXME: use this image as the avatar
+		window.electronApi
+			.getImageFromAccount(account, avatarSrc)
+			.then((imageSrc) => {
+				if (imageSrc.length > 0) {
+					console.log(imageSrc);
+				}
+			});
 	}
 
 	return (
