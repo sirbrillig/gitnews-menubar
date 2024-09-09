@@ -43,7 +43,6 @@ export type ActionMarkRead = {
 export type ActionMarkUnread = { type: 'MARK_NOTE_UNREAD'; note: Note };
 export type ActionClearErrors = { type: 'CLEAR_ERRORS' };
 export type ActionMarkAllNotesSeen = { type: 'MARK_ALL_NOTES_SEEN' };
-export type ActionChangeToken = { type: 'CHANGE_TOKEN'; token: string };
 export type ActionInitToken = { type: 'SET_INITIAL_TOKEN'; token: string };
 export type ActionSelectAccount = {
 	type: 'SELECT_ACCOUNT';
@@ -97,7 +96,6 @@ export type AppReduxAction =
 	| ActionMarkUnread
 	| ActionClearErrors
 	| ActionMarkAllNotesSeen
-	| ActionChangeToken
 	| ActionSetAccounts
 	| ActionInitToken
 	| ActionChangeToOffline

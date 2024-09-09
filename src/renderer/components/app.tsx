@@ -20,7 +20,6 @@ import {
 	fetchNotifications,
 	openUrl,
 	setIcon,
-	changeToken,
 	changeAutoLoad,
 	muteRepo,
 	unmuteRepo,
@@ -63,7 +62,6 @@ interface AppConnectedProps {
 }
 
 interface AppConnectedActions {
-	changeToken: (token: string) => void;
 	setIcon: (icon: IconType) => void;
 	openUrl: OpenUrl;
 	fetchNotifications: () => void;
@@ -327,7 +325,6 @@ const actions = {
 	fetchNotifications,
 	openUrl,
 	setIcon,
-	changeToken,
 	changeAutoLoad,
 	muteRepo,
 	unmuteRepo,

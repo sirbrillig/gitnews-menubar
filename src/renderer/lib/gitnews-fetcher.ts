@@ -38,6 +38,7 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 			if (!isDispatch(next)) {
 				throw new Error('Invalid dispatcher in fetcher');
 			}
+
 			if (action.type === 'MARK_NOTE_READ' && store.getState().isDemoMode) {
 				currentDemoNotifications = currentDemoNotifications.map((note) => {
 					if (note.id === action.note.id) {
@@ -48,27 +49,24 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 				return next(action);
 			}
 
-			if (action.type === 'CHANGE_TOKEN') {
-				debug('Token being changed; fetching with new token');
+			if (action.type === 'SET_ACCOUNTS') {
+				debug('Accounts changed; fetching with updated accounts');
 				window.electronApi.logMessage(
-					'Token being changed; fetching with new token',
+					'Accounts changed; fetching with updated accounts',
 					'info'
 				);
-				performFetch(
-					Object.assign({}, store.getState(), { token: action.token }),
-					next
-				);
+				performFetch(store.getState(), next);
 				return next(action);
 			}
 
-			if (action.type !== 'GITNEWS_FETCH_NOTIFICATIONS') {
-				return next(action);
+			if (action.type === 'GITNEWS_FETCH_NOTIFICATIONS') {
+				debug('Fetching accounts');
+				window.electronApi.logMessage('Fetching accounts', 'info');
+				performFetch(store.getState(), next);
+				return;
 			}
 
-			debug('fetching with existing token');
-			window.electronApi.logMessage('Fetching with existing token', 'info');
-			performFetch(store.getState(), next);
-			return;
+			return next(action);
 		};
 
 	async function performFetch(state: AppReduxState, next: AppDispatch) {

@@ -9,7 +9,6 @@ import {
 	AppReduxAction,
 	Note,
 	ActionSetAccounts,
-	ActionChangeToken,
 	ActionSetDemoMode,
 	ActionChangeToOffline,
 	ActionGotNotes,
@@ -121,11 +120,6 @@ export function createReducer() {
 					...state,
 					accounts: action.accounts,
 				};
-			case 'CHANGE_TOKEN':
-				return Object.assign({}, state, {
-					token: action.token,
-					isTokenInvalid: false,
-				});
 			case 'SELECT_ACCOUNT':
 				return {
 					...state,
@@ -211,10 +205,6 @@ export function clearErrors(): ActionClearErrors {
 
 export function markAllNotesSeen(): ActionMarkAllNotesSeen {
 	return { type: 'MARK_ALL_NOTES_SEEN' };
-}
-
-export function changeToken(token: string): ActionChangeToken {
-	return { type: 'CHANGE_TOKEN', token };
 }
 
 export function initToken(token: string): ActionInitToken {
