@@ -81,6 +81,11 @@ export default function AccountEdit({
 					/>
 				</div>
 				<div>
+					<p>
+						You must generate a GitHub authentication token so this app can see
+						your notifications. It will need the `notifications` and `repo`
+						scopes.
+					</p>
 					<label htmlFor="add-token-form__input">GitHub Token:</label>
 					<input
 						type="text"

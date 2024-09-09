@@ -9,7 +9,7 @@ import {
 import { menubar } from 'menubar';
 import isDev from 'electron-is-dev';
 import electronDebug from 'electron-debug';
-import { setToken, getToken, toggleLogging } from './lib/main-store';
+import { getToken, toggleLogging } from './lib/main-store';
 import { getIconForState } from './lib/icon-path';
 import { version } from '../../package.json';
 import unhandled from 'electron-unhandled';
@@ -116,15 +116,6 @@ ipcMain.on('open-url', (_event, url: unknown, options) => {
 
 ipcMain.on('quit-app', () => {
 	app.quit();
-});
-
-ipcMain.on('save-token', (_event, token: unknown) => {
-	if (typeof token !== 'string') {
-		logMessage('Failed to save token: it is invalid', 'error');
-		return;
-	}
-	setToken(token);
-	logMessage('Token saved', 'info');
 });
 
 const autoLauncher = new AutoLaunch({

@@ -1,7 +1,6 @@
 import {
 	PANE_CONFIG,
 	PANE_NOTIFICATIONS,
-	PANE_TOKEN,
 	PANE_MUTED_REPOS,
 	PANE_ACCOUNTS,
 	PANE_ACCOUNT_EDIT,
@@ -136,7 +135,6 @@ export type AppPane =
 	| typeof PANE_ACCOUNTS
 	| typeof PANE_ACCOUNT_EDIT
 	| typeof PANE_NOTIFICATIONS
-	| typeof PANE_TOKEN
 	| typeof PANE_CONFIG
 	| typeof PANE_MUTED_REPOS;
 
@@ -146,7 +144,6 @@ export interface MainBridge {
 	toggleLogging: (isLogging: boolean) => void;
 	toggleAutoLaunch: (isEnabled: boolean) => void;
 	openUrl: OpenUrl;
-	saveToken: (token: string) => void;
 	setIcon: (nextIcon: IconType) => void;
 	onHide: (callback: () => void) => void;
 	onShow: (callback: () => void) => void;

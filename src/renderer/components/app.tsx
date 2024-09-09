@@ -7,7 +7,6 @@ import MainPane from '../components/main-pane';
 import {
 	PANE_CONFIG,
 	PANE_NOTIFICATIONS,
-	PANE_TOKEN,
 	PANE_MUTED_REPOS,
 	PANE_ACCOUNTS,
 	PANE_ACCOUNT_EDIT,
@@ -215,8 +214,6 @@ class App extends React.Component<AppProps, AppState> {
 		const showAccounts = () => this.setState({ currentPane: PANE_ACCOUNTS });
 		const showAccountEdit = () =>
 			this.setState({ currentPane: PANE_ACCOUNT_EDIT });
-		const showEditToken = () => this.setState({ currentPane: PANE_TOKEN });
-		const hideEditToken = () => this.setState({ currentPane: PANE_CONFIG });
 		const showMutedReposList = () =>
 			this.setState({ currentPane: PANE_MUTED_REPOS });
 		const setSearchTo = (value: string) =>
@@ -282,10 +279,7 @@ class App extends React.Component<AppProps, AppState> {
 					lastSuccessfulCheck={lastSuccessfulCheck}
 					fetchingInProgress={fetchingInProgress}
 					openUrl={this.props.openUrl}
-					changeToken={this.props.changeToken}
 					quitApp={this.props.quitApp}
-					hideEditToken={hideEditToken}
-					showEditToken={showEditToken}
 					showAccounts={showAccounts}
 					showAccountEdit={showAccountEdit}
 					markRead={this.props.markRead}

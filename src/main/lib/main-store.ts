@@ -16,10 +16,6 @@ export function getToken(): string {
 	return store.get('gitnews-token');
 }
 
-export function setToken(token: string): void {
-	store.set('gitnews-token', token);
-}
-
 export function isLoggingEnabled(): boolean {
 	return store.get('is-logging-enabled');
 }

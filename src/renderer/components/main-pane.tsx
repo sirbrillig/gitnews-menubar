@@ -1,15 +1,14 @@
 import React from 'react';
 import ConfigPage from '../components/config-page';
 import UncheckedNotice from '../components/unchecked-notice';
-import AddTokenForm from '../components/add-token-form';
 import NotificationsArea from '../components/notifications-area';
 import MutedReposList from '../components/muted-repos-list';
 import {
 	PANE_CONFIG,
-	PANE_TOKEN,
 	PANE_MUTED_REPOS,
 	PANE_ACCOUNTS,
 	PANE_ACCOUNT_EDIT,
+	defaultAccountInfo,
 } from '../lib/constants';
 import {
 	AppReduxState,
@@ -32,10 +31,7 @@ export default function MainPane({
 	isTokenInvalid,
 	currentPane,
 	openUrl,
-	changeToken,
 	quitApp,
-	hideEditToken,
-	showEditToken,
 	showAccounts,
 	showAccountEdit,
 	showMutedReposList,
@@ -60,10 +56,7 @@ export default function MainPane({
 	token: string;
 	currentPane: AppPane;
 	openUrl: OpenUrl;
-	changeToken: (token: string) => void;
 	quitApp: () => void;
-	hideEditToken: () => void;
-	showEditToken: () => void;
 	showAccounts: () => void;
 	showAccountEdit: () => void;
 	showMutedReposList: () => void;
@@ -90,17 +83,9 @@ export default function MainPane({
 	const selectedAccount = useSelector(
 		(state: AppReduxState) => state.selectedAccount
 	);
-	if (!token || isTokenInvalid || currentPane === PANE_TOKEN) {
-		// FIXME: replace this with account edit page
+	if (!token || isTokenInvalid) {
 		return (
-			<AddTokenForm
-				token={token}
-				openUrl={openUrl}
-				changeToken={changeToken}
-				hideEditToken={hideEditToken}
-				showCancel={currentPane === PANE_TOKEN}
-				isTokenInvalid={isTokenInvalid}
-			/>
+			<AccountEdit account={defaultAccountInfo} showAccounts={showAccounts} />
 		);
 	}
 	if (currentPane === PANE_MUTED_REPOS) {
