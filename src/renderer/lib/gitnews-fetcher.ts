@@ -18,7 +18,13 @@ import {
 	addConnectionError,
 	setIsTokenInvalid,
 } from '../lib/reducer';
-import { AccountInfo, AppReduxState, Note, UnknownFetchError } from '../types';
+import {
+	AccountInfo,
+	AppReduxState,
+	FetchErrorObject,
+	Note,
+	UnknownFetchError,
+} from '../types';
 import { AppDispatch } from './store';
 import { createDemoNotifications } from './demo-mode';
 
@@ -118,13 +124,13 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 			next(fetchDone());
 			next(gotNotes(notes));
 		} catch (err) {
-			debug('fetching notifications threw an error', err);
+			debug('Fetching notifications threw an error', err);
 			window.electronApi.logMessage(
 				`Fetching notifications threw an error`,
 				'warn'
 			);
 			next(fetchDone());
-			getErrorHandler(next)(err as Error);
+			getErrorHandler(next)(err as FetchErrorObject);
 		}
 	}
 
@@ -139,6 +145,9 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 			let allNotes: Note[] = [];
 			for (const account of accounts) {
 				const notes = await fetchNotifications(account);
+				if ('error' in notes) {
+					throw notes.error;
+				}
 				allNotes = [...allNotes, ...notes];
 			}
 			return allNotes;
@@ -148,7 +157,9 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 	return fetcher;
 }
 
-async function fetchNotifications(account: AccountInfo): Promise<Note[]> {
+async function fetchNotifications(
+	account: AccountInfo
+): Promise<Note[] | { error: Error }> {
 	return window.electronApi.getNotificationsForAccount(account);
 }
 
@@ -162,13 +173,12 @@ async function getDemoNotifications(): Promise<Note[]> {
 
 export function getErrorHandler(dispatch: AppDispatch) {
 	return function handleFetchError(err: UnknownFetchError) {
-		// FIXME: handle invalid token for any account
 		if (typeof err === 'object' && isTokenInvalid(err)) {
-			const message = 'Notifications check failed the token is invalid';
+			const message = `Notifications check failed because the token is invalid for '${err.accountId ?? 'unknown'}'`;
 			debug(message);
 			window.electronApi.logMessage(message, 'warn');
 			dispatch(changeToOffline());
-			dispatch(setIsTokenInvalid(true));
+			dispatch(setIsTokenInvalid(err.accountId ?? 'unknown', true));
 			return;
 		}
 
@@ -221,7 +231,7 @@ export function getErrorHandler(dispatch: AppDispatch) {
 		window.electronApi.logMessage(message, 'error');
 		const errorString = 'Error fetching notifications: ' + getErrorMessage(err);
 		console.error(errorString); //eslint-disable-line no-console
-		console.error(err); //eslint-disable-line no-console
+		console.error('Raw error:', err); //eslint-disable-line no-console
 		dispatch(addConnectionError(errorString));
 	};
 }

@@ -7,7 +7,8 @@ import FetchingInProgress from '../components/fetching-in-progress';
 import createUpdater from '../components/updater';
 import FilterButton from './filter-button';
 import { PANE_NOTIFICATIONS } from '../lib/constants';
-import { AppPane, FilterType } from '../types';
+import { AppPane, AppReduxState, FilterType } from '../types';
+import { useSelector } from 'react-redux';
 
 const UpdatingLastChecked = createUpdater(LastChecked);
 const UpdatingOfflineNotice = createUpdater(OfflineNotice);
@@ -88,7 +89,7 @@ export default function Header({
 				fetchingInProgress={fetchingInProgress}
 				lastSuccessfulCheck={lastSuccessfulCheck}
 			/>
-			{isTokenInvalid && <InvalidTokenNotice />}
+			{isTokenInvalid && !fetchingInProgress && <InvalidTokenNotice />}
 			{!isTokenInvalid && offline && (
 				<UpdatingOfflineNotice
 					fetchNotifications={fetchNotifications}
@@ -125,10 +126,16 @@ function SecondaryHeader({
 }
 
 function InvalidTokenNotice() {
+	const accounts = useSelector((state: AppReduxState) => state.accounts);
+	const accountNames = accounts
+		.filter((account) => account.isInvalid)
+		.map((account) => account.name)
+		.join(', ');
 	return (
 		<div className="offline-notice">
 			<span>
-				The token is not working. Please double-check that it is correct!
+				Some of your accounts are not working: '{accountNames}'. Please
+				double-check your info!
 			</span>
 		</div>
 	);

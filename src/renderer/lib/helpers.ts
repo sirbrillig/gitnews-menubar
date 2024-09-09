@@ -91,7 +91,7 @@ export function isTokenInvalid(error: UnknownFetchError): boolean {
 	return Boolean(
 		typeof error === 'object' &&
 			error.status &&
-			error.status.toString() === '401'
+			error.status.toString().startsWith('4')
 	);
 }
 

@@ -5,9 +5,14 @@ import {
 	PANE_ACCOUNTS,
 	PANE_ACCOUNT_EDIT,
 } from './lib/constants';
-import type { NoteReason, Note, AccountInfo } from '../shared-types';
+import type {
+	NoteReason,
+	Note,
+	AccountInfo,
+	FetchErrorObject,
+} from '../shared-types';
 
-export type { NoteReason, Note, AccountInfo };
+export type { NoteReason, Note, AccountInfo, FetchErrorObject };
 
 export type FilterType = NoteReason | 'all';
 
@@ -58,6 +63,7 @@ export type ActionSetAccounts = {
 };
 export type ActionToggleTokenInvalid = {
 	type: 'SET_TOKEN_INVALID';
+	accountId: string;
 	isInvalid: boolean;
 };
 export type ActionToggleLogging = {
@@ -153,22 +159,14 @@ export interface MainBridge {
 	onClick: (callback: () => void) => void;
 	getToken: () => Promise<string>;
 	getVersion: () => Promise<string>;
-	getNotificationsForAccount: (account: AccountInfo) => Promise<Note[]>;
+	getNotificationsForAccount: (
+		account: AccountInfo
+	) => Promise<Note[] | { error: Error }>;
 	markNotificationRead: (note: Note, account: AccountInfo) => void;
 	isDemoMode: () => Promise<boolean>;
 	isAutoLaunchEnabled: () => Promise<boolean>;
 	saveAccounts: (accounts: AccountInfo[]) => void;
 	getAccounts: () => Promise<AccountInfo[]>;
-}
-
-export interface FetchErrorObject {
-	code?: string;
-	name?: string;
-	message?: string;
-	statusText?: string;
-	status?: number;
-	url?: string;
-	type?: string;
 }
 
 export type UnknownFetchError = FetchErrorObject | string;

@@ -55,4 +55,16 @@ export interface AccountInfo {
 	apiKey: string;
 	serverUrl: string;
 	proxyUrl?: string;
+	isInvalid?: boolean;
+}
+
+export interface FetchErrorObject {
+	code?: string;
+	name?: string;
+	message?: string;
+	statusText?: string;
+	status?: number;
+	url?: string;
+	type?: string;
+	accountId: string;
 }
