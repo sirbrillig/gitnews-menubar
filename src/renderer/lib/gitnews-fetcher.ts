@@ -70,6 +70,7 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 				return next(action);
 			}
 
+			// FIXME: why does this trigger so many times during a fetch?
 			if (action.type === 'GITNEWS_FETCH_NOTIFICATIONS') {
 				debug('Fetching accounts');
 				window.electronApi.logMessage('Fetching accounts', 'info');
@@ -144,6 +145,10 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 		return async () => {
 			let allNotes: Note[] = [];
 			for (const account of accounts) {
+				window.electronApi.logMessage(
+					`Fetching notifications for ${account.name} (${account.serverUrl})`,
+					'info'
+				);
 				const notes = await fetchNotifications(account);
 				if ('error' in notes) {
 					throw notes.error;
