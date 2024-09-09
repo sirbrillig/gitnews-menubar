@@ -9,19 +9,19 @@ import {
 import { menubar } from 'menubar';
 import isDev from 'electron-is-dev';
 import electronDebug from 'electron-debug';
-import {
-	setToken,
-	getToken,
-	isLoggingEnabled,
-	toggleLogging,
-} from './lib/main-store';
+import { getToken, toggleLogging } from './lib/main-store';
 import { getIconForState } from './lib/icon-path';
 import { version } from '../../package.json';
 import unhandled from 'electron-unhandled';
 import debugFactory from 'debug';
-import log from 'electron-log';
 import AutoLaunch from 'easy-auto-launch';
 import dotEnv from 'dotenv';
+import {
+	fetchNotificationsForAccount,
+	markNotficationAsRead,
+} from './lib/github-interface';
+import { logMessage } from './lib/logging';
+import type { AccountInfo, Note } from '../shared-types';
 
 // These are provided by electron forge
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -40,27 +40,6 @@ unhandled();
 electronDebug();
 
 let lastIconState = 'loading';
-
-// Only use this function for logging!
-function logMessage(message: string, level: 'info' | 'warn' | 'error'): void {
-	debug(message);
-	if (!isLoggingEnabled()) {
-		return;
-	}
-	switch (level) {
-		case 'info':
-			log.info(message);
-			break;
-		case 'warn':
-			log.warn(message);
-			break;
-		case 'error':
-			log.error(message);
-			break;
-		default:
-			log.error(`Unknown log level '${level}': ${message}`);
-	}
-}
 
 const bar = menubar({
 	preloadWindow: true,
@@ -139,15 +118,6 @@ ipcMain.on('quit-app', () => {
 	app.quit();
 });
 
-ipcMain.on('save-token', (_event, token: unknown) => {
-	if (typeof token !== 'string') {
-		logMessage('Failed to save token: it is invalid', 'error');
-		return;
-	}
-	setToken(token);
-	logMessage('Token saved', 'info');
-});
-
 const autoLauncher = new AutoLaunch({
 	name: 'Gitnews',
 });
@@ -176,6 +146,20 @@ ipcMain.handle('version:get', async () => {
 ipcMain.handle('is-demo-mode:get', async () => {
 	return Boolean(process.env.GITNEWS_DEMO_MODE);
 });
+
+ipcMain.handle(
+	'notifications-for-account:get',
+	async (_event, account: AccountInfo) => {
+		return fetchNotificationsForAccount(account);
+	}
+);
+
+ipcMain.handle(
+	'mark-note-as-read',
+	async (_event, note: Note, account: AccountInfo) => {
+		return markNotficationAsRead(note, account);
+	}
+);
 
 function setIcon(type?: string) {
 	if (!type) {

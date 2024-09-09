@@ -10,12 +10,6 @@ export const configMiddleware: Middleware<{}, AppReduxState> =
 			);
 		}
 		switch (action.type) {
-			case 'SET_INITIAL_TOKEN':
-				window.electronApi.saveToken(action.token);
-				break;
-			case 'CHANGE_TOKEN':
-				window.electronApi.saveToken(action.token);
-				break;
 			case 'CHANGE_AUTO_LOAD':
 				window.electronApi.toggleAutoLaunch(action.isEnabled);
 				break;

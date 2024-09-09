@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { IconType, MainBridge } from './renderer/types';
+import { AccountInfo, IconType, MainBridge, Note } from './renderer/types';
 
 const bridge: MainBridge = {
 	quitApp: () => ipcRenderer.send('quit-app'),
@@ -10,7 +10,6 @@ const bridge: MainBridge = {
 	toggleAutoLaunch: (isEnabled: boolean) =>
 		ipcRenderer.send('toggle-auto-launch', isEnabled),
 	openUrl: (url: string) => ipcRenderer.send('open-url', url),
-	saveToken: (token: string) => ipcRenderer.send('save-token', token),
 	setIcon: (nextIcon: IconType) => ipcRenderer.send('set-icon', nextIcon),
 	onHide: (callback: () => void) => ipcRenderer.on('hide-app', callback),
 	onShow: (callback: () => void) => ipcRenderer.on('show-app', callback),
@@ -19,6 +18,10 @@ const bridge: MainBridge = {
 	getVersion: () => ipcRenderer.invoke('version:get'),
 	isDemoMode: () => ipcRenderer.invoke('is-demo-mode:get'),
 	isAutoLaunchEnabled: () => ipcRenderer.invoke('is-auto-launch:get'),
+	getNotificationsForAccount: (account: AccountInfo) =>
+		ipcRenderer.invoke('notifications-for-account:get', account),
+	markNotificationRead: (note: Note, account: AccountInfo) =>
+		ipcRenderer.invoke('mark-note-as-read', note, account),
 };
 
 contextBridge.exposeInMainWorld('electronApi', bridge);

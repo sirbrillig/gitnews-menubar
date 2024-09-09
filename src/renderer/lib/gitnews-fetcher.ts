@@ -10,7 +10,6 @@ import {
 	isInvalidJson,
 	isTokenInvalid,
 } from '../lib/helpers';
-import { createNoteGetter } from 'gitnews';
 import {
 	changeToOffline,
 	fetchBegin,
@@ -19,7 +18,7 @@ import {
 	addConnectionError,
 	setIsTokenInvalid,
 } from '../lib/reducer';
-import { AppReduxState, Note, UnknownFetchError } from '../types';
+import { AccountInfo, AppReduxState, Note, UnknownFetchError } from '../types';
 import { AppDispatch } from './store';
 import { createDemoNotifications } from './demo-mode';
 
@@ -38,6 +37,7 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 			if (!isDispatch(next)) {
 				throw new Error('Invalid dispatcher in fetcher');
 			}
+
 			if (action.type === 'MARK_NOTE_READ' && store.getState().isDemoMode) {
 				currentDemoNotifications = currentDemoNotifications.map((note) => {
 					if (note.id === action.note.id) {
@@ -48,36 +48,31 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 				return next(action);
 			}
 
-			if (action.type === 'CHANGE_TOKEN') {
-				debug('Token being changed; fetching with new token');
+			if (action.type === 'SET_ACCOUNTS') {
+				debug('Accounts changed; fetching with updated accounts');
 				window.electronApi.logMessage(
-					'Token being changed; fetching with new token',
+					'Accounts changed; fetching with updated accounts',
 					'info'
 				);
-				performFetch(
-					Object.assign({}, store.getState(), { token: action.token }),
-					next
-				);
+				performFetch(store.getState(), next);
 				return next(action);
 			}
 
-			if (action.type !== 'GITNEWS_FETCH_NOTIFICATIONS') {
-				return next(action);
+			if (action.type === 'GITNEWS_FETCH_NOTIFICATIONS') {
+				debug('Fetching accounts');
+				window.electronApi.logMessage('Fetching accounts', 'info');
+				performFetch(store.getState(), next);
+				return;
 			}
 
-			debug('fetching with existing token');
-			window.electronApi.logMessage('Fetching with existing token', 'info');
-			performFetch(store.getState(), next);
-			return;
+			return next(action);
 		};
 
-	async function performFetch(
-		{ fetchingInProgress, token, fetchingStartedAt, isDemoMode }: AppReduxState,
-		next: AppDispatch
-	) {
+	async function performFetch(state: AppReduxState, next: AppDispatch) {
 		const fetchingMaxTime = secsToMs(120); // 2 minutes
-		if (fetchingInProgress) {
-			const timeSinceFetchingStarted = Date.now() - (fetchingStartedAt || 0);
+		if (state.fetchingInProgress) {
+			const timeSinceFetchingStarted =
+				Date.now() - (state.fetchingStartedAt || 0);
 			if (timeSinceFetchingStarted > fetchingMaxTime) {
 				const message = `It has been too long since we started fetching (${timeSinceFetchingStarted} ms). Giving up.`;
 				debug(message);
@@ -97,7 +92,7 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 			next(changeToOffline());
 			return;
 		}
-		if (!token) {
+		if (!state.token) {
 			next(changeToOffline());
 			return;
 		}
@@ -105,12 +100,13 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 		// NOTE: After this point, any return action MUST disable fetchingInProgress
 		// or the app will get stuck never updating again.
 		next(fetchBegin());
-		const getGithubNotifications = getFetcher(token, isDemoMode);
+
+		const getGithubNotifications = getFetcher(state.accounts, state.isDemoMode);
 		try {
 			const notes = await getGithubNotifications();
 			debug('notifications retrieved', notes);
 			window.electronApi.logMessage(
-				`Notifications retrieved (${notes.length} found)`,
+				`Notifications retrieved (${notes.length} found in ${state.accounts.length} accounts)`,
 				'info'
 			);
 			next(fetchDone());
@@ -122,28 +118,32 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 				'warn'
 			);
 			next(fetchDone());
-			getErrorHandler(next)(err as Error, token);
+			getErrorHandler(next)(err as Error, state.token);
 		}
 	}
 
-	const getNotifications = createNoteGetter({
-		fetch: (url, options) => fetch(url, options),
-		log: (message) => {
-			console.log('Gitnews: ' + message);
-		},
-	});
-
 	function getFetcher(
-		token: string,
+		accounts: AccountInfo[],
 		isDemoMode: boolean
 	): () => Promise<Note[]> {
 		if (isDemoMode) {
 			return () => getDemoNotifications();
 		}
-		return () => getNotifications(token);
+		return async () => {
+			let allNotes: Note[] = [];
+			for (const account of accounts) {
+				const notes = await fetchNotifications(account);
+				allNotes = [...allNotes, ...notes];
+			}
+			return allNotes;
+		};
 	}
 
 	return fetcher;
+}
+
+async function fetchNotifications(account: AccountInfo): Promise<Note[]> {
+	return window.electronApi.getNotificationsForAccount(account);
 }
 
 async function getDemoNotifications(): Promise<Note[]> {

@@ -1,16 +1,10 @@
 // require('dotenv').config();
 
 import { Middleware } from 'redux';
-import { AppReduxState } from '../types';
+import type { AccountInfo, AppReduxState, Note } from '../types';
 import { isAction } from './helpers';
-import { createNoteMarkRead, Note } from 'gitnews';
 
 export function createGitHubMiddleware(): Middleware<{}, AppReduxState> {
-	const markNotificationRead = createNoteMarkRead({
-		fetch: (url, options) => fetch(url, options),
-		log: (message) => console.log('Gitnews: ' + message),
-	});
-
 	return (store) => (next) => (action) => {
 		if (!isAction(action)) {
 			throw new Error(
@@ -24,13 +18,26 @@ export function createGitHubMiddleware(): Middleware<{}, AppReduxState> {
 					next(action);
 					return;
 				}
-				markNoteRead(action.token, action.note);
+				const account = store
+					.getState()
+					.accounts.find(
+						(account) => account.id === action.note.gitnewsAccountId
+					);
+				if (!account) {
+					console.error(
+						'Cannot find account for notification to mark as read',
+						action.note
+					);
+
+					return;
+				}
+				markNoteRead(action.note, account);
 			}
 		}
 		next(action);
 	};
 
-	function markNoteRead(token: string, note: Note) {
-		markNotificationRead(token, note);
+	function markNoteRead(note: Note, account: AccountInfo) {
+		window.electronApi.markNotificationRead(note, account);
 	}
 }

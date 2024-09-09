@@ -1,4 +1,5 @@
 import { Note } from '../types';
+import { defaultAccountInfo } from './constants';
 import { words } from './random-words';
 
 const hourInMiliseconds = 3600000;
@@ -24,6 +25,8 @@ function createDemoNotification(initialDate: Date): Note {
 	const isUnread = randomNumber(1, 2) === 1;
 
 	return {
+		gitnewsAccountId: defaultAccountInfo.id,
+		url: '',
 		updatedAt: new Date(
 			initialDate.getTime() - hourInMiliseconds * randomNumber(1, 23)
 		).toISOString(),

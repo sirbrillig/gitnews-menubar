@@ -1,10 +1,15 @@
 import React from 'react';
 import ConfigPage from '../components/config-page';
 import UncheckedNotice from '../components/unchecked-notice';
-import AddTokenForm from '../components/add-token-form';
 import NotificationsArea from '../components/notifications-area';
 import MutedReposList from '../components/muted-repos-list';
-import { PANE_CONFIG, PANE_TOKEN, PANE_MUTED_REPOS } from '../lib/constants';
+import {
+	PANE_CONFIG,
+	PANE_MUTED_REPOS,
+	PANE_ACCOUNTS,
+	PANE_ACCOUNT_EDIT,
+	defaultAccountInfo,
+} from '../lib/constants';
 import {
 	AppReduxState,
 	ChangeAutoload,
@@ -17,16 +22,20 @@ import {
 	UnmuteRepo,
 } from '../types';
 import { AppPane } from '../types';
+import AccountList from './account-list';
+import { useSelector } from 'react-redux';
+import AccountEdit from './account-edit';
+import { useDispatch } from 'react-redux';
+import { setAccounts } from '../lib/reducer';
 
 export default function MainPane({
 	token,
 	isTokenInvalid,
 	currentPane,
 	openUrl,
-	changeToken,
 	quitApp,
-	hideEditToken,
-	showEditToken,
+	showAccounts,
+	showAccountEdit,
 	showMutedReposList,
 	lastSuccessfulCheck,
 	getVersion,
@@ -49,10 +58,9 @@ export default function MainPane({
 	token: string;
 	currentPane: AppPane;
 	openUrl: OpenUrl;
-	changeToken: (token: string) => void;
 	quitApp: () => void;
-	hideEditToken: () => void;
-	showEditToken: () => void;
+	showAccounts: () => void;
+	showAccountEdit: () => void;
 	showMutedReposList: () => void;
 	lastSuccessfulCheck: AppReduxState['lastSuccessfulCheck'];
 	getVersion: () => Promise<string>;
@@ -73,26 +81,50 @@ export default function MainPane({
 	toggleLogging: (newValue: boolean) => void;
 	isTokenInvalid: boolean;
 }) {
-	if (!token || isTokenInvalid || currentPane === PANE_TOKEN) {
+	const accounts = useSelector((state: AppReduxState) => state.accounts);
+	const dispatch = useDispatch();
+	const selectedAccount = useSelector(
+		(state: AppReduxState) => state.selectedAccount
+	);
+
+	if (accounts.length === 0 && token) {
+		// Migrate old single-token system to account.
+		const migratedAccount = {
+			...defaultAccountInfo,
+			apiKey: token,
+		};
+		dispatch(setAccounts([migratedAccount]));
 		return (
-			<AddTokenForm
-				token={token}
-				openUrl={openUrl}
-				changeToken={changeToken}
-				hideEditToken={hideEditToken}
-				showCancel={currentPane === PANE_TOKEN}
-				isTokenInvalid={isTokenInvalid}
-			/>
+			<div>
+				<div>Migrating to account system…</div>
+				<div>If you see this for more than a moment, something is wrong.</div>
+			</div>
+		);
+	}
+
+	if (accounts.length === 0) {
+		return (
+			<AccountEdit account={defaultAccountInfo} showAccounts={showAccounts} />
 		);
 	}
 	if (currentPane === PANE_MUTED_REPOS) {
 		return <MutedReposList mutedRepos={mutedRepos} unmuteRepo={unmuteRepo} />;
 	}
+	if (currentPane === PANE_ACCOUNT_EDIT && selectedAccount) {
+		return (
+			<AccountEdit account={selectedAccount} showAccounts={showAccounts} />
+		);
+	}
+	if (currentPane === PANE_ACCOUNTS) {
+		return (
+			<AccountList accounts={accounts} showAccountEdit={showAccountEdit} />
+		);
+	}
 	if (currentPane === PANE_CONFIG) {
 		return (
 			<ConfigPage
 				openUrl={openUrl}
-				showEditToken={showEditToken}
+				showAccounts={showAccounts}
 				showMutedReposList={showMutedReposList}
 				getVersion={getVersion}
 				quitApp={quitApp}

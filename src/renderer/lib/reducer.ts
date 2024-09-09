@@ -8,7 +8,7 @@ import {
 	AppReduxState,
 	AppReduxAction,
 	Note,
-	ActionChangeToken,
+	ActionSetAccounts,
 	ActionSetDemoMode,
 	ActionChangeToOffline,
 	ActionGotNotes,
@@ -24,6 +24,8 @@ import {
 	ActionInitToken,
 	FilterType,
 	ActionToggleTokenInvalid,
+	AccountInfo,
+	ActionSelectAccount,
 } from '../types';
 
 const defaultFetchInterval = secsToMs(120);
@@ -46,6 +48,8 @@ const initialState: AppReduxState = {
 	isDemoMode: false,
 	isLogging: false,
 	isTokenInvalid: false,
+	accounts: [],
+	selectedAccount: undefined,
 };
 
 export function createReducer() {
@@ -111,11 +115,16 @@ export function createReducer() {
 					);
 				return Object.assign({}, state, { notes });
 			}
-			case 'CHANGE_TOKEN':
-				return Object.assign({}, state, {
-					token: action.token,
-					isTokenInvalid: false,
-				});
+			case 'SET_ACCOUNTS':
+				return {
+					...state,
+					accounts: action.accounts,
+				};
+			case 'SELECT_ACCOUNT':
+				return {
+					...state,
+					selectedAccount: action.account,
+				};
 			case 'SET_INITIAL_TOKEN':
 				return Object.assign({}, state, {
 					token: action.token,
@@ -178,6 +187,10 @@ export function unmuteRepo(repo: string): ActionUnmuteRepo {
 	return { type: 'UNMUTE_REPO', repo };
 }
 
+export function setAccounts(accounts: AccountInfo[]): ActionSetAccounts {
+	return { type: 'SET_ACCOUNTS', accounts };
+}
+
 export function markRead(token: string, note: Note): ActionMarkRead {
 	return { type: 'MARK_NOTE_READ', token, note };
 }
@@ -194,12 +207,12 @@ export function markAllNotesSeen(): ActionMarkAllNotesSeen {
 	return { type: 'MARK_ALL_NOTES_SEEN' };
 }
 
-export function changeToken(token: string): ActionChangeToken {
-	return { type: 'CHANGE_TOKEN', token };
-}
-
 export function initToken(token: string): ActionInitToken {
 	return { type: 'SET_INITIAL_TOKEN', token };
+}
+
+export function selectAccount(account: AccountInfo): ActionSelectAccount {
+	return { type: 'SELECT_ACCOUNT', account };
 }
 
 export function setIsDemoMode(isDemoMode: boolean): ActionSetDemoMode {
