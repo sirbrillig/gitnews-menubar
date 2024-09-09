@@ -150,6 +150,15 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 				}
 				allNotes = [...allNotes, ...notes];
 			}
+			allNotes.sort((a, b) => {
+				if (a.updatedAt < b.updatedAt) {
+					return 1;
+				}
+				if (a.updatedAt > b.updatedAt) {
+					return -1;
+				}
+				return 0;
+			});
 			return allNotes;
 		};
 	}
