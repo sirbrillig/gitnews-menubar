@@ -234,27 +234,39 @@ export async function fetchNotificationsForAccount(
 
 	const notes: Note[] = [];
 
-	// FIXME: do these fetches in parallel instead of serial
+	// We need to make more requests to get the details of each notification. Do
+	// these fetches in parallel.
+	let promises = [];
 	for (const notification of notificationsResponse.data) {
-		const commentData = await getCommentDataForNotification(
+		logMessage(
+			`Fetching additional details for notification ${notification.id}`,
+			'info'
+		);
+		const commentPromise = getCommentDataForNotification(
 			octokit,
 			account,
 			notification
 		);
-		const subjectData = await getSubjectDataForNotification(
+		const subjectPromise = getSubjectDataForNotification(
 			octokit,
 			account,
 			notification
 		);
-		notes.push(
-			buildNoteFromData({
-				account,
-				notification,
-				subjectData,
-				commentData,
-			})
-		);
+		const promise = Promise.all([commentPromise, subjectPromise]);
+		promises.push(promise);
+		promise.then(([commentData, subjectData]) => {
+			notes.push(
+				buildNoteFromData({
+					account,
+					notification,
+					subjectData,
+					commentData,
+				})
+			);
+		});
 	}
+
+	await Promise.all(promises);
 
 	return notes;
 }
