@@ -22,6 +22,14 @@ function getMatchingPrevNote(prevNotes: Note[], note: Note): Note | undefined {
 	return prevNotes.find((prevNote) => getNoteId(prevNote) === getNoteId(note));
 }
 
+/**
+ * Return all the new notes, but if they match one of the previous notes,
+ * update the new note's "seen" and "unread" properties to match those of the
+ * previous note.
+ *
+ * This allows updated unread notes which have been "seen" to retain that
+ * property if the user has already seen them.
+ */
 export function mergeNotifications(
 	prevNotes: Note[],
 	nextNotes: Note[]

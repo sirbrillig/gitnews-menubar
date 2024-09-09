@@ -107,11 +107,12 @@ export async function fetchNotificationsForAccount(
 	const octokit = createOctokit(account);
 	const notificationsResponse =
 		await octokit.rest.activity.listNotificationsForAuthenticatedUser({
-			all: false,
+			all: true,
 		});
 
 	const notes: Note[] = [];
 
+	// FIXME: do these fetches in parallel instead of serial
 	for (const notification of notificationsResponse.data) {
 		let commentAvatar: string;
 		let commentHtmlUrl: string;
