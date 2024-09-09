@@ -7,26 +7,41 @@ export function getNoteId(note: Note) {
 	return note.id;
 }
 
+function hasNoteUpdated(note: Note, prevNote: Note): boolean {
+	if (
+		note.updatedAt &&
+		prevNote.gitnewsSeenAt &&
+		Date.parse(note.updatedAt) > prevNote.gitnewsSeenAt
+	) {
+		return true;
+	}
+	return false;
+}
+
+function getMatchingPrevNote(prevNotes: Note[], note: Note): Note | undefined {
+	return prevNotes.find((prevNote) => getNoteId(prevNote) === getNoteId(note));
+}
+
+/**
+ * Return all the new notes, but if they match one of the previous notes,
+ * update the new note's "seen" and "unread" properties to match those of the
+ * previous note.
+ *
+ * This allows updated unread notes which have been "seen" to retain that
+ * property if the user has already seen them.
+ */
 export function mergeNotifications(
 	prevNotes: Note[],
 	nextNotes: Note[]
 ): Note[] {
-	const getMatchingPrevNote = (note: Note) =>
-		prevNotes.find((prevNote) => getNoteId(prevNote) === getNoteId(note));
-	const hasNoteUpdated = (note: Note, prevNote: Note) =>
-		Boolean(
-			note.updatedAt &&
-				prevNote.gitnewsSeenAt &&
-				Date.parse(note.updatedAt) > prevNote.gitnewsSeenAt
-		);
-
 	return nextNotes.map((note) => {
-		const previousNote = getMatchingPrevNote(note);
+		const previousNote = getMatchingPrevNote(prevNotes, note);
 		if (previousNote && !hasNoteUpdated(note, previousNote)) {
-			return Object.assign({}, note, {
+			return {
+				...note,
 				gitnewsSeen: previousNote.gitnewsSeen,
 				gitnewsMarkedUnread: previousNote.gitnewsMarkedUnread,
-			});
+			};
 		}
 		return note;
 	});
