@@ -9,7 +9,12 @@ import {
 import { menubar } from 'menubar';
 import isDev from 'electron-is-dev';
 import electronDebug from 'electron-debug';
-import { getToken, toggleLogging } from './lib/main-store';
+import {
+	getToken,
+	toggleLogging,
+	getAccounts,
+	setAccounts,
+} from './lib/main-store';
 import { getIconForState } from './lib/icon-path';
 import { version } from '../../package.json';
 import unhandled from 'electron-unhandled';
@@ -21,7 +26,7 @@ import {
 	markNotficationAsRead,
 } from './lib/github-interface';
 import { logMessage } from './lib/logging';
-import type { AccountInfo, Note } from '../shared-types';
+import type { AccountInfo, FetchErrorObject, Note } from '../shared-types';
 
 // These are provided by electron forge
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -29,7 +34,7 @@ declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
 dotEnv.config();
 
-const debug = debugFactory('gitnews-menubar:main');
+const debug = debugFactory('gitnews-menubar');
 
 debug('initializing version', version);
 
@@ -97,6 +102,14 @@ ipcMain.on('toggle-logging', (_event, isLogging: boolean) => {
 	toggleLogging(isLogging);
 });
 
+ipcMain.on('accounts:set', (_event, accounts: AccountInfo[]) => {
+	setAccounts(accounts);
+});
+
+ipcMain.handle('accounts:get', async () => {
+	return getAccounts();
+});
+
 ipcMain.on('set-icon', (_event, arg: unknown) => {
 	if (typeof arg !== 'string') {
 		logMessage('Failed to set icon: it is invalid', 'error');
@@ -150,7 +163,21 @@ ipcMain.handle('is-demo-mode:get', async () => {
 ipcMain.handle(
 	'notifications-for-account:get',
 	async (_event, account: AccountInfo) => {
-		return fetchNotificationsForAccount(account);
+		try {
+			const notes = await fetchNotificationsForAccount(account);
+			return notes;
+		} catch (error) {
+			// Electron IPC does not preserve Error objects so we must serialize what
+			// data we actually want. See
+			// https://github.com/electron/electron/issues/24427
+			logMessage(
+				`Failure while fetching notifications for account ${account.name}(${account.serverUrl})`,
+				'error'
+			);
+			return {
+				error: encodeError(account.id, error as Error),
+			};
+		}
 	}
 );
 
@@ -160,6 +187,21 @@ ipcMain.handle(
 		return markNotficationAsRead(note, account);
 	}
 );
+
+// Errors must be JS objects to go through IPC. See
+// https://github.com/electron/electron/issues/26338
+function encodeError(accountId: string, error: any): FetchErrorObject {
+	return {
+		name: error.name,
+		message: error.message,
+		code: error.code,
+		statusText: error.statusText,
+		status: error.status,
+		url: error.url,
+		type: error.type,
+		accountId,
+	};
+}
 
 function setIcon(type?: string) {
 	if (!type) {

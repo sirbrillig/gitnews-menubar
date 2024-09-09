@@ -26,6 +26,7 @@ import {
 	ActionToggleTokenInvalid,
 	AccountInfo,
 	ActionSelectAccount,
+	ActionInitSetAccounts,
 } from '../types';
 
 const defaultFetchInterval = secsToMs(120);
@@ -52,6 +53,34 @@ const initialState: AppReduxState = {
 	selectedAccount: undefined,
 };
 
+function setAllAccountsValid(accounts: AccountInfo[]): AccountInfo[] {
+	return accounts.map((account) => {
+		return {
+			...account,
+			isInvalid: false,
+		};
+	});
+}
+
+function setAccountInvalid(
+	allAccounts: AccountInfo[],
+	accountId: string,
+	isInvalid: boolean
+): AccountInfo[] {
+	let accounts = allAccounts.filter((acc) => acc.id !== accountId);
+	const account = allAccounts.find((acc) => acc.id === accountId);
+	if (account) {
+		accounts = [
+			...accounts,
+			{
+				...account,
+				isInvalid,
+			},
+		];
+	}
+	return accounts;
+}
+
 export function createReducer() {
 	return function (
 		state: AppReduxState | undefined,
@@ -62,7 +91,11 @@ export function createReducer() {
 		}
 		switch (action.type) {
 			case 'SET_TOKEN_INVALID':
-				return { ...state, isTokenInvalid: action.isInvalid };
+				return {
+					...state,
+					isTokenInvalid: action.isInvalid,
+					accounts: setAccountInvalid(state.accounts, action.accountId, true),
+				};
 			case 'TOGGLE_LOGGING':
 				return { ...state, isLogging: action.isLogging };
 			case 'SET_DEMO_MODE':
@@ -115,10 +148,11 @@ export function createReducer() {
 					);
 				return Object.assign({}, state, { notes });
 			}
+			case 'SET_INITIAL_ACCOUNTS':
 			case 'SET_ACCOUNTS':
 				return {
 					...state,
-					accounts: action.accounts,
+					accounts: setAllAccountsValid(action.accounts),
 				};
 			case 'SELECT_ACCOUNT':
 				return {
@@ -211,6 +245,10 @@ export function initToken(token: string): ActionInitToken {
 	return { type: 'SET_INITIAL_TOKEN', token };
 }
 
+export function initAccounts(accounts: AccountInfo[]): ActionInitSetAccounts {
+	return { type: 'SET_INITIAL_ACCOUNTS', accounts };
+}
+
 export function selectAccount(account: AccountInfo): ActionSelectAccount {
 	return { type: 'SELECT_ACCOUNT', account };
 }
@@ -220,9 +258,10 @@ export function setIsDemoMode(isDemoMode: boolean): ActionSetDemoMode {
 }
 
 export function setIsTokenInvalid(
+	accountId: string,
 	isInvalid: boolean
 ): ActionToggleTokenInvalid {
-	return { type: 'SET_TOKEN_INVALID', isInvalid };
+	return { type: 'SET_TOKEN_INVALID', accountId, isInvalid };
 }
 
 export function changeToOffline(): ActionChangeToOffline {

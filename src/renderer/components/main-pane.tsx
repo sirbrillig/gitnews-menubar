@@ -115,7 +115,7 @@ export default function MainPane({
 			<AccountEdit account={selectedAccount} showAccounts={showAccounts} />
 		);
 	}
-	if (currentPane === PANE_ACCOUNTS) {
+	if (currentPane === PANE_ACCOUNTS || isTokenInvalid) {
 		return (
 			<AccountList accounts={accounts} showAccountEdit={showAccountEdit} />
 		);

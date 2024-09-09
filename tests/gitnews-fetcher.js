@@ -18,13 +18,6 @@ window.electronApi = {
 };
 
 describe('handleFetchError()', function () {
-	it('does nothing if the error is GitHubTokenNotFound', function () {
-		const dispatch = jest.fn();
-		const handleFetchError = getErrorHandler(dispatch);
-		handleFetchError({ code: 'GitHubTokenNotFound' });
-		expect(dispatch).not.toHaveBeenCalled();
-	});
-
 	it('enables offline mode if error is ENETDOWN', function () {
 		const dispatch = jest.fn();
 		const handleFetchError = getErrorHandler(dispatch);

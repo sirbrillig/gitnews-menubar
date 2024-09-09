@@ -5,9 +5,14 @@ import {
 	PANE_ACCOUNTS,
 	PANE_ACCOUNT_EDIT,
 } from './lib/constants';
-import type { NoteReason, Note, AccountInfo } from '../shared-types';
+import type {
+	NoteReason,
+	Note,
+	AccountInfo,
+	FetchErrorObject,
+} from '../shared-types';
 
-export type { NoteReason, Note, AccountInfo };
+export type { NoteReason, Note, AccountInfo, FetchErrorObject };
 
 export type FilterType = NoteReason | 'all';
 
@@ -48,12 +53,17 @@ export type ActionSelectAccount = {
 	type: 'SELECT_ACCOUNT';
 	account: AccountInfo;
 };
+export type ActionInitSetAccounts = {
+	type: 'SET_INITIAL_ACCOUNTS';
+	accounts: AccountInfo[];
+};
 export type ActionSetAccounts = {
 	type: 'SET_ACCOUNTS';
 	accounts: AccountInfo[];
 };
 export type ActionToggleTokenInvalid = {
 	type: 'SET_TOKEN_INVALID';
+	accountId: string;
 	isInvalid: boolean;
 };
 export type ActionToggleLogging = {
@@ -89,6 +99,7 @@ export type MarkAppShown = { type: 'NOTE_APP_VISIBLE'; visible: true };
 export type ActionSetDemoMode = { type: 'SET_DEMO_MODE'; isDemoMode: boolean };
 
 export type AppReduxAction =
+	| ActionInitSetAccounts
 	| ActionSelectAccount
 	| ActionMuteRepo
 	| ActionUnmuteRepo
@@ -148,20 +159,14 @@ export interface MainBridge {
 	onClick: (callback: () => void) => void;
 	getToken: () => Promise<string>;
 	getVersion: () => Promise<string>;
-	getNotificationsForAccount: (account: AccountInfo) => Promise<Note[]>;
+	getNotificationsForAccount: (
+		account: AccountInfo
+	) => Promise<Note[] | { error: Error }>;
 	markNotificationRead: (note: Note, account: AccountInfo) => void;
 	isDemoMode: () => Promise<boolean>;
 	isAutoLaunchEnabled: () => Promise<boolean>;
-}
-
-export interface FetchErrorObject {
-	code?: string;
-	name?: string;
-	message?: string;
-	statusText?: string;
-	status?: number;
-	url?: string;
-	type?: string;
+	saveAccounts: (accounts: AccountInfo[]) => void;
+	getAccounts: () => Promise<AccountInfo[]>;
 }
 
 export type UnknownFetchError = FetchErrorObject | string;
