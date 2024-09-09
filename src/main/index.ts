@@ -102,6 +102,14 @@ ipcMain.on('toggle-logging', (_event, isLogging: boolean) => {
 	toggleLogging(isLogging);
 });
 
+ipcMain.on('accounts:set', (_event, accounts: AccountInfo[]) => {
+	setAccounts(accounts);
+});
+
+ipcMain.handle('accounts:get', async () => {
+	return getAccounts();
+});
+
 ipcMain.on('set-icon', (_event, arg: unknown) => {
 	if (typeof arg !== 'string') {
 		logMessage('Failed to set icon: it is invalid', 'error');

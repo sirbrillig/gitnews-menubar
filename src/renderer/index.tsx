@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 
 import App from './components/app';
 import AppWrapper from './components/app-wrapper';
-import { initToken, setIsDemoMode } from './lib/reducer';
+import { initToken, setIsDemoMode, initAccounts } from './lib/reducer';
 import { store } from './lib/store';
 
 import './styles.css';
@@ -27,9 +27,14 @@ async function runApp() {
 
 	const isDemoMode = await window.electronApi.isDemoMode();
 	const token = await window.electronApi.getToken();
-	window.electronApi.logMessage('Initializing token to saved value', 'info');
+	const accounts = await window.electronApi.getAccounts();
+	window.electronApi.logMessage(
+		'Initializing accounts in app to data from store',
+		'info'
+	);
 	store.dispatch(setIsDemoMode(isDemoMode));
 	store.dispatch(initToken(token));
+	store.dispatch(initAccounts(accounts));
 
 	ReactDOM.render(
 		<Provider store={store}>

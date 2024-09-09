@@ -48,6 +48,10 @@ export type ActionSelectAccount = {
 	type: 'SELECT_ACCOUNT';
 	account: AccountInfo;
 };
+export type ActionInitSetAccounts = {
+	type: 'SET_INITIAL_ACCOUNTS';
+	accounts: AccountInfo[];
+};
 export type ActionSetAccounts = {
 	type: 'SET_ACCOUNTS';
 	accounts: AccountInfo[];
@@ -89,6 +93,7 @@ export type MarkAppShown = { type: 'NOTE_APP_VISIBLE'; visible: true };
 export type ActionSetDemoMode = { type: 'SET_DEMO_MODE'; isDemoMode: boolean };
 
 export type AppReduxAction =
+	| ActionInitSetAccounts
 	| ActionSelectAccount
 	| ActionMuteRepo
 	| ActionUnmuteRepo
@@ -152,6 +157,8 @@ export interface MainBridge {
 	markNotificationRead: (note: Note, account: AccountInfo) => void;
 	isDemoMode: () => Promise<boolean>;
 	isAutoLaunchEnabled: () => Promise<boolean>;
+	saveAccounts: (accounts: AccountInfo[]) => void;
+	getAccounts: () => Promise<AccountInfo[]>;
 }
 
 export interface FetchErrorObject {

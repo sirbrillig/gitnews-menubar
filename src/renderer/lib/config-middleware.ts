@@ -16,6 +16,9 @@ export const configMiddleware: Middleware<{}, AppReduxState> =
 			case 'TOGGLE_LOGGING':
 				window.electronApi.toggleLogging(action.isLogging);
 				break;
+			case 'SET_ACCOUNTS':
+				window.electronApi.saveAccounts(action.accounts);
+				break;
 		}
 		next(action);
 	};

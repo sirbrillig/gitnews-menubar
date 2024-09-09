@@ -26,6 +26,7 @@ import {
 	ActionToggleTokenInvalid,
 	AccountInfo,
 	ActionSelectAccount,
+	ActionInitSetAccounts,
 } from '../types';
 
 const defaultFetchInterval = secsToMs(120);
@@ -115,6 +116,7 @@ export function createReducer() {
 					);
 				return Object.assign({}, state, { notes });
 			}
+			case 'SET_INITIAL_ACCOUNTS':
 			case 'SET_ACCOUNTS':
 				return {
 					...state,
@@ -209,6 +211,10 @@ export function markAllNotesSeen(): ActionMarkAllNotesSeen {
 
 export function initToken(token: string): ActionInitToken {
 	return { type: 'SET_INITIAL_TOKEN', token };
+}
+
+export function initAccounts(accounts: AccountInfo[]): ActionInitSetAccounts {
+	return { type: 'SET_INITIAL_ACCOUNTS', accounts };
 }
 
 export function selectAccount(account: AccountInfo): ActionSelectAccount {
