@@ -1,5 +1,6 @@
 import Store from 'electron-store';
 
+// FIXME: store accounts data so it persists after upgrade
 interface StoreSchema {
 	'gitnews-token': string;
 	'is-logging-enabled': boolean;
