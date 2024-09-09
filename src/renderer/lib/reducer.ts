@@ -26,6 +26,7 @@ import {
 	FilterType,
 	ActionToggleTokenInvalid,
 	AccountInfo,
+	ActionSelectAccount,
 } from '../types';
 
 const defaultFetchInterval = secsToMs(120);
@@ -49,6 +50,7 @@ const initialState: AppReduxState = {
 	isLogging: false,
 	isTokenInvalid: false,
 	accounts: [],
+	selectedAccount: undefined,
 };
 
 export function createReducer() {
@@ -124,6 +126,11 @@ export function createReducer() {
 					token: action.token,
 					isTokenInvalid: false,
 				});
+			case 'SELECT_ACCOUNT':
+				return {
+					...state,
+					selectedAccount: action.account,
+				};
 			case 'SET_INITIAL_TOKEN':
 				return Object.assign({}, state, {
 					token: action.token,
@@ -212,6 +219,10 @@ export function changeToken(token: string): ActionChangeToken {
 
 export function initToken(token: string): ActionInitToken {
 	return { type: 'SET_INITIAL_TOKEN', token };
+}
+
+export function selectAccount(account: AccountInfo): ActionSelectAccount {
+	return { type: 'SELECT_ACCOUNT', account };
 }
 
 export function setIsDemoMode(isDemoMode: boolean): ActionSetDemoMode {

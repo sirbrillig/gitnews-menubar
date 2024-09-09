@@ -249,18 +249,12 @@ header svg {
 }
 
 .account-page-actions {
-	margin-bottom: 5px;
 	display: flex;
-	flex-direction: column;
 	gap: 2px;
-	align-items: flex-start;
+	align-items: center;
+	justify-content: space-between;
 }
 
-.account-list-selected {
-	background-color: #fff;
-}
-
-.add-account-button,
 .edit-token-button,
 .edit-muted-repos-button,
 .config-button,
@@ -566,7 +560,7 @@ header h1 {
 	display: block;
 	font-size: 1em;
 	padding: 5px;
-	border: 1px solid #fff;
+	border: 1px solid var(--notification-border-color);
 	width: 100%;
 }
 
@@ -582,8 +576,11 @@ header h1 {
 	gap: 10px;
 }
 
-.edit-account-form__done {
+.account-page-header {
+	display: flex;
 	width: 100%;
+	justify-content: space-between;
+	margin-bottom: 10px;
 }
 
 .no-notifications {
@@ -664,7 +661,7 @@ header h1 {
 
 .account-list {
 	height: 150px;
-	border: 1px solid #fff;
+	border-top: 1px solid var(--notification-border-color);
 	overflow-y: scroll;
 	padding: 5px;
 	margin: 0;
@@ -685,7 +682,7 @@ header h1 {
 }
 
 .config-page h2 {
-	margin: 0 0 10px 0;
+	margin: 0;
 }
 
 .config-page h3 {

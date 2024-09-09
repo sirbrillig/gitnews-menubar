@@ -4,6 +4,7 @@ import {
 	PANE_TOKEN,
 	PANE_MUTED_REPOS,
 	PANE_ACCOUNTS,
+	PANE_ACCOUNT_EDIT,
 } from './lib/constants';
 import type { NoteReason, Note, AccountInfo } from '../shared-types';
 
@@ -30,6 +31,7 @@ export interface AppReduxState {
 	isLogging: boolean;
 	isTokenInvalid: boolean;
 	accounts: AccountInfo[];
+	selectedAccount: AccountInfo | undefined;
 }
 
 export type ActionMuteRepo = { type: 'MUTE_REPO'; repo: string };
@@ -44,6 +46,10 @@ export type ActionClearErrors = { type: 'CLEAR_ERRORS' };
 export type ActionMarkAllNotesSeen = { type: 'MARK_ALL_NOTES_SEEN' };
 export type ActionChangeToken = { type: 'CHANGE_TOKEN'; token: string };
 export type ActionInitToken = { type: 'SET_INITIAL_TOKEN'; token: string };
+export type ActionSelectAccount = {
+	type: 'SELECT_ACCOUNT';
+	account: AccountInfo;
+};
 export type ActionSetAccounts = {
 	type: 'SET_ACCOUNTS';
 	accounts: AccountInfo[];
@@ -85,6 +91,7 @@ export type MarkAppShown = { type: 'NOTE_APP_VISIBLE'; visible: true };
 export type ActionSetDemoMode = { type: 'SET_DEMO_MODE'; isDemoMode: boolean };
 
 export type AppReduxAction =
+	| ActionSelectAccount
 	| ActionMuteRepo
 	| ActionUnmuteRepo
 	| ActionMarkRead
@@ -127,6 +134,7 @@ export type IconType = 'normal' | 'unseen' | 'unread' | 'offline' | 'error';
 
 export type AppPane =
 	| typeof PANE_ACCOUNTS
+	| typeof PANE_ACCOUNT_EDIT
 	| typeof PANE_NOTIFICATIONS
 	| typeof PANE_TOKEN
 	| typeof PANE_CONFIG

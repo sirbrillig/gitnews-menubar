@@ -9,6 +9,7 @@ import {
 	PANE_TOKEN,
 	PANE_MUTED_REPOS,
 	PANE_ACCOUNTS,
+	PANE_ACCOUNT_EDIT,
 } from '../lib/constants';
 import {
 	AppReduxState,
@@ -23,9 +24,8 @@ import {
 } from '../types';
 import { AppPane } from '../types';
 import AccountList from './account-list';
-import { setAccounts } from '../lib/reducer';
-import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
+import AccountEdit from './account-edit';
 
 export default function MainPane({
 	token,
@@ -37,6 +37,7 @@ export default function MainPane({
 	hideEditToken,
 	showEditToken,
 	showAccounts,
+	showAccountEdit,
 	showMutedReposList,
 	lastSuccessfulCheck,
 	getVersion,
@@ -64,6 +65,7 @@ export default function MainPane({
 	hideEditToken: () => void;
 	showEditToken: () => void;
 	showAccounts: () => void;
+	showAccountEdit: () => void;
 	showMutedReposList: () => void;
 	lastSuccessfulCheck: AppReduxState['lastSuccessfulCheck'];
 	getVersion: () => Promise<string>;
@@ -85,8 +87,11 @@ export default function MainPane({
 	isTokenInvalid: boolean;
 }) {
 	const accounts = useSelector((state: AppReduxState) => state.accounts);
-	const dispatch = useDispatch();
+	const selectedAccount = useSelector(
+		(state: AppReduxState) => state.selectedAccount
+	);
 	if (!token || isTokenInvalid || currentPane === PANE_TOKEN) {
+		// FIXME: replace this with account edit page
 		return (
 			<AddTokenForm
 				token={token}
@@ -101,13 +106,14 @@ export default function MainPane({
 	if (currentPane === PANE_MUTED_REPOS) {
 		return <MutedReposList mutedRepos={mutedRepos} unmuteRepo={unmuteRepo} />;
 	}
+	if (currentPane === PANE_ACCOUNT_EDIT && selectedAccount) {
+		return (
+			<AccountEdit account={selectedAccount} showAccounts={showAccounts} />
+		);
+	}
 	if (currentPane === PANE_ACCOUNTS) {
 		return (
-			<AccountList
-				goBack={hideEditToken}
-				accounts={accounts}
-				setAccounts={(newAccounts) => dispatch(setAccounts(newAccounts))}
-			/>
+			<AccountList accounts={accounts} showAccountEdit={showAccountEdit} />
 		);
 	}
 	if (currentPane === PANE_CONFIG) {

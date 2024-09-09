@@ -10,6 +10,7 @@ import {
 	PANE_TOKEN,
 	PANE_MUTED_REPOS,
 	PANE_ACCOUNTS,
+	PANE_ACCOUNT_EDIT,
 } from '../lib/constants';
 import Poller from '../lib/poller';
 import { getSecondsUntilNextFetch } from '../lib/helpers';
@@ -212,6 +213,8 @@ class App extends React.Component<AppProps, AppState> {
 		const hideConfig = () => this.setState({ currentPane: PANE_NOTIFICATIONS });
 		const showConfig = () => this.setState({ currentPane: PANE_CONFIG });
 		const showAccounts = () => this.setState({ currentPane: PANE_ACCOUNTS });
+		const showAccountEdit = () =>
+			this.setState({ currentPane: PANE_ACCOUNT_EDIT });
 		const showEditToken = () => this.setState({ currentPane: PANE_TOKEN });
 		const hideEditToken = () => this.setState({ currentPane: PANE_CONFIG });
 		const showMutedReposList = () =>
@@ -284,6 +287,7 @@ class App extends React.Component<AppProps, AppState> {
 					hideEditToken={hideEditToken}
 					showEditToken={showEditToken}
 					showAccounts={showAccounts}
+					showAccountEdit={showAccountEdit}
 					markRead={this.props.markRead}
 					markUnread={this.props.markUnread}
 					isAutoLoadEnabled={this.props.isAutoLoadEnabled}

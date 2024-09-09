@@ -51,6 +51,7 @@ export interface Note {
 
 export interface AccountInfo {
 	id: string;
+	name: string;
 	apiKey: string;
 	serverUrl: string;
 	proxyUrl?: string;
