@@ -9,7 +9,12 @@ import {
 import { menubar } from 'menubar';
 import isDev from 'electron-is-dev';
 import electronDebug from 'electron-debug';
-import { getToken, toggleLogging } from './lib/main-store';
+import {
+	getToken,
+	toggleLogging,
+	getAccounts,
+	setAccounts,
+} from './lib/main-store';
 import { getIconForState } from './lib/icon-path';
 import { version } from '../../package.json';
 import unhandled from 'electron-unhandled';
@@ -29,7 +34,7 @@ declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
 dotEnv.config();
 
-const debug = debugFactory('gitnews-menubar:main');
+const debug = debugFactory('gitnews-menubar');
 
 debug('initializing version', version);
 
