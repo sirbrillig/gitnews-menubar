@@ -101,14 +101,37 @@ export async function markNotficationAsRead(
 	}
 }
 
+interface RawNotification {
+	id: string;
+	url: string;
+	subject: {
+		title: string;
+		type: string;
+		latest_comment_url: string;
+		url: string;
+	};
+	unread: boolean;
+	reason: string;
+	repository: {
+		full_name: string;
+		name: string;
+		owner: {
+			avatar_url: string;
+		};
+	};
+	updated_at: string;
+}
+
+interface CommentData {
+	commentAvatar: string;
+	commentHtmlUrl: string;
+}
+
 async function getCommentDataForNotification(
 	octokit: Octokit,
 	account: AccountInfo,
-	notification: { subject: { latest_comment_url?: string; url: string } }
-): Promise<{
-	commentAvatar: string;
-	commentHtmlUrl: string;
-}> {
+	notification: RawNotification
+): Promise<CommentData> {
 	let commentAvatar: string = '';
 	let commentHtmlUrl: string = '';
 	const commentPath = getOctokitRequestPathFromUrl(
@@ -131,13 +154,17 @@ async function getCommentDataForNotification(
 	};
 }
 
+interface SubjectData {
+	noteState: string;
+	noteMerged: boolean;
+	subjectHtmlUrl: string;
+}
+
 async function getSubjectDataForNotification(
 	octokit: Octokit,
 	account: AccountInfo,
-	notification: {
-		subject: { url: string };
-	}
-) {
+	notification: RawNotification
+): Promise<SubjectData> {
 	let noteState: string = '';
 	let noteMerged: boolean = false;
 	let subjectHtmlUrl: string = '';
@@ -163,6 +190,39 @@ async function getSubjectDataForNotification(
 	};
 }
 
+function buildNoteFromData({
+	account,
+	notification,
+	commentData,
+	subjectData,
+}: {
+	account: AccountInfo;
+	notification: RawNotification;
+	commentData: CommentData;
+	subjectData: SubjectData;
+}): Note {
+	return {
+		gitnewsAccountId: account.id,
+		id: notification.id,
+		url: notification.url,
+		title: notification.subject.title,
+		unread: notification.unread,
+		repositoryFullName: notification.repository.full_name,
+		commentUrl: commentData.commentHtmlUrl,
+		updatedAt: notification.updated_at,
+		repositoryName: notification.repository.name,
+		type: notification.subject.type,
+		subjectUrl: subjectData.subjectHtmlUrl,
+		commentAvatar:
+			commentData.commentAvatar ?? notification.repository.owner.avatar_url,
+		repositoryOwnerAvatar: notification.repository.owner.avatar_url,
+		api: {
+			subject: { state: subjectData.noteState, merged: subjectData.noteMerged },
+			notification: { reason: notification.reason as NoteReason },
+		},
+	};
+}
+
 export async function fetchNotificationsForAccount(
 	account: AccountInfo
 ): Promise<Note[]> {
@@ -176,31 +236,24 @@ export async function fetchNotificationsForAccount(
 
 	// FIXME: do these fetches in parallel instead of serial
 	for (const notification of notificationsResponse.data) {
-		const { commentAvatar, commentHtmlUrl } =
-			await getCommentDataForNotification(octokit, account, notification);
-
-		const { noteState, noteMerged, subjectHtmlUrl } =
-			await getSubjectDataForNotification(octokit, account, notification);
-
-		notes.push({
-			gitnewsAccountId: account.id,
-			id: notification.id,
-			url: notification.url,
-			title: notification.subject.title,
-			unread: notification.unread,
-			repositoryFullName: notification.repository.full_name,
-			commentUrl: commentHtmlUrl,
-			updatedAt: notification.updated_at,
-			repositoryName: notification.repository.name,
-			type: notification.subject.type,
-			subjectUrl: subjectHtmlUrl,
-			commentAvatar: commentAvatar ?? notification.repository.owner.avatar_url,
-			repositoryOwnerAvatar: notification.repository.owner.avatar_url,
-			api: {
-				subject: { state: noteState, merged: noteMerged },
-				notification: { reason: notification.reason as NoteReason },
-			},
-		});
+		const commentData = await getCommentDataForNotification(
+			octokit,
+			account,
+			notification
+		);
+		const subjectData = await getSubjectDataForNotification(
+			octokit,
+			account,
+			notification
+		);
+		notes.push(
+			buildNoteFromData({
+				account,
+				notification,
+				subjectData,
+				commentData,
+			})
+		);
 	}
 
 	return notes;
