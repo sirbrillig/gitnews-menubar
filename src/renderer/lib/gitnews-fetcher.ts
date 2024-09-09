@@ -106,7 +106,7 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 			const notes = await getGithubNotifications();
 			debug('notifications retrieved', notes);
 			window.electronApi.logMessage(
-				`Notifications retrieved (${notes.length} found)`,
+				`Notifications retrieved (${notes.length} found in ${state.accounts.length} accounts)`,
 				'info'
 			);
 			next(fetchDone());
