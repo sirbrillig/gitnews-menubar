@@ -25,6 +25,8 @@ import { AppPane } from '../types';
 import AccountList from './account-list';
 import { useSelector } from 'react-redux';
 import AccountEdit from './account-edit';
+import { useDispatch } from 'react-redux';
+import { setAccounts } from '../lib/reducer';
 
 export default function MainPane({
 	token,
@@ -80,10 +82,27 @@ export default function MainPane({
 	isTokenInvalid: boolean;
 }) {
 	const accounts = useSelector((state: AppReduxState) => state.accounts);
+	const dispatch = useDispatch();
 	const selectedAccount = useSelector(
 		(state: AppReduxState) => state.selectedAccount
 	);
-	if (!token || isTokenInvalid) {
+
+	if (accounts.length === 0 && token) {
+		// Migrate old single-token system to account.
+		const migratedAccount = {
+			...defaultAccountInfo,
+			apiKey: token,
+		};
+		dispatch(setAccounts([migratedAccount]));
+		return (
+			<div>
+				<div>Migrating to account system…</div>
+				<div>If you see this for more than a moment, something is wrong.</div>
+			</div>
+		);
+	}
+
+	if (accounts.length === 0) {
 		return (
 			<AccountEdit account={defaultAccountInfo} showAccounts={showAccounts} />
 		);

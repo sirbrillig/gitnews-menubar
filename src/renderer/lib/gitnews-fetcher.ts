@@ -21,7 +21,6 @@ import {
 import { AccountInfo, AppReduxState, Note, UnknownFetchError } from '../types';
 import { AppDispatch } from './store';
 import { createDemoNotifications } from './demo-mode';
-import { getAllAccounts } from './accounts';
 
 const debug = debugFactory('gitnews-menubar');
 
@@ -102,8 +101,7 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 		// or the app will get stuck never updating again.
 		next(fetchBegin());
 
-		const accounts = getAllAccounts(state);
-		const getGithubNotifications = getFetcher(accounts, state.isDemoMode);
+		const getGithubNotifications = getFetcher(state.accounts, state.isDemoMode);
 		try {
 			const notes = await getGithubNotifications();
 			debug('notifications retrieved', notes);

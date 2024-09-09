@@ -3,7 +3,6 @@
 import { Middleware } from 'redux';
 import type { AccountInfo, AppReduxState, Note } from '../types';
 import { isAction } from './helpers';
-import { getAllAccounts } from './accounts';
 
 export function createGitHubMiddleware(): Middleware<{}, AppReduxState> {
 	return (store) => (next) => (action) => {
@@ -19,10 +18,11 @@ export function createGitHubMiddleware(): Middleware<{}, AppReduxState> {
 					next(action);
 					return;
 				}
-				const accounts = getAllAccounts(store.getState());
-				const account = accounts.find(
-					(account) => account.id === action.note.gitnewsAccountId
-				);
+				const account = store
+					.getState()
+					.accounts.find(
+						(account) => account.id === action.note.gitnewsAccountId
+					);
 				if (!account) {
 					console.error(
 						'Cannot find account for notification to mark as read',
