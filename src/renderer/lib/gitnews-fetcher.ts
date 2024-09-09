@@ -124,7 +124,7 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 				'warn'
 			);
 			next(fetchDone());
-			getErrorHandler(next)(err as Error, state.token);
+			getErrorHandler(next)(err as Error);
 		}
 	}
 
@@ -161,41 +161,8 @@ async function getDemoNotifications(): Promise<Note[]> {
 }
 
 export function getErrorHandler(dispatch: AppDispatch) {
-	return function handleFetchError(
-		err: UnknownFetchError,
-		token: string | undefined = undefined
-	) {
-		// FIXME: handleFetchError should ignore state.token
-		if (
-			typeof err === 'object' &&
-			err.code === 'GitHubTokenNotFound' &&
-			!token
-		) {
-			const message =
-				'Notifications check failed because there is no token; taking no action';
-			debug(message);
-			window.electronApi.logMessage(message, 'info');
-			// Do nothing. The case of having no token is handled in the App component.
-			return;
-		}
-
-		if (
-			typeof err === 'object' &&
-			err.code === 'GitHubTokenNotFound' &&
-			token
-		) {
-			// This should never happen, I hope!
-			const message =
-				'Notifications check failed because there is no token, even though one is set';
-			debug(message);
-			window.electronApi.logMessage(message, 'error');
-			const errorString =
-				'Error fetching notifications: ' + getErrorMessage(err);
-			console.error(errorString); //eslint-disable-line no-console
-			dispatch(addConnectionError(errorString));
-			return;
-		}
-
+	return function handleFetchError(err: UnknownFetchError) {
+		// FIXME: handle invalid token for any account
 		if (typeof err === 'object' && isTokenInvalid(err)) {
 			const message = 'Notifications check failed the token is invalid';
 			debug(message);
