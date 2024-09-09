@@ -54,8 +54,13 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 					'Accounts changed; fetching with updated accounts',
 					'info'
 				);
-				// FIXME: this does not use the new accounts for the fetch
-				performFetch(store.getState(), next);
+				performFetch(
+					{
+						...store.getState(),
+						accounts: action.accounts,
+					},
+					next
+				);
 				return next(action);
 			}
 
