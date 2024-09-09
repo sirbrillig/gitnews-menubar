@@ -54,6 +54,7 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 					'Accounts changed; fetching with updated accounts',
 					'info'
 				);
+				// FIXME: this does not use the new accounts for the fetch
 				performFetch(store.getState(), next);
 				return next(action);
 			}
@@ -92,7 +93,7 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 			next(changeToOffline());
 			return;
 		}
-		if (!state.token) {
+		if (state.accounts.length < 1) {
 			next(changeToOffline());
 			return;
 		}
@@ -159,6 +160,7 @@ export function getErrorHandler(dispatch: AppDispatch) {
 		err: UnknownFetchError,
 		token: string | undefined = undefined
 	) {
+		// FIXME: handleFetchError should ignore state.token
 		if (
 			typeof err === 'object' &&
 			err.code === 'GitHubTokenNotFound' &&
