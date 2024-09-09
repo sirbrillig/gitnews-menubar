@@ -101,6 +101,68 @@ export async function markNotficationAsRead(
 	}
 }
 
+async function getCommentDataForNotification(
+	octokit: Octokit,
+	account: AccountInfo,
+	notification: { subject: { latest_comment_url?: string; url: string } }
+): Promise<{
+	commentAvatar: string;
+	commentHtmlUrl: string;
+}> {
+	let commentAvatar: string = '';
+	let commentHtmlUrl: string = '';
+	const commentPath = getOctokitRequestPathFromUrl(
+		account,
+		notification.subject.latest_comment_url ?? notification.subject.url
+	);
+	try {
+		const comment = await octokit.request(`GET ${commentPath}`, {});
+		commentAvatar = comment.data.user.avatar_url;
+		commentHtmlUrl = comment.data.html_url;
+	} catch (error) {
+		logMessage(
+			`Failed to fetch comment for ${commentPath} (${notification.subject.latest_comment_url ?? notification.subject.url})`,
+			'error'
+		);
+	}
+	return {
+		commentAvatar,
+		commentHtmlUrl,
+	};
+}
+
+async function getSubjectDataForNotification(
+	octokit: Octokit,
+	account: AccountInfo,
+	notification: {
+		subject: { url: string };
+	}
+) {
+	let noteState: string = '';
+	let noteMerged: boolean = false;
+	let subjectHtmlUrl: string = '';
+	const subjectPath = getOctokitRequestPathFromUrl(
+		account,
+		notification.subject.url
+	);
+	try {
+		const subject = await octokit.request(`GET ${subjectPath}`, {});
+		noteState = subject.data.state;
+		noteMerged = subject.data.merged;
+		subjectHtmlUrl = subject.data.html_url;
+	} catch (error) {
+		logMessage(
+			`Failed to fetch comment for ${subjectPath} (${notification.subject.url})`,
+			'error'
+		);
+	}
+	return {
+		noteState,
+		noteMerged,
+		subjectHtmlUrl,
+	};
+}
+
 export async function fetchNotificationsForAccount(
 	account: AccountInfo
 ): Promise<Note[]> {
@@ -114,43 +176,11 @@ export async function fetchNotificationsForAccount(
 
 	// FIXME: do these fetches in parallel instead of serial
 	for (const notification of notificationsResponse.data) {
-		let commentAvatar: string;
-		let commentHtmlUrl: string;
-		const commentPath = getOctokitRequestPathFromUrl(
-			account,
-			notification.subject.latest_comment_url ?? notification.subject.url
-		);
-		try {
-			const comment = await octokit.request(`GET ${commentPath}`, {});
-			commentAvatar = comment.data.user.avatar_url;
-			commentHtmlUrl = comment.data.html_url;
-		} catch (error) {
-			logMessage(
-				`Failed to fetch comment for ${commentPath} (${notification.subject.latest_comment_url ?? notification.subject.url})`,
-				'error'
-			);
-			continue;
-		}
+		const { commentAvatar, commentHtmlUrl } =
+			await getCommentDataForNotification(octokit, account, notification);
 
-		let noteState: string;
-		let noteMerged: boolean;
-		let subjectHtmlUrl: string;
-		const subjectPath = getOctokitRequestPathFromUrl(
-			account,
-			notification.subject.url
-		);
-		try {
-			const subject = await octokit.request(`GET ${subjectPath}`, {});
-			noteState = subject.data.state;
-			noteMerged = subject.data.merged;
-			subjectHtmlUrl = subject.data.html_url;
-		} catch (error) {
-			logMessage(
-				`Failed to fetch comment for ${subjectPath} (${notification.subject.url})`,
-				'error'
-			);
-			continue;
-		}
+		const { noteState, noteMerged, subjectHtmlUrl } =
+			await getSubjectDataForNotification(octokit, account, notification);
 
 		notes.push({
 			gitnewsAccountId: account.id,
