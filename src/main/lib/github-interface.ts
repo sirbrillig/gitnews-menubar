@@ -252,21 +252,31 @@ export async function fetchNotificationsForAccount(
 			account,
 			notification
 		);
-		const promise = Promise.all([commentPromise, subjectPromise]);
+		const promise = Promise.all([commentPromise, subjectPromise]).catch(
+			(err) => {
+				throw err;
+			}
+		);
 		promises.push(promise);
-		promise.then(([commentData, subjectData]) => {
-			notes.push(
-				buildNoteFromData({
-					account,
-					notification,
-					subjectData,
-					commentData,
-				})
-			);
-		});
+		promise
+			.then(([commentData, subjectData]) => {
+				notes.push(
+					buildNoteFromData({
+						account,
+						notification,
+						subjectData,
+						commentData,
+					})
+				);
+			})
+			.catch((err) => {
+				throw err;
+			});
 	}
 
-	await Promise.all(promises);
+	await Promise.all(promises).catch((err) => {
+		throw err;
+	});
 
 	return notes;
 }

@@ -155,12 +155,16 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 				);
 				const promise = fetchNotifications(account);
 				promises.push(promise);
-				promise.then((notes) => {
-					if ('error' in notes) {
-						throw notes.error;
-					}
-					allNotes = [...allNotes, ...notes];
-				});
+				promise
+					.then((notes) => {
+						if ('error' in notes) {
+							throw notes.error;
+						}
+						allNotes = [...allNotes, ...notes];
+					})
+					.catch((err) => {
+						throw new Error(err);
+					});
 			}
 
 			await Promise.all(promises);
