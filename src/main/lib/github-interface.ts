@@ -179,7 +179,7 @@ async function getSubjectDataForNotification(
 		subjectHtmlUrl = subject.data.html_url;
 	} catch (error) {
 		logMessage(
-			`Failed to fetch comment for ${subjectPath} (${notification.subject.url})`,
+			`Failed to fetch subject for ${subjectPath} (${notification.subject.url})`,
 			'error'
 		);
 	}

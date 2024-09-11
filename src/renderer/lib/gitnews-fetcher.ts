@@ -60,13 +60,20 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 					'Accounts changed; fetching with updated accounts',
 					'info'
 				);
-				performFetch(
-					{
-						...store.getState(),
-						accounts: action.accounts,
-					},
-					next
-				);
+				try {
+					performFetch(
+						{
+							...store.getState(),
+							accounts: action.accounts,
+						},
+						next
+					);
+				} catch (err) {
+					console.error(
+						'Got an error fetching which somehow was not caught by the fetch handler',
+						err
+					);
+				}
 				return next(action);
 			}
 
@@ -74,7 +81,14 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 			if (action.type === 'GITNEWS_FETCH_NOTIFICATIONS') {
 				debug('Fetching accounts');
 				window.electronApi.logMessage('Fetching accounts', 'info');
-				performFetch(store.getState(), next);
+				try {
+					performFetch(store.getState(), next);
+				} catch (err) {
+					console.error(
+						'Got an error fetching which somehow was not caught by the fetch handler',
+						err
+					);
+				}
 				return;
 			}
 
