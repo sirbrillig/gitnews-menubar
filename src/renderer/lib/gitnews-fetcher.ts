@@ -163,11 +163,13 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 						allNotes = [...allNotes, ...notes];
 					})
 					.catch((err) => {
-						throw new Error(err);
+						throw err;
 					});
 			}
 
-			await Promise.all(promises);
+			await Promise.all(promises).catch((err) => {
+				throw err;
+			});
 
 			allNotes.sort((a, b) => {
 				if (a.updatedAt < b.updatedAt) {
