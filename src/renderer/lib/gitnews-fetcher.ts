@@ -69,6 +69,10 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 						next
 					);
 				} catch (err) {
+					window.electronApi.logMessage(
+						'Got an error fetching which somehow was not caught by the fetch handler',
+						'error'
+					);
 					console.error(
 						'Got an error fetching which somehow was not caught by the fetch handler',
 						err
@@ -84,6 +88,10 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 				try {
 					performFetch(store.getState(), next);
 				} catch (err) {
+					window.electronApi.logMessage(
+						'Got an error fetching which somehow was not caught by the fetch handler',
+						'error'
+					);
 					console.error(
 						'Got an error fetching which somehow was not caught by the fetch handler',
 						err
@@ -128,8 +136,11 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 		// or the app will get stuck never updating again.
 		next(fetchBegin());
 
-		const getGithubNotifications = getFetcher(state.accounts, state.isDemoMode);
 		try {
+			const getGithubNotifications = getFetcher(
+				state.accounts,
+				state.isDemoMode
+			);
 			const notes = await getGithubNotifications();
 			debug('notifications retrieved', notes);
 			window.electronApi.logMessage(
@@ -167,9 +178,7 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 					`Fetching notifications for ${account.name} (${account.serverUrl})`,
 					'info'
 				);
-				const promise = fetchNotifications(account);
-				promises.push(promise);
-				promise
+				const promise = fetchNotifications(account)
 					.then((notes) => {
 						if ('error' in notes) {
 							throw notes.error;
@@ -177,11 +186,20 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 						allNotes = [...allNotes, ...notes];
 					})
 					.catch((err) => {
+						window.electronApi.logMessage(
+							`Fetching notifications FAILED for ${account.name} (${account.serverUrl})`,
+							'error'
+						);
 						throw err;
 					});
+				promises.push(promise);
 			}
 
 			await Promise.all(promises).catch((err) => {
+				window.electronApi.logMessage(
+					`Waiting for fetched notifications FAILED`,
+					'error'
+				);
 				throw err;
 			});
 
