@@ -171,7 +171,7 @@ ipcMain.handle(
 			// data we actually want. See
 			// https://github.com/electron/electron/issues/24427
 			logMessage(
-				`Failure while fetching notifications for account ${account.name}(${account.serverUrl})`,
+				`Failure while fetching notifications for account ${account.name} (${account.serverUrl})`,
 				'error'
 			);
 			return {

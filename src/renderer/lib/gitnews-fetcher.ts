@@ -60,13 +60,24 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 					'Accounts changed; fetching with updated accounts',
 					'info'
 				);
-				performFetch(
-					{
-						...store.getState(),
-						accounts: action.accounts,
-					},
-					next
-				);
+				try {
+					performFetch(
+						{
+							...store.getState(),
+							accounts: action.accounts,
+						},
+						next
+					);
+				} catch (err) {
+					window.electronApi.logMessage(
+						'Got an error fetching which somehow was not caught by the fetch handler',
+						'error'
+					);
+					console.error(
+						'Got an error fetching which somehow was not caught by the fetch handler',
+						err
+					);
+				}
 				return next(action);
 			}
 
@@ -74,7 +85,18 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 			if (action.type === 'GITNEWS_FETCH_NOTIFICATIONS') {
 				debug('Fetching accounts');
 				window.electronApi.logMessage('Fetching accounts', 'info');
-				performFetch(store.getState(), next);
+				try {
+					performFetch(store.getState(), next);
+				} catch (err) {
+					window.electronApi.logMessage(
+						'Got an error fetching which somehow was not caught by the fetch handler',
+						'error'
+					);
+					console.error(
+						'Got an error fetching which somehow was not caught by the fetch handler',
+						err
+					);
+				}
 				return;
 			}
 
@@ -114,8 +136,11 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 		// or the app will get stuck never updating again.
 		next(fetchBegin());
 
-		const getGithubNotifications = getFetcher(state.accounts, state.isDemoMode);
 		try {
+			const getGithubNotifications = getFetcher(
+				state.accounts,
+				state.isDemoMode
+			);
 			const notes = await getGithubNotifications();
 			debug('notifications retrieved', notes);
 			window.electronApi.logMessage(
@@ -153,17 +178,30 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 					`Fetching notifications for ${account.name} (${account.serverUrl})`,
 					'info'
 				);
-				const promise = fetchNotifications(account);
+				const promise = fetchNotifications(account)
+					.then((notes) => {
+						if ('error' in notes) {
+							throw notes.error;
+						}
+						allNotes = [...allNotes, ...notes];
+					})
+					.catch((err) => {
+						window.electronApi.logMessage(
+							`Fetching notifications FAILED for ${account.name} (${account.serverUrl})`,
+							'error'
+						);
+						throw err;
+					});
 				promises.push(promise);
-				promise.then((notes) => {
-					if ('error' in notes) {
-						throw notes.error;
-					}
-					allNotes = [...allNotes, ...notes];
-				});
 			}
 
-			await Promise.all(promises);
+			await Promise.all(promises).catch((err) => {
+				window.electronApi.logMessage(
+					`Waiting for fetched notifications FAILED`,
+					'error'
+				);
+				throw err;
+			});
 
 			allNotes.sort((a, b) => {
 				if (a.updatedAt < b.updatedAt) {

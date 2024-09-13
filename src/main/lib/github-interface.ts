@@ -179,7 +179,7 @@ async function getSubjectDataForNotification(
 		subjectHtmlUrl = subject.data.html_url;
 	} catch (error) {
 		logMessage(
-			`Failed to fetch comment for ${subjectPath} (${notification.subject.url})`,
+			`Failed to fetch subject for ${subjectPath} (${notification.subject.url})`,
 			'error'
 		);
 	}
@@ -252,21 +252,31 @@ export async function fetchNotificationsForAccount(
 			account,
 			notification
 		);
-		const promise = Promise.all([commentPromise, subjectPromise]);
+		const promise = Promise.all([commentPromise, subjectPromise]).catch(
+			(err) => {
+				throw err;
+			}
+		);
 		promises.push(promise);
-		promise.then(([commentData, subjectData]) => {
-			notes.push(
-				buildNoteFromData({
-					account,
-					notification,
-					subjectData,
-					commentData,
-				})
-			);
-		});
+		promise
+			.then(([commentData, subjectData]) => {
+				notes.push(
+					buildNoteFromData({
+						account,
+						notification,
+						subjectData,
+						commentData,
+					})
+				);
+			})
+			.catch((err) => {
+				throw err;
+			});
 	}
 
-	await Promise.all(promises);
+	await Promise.all(promises).catch((err) => {
+		throw err;
+	});
 
 	return notes;
 }
