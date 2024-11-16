@@ -1,5 +1,5 @@
 import type { AccountInfo, Note, NoteReason } from '../../shared-types';
-import { Octokit } from '@octokit/rest';
+import { Octokit, RestEndpointMethodTypes } from '@octokit/rest';
 import { fetch as undiciFetch, ProxyAgent } from 'undici';
 import { socksDispatcher } from 'fetch-socks';
 import { logMessage } from './logging';
@@ -223,6 +223,20 @@ function buildNoteFromData({
 	};
 }
 
+function isGithubActivityResponseValid(
+	response: RestEndpointMethodTypes['activity']['listNotificationsForAuthenticatedUser']['response']
+): boolean {
+	if (!Array.isArray(response?.data)) {
+		return false;
+	}
+	for (const notification of response.data) {
+		if (!notification.id || !notification.subject) {
+			return false;
+		}
+	}
+	return true;
+}
+
 export async function fetchNotificationsForAccount(
 	account: AccountInfo
 ): Promise<Note[]> {
@@ -231,6 +245,16 @@ export async function fetchNotificationsForAccount(
 		await octokit.rest.activity.listNotificationsForAuthenticatedUser({
 			all: true,
 		});
+
+	if (!isGithubActivityResponseValid(notificationsResponse)) {
+		logMessage(
+			`Raw notification data from account ${account.name} (${account.id}) is invalid: ${JSON.stringify(notificationsResponse)}`,
+			'error'
+		);
+		throw new Error(
+			`Raw notification data fetched from account ${account.name} (${account.id}) is invalid. Please make sure your server is active and operating correctly (eg: it may be in maintenance).`
+		);
+	}
 
 	const notes: Note[] = [];
 
