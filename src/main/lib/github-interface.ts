@@ -1,5 +1,5 @@
 import type { AccountInfo, Note, NoteReason } from '../../shared-types';
-import { Octokit } from '@octokit/rest';
+import { Octokit, RestEndpointMethodTypes } from '@octokit/rest';
 import { fetch as undiciFetch, ProxyAgent } from 'undici';
 import { socksDispatcher } from 'fetch-socks';
 import { logMessage } from './logging';
