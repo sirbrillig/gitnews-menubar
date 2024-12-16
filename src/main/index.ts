@@ -23,6 +23,7 @@ import AutoLaunch from 'easy-auto-launch';
 import dotEnv from 'dotenv';
 import {
 	fetchNotificationsForAccount,
+	getRawImage,
 	markNotficationAsRead,
 } from './lib/github-interface';
 import { logMessage } from './lib/logging';
@@ -147,6 +148,27 @@ ipcMain.on('toggle-auto-launch', (_event, isEnabled) => {
 ipcMain.handle('token:get', async () => {
 	return getToken();
 });
+
+ipcMain.handle(
+	'image:get',
+	async (_event, src: string, account: AccountInfo) => {
+		try {
+			const rawImage = await getRawImage(src, account);
+			return rawImage;
+		} catch (error) {
+			// Electron IPC does not preserve Error objects so we must serialize what
+			// data we actually want. See
+			// https://github.com/electron/electron/issues/24427
+			logMessage(
+				`Failure while fetching image for account ${account.name} (${account.serverUrl}) at URL ${src}`,
+				'error'
+			);
+			return {
+				error: encodeError(account.id, error as Error),
+			};
+		}
+	}
+);
 
 ipcMain.handle('is-auto-launch:get', async () => {
 	return autoLauncher.isEnabled();

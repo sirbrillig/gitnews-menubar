@@ -167,6 +167,10 @@ export interface MainBridge {
 	isAutoLaunchEnabled: () => Promise<boolean>;
 	saveAccounts: (accounts: AccountInfo[]) => void;
 	getAccounts: () => Promise<AccountInfo[]>;
+	getRawImage: (
+		imageUrl: string,
+		account: AccountInfo
+	) => Promise<Uint8Array[] | { error: Error }>;
 }
 
 export type UnknownFetchError = FetchErrorObject | string;

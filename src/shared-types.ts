@@ -43,7 +43,18 @@ export interface Note {
 	repositoryName: string;
 	type: string;
 	subjectUrl: string;
+
+	/**
+	 * The image URL.
+	 *
+	 * For public GitHub it might be something like:
+	 * https://avatars.githubusercontent.com/u/123123123u=ABCDEFG&v=4
+	 *
+	 * For GitHub Enterprise it might be something like:
+	 * https://github.a8c.com/avatars/u/1234?
+	 */
 	commentAvatar?: string;
+
 	repositoryOwnerAvatar?: string;
 
 	gitnewsAccountId: AccountInfo['id'];
