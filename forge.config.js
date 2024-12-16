@@ -7,7 +7,7 @@ module.exports = {
 			name: '@electron-forge/plugin-webpack',
 			config: {
 				port: 8000,
-				devContentSecurityPolicy: `default-src 'self' *.github.com *.githubusercontent.com localhost:3000 'unsafe-eval' 'unsafe-inline'`,
+				devContentSecurityPolicy: `default-src 'self' *.github.com *.githubusercontent.com localhost:3000 'unsafe-eval' 'unsafe-inline' blob:`,
 				mainConfig: './webpack.main.config.js',
 				renderer: {
 					config: './webpack.renderer.config.js',
