@@ -46,6 +46,30 @@ function makeProxyFetch(proxyUrl: string) {
 	};
 }
 
+export async function getRawImage(
+	imgUrl: string,
+	account: AccountInfo
+): Promise<Uint8Array[]> {
+	const response = account.proxyUrl
+		? await makeProxyFetch(account.proxyUrl)(imgUrl, {})
+		: await fetch(imgUrl);
+	const reader = response.body?.getReader();
+	if (!reader) {
+		throw new Error(`No image body found for ${imgUrl} (${account.id})`);
+	}
+	// @todo is this the right type?
+	const arr: Uint8Array[] = [];
+	while (true) {
+		// @todo is there a way to make `value` have a TS type?
+		const { done, value } = await reader.read();
+		arr.push(value);
+		if (done) {
+			break;
+		}
+	}
+	return arr.filter(Boolean);
+}
+
 function createOctokit(account: AccountInfo) {
 	const options = {
 		auth: account.apiKey,

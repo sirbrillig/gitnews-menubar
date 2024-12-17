@@ -18,6 +18,8 @@ const bridge: MainBridge = {
 	getVersion: () => ipcRenderer.invoke('version:get'),
 	isDemoMode: () => ipcRenderer.invoke('is-demo-mode:get'),
 	isAutoLaunchEnabled: () => ipcRenderer.invoke('is-auto-launch:get'),
+	getRawImage: (imageUrl: string, account: AccountInfo) =>
+		ipcRenderer.invoke('image:get', imageUrl, account),
 	getNotificationsForAccount: (account: AccountInfo) =>
 		ipcRenderer.invoke('notifications-for-account:get', account),
 	markNotificationRead: (note: Note, account: AccountInfo) =>
