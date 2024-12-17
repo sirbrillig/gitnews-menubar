@@ -2,7 +2,6 @@ import React from 'react';
 import Gridicon from 'gridicons';
 import debugFactory from 'debug';
 import { formatDistanceToNow } from 'date-fns';
-import EnsuredImage from './ensured-image';
 import MuteIcon from './mute-icon';
 import {
 	Note,
@@ -11,7 +10,11 @@ import {
 	MarkUnread,
 	MuteRepo,
 	UnmuteRepo,
+	AppReduxState,
 } from '../types';
+import { FetchedImage } from './fetched-image';
+import { useSelector } from 'react-redux';
+import EnsuredImage from './ensured-image';
 
 const debug = debugFactory('gitnews-menubar');
 
@@ -46,6 +49,9 @@ export default function Notification({
 }) {
 	const isUnread =
 		note.unread === true ? true : note.gitnewsMarkedUnread === true;
+
+	const accounts = useSelector((state: AppReduxState) => state.accounts);
+	const account = accounts.find(({ id }) => id === note.gitnewsAccountId);
 
 	const onClick = () => {
 		debug('clicked on notification', note);
@@ -134,7 +140,11 @@ export default function Notification({
 			<div className="notification__image">
 				{isUnread && <span className="notification__new-dot" />}
 				{isMuted && <MuteIcon className="mute-icon" />}
-				<EnsuredImage src={avatarSrc} />
+				{account ? (
+					<FetchedImage src={avatarSrc} account={account} />
+				) : (
+					<EnsuredImage src={avatarSrc} />
+				)}
 			</div>
 			<div className="notification__body">
 				<div className="notification__repo">
