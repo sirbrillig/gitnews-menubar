@@ -1,5 +1,19 @@
 import React from 'react';
 
+// From https://stackoverflow.com/a/16348977/1877316
+function getRandomColorForSeed(seed: string): string {
+	let hash = 0;
+	seed.split('').forEach((char) => {
+		hash = char.charCodeAt(0) + ((hash << 5) - hash);
+	});
+	let colour = '#';
+	for (let i = 0; i < 3; i++) {
+		const value = (hash >> (i * 8)) & 0xff;
+		colour += value.toString(16).padStart(2, '0');
+	}
+	return colour;
+}
+
 // From https://stackoverflow.com/a/39778910/1877316
 function generateAvatar(name: string) {
 	const initials = name
@@ -20,7 +34,7 @@ function generateAvatar(name: string) {
 	ctx.beginPath();
 	ctx.arc(radius + margin, radius + margin, radius, 0, 2 * Math.PI, false);
 	ctx.closePath();
-	ctx.fillStyle = 'grey';
+	ctx.fillStyle = getRandomColorForSeed(name);
 	ctx.fill();
 	ctx.fillStyle = 'white';
 	ctx.font = 'bold 30px Arial';
