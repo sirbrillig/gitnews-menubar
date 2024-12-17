@@ -55,7 +55,7 @@ export async function getRawImage(
 		: await fetch(imgUrl);
 	const reader = response.body?.getReader();
 	if (!reader) {
-		return [];
+		throw new Error(`No image body found for ${imgUrl} (${account.id})`);
 	}
 	// @todo is this the right type?
 	const arr: Uint8Array[] = [];
