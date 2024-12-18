@@ -46,6 +46,8 @@ export interface Note {
 	commentAvatar?: string;
 	repositoryOwnerAvatar?: string;
 
+	commentUsername: string;
+
 	gitnewsAccountId: AccountInfo['id'];
 }
 

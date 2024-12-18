@@ -125,6 +125,7 @@ interface RawNotification {
 interface CommentData {
 	commentAvatar: string;
 	commentHtmlUrl: string;
+	commentUsername: string;
 }
 
 async function getCommentDataForNotification(
@@ -134,14 +135,20 @@ async function getCommentDataForNotification(
 ): Promise<CommentData> {
 	let commentAvatar: string = '';
 	let commentHtmlUrl: string = '';
+	let commentUsername: string = '';
 	const commentPath = getOctokitRequestPathFromUrl(
 		account,
 		notification.subject.latest_comment_url ?? notification.subject.url
 	);
 	try {
 		const comment = await octokit.request(`GET ${commentPath}`, {});
-		commentAvatar = comment.data.user.avatar_url;
-		commentHtmlUrl = comment.data.html_url;
+		if (!isGithubCommentResponseValid(comment)) {
+			throw new Error('Invalid comment data from server');
+		}
+		const commentData = comment.data as RawCommentResponse['data'];
+		commentAvatar = commentData.user.avatar_url;
+		commentHtmlUrl = commentData.html_url;
+		commentUsername = commentData.user.login;
 	} catch (error) {
 		logMessage(
 			`Failed to fetch comment for ${commentPath} (${notification.subject.latest_comment_url ?? notification.subject.url})`,
@@ -151,6 +158,7 @@ async function getCommentDataForNotification(
 	return {
 		commentAvatar,
 		commentHtmlUrl,
+		commentUsername,
 	};
 }
 
@@ -213,6 +221,7 @@ function buildNoteFromData({
 		repositoryName: notification.repository.name,
 		type: notification.subject.type,
 		subjectUrl: subjectData.subjectHtmlUrl,
+		commentUsername: commentData.commentUsername,
 		commentAvatar:
 			commentData.commentAvatar ?? notification.repository.owner.avatar_url,
 		repositoryOwnerAvatar: notification.repository.owner.avatar_url,
@@ -221,6 +230,33 @@ function buildNoteFromData({
 			notification: { reason: notification.reason as NoteReason },
 		},
 	};
+}
+
+interface RawCommentResponse {
+	data: {
+		html_url: string;
+		user: {
+			login: string;
+			avatar_url: string;
+		};
+	};
+}
+
+function isGithubCommentResponseValid(
+	response: unknown
+): response is RawCommentResponse {
+	const properResponse = response as RawCommentResponse;
+	if (!properResponse?.data) {
+		return false;
+	}
+	if (
+		!properResponse.data.html_url ||
+		!properResponse.data.user?.login ||
+		!properResponse.data.user?.avatar_url
+	) {
+		return false;
+	}
+	return true;
 }
 
 function isGithubActivityResponseValid(

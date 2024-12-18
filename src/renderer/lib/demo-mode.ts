@@ -26,6 +26,7 @@ function createDemoNotification(initialDate: Date): Note {
 
 	return {
 		gitnewsAccountId: defaultAccountInfo.id,
+		commentUsername: owner,
 		url: '',
 		updatedAt: new Date(
 			initialDate.getTime() - hourInMiliseconds * randomNumber(1, 23)

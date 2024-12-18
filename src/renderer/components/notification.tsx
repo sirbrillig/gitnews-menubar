@@ -2,7 +2,6 @@ import React from 'react';
 import Gridicon from 'gridicons';
 import debugFactory from 'debug';
 import { formatDistanceToNow } from 'date-fns';
-import EnsuredImage from './ensured-image';
 import MuteIcon from './mute-icon';
 import {
 	Note,
@@ -12,6 +11,7 @@ import {
 	MuteRepo,
 	UnmuteRepo,
 } from '../types';
+import { ImageWithBackup } from './image-with-backup';
 
 const debug = debugFactory('gitnews-menubar');
 
@@ -134,7 +134,7 @@ export default function Notification({
 			<div className="notification__image">
 				{isUnread && <span className="notification__new-dot" />}
 				{isMuted && <MuteIcon className="mute-icon" />}
-				<EnsuredImage src={avatarSrc} />
+				<ImageWithBackup src={avatarSrc} username={note.commentUsername} />
 			</div>
 			<div className="notification__body">
 				<div className="notification__repo">
