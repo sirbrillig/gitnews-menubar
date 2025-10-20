@@ -190,7 +190,7 @@ export function createReducer() {
 					fetchRetryCount: 0,
 					errors: [],
 					fetchInterval: defaultFetchInterval,
-					notes: mergeNotifications(state.notes, action.notes),
+					notes: newNotes,
 				});
 			}
 			case 'CHANGE_AUTO_LOAD':

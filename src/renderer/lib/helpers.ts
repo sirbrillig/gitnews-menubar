@@ -29,6 +29,10 @@ function getMatchingPrevNote(prevNotes: Note[], note: Note): Note | undefined {
  *
  * This allows updated unread notes which have been "seen" to retain that
  * property if the user has already seen them.
+ *
+ * Note that if a previous note is not in the new notes, it will not be
+ * returned. To put it another way: we only return new notes and throw away all
+ * old notes.
  */
 export function mergeNotifications(
 	prevNotes: Note[],
@@ -36,6 +40,9 @@ export function mergeNotifications(
 ): Note[] {
 	return nextNotes.map((note) => {
 		const previousNote = getMatchingPrevNote(prevNotes, note);
+		// If the note already existed and has not changed, replace all its
+		// properties but preserve the special gitnews properties so "seen" or
+		// "marked unread" notes stay "seen" or "unread".
 		if (previousNote && !hasNoteUpdated(note, previousNote)) {
 			return {
 				...note,
