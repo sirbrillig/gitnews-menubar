@@ -132,11 +132,11 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 			return;
 		}
 		debug('fetching notifications in middleware');
-		// NOTE: After this point, any return action MUST disable fetchingInProgress
-		// or the app will get stuck never updating again.
-		next(fetchBegin());
 
 		try {
+			// NOTE: After this point, any return action MUST disable fetchingInProgress
+			// or the app will get stuck never updating again.
+			next(fetchBegin());
 			const getGithubNotifications = getFetcher(
 				state.accounts,
 				state.isDemoMode
@@ -147,7 +147,6 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 				`Notifications retrieved (${notes.length} found in ${state.accounts.length} accounts)`,
 				'info'
 			);
-			next(fetchDone());
 			next(gotNotes(notes));
 		} catch (err) {
 			debug('Fetching notifications threw an error', err);
@@ -155,8 +154,9 @@ export function createFetcher(): Middleware<{}, AppReduxState> {
 				`Fetching notifications threw an error`,
 				'warn'
 			);
-			next(fetchDone());
 			getErrorHandler(next)(err as FetchErrorObject);
+		} finally {
+			next(fetchDone());
 		}
 	}
 
