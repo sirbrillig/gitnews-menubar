@@ -4,7 +4,7 @@ import { AppDispatch } from './store';
 const maxFetchInterval = secsToMs(300); // 5 minutes
 
 export function getNoteId(note: Note) {
-	return note.id;
+	return 'gh_acc:' + note.gitnewsAccountId + '-__-gh_id:' + note.id;
 }
 
 function hasNoteUpdated(note: Note, prevNote: Note): boolean {
