@@ -181,7 +181,7 @@ function doesNoteMatchSearch(note: Note, searchValue: string) {
 }
 
 function isNoteInNotes(note: Note, notes: Note[]) {
-	return notes.some((item) => item.id === note.id);
+	return notes.some((item) => getNoteId(item) === getNoteId(note));
 }
 
 function MultiOpenNotice() {
