@@ -29,6 +29,8 @@ export default function Notification({
 	isMultiOpenMode,
 	isMultiOpenPending,
 	saveNoteToOpen,
+	saveNoteToMarkRead,
+	isMultiMarkReadPending,
 }: {
 	note: Note;
 	openUrl: OpenUrl;
@@ -43,6 +45,8 @@ export default function Notification({
 	isMultiOpenMode: boolean;
 	isMultiOpenPending: boolean;
 	saveNoteToOpen: (n: Note) => void;
+	saveNoteToMarkRead: (n: Note) => void;
+	isMultiMarkReadPending: boolean;
 }) {
 	const isUnread =
 		note.unread === true ? true : note.gitnewsMarkedUnread === true;
@@ -58,14 +62,29 @@ export default function Notification({
 		openUrl(note.commentUrl);
 	};
 
+	const onClickMarkRead = (event: React.MouseEvent<HTMLDivElement>) => {
+		event.preventDefault();
+		event.stopPropagation();
+		debug('clicked mark-as-read button', note);
+		setMuteRequested(false);
+		if (isMultiOpenMode) {
+			saveNoteToMarkRead(note);
+			return;
+		}
+		markRead(token, note);
+	};
+
 	const lastUpdated = new Date(note.updatedAt);
 	const timeString = formatDistanceToNow(lastUpdated, { addSuffix: true });
 	const noteClasses = [
 		'notification',
-		...(isMultiOpenMode && !isMultiOpenPending
+		...(isMultiOpenMode && !isMultiOpenPending && !isMultiMarkReadPending
 			? ['notification--multi-open']
 			: []),
 		...(isMultiOpenPending ? ['notification--multi-open-clicked'] : []),
+		...(isMultiMarkReadPending
+			? ['notification--multi-mark-read-clicked']
+			: []),
 		...getNoteClasses({ isUnread, isMuted }),
 	];
 	const defaultAvatar = `https://avatars.io/twitter/${note.repositoryFullName}`;
@@ -125,52 +144,66 @@ export default function Notification({
 	}
 
 	return (
-		<div className={noteClasses.join(' ')} onClick={onClick}>
-			{isMultiOpenPending && <MultiOpenPendingNotice />}
-			<div className={iconClasses.join(' ')}>
-				<Gridicon icon={iconType} />
-				<span className="notification__type--text">{iconText}</span>
-			</div>
-			<div className="notification__image">
-				{isUnread && <span className="notification__new-dot" />}
-				{isMuted && <MuteIcon className="mute-icon" />}
-				<ImageWithBackup src={avatarSrc} username={note.commentUsername} />
-			</div>
-			<div className="notification__body">
-				<div className="notification__repo">
-					<span className="notification__repo-name">
-						{note.repositoryFullName}
-					</span>
+		<div className={noteClasses.join(' ')}>
+			{isMultiOpenPending && <MultiOpenPendingNotice onClick={onClick} />}
+			{isMultiMarkReadPending && (
+				<MultiMarkReadPendingNotice onClick={onClickMarkRead} />
+			)}
+			<div className="notification__main-content" onClick={onClick}>
+				<div className={iconClasses.join(' ')}>
+					<Gridicon icon={iconType} />
+					<span className="notification__type--text">{iconText}</span>
 				</div>
-				<div className="notification__title">{note.title}</div>
-				<div className="notification__footer">
-					<span className="notification__time">{timeString}</span>
-					<span className="notification__actions">
-						{isMuted ? (
-							<UnmuteRepoButton disabled={isMultiOpenMode} onClick={doUnmute} />
-						) : (
-							<MuteRepoRequestButton
-								disabled={isMultiOpenMode}
-								onClick={doMute}
-							/>
-						)}
-						{isUnread ? (
-							<MarkReadButton
-								disabled={isMultiOpenMode}
-								note={note}
-								token={token}
-								markRead={markRead}
-							/>
-						) : (
-							<MarkUnreadButton
-								disabled={isMultiOpenMode}
-								note={note}
-								markUnread={markUnread}
-							/>
-						)}
-					</span>
+				<div className="notification__image">
+					{isUnread && <span className="notification__new-dot" />}
+					{isMuted && <MuteIcon className="mute-icon" />}
+					<ImageWithBackup src={avatarSrc} username={note.commentUsername} />
+				</div>
+				<div className="notification__body">
+					<div className="notification__repo">
+						<span className="notification__repo-name">
+							{note.repositoryFullName}
+						</span>
+					</div>
+					<div className="notification__title">{note.title}</div>
+					<div className="notification__footer">
+						<span className="notification__time">{timeString}</span>
+						<span className="notification__actions">
+							{isMuted ? (
+								<UnmuteRepoButton disabled={isMultiOpenMode} onClick={doUnmute} />
+							) : (
+								<MuteRepoRequestButton
+									disabled={isMultiOpenMode}
+									onClick={doMute}
+								/>
+							)}
+							{isUnread ? (
+								<MarkReadButton
+									disabled={isMultiOpenMode}
+									note={note}
+									token={token}
+									markRead={markRead}
+								/>
+							) : (
+								<MarkUnreadButton
+									disabled={isMultiOpenMode}
+									note={note}
+									markUnread={markUnread}
+								/>
+							)}
+						</span>
+					</div>
 				</div>
 			</div>
+			{isUnread && isMultiOpenMode && (
+				<div
+					className="notification__mark-read-target"
+					onClick={onClickMarkRead}
+					title="Mark as read"
+				>
+					<Gridicon icon="checkmark" size={18} />
+				</div>
+			)}
 		</div>
 	);
 }
@@ -335,8 +368,26 @@ function getNoteClasses({
 	return ['notification__read'];
 }
 
-function MultiOpenPendingNotice() {
+function MultiOpenPendingNotice({
+	onClick,
+}: {
+	onClick: () => void;
+}) {
 	return (
-		<div className="multi-open-pending-notice">Release Command key to open</div>
+		<div className="multi-open-pending-notice" onClick={onClick}>
+			Release Command key to open (click to deselect)
+		</div>
+	);
+}
+
+function MultiMarkReadPendingNotice({
+	onClick,
+}: {
+	onClick: (event: React.MouseEvent<HTMLDivElement>) => void;
+}) {
+	return (
+		<div className="multi-mark-read-pending-notice" onClick={onClick}>
+			Release Command key to mark as read (click to deselect)
+		</div>
 	);
 }

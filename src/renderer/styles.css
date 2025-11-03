@@ -399,6 +399,10 @@ header h1 {
 	border-left: 4px solid #4fb477;
 }
 
+.notification--multi-mark-read-clicked {
+	border-left: 4px solid #6b7ff5;
+}
+
 .notification__muted {
 	position: relative;
 }
@@ -598,7 +602,42 @@ header h1 {
 	fill: var(--no-notifications-icon-color);
 }
 
+.notification__main-content {
+	flex: 1;
+	display: flex;
+	cursor: pointer;
+}
+
+.notification__mark-read-target {
+	width: 40px;
+	min-width: 40px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	border-left: 1px solid var(--notification-border-color);
+	fill: #4fb477;
+	transition: background-color 0.2s;
+}
+
+.notification__mark-read-target:hover {
+	background-color: rgba(79, 180, 119, 0.1);
+}
+
 .multi-open-pending-notice {
+	position: absolute;
+	z-index: 90;
+	background-color: var(--multi-open-notification-pending-overlay);
+	top: 0;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-weight: bold;
+}
+
+.multi-mark-read-pending-notice {
 	position: absolute;
 	z-index: 90;
 	background-color: var(--multi-open-notification-pending-overlay);

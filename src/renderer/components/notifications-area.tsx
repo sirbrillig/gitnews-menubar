@@ -68,15 +68,42 @@ export default function NotificationsArea({
 	const { isUpdateAvailable, updateUrl, updatedVersion } =
 		useGetGitnewsUpdate();
 	const [notesToOpen, setNotesToOpen] = React.useState<Note[]>([]);
+	const [notesToMarkRead, setNotesToMarkRead] = React.useState<Note[]>([]);
 	const [isMultiOpenMode, setMultiOpenMode] = React.useState(false);
 	const saveNoteToOpen = (note: Note) => {
+		// If already in either queue, remove it
 		if (isNoteInNotes(note, notesToOpen)) {
 			setNotesToOpen((notes) =>
 				notes.filter((noteToOpen) => noteToOpen !== note)
 			);
 			return;
 		}
+		if (isNoteInNotes(note, notesToMarkRead)) {
+			setNotesToMarkRead((notes) =>
+				notes.filter((noteToMarkRead) => noteToMarkRead !== note)
+			);
+			return;
+		}
+		// Not in any queue, add to open queue
 		setNotesToOpen((notes) => [...notes, note]);
+	};
+
+	const saveNoteToMarkRead = (note: Note) => {
+		// If already in either queue, remove it
+		if (isNoteInNotes(note, notesToMarkRead)) {
+			setNotesToMarkRead((notes) =>
+				notes.filter((noteToMarkRead) => noteToMarkRead !== note)
+			);
+			return;
+		}
+		if (isNoteInNotes(note, notesToOpen)) {
+			setNotesToOpen((notes) =>
+				notes.filter((noteToOpen) => noteToOpen !== note)
+			);
+			return;
+		}
+		// Not in any queue, add to mark-read queue
+		setNotesToMarkRead((notes) => [...notes, note]);
 	};
 
 	const openSavedNotes = React.useCallback(() => {
@@ -87,6 +114,14 @@ export default function NotificationsArea({
 		});
 		setNotesToOpen([]);
 	}, [notesToOpen, openUrl, markRead, token]);
+
+	const markSavedNotesAsRead = React.useCallback(() => {
+		debug('marking notes as read', notesToMarkRead);
+		notesToMarkRead.forEach((note) => {
+			markRead(token, note);
+		});
+		setNotesToMarkRead([]);
+	}, [notesToMarkRead, markRead, token]);
 	const onKeyUp = React.useCallback((event: KeyboardEvent) => {
 		debug('Notification keyUp', event.code);
 		if (event.code.includes('Meta')) {
@@ -103,10 +138,15 @@ export default function NotificationsArea({
 	);
 
 	React.useEffect(() => {
-		if (!isMultiOpenMode && notesToOpen.length > 0) {
-			openSavedNotes();
+		if (!isMultiOpenMode) {
+			if (notesToOpen.length > 0) {
+				openSavedNotes();
+			}
+			if (notesToMarkRead.length > 0) {
+				markSavedNotesAsRead();
+			}
 		}
-	}, [isMultiOpenMode, openSavedNotes, notesToOpen]);
+	}, [isMultiOpenMode, openSavedNotes, notesToOpen, markSavedNotesAsRead, notesToMarkRead]);
 
 	React.useEffect(() => {
 		if (!appVisible) {
@@ -149,6 +189,8 @@ export default function NotificationsArea({
 			isMultiOpenMode={isMultiOpenMode}
 			saveNoteToOpen={saveNoteToOpen}
 			isMultiOpenPending={isNoteInNotes(note, notesToOpen)}
+			saveNoteToMarkRead={saveNoteToMarkRead}
+			isMultiMarkReadPending={isNoteInNotes(note, notesToMarkRead)}
 		/>
 	));
 
@@ -187,7 +229,9 @@ function isNoteInNotes(note: Note, notes: Note[]) {
 function MultiOpenNotice() {
 	return (
 		<div className="multi-open-notice">
-			<span>Click multiple notifications then release the Command key</span>
+			<span>
+				Click multiple notifications to open or mark as read, then release the Command key
+			</span>
 		</div>
 	);
 }
