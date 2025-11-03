@@ -85,6 +85,7 @@ type AppProps = AppConnectedProps & AppConnectedActions & AppProvidedProps;
 interface AppState {
 	currentPane: AppPane;
 	searchValue: string;
+	isMultiOpenMode: boolean;
 }
 
 class App extends React.Component<AppProps, AppState> {
@@ -98,13 +99,17 @@ class App extends React.Component<AppProps, AppState> {
 				this.props.fetchInterval
 			) < 1;
 		const pollFunction = () => {
-			shouldComponentPoll() && this.props.fetchNotifications();
+			// Don't fetch while multi-select mode is active
+			if (!this.state.isMultiOpenMode && shouldComponentPoll()) {
+				this.props.fetchNotifications();
+			}
 			return true;
 		};
 		this.fetcher = new Poller({ pollFunction });
 		this.state = {
 			currentPane: PANE_NOTIFICATIONS,
 			searchValue: '',
+			isMultiOpenMode: false,
 		};
 	}
 
@@ -181,6 +186,10 @@ class App extends React.Component<AppProps, AppState> {
 		}
 		return 'normal';
 	}
+
+	setMultiOpenMode = (isActive: boolean) => {
+		this.setState({ isMultiOpenMode: isActive });
+	};
 
 	render() {
 		const {
@@ -293,6 +302,8 @@ class App extends React.Component<AppProps, AppState> {
 					appVisible={this.props.appVisible}
 					isLogging={this.props.isLogging}
 					toggleLogging={this.props.toggleLogging}
+					isMultiOpenMode={this.state.isMultiOpenMode}
+					setMultiOpenMode={this.setMultiOpenMode}
 				/>
 			</main>
 		);

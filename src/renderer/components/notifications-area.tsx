@@ -51,6 +51,8 @@ export default function NotificationsArea({
 	searchValue,
 	filterType,
 	appVisible,
+	isMultiOpenMode,
+	setMultiOpenMode,
 }: {
 	newNotes: Note[];
 	readNotes: Note[];
@@ -64,12 +66,13 @@ export default function NotificationsArea({
 	searchValue: string;
 	filterType: FilterType;
 	appVisible: boolean;
+	isMultiOpenMode: boolean;
+	setMultiOpenMode: (isActive: boolean) => void;
 }) {
 	const { isUpdateAvailable, updateUrl, updatedVersion } =
 		useGetGitnewsUpdate();
 	const [notesToOpen, setNotesToOpen] = React.useState<Note[]>([]);
 	const [notesToMarkRead, setNotesToMarkRead] = React.useState<Note[]>([]);
-	const [isMultiOpenMode, setMultiOpenMode] = React.useState(false);
 	const saveNoteToOpen = (note: Note) => {
 		// If already in either queue, remove it
 		if (isNoteInNotes(note, notesToOpen)) {
