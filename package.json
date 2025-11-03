@@ -14,7 +14,11 @@
 		"package": "electron-forge package",
 		"make": "electron-forge make"
 	},
-	"keywords": ["menu", "github", "notifications"],
+	"keywords": [
+		"menu",
+		"github",
+		"notifications"
+	],
 	"author": "Payton Swick <payton@foolord.com>",
 	"license": "MIT",
 	"dependencies": {
@@ -61,11 +65,16 @@
 		"@types/react-dom": "^18.3.0",
 		"@types/react-redux": "^7.1.33",
 		"@types/redux-logger": "^3.0.13",
+		"@typescript-eslint/eslint-plugin": "^7.0.0",
+		"@typescript-eslint/parser": "^7.0.0",
 		"@vercel/webpack-asset-relocator-loader": "1.7.3",
 		"copy-webpack-plugin": "^12.0.2",
 		"electron": "^32.0.2",
 		"electron-react-devtools": "^0.5.3",
 		"electron-webpack": "^2.8.2",
+		"eslint": "^8.57.0",
+		"eslint-plugin-react": "^7.37.5",
+		"eslint-plugin-react-hooks": "^7.0.1",
 		"husky": "^9.1.5",
 		"lint-staged": "^15.2.10",
 		"node-loader": "^2.0.0",
@@ -88,6 +97,8 @@
 		}
 	},
 	"lint-staged": {
-		"*.{js,ts,tsx}": ["prettier --write"]
+		"*.{js,ts,tsx}": [
+			"prettier --write"
+		]
 	}
 }
