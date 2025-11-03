@@ -8,14 +8,19 @@ export function getNoteId(note: Note) {
 }
 
 function hasNoteUpdated(note: Note, prevNote: Note): boolean {
-	if (
-		note.updatedAt &&
-		prevNote.gitnewsSeenAt &&
-		Date.parse(note.updatedAt) > prevNote.gitnewsSeenAt
-	) {
-		return true;
+	if (!note.updatedAt || !prevNote.gitnewsSeenAt) {
+		return false;
 	}
-	return false;
+
+	const updatedAt = Date.parse(note.updatedAt);
+	const seenAt = prevNote.gitnewsSeenAt;
+
+	// Allow tolerance for clock skew between GitHub servers and local machine.
+	// GitHub's timestamps have second precision while Date.now() has millisecond precision,
+	// and clocks may not be perfectly synchronized.
+	const TOLERANCE_MS = 30_000;
+
+	return updatedAt > seenAt + TOLERANCE_MS;
 }
 
 function getMatchingPrevNote(prevNotes: Note[], note: Note): Note | undefined {
