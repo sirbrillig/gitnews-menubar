@@ -638,6 +638,23 @@ header h1 {
 	font-weight: bold;
 }
 
+.multi-open-pending-notice__icon {
+	position: absolute;
+	left: 12px;
+	top: 50%;
+	transform: translateY(-50%);
+	font-size: 48px;
+	line-height: 1;
+}
+
+.multi-open-pending-notice--open {
+	color: #2764ff;
+}
+
+.multi-open-pending-notice--mark-read {
+	color: #4fb877;
+}
+
 .multi-open-notice {
 	width: 100%;
 	padding: 4px 5px;

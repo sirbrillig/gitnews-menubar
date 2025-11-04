@@ -374,6 +374,9 @@ function getNoteClasses({
 function MultiOpenPendingNotice({ onClick }: { onClick: () => void }) {
 	return (
 		<div className="multi-open-pending-notice" onClick={onClick}>
+			<span className="multi-open-pending-notice__icon multi-open-pending-notice--open">
+				↗
+			</span>
 			<div>Release Command key to open</div>
 			<div>(click to deselect)</div>
 		</div>
@@ -387,6 +390,9 @@ function MultiMarkReadPendingNotice({
 }) {
 	return (
 		<div className="multi-open-pending-notice" onClick={onClick}>
+			<span className="multi-open-pending-notice__icon multi-open-pending-notice--mark-read">
+				✓
+			</span>
 			<div>Release Command key to mark as read</div>
 			<div>(click to deselect)</div>
 		</div>
