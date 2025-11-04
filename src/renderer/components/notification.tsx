@@ -170,7 +170,10 @@ export default function Notification({
 						<span className="notification__time">{timeString}</span>
 						<span className="notification__actions">
 							{isMuted ? (
-								<UnmuteRepoButton disabled={isMultiOpenMode} onClick={doUnmute} />
+								<UnmuteRepoButton
+									disabled={isMultiOpenMode}
+									onClick={doUnmute}
+								/>
 							) : (
 								<MuteRepoRequestButton
 									disabled={isMultiOpenMode}
@@ -368,14 +371,11 @@ function getNoteClasses({
 	return ['notification__read'];
 }
 
-function MultiOpenPendingNotice({
-	onClick,
-}: {
-	onClick: () => void;
-}) {
+function MultiOpenPendingNotice({ onClick }: { onClick: () => void }) {
 	return (
 		<div className="multi-open-pending-notice" onClick={onClick}>
-			Release Command key to open (click to deselect)
+			<div>Release Command key to open</div>
+			<div>(click to deselect)</div>
 		</div>
 	);
 }
@@ -386,8 +386,9 @@ function MultiMarkReadPendingNotice({
 	onClick: (event: React.MouseEvent<HTMLDivElement>) => void;
 }) {
 	return (
-		<div className="multi-mark-read-pending-notice" onClick={onClick}>
-			Release Command key to mark as read (click to deselect)
+		<div className="multi-open-pending-notice" onClick={onClick}>
+			<div>Release Command key to mark as read</div>
+			<div>(click to deselect)</div>
 		</div>
 	);
 }
