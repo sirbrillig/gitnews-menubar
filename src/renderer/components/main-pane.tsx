@@ -54,6 +54,8 @@ export default function MainPane({
 	appVisible,
 	isLogging,
 	toggleLogging,
+	isMultiOpenMode,
+	setMultiOpenMode,
 }: {
 	token: string;
 	currentPane: AppPane;
@@ -80,6 +82,8 @@ export default function MainPane({
 	isLogging: boolean;
 	toggleLogging: (newValue: boolean) => void;
 	isTokenInvalid: boolean;
+	isMultiOpenMode: boolean;
+	setMultiOpenMode: (isActive: boolean) => void;
 }) {
 	const accounts = useSelector((state: AppReduxState) => state.accounts);
 	const dispatch = useDispatch();
@@ -157,6 +161,8 @@ export default function MainPane({
 			searchValue={searchValue}
 			filterType={filterType}
 			appVisible={appVisible}
+			isMultiOpenMode={isMultiOpenMode}
+			setMultiOpenMode={setMultiOpenMode}
 		/>
 	);
 }
