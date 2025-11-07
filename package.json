@@ -1,6 +1,6 @@
 {
 	"name": "gitnews-menubar",
-	"version": "2.0.2-beta.1",
+	"version": "2.1.0-beta.1",
 	"description": "GitHub notifications in your menu bar",
 	"productName": "Gitnews",
 	"main": ".webpack/main",
@@ -14,11 +14,7 @@
 		"package": "electron-forge package",
 		"make": "electron-forge make"
 	},
-	"keywords": [
-		"menu",
-		"github",
-		"notifications"
-	],
+	"keywords": ["menu", "github", "notifications"],
 	"author": "Payton Swick <payton@foolord.com>",
 	"license": "MIT",
 	"dependencies": {
@@ -97,8 +93,6 @@
 		}
 	},
 	"lint-staged": {
-		"*.{js,ts,tsx}": [
-			"prettier --write"
-		]
+		"*.{js,ts,tsx}": ["prettier --write"]
 	}
 }
