@@ -31,6 +31,8 @@ export default function Notification({
 	saveNoteToOpen,
 	saveNoteToMarkRead,
 	isMultiMarkReadPending,
+	saveNoteToMarkUnread,
+	isMultiMarkUnreadPending,
 }: {
 	note: Note;
 	openUrl: OpenUrl;
@@ -47,6 +49,8 @@ export default function Notification({
 	saveNoteToOpen: (n: Note) => void;
 	saveNoteToMarkRead: (n: Note) => void;
 	isMultiMarkReadPending: boolean;
+	saveNoteToMarkUnread: (n: Note) => void;
+	isMultiMarkUnreadPending: boolean;
 }) {
 	const isUnread =
 		note.unread === true ? true : note.gitnewsMarkedUnread === true;
@@ -79,6 +83,10 @@ export default function Notification({
 		event.stopPropagation();
 		debug('clicked mark-as-unread button', note);
 		setMuteRequested(false);
+		if (isMultiOpenMode) {
+			saveNoteToMarkUnread(note);
+			return;
+		}
 		markUnread(note);
 	};
 
@@ -86,12 +94,15 @@ export default function Notification({
 	const timeString = formatDistanceToNow(lastUpdated, { addSuffix: true });
 	const noteClasses = [
 		'notification',
-		...(isMultiOpenMode && !isMultiOpenPending && !isMultiMarkReadPending
+		...(isMultiOpenMode && !isMultiOpenPending && !isMultiMarkReadPending && !isMultiMarkUnreadPending
 			? ['notification--multi-open']
 			: []),
 		...(isMultiOpenPending ? ['notification--multi-open-clicked'] : []),
 		...(isMultiMarkReadPending
 			? ['notification--multi-mark-read-clicked']
+			: []),
+		...(isMultiMarkUnreadPending
+			? ['notification--multi-mark-unread-clicked']
 			: []),
 		...getNoteClasses({ isUnread, isMuted }),
 	];
@@ -156,6 +167,9 @@ export default function Notification({
 			{isMultiOpenPending && <MultiOpenPendingNotice onClick={onClick} />}
 			{isMultiMarkReadPending && (
 				<MultiMarkReadPendingNotice onClick={onClickMarkRead} />
+			)}
+			{isMultiMarkUnreadPending && (
+				<MultiMarkUnreadPendingNotice onClick={onClickMarkUnread} />
 			)}
 			<div className="notification__main-content" onClick={onClick}>
 				<div className={iconClasses.join(' ')}>
@@ -324,6 +338,22 @@ function MultiMarkReadPendingNotice({
 				✓
 			</span>
 			<div>Release Command key to mark as read</div>
+			<div>(click to deselect)</div>
+		</div>
+	);
+}
+
+function MultiMarkUnreadPendingNotice({
+	onClick,
+}: {
+	onClick: (event: React.MouseEvent<HTMLDivElement>) => void;
+}) {
+	return (
+		<div className="multi-open-pending-notice" onClick={onClick}>
+			<span className="multi-open-pending-notice__icon multi-open-pending-notice--mark-unread">
+				✉
+			</span>
+			<div>Release Command key to mark as unread</div>
 			<div>(click to deselect)</div>
 		</div>
 	);

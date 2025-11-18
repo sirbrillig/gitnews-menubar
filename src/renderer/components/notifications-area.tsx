@@ -73,6 +73,7 @@ export default function NotificationsArea({
 		useGetGitnewsUpdate();
 	const [notesToOpen, setNotesToOpen] = React.useState<Note[]>([]);
 	const [notesToMarkRead, setNotesToMarkRead] = React.useState<Note[]>([]);
+	const [notesToMarkUnread, setNotesToMarkUnread] = React.useState<Note[]>([]);
 	const saveNoteToOpen = (note: Note) => {
 		// If already in either queue, remove it
 		if (isNoteInNotes(note, notesToOpen)) {
@@ -84,6 +85,12 @@ export default function NotificationsArea({
 		if (isNoteInNotes(note, notesToMarkRead)) {
 			setNotesToMarkRead((notes) =>
 				notes.filter((noteToMarkRead) => noteToMarkRead !== note)
+			);
+			return;
+		}
+		if (isNoteInNotes(note, notesToMarkUnread)) {
+			setNotesToMarkUnread((notes) =>
+				notes.filter((noteToMarkUnread) => noteToMarkUnread !== note)
 			);
 			return;
 		}
@@ -105,8 +112,38 @@ export default function NotificationsArea({
 			);
 			return;
 		}
+		if (isNoteInNotes(note, notesToMarkUnread)) {
+			setNotesToMarkUnread((notes) =>
+				notes.filter((noteToMarkUnread) => noteToMarkUnread !== note)
+			);
+			return;
+		}
 		// Not in any queue, add to mark-read queue
 		setNotesToMarkRead((notes) => [...notes, note]);
+	};
+
+	const saveNoteToMarkUnread = (note: Note) => {
+		// If already in either queue, remove it
+		if (isNoteInNotes(note, notesToMarkUnread)) {
+			setNotesToMarkUnread((notes) =>
+				notes.filter((noteToMarkUnread) => noteToMarkUnread !== note)
+			);
+			return;
+		}
+		if (isNoteInNotes(note, notesToOpen)) {
+			setNotesToOpen((notes) =>
+				notes.filter((noteToOpen) => noteToOpen !== note)
+			);
+			return;
+		}
+		if (isNoteInNotes(note, notesToMarkRead)) {
+			setNotesToMarkRead((notes) =>
+				notes.filter((noteToMarkRead) => noteToMarkRead !== note)
+			);
+			return;
+		}
+		// Not in any queue, add to mark-unread queue
+		setNotesToMarkUnread((notes) => [...notes, note]);
 	};
 
 	const openSavedNotes = React.useCallback(() => {
@@ -125,6 +162,14 @@ export default function NotificationsArea({
 		});
 		setNotesToMarkRead([]);
 	}, [notesToMarkRead, markRead, token]);
+
+	const markSavedNotesAsUnread = React.useCallback(() => {
+		debug('marking notes as unread', notesToMarkUnread);
+		notesToMarkUnread.forEach((note) => {
+			markUnread(note);
+		});
+		setNotesToMarkUnread([]);
+	}, [notesToMarkUnread, markUnread]);
 	const onKeyUp = React.useCallback((event: KeyboardEvent) => {
 		debug('Notification keyUp', event.code);
 		if (event.code.includes('Meta')) {
@@ -148,8 +193,11 @@ export default function NotificationsArea({
 			if (notesToMarkRead.length > 0) {
 				markSavedNotesAsRead();
 			}
+			if (notesToMarkUnread.length > 0) {
+				markSavedNotesAsUnread();
+			}
 		}
-	}, [isMultiOpenMode, openSavedNotes, notesToOpen, markSavedNotesAsRead, notesToMarkRead]);
+	}, [isMultiOpenMode, openSavedNotes, notesToOpen, markSavedNotesAsRead, notesToMarkRead, markSavedNotesAsUnread, notesToMarkUnread]);
 
 	React.useEffect(() => {
 		if (!appVisible) {
@@ -194,6 +242,8 @@ export default function NotificationsArea({
 			isMultiOpenPending={isNoteInNotes(note, notesToOpen)}
 			saveNoteToMarkRead={saveNoteToMarkRead}
 			isMultiMarkReadPending={isNoteInNotes(note, notesToMarkRead)}
+			saveNoteToMarkUnread={saveNoteToMarkUnread}
+			isMultiMarkUnreadPending={isNoteInNotes(note, notesToMarkUnread)}
 		/>
 	));
 
