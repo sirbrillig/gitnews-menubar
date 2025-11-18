@@ -10,6 +10,7 @@ import {
 	MarkUnread,
 	MuteRepo,
 	UnmuteRepo,
+	QueuedAction,
 } from '../types';
 import { ImageWithBackup } from './image-with-backup';
 
@@ -27,12 +28,8 @@ export default function Notification({
 	isMuteRequested,
 	setMuteRequested,
 	isMultiOpenMode,
-	isMultiOpenPending,
-	saveNoteToOpen,
-	saveNoteToMarkRead,
-	isMultiMarkReadPending,
-	saveNoteToMarkUnread,
-	isMultiMarkUnreadPending,
+	queueNoteAction,
+	queuedAction,
 }: {
 	note: Note;
 	openUrl: OpenUrl;
@@ -45,12 +42,8 @@ export default function Notification({
 	isMuteRequested: boolean;
 	setMuteRequested: (n: Note | false) => void;
 	isMultiOpenMode: boolean;
-	isMultiOpenPending: boolean;
-	saveNoteToOpen: (n: Note) => void;
-	saveNoteToMarkRead: (n: Note) => void;
-	isMultiMarkReadPending: boolean;
-	saveNoteToMarkUnread: (n: Note) => void;
-	isMultiMarkUnreadPending: boolean;
+	queueNoteAction: (note: Note, action: QueuedAction) => void;
+	queuedAction?: QueuedAction;
 }) {
 	const isUnread =
 		note.unread === true ? true : note.gitnewsMarkedUnread === true;
@@ -59,7 +52,7 @@ export default function Notification({
 		debug('clicked on notification', note);
 		setMuteRequested(false);
 		if (isMultiOpenMode) {
-			saveNoteToOpen(note);
+			queueNoteAction(note, 'open');
 			return;
 		}
 		markRead(token, note);
@@ -72,7 +65,7 @@ export default function Notification({
 		debug('clicked mark-as-read button', note);
 		setMuteRequested(false);
 		if (isMultiOpenMode) {
-			saveNoteToMarkRead(note);
+			queueNoteAction(note, 'markRead');
 			return;
 		}
 		markRead(token, note);
@@ -84,7 +77,7 @@ export default function Notification({
 		debug('clicked mark-as-unread button', note);
 		setMuteRequested(false);
 		if (isMultiOpenMode) {
-			saveNoteToMarkUnread(note);
+			queueNoteAction(note, 'markUnread');
 			return;
 		}
 		markUnread(note);
@@ -94,14 +87,12 @@ export default function Notification({
 	const timeString = formatDistanceToNow(lastUpdated, { addSuffix: true });
 	const noteClasses = [
 		'notification',
-		...(isMultiOpenMode && !isMultiOpenPending && !isMultiMarkReadPending && !isMultiMarkUnreadPending
-			? ['notification--multi-open']
-			: []),
-		...(isMultiOpenPending ? ['notification--multi-open-clicked'] : []),
-		...(isMultiMarkReadPending
+		...(isMultiOpenMode && !queuedAction ? ['notification--multi-open'] : []),
+		...(queuedAction === 'open' ? ['notification--multi-open-clicked'] : []),
+		...(queuedAction === 'markRead'
 			? ['notification--multi-mark-read-clicked']
 			: []),
-		...(isMultiMarkUnreadPending
+		...(queuedAction === 'markUnread'
 			? ['notification--multi-mark-unread-clicked']
 			: []),
 		...getNoteClasses({ isUnread, isMuted }),
@@ -164,11 +155,11 @@ export default function Notification({
 
 	return (
 		<div className={noteClasses.join(' ')}>
-			{isMultiOpenPending && <MultiOpenPendingNotice onClick={onClick} />}
-			{isMultiMarkReadPending && (
+			{queuedAction === 'open' && <MultiOpenPendingNotice onClick={onClick} />}
+			{queuedAction === 'markRead' && (
 				<MultiMarkReadPendingNotice onClick={onClickMarkRead} />
 			)}
-			{isMultiMarkUnreadPending && (
+			{queuedAction === 'markUnread' && (
 				<MultiMarkUnreadPendingNotice onClick={onClickMarkUnread} />
 			)}
 			<div className="notification__main-content" onClick={onClick}>
