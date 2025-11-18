@@ -74,6 +74,14 @@ export default function Notification({
 		markRead(token, note);
 	};
 
+	const onClickMarkUnread = (event: React.MouseEvent<HTMLDivElement>) => {
+		event.preventDefault();
+		event.stopPropagation();
+		debug('clicked mark-as-unread button', note);
+		setMuteRequested(false);
+		markUnread(note);
+	};
+
 	const lastUpdated = new Date(note.updatedAt);
 	const timeString = formatDistanceToNow(lastUpdated, { addSuffix: true });
 	const noteClasses = [
@@ -180,33 +188,17 @@ export default function Notification({
 									onClick={doMute}
 								/>
 							)}
-							{isUnread ? (
-								<MarkReadButton
-									disabled={isMultiOpenMode}
-									note={note}
-									token={token}
-									markRead={markRead}
-								/>
-							) : (
-								<MarkUnreadButton
-									disabled={isMultiOpenMode}
-									note={note}
-									markUnread={markUnread}
-								/>
-							)}
 						</span>
 					</div>
 				</div>
 			</div>
-			{isUnread && isMultiOpenMode && (
-				<div
-					className="notification__mark-read-target"
-					onClick={onClickMarkRead}
-					title="Mark as read"
-				>
-					<Gridicon icon="checkmark" size={18} />
-				</div>
-			)}
+			<div
+				className="notification__mark-read-target"
+				onClick={isUnread ? onClickMarkRead : onClickMarkUnread}
+				title={isUnread ? 'Mark as read' : 'Mark as unread'}
+			>
+				<Gridicon icon={isUnread ? 'checkmark' : 'mail'} size={18} />
+			</div>
 		</div>
 	);
 }
@@ -289,68 +281,6 @@ function UnmuteRepoButton({
 			disabled={disabled}
 		>
 			unmute repo
-		</button>
-	);
-}
-
-function MarkReadButton({
-	note,
-	token,
-	markRead,
-	disabled,
-}: {
-	note: Note;
-	token: string;
-	markRead: MarkRead;
-	disabled?: boolean;
-}) {
-	const onClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-		event.preventDefault();
-		event.stopPropagation();
-		debug('clicked to mark notification as read', note);
-		markRead(token, note);
-	};
-	if (disabled) {
-		return null;
-	}
-	return (
-		<button
-			className="notification__mark-read"
-			onClick={onClick}
-			aria-label="Mark notification as read"
-			disabled={disabled}
-		>
-			mark read
-		</button>
-	);
-}
-
-function MarkUnreadButton({
-	note,
-	markUnread,
-	disabled,
-}: {
-	note: Note;
-	markUnread: MarkUnread;
-	disabled?: boolean;
-}) {
-	const onClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-		event.preventDefault();
-		event.stopPropagation();
-		debug('clicked to mark notification as unread', note);
-		markUnread(note);
-	};
-	if (disabled) {
-		return null;
-	}
-	return (
-		<button
-			className="notification__mark-unread"
-			onClick={onClick}
-			aria-label="Mark as unread"
-			disabled={disabled}
-		>
-			mark unread
 		</button>
 	);
 }
