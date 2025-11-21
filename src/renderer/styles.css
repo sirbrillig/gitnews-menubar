@@ -389,6 +389,7 @@ header h1 {
 	border-left: 4px solid transparent;
 	position: relative;
 	display: flex;
+	gap: 6px;
 }
 
 .notification--multi-open {
