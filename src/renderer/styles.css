@@ -542,6 +542,8 @@ header h1 {
 
 .notification__title {
 	margin-bottom: 5px;
+	overflow-wrap: break-word;
+	word-break: break-word;
 }
 
 .clear-errors-button {
