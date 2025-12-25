@@ -140,6 +140,8 @@ export type UnmuteRepo = (repo: string) => void;
 
 export type IconType = 'normal' | 'unseen' | 'unread' | 'offline' | 'error';
 
+export type QueuedAction = 'open' | 'markRead' | 'markUnread';
+
 export type AppPane =
 	| typeof PANE_ACCOUNTS
 	| typeof PANE_ACCOUNT_EDIT

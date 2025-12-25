@@ -10,6 +10,7 @@ import {
 	MarkUnread,
 	MuteRepo,
 	UnmuteRepo,
+	QueuedAction,
 } from '../types';
 import { ImageWithBackup } from './image-with-backup';
 
@@ -27,10 +28,8 @@ export default function Notification({
 	isMuteRequested,
 	setMuteRequested,
 	isMultiOpenMode,
-	isMultiOpenPending,
-	saveNoteToOpen,
-	saveNoteToMarkRead,
-	isMultiMarkReadPending,
+	queueNoteAction,
+	queuedAction,
 }: {
 	note: Note;
 	openUrl: OpenUrl;
@@ -43,10 +42,8 @@ export default function Notification({
 	isMuteRequested: boolean;
 	setMuteRequested: (n: Note | false) => void;
 	isMultiOpenMode: boolean;
-	isMultiOpenPending: boolean;
-	saveNoteToOpen: (n: Note) => void;
-	saveNoteToMarkRead: (n: Note) => void;
-	isMultiMarkReadPending: boolean;
+	queueNoteAction: (note: Note, action: QueuedAction) => void;
+	queuedAction?: QueuedAction;
 }) {
 	const isUnread =
 		note.unread === true ? true : note.gitnewsMarkedUnread === true;
@@ -55,7 +52,7 @@ export default function Notification({
 		debug('clicked on notification', note);
 		setMuteRequested(false);
 		if (isMultiOpenMode) {
-			saveNoteToOpen(note);
+			queueNoteAction(note, 'open');
 			return;
 		}
 		markRead(token, note);
@@ -68,22 +65,35 @@ export default function Notification({
 		debug('clicked mark-as-read button', note);
 		setMuteRequested(false);
 		if (isMultiOpenMode) {
-			saveNoteToMarkRead(note);
+			queueNoteAction(note, 'markRead');
 			return;
 		}
 		markRead(token, note);
+	};
+
+	const onClickMarkUnread = (event: React.MouseEvent<HTMLDivElement>) => {
+		event.preventDefault();
+		event.stopPropagation();
+		debug('clicked mark-as-unread button', note);
+		setMuteRequested(false);
+		if (isMultiOpenMode) {
+			queueNoteAction(note, 'markUnread');
+			return;
+		}
+		markUnread(note);
 	};
 
 	const lastUpdated = new Date(note.updatedAt);
 	const timeString = formatDistanceToNow(lastUpdated, { addSuffix: true });
 	const noteClasses = [
 		'notification',
-		...(isMultiOpenMode && !isMultiOpenPending && !isMultiMarkReadPending
-			? ['notification--multi-open']
-			: []),
-		...(isMultiOpenPending ? ['notification--multi-open-clicked'] : []),
-		...(isMultiMarkReadPending
+		...(isMultiOpenMode && !queuedAction ? ['notification--multi-open'] : []),
+		...(queuedAction === 'open' ? ['notification--multi-open-clicked'] : []),
+		...(queuedAction === 'markRead'
 			? ['notification--multi-mark-read-clicked']
+			: []),
+		...(queuedAction === 'markUnread'
+			? ['notification--multi-mark-unread-clicked']
 			: []),
 		...getNoteClasses({ isUnread, isMuted }),
 	];
@@ -145,9 +155,12 @@ export default function Notification({
 
 	return (
 		<div className={noteClasses.join(' ')}>
-			{isMultiOpenPending && <MultiOpenPendingNotice onClick={onClick} />}
-			{isMultiMarkReadPending && (
+			{queuedAction === 'open' && <MultiOpenPendingNotice onClick={onClick} />}
+			{queuedAction === 'markRead' && (
 				<MultiMarkReadPendingNotice onClick={onClickMarkRead} />
+			)}
+			{queuedAction === 'markUnread' && (
+				<MultiMarkUnreadPendingNotice onClick={onClickMarkUnread} />
 			)}
 			<div className="notification__main-content" onClick={onClick}>
 				<div className={iconClasses.join(' ')}>
@@ -180,33 +193,17 @@ export default function Notification({
 									onClick={doMute}
 								/>
 							)}
-							{isUnread ? (
-								<MarkReadButton
-									disabled={isMultiOpenMode}
-									note={note}
-									token={token}
-									markRead={markRead}
-								/>
-							) : (
-								<MarkUnreadButton
-									disabled={isMultiOpenMode}
-									note={note}
-									markUnread={markUnread}
-								/>
-							)}
 						</span>
 					</div>
 				</div>
 			</div>
-			{isUnread && isMultiOpenMode && (
-				<div
-					className="notification__mark-read-target"
-					onClick={onClickMarkRead}
-					title="Mark as read"
-				>
-					<Gridicon icon="checkmark" size={18} />
-				</div>
-			)}
+			<div
+				className="notification__mark-read-target"
+				onClick={isUnread ? onClickMarkRead : onClickMarkUnread}
+				title={isUnread ? 'Mark as read' : 'Mark as unread'}
+			>
+				<Gridicon icon={isUnread ? 'checkmark' : 'mail'} size={18} />
+			</div>
 		</div>
 	);
 }
@@ -293,68 +290,6 @@ function UnmuteRepoButton({
 	);
 }
 
-function MarkReadButton({
-	note,
-	token,
-	markRead,
-	disabled,
-}: {
-	note: Note;
-	token: string;
-	markRead: MarkRead;
-	disabled?: boolean;
-}) {
-	const onClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-		event.preventDefault();
-		event.stopPropagation();
-		debug('clicked to mark notification as read', note);
-		markRead(token, note);
-	};
-	if (disabled) {
-		return null;
-	}
-	return (
-		<button
-			className="notification__mark-read"
-			onClick={onClick}
-			aria-label="Mark notification as read"
-			disabled={disabled}
-		>
-			mark read
-		</button>
-	);
-}
-
-function MarkUnreadButton({
-	note,
-	markUnread,
-	disabled,
-}: {
-	note: Note;
-	markUnread: MarkUnread;
-	disabled?: boolean;
-}) {
-	const onClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-		event.preventDefault();
-		event.stopPropagation();
-		debug('clicked to mark notification as unread', note);
-		markUnread(note);
-	};
-	if (disabled) {
-		return null;
-	}
-	return (
-		<button
-			className="notification__mark-unread"
-			onClick={onClick}
-			aria-label="Mark as unread"
-			disabled={disabled}
-		>
-			mark unread
-		</button>
-	);
-}
-
 function getNoteClasses({
 	isMuted,
 	isUnread,
@@ -394,6 +329,22 @@ function MultiMarkReadPendingNotice({
 				✓
 			</span>
 			<div>Release Command key to mark as read</div>
+			<div>(click to deselect)</div>
+		</div>
+	);
+}
+
+function MultiMarkUnreadPendingNotice({
+	onClick,
+}: {
+	onClick: (event: React.MouseEvent<HTMLDivElement>) => void;
+}) {
+	return (
+		<div className="multi-open-pending-notice" onClick={onClick}>
+			<span className="multi-open-pending-notice__icon multi-open-pending-notice--mark-unread">
+				✉
+			</span>
+			<div>Release Command key to mark as unread</div>
 			<div>(click to deselect)</div>
 		</div>
 	);

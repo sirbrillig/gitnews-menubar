@@ -13,6 +13,7 @@ import {
 	Note,
 	OpenUrl,
 	UnmuteRepo,
+	QueuedAction,
 } from '../types';
 
 const debug = debugFactory('gitnews-menubar');
@@ -71,60 +72,48 @@ export default function NotificationsArea({
 }) {
 	const { isUpdateAvailable, updateUrl, updatedVersion } =
 		useGetGitnewsUpdate();
-	const [notesToOpen, setNotesToOpen] = React.useState<Note[]>([]);
-	const [notesToMarkRead, setNotesToMarkRead] = React.useState<Note[]>([]);
-	const saveNoteToOpen = (note: Note) => {
-		// If already in either queue, remove it
-		if (isNoteInNotes(note, notesToOpen)) {
-			setNotesToOpen((notes) =>
-				notes.filter((noteToOpen) => noteToOpen !== note)
-			);
-			return;
-		}
-		if (isNoteInNotes(note, notesToMarkRead)) {
-			setNotesToMarkRead((notes) =>
-				notes.filter((noteToMarkRead) => noteToMarkRead !== note)
-			);
-			return;
-		}
-		// Not in any queue, add to open queue
-		setNotesToOpen((notes) => [...notes, note]);
+
+	type QueuedNote = { note: Note; action: QueuedAction };
+	const [queuedNotes, setQueuedNotes] = React.useState<Map<string, QueuedNote>>(
+		new Map()
+	);
+
+	const queueNoteAction = (note: Note, action: QueuedAction) => {
+		const noteId = getNoteId(note);
+		setQueuedNotes((queue) => {
+			const newQueue = new Map(queue);
+			const existing = newQueue.get(noteId);
+			// If note is already queued with the same action, remove it (toggle off)
+			if (existing && existing.action === action) {
+				newQueue.delete(noteId);
+			} else {
+				// Otherwise, set or update the action for this note
+				newQueue.set(noteId, { note, action });
+			}
+			return newQueue;
+		});
 	};
 
-	const saveNoteToMarkRead = (note: Note) => {
-		// If already in either queue, remove it
-		if (isNoteInNotes(note, notesToMarkRead)) {
-			setNotesToMarkRead((notes) =>
-				notes.filter((noteToMarkRead) => noteToMarkRead !== note)
-			);
-			return;
-		}
-		if (isNoteInNotes(note, notesToOpen)) {
-			setNotesToOpen((notes) =>
-				notes.filter((noteToOpen) => noteToOpen !== note)
-			);
-			return;
-		}
-		// Not in any queue, add to mark-read queue
-		setNotesToMarkRead((notes) => [...notes, note]);
-	};
+	const processQueuedNotes = React.useCallback(() => {
+		if (queuedNotes.size === 0) return;
 
-	const openSavedNotes = React.useCallback(() => {
-		debug('opening notes', notesToOpen);
-		notesToOpen.forEach((note) => {
-			markRead(token, note);
-			openUrl(note.commentUrl);
+		debug('processing queued notes', queuedNotes);
+		queuedNotes.forEach(({ note, action }) => {
+			switch (action) {
+				case 'open':
+					markRead(token, note);
+					openUrl(note.commentUrl);
+					break;
+				case 'markRead':
+					markRead(token, note);
+					break;
+				case 'markUnread':
+					markUnread(note);
+					break;
+			}
 		});
-		setNotesToOpen([]);
-	}, [notesToOpen, openUrl, markRead, token]);
-
-	const markSavedNotesAsRead = React.useCallback(() => {
-		debug('marking notes as read', notesToMarkRead);
-		notesToMarkRead.forEach((note) => {
-			markRead(token, note);
-		});
-		setNotesToMarkRead([]);
-	}, [notesToMarkRead, markRead, token]);
+		setQueuedNotes(new Map());
+	}, [queuedNotes, openUrl, markRead, markUnread, token]);
 	const onKeyUp = React.useCallback((event: KeyboardEvent) => {
 		debug('Notification keyUp', event.code);
 		if (event.code.includes('Meta')) {
@@ -141,15 +130,10 @@ export default function NotificationsArea({
 	);
 
 	React.useEffect(() => {
-		if (!isMultiOpenMode) {
-			if (notesToOpen.length > 0) {
-				openSavedNotes();
-			}
-			if (notesToMarkRead.length > 0) {
-				markSavedNotesAsRead();
-			}
+		if (!isMultiOpenMode && queuedNotes.size > 0) {
+			processQueuedNotes();
 		}
-	}, [isMultiOpenMode, openSavedNotes, notesToOpen, markSavedNotesAsRead, notesToMarkRead]);
+	}, [isMultiOpenMode, processQueuedNotes, queuedNotes]);
 
 	React.useEffect(() => {
 		if (!appVisible) {
@@ -176,26 +160,27 @@ export default function NotificationsArea({
 	const orderedNotes = [...newNotes, ...readNotes]
 		.filter((note) => doesNoteMatchSearch(note, searchValue))
 		.filter((note) => doesNoteMatchFilter(note, filterType));
-	const noteRows = orderedNotes.map((note) => (
-		<Notification
-			note={note}
-			key={getNoteId(note)}
-			markRead={markRead}
-			markUnread={markUnread}
-			token={token}
-			openUrl={openUrl}
-			muteRepo={muteRepo}
-			unmuteRepo={unmuteRepo}
-			isMuted={mutedRepos.includes(note.repositoryFullName)}
-			isMuteRequested={muteRequestedFor === note}
-			setMuteRequested={setMuteRequested}
-			isMultiOpenMode={isMultiOpenMode}
-			saveNoteToOpen={saveNoteToOpen}
-			isMultiOpenPending={isNoteInNotes(note, notesToOpen)}
-			saveNoteToMarkRead={saveNoteToMarkRead}
-			isMultiMarkReadPending={isNoteInNotes(note, notesToMarkRead)}
-		/>
-	));
+	const noteRows = orderedNotes.map((note) => {
+		const queuedAction = queuedNotes.get(getNoteId(note))?.action;
+		return (
+			<Notification
+				note={note}
+				key={getNoteId(note)}
+				markRead={markRead}
+				markUnread={markUnread}
+				token={token}
+				openUrl={openUrl}
+				muteRepo={muteRepo}
+				unmuteRepo={unmuteRepo}
+				isMuted={mutedRepos.includes(note.repositoryFullName)}
+				isMuteRequested={muteRequestedFor === note}
+				setMuteRequested={setMuteRequested}
+				isMultiOpenMode={isMultiOpenMode}
+				queueNoteAction={queueNoteAction}
+				queuedAction={queuedAction}
+			/>
+		);
+	});
 
 	return (
 		<div className="notifications-area">
@@ -233,7 +218,8 @@ function MultiOpenNotice() {
 	return (
 		<div className="multi-open-notice">
 			<span>
-				Click multiple notifications to open or mark as read, then release the Command key
+				Click multiple notifications to open or mark as read, then release the
+				Command key
 			</span>
 		</div>
 	);
