@@ -125,6 +125,24 @@ describe('reducer', function () {
 			expect(result.notes.filter((note) => note.gitnewsSeen)).toHaveLength(1);
 		});
 
+		it('preserves `unread: false` state when notification was marked as read locally', function () {
+			const action = { type: 'NOTES_RETRIEVED', notes };
+			const result = reducer(
+				{
+					notes: [
+						{
+							id: 'a1',
+							title: 'test note',
+							unread: false,
+							gitnewsSeenAt: Date.now(),
+						},
+					],
+				},
+				action
+			);
+			expect(result.notes[0].unread).toBe(false);
+		});
+
 		it('replaces `seen` state for existing notifications with updates', function () {
 			const longAgo = '2017-08-01T18:20:00Z';
 			const action = { type: 'NOTES_RETRIEVED', notes };
