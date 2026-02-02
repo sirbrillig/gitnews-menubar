@@ -8,6 +8,16 @@ export function getNoteId(note: Note) {
 }
 
 function hasNoteUpdated(note: Note, prevNote: Note): boolean {
+	// First check if the updatedAt timestamp has changed between fetches
+	if (note.updatedAt && prevNote.updatedAt) {
+		// If timestamps differ, the note was updated on GitHub
+		if (note.updatedAt !== prevNote.updatedAt) {
+			return true;
+		}
+	}
+
+	// Fallback to comparing against gitnewsSeenAt for backwards compatibility
+	// and to handle the "seen" state logic
 	if (!note.updatedAt || !prevNote.gitnewsSeenAt) {
 		return false;
 	}
@@ -53,6 +63,11 @@ export function mergeNotifications(
 				...note,
 				gitnewsSeen: previousNote.gitnewsSeen,
 				gitnewsMarkedUnread: previousNote.gitnewsMarkedUnread,
+				// Preserve local "mark as read" action if the note hasn't been updated.
+				// This prevents a race condition where marking a note as read locally
+				// gets overwritten by a fetch that completes before the API call to
+				// GitHub finishes.
+				unread: previousNote.unread === false ? false : note.unread,
 			};
 		}
 		return note;
