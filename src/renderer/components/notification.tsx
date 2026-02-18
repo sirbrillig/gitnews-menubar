@@ -85,6 +85,7 @@ export default function Notification({
 
 	const lastUpdated = new Date(note.updatedAt);
 	const timeString = formatDistanceToNow(lastUpdated, { addSuffix: true });
+	const isMention = note.api.notification?.reason === 'mention';
 	const noteClasses = [
 		'notification',
 		...(isMultiOpenMode && !queuedAction ? ['notification--multi-open'] : []),
@@ -170,6 +171,7 @@ export default function Notification({
 				<div className="notification__image">
 					{isUnread && <span className="notification__new-dot" />}
 					{isMuted && <MuteIcon className="mute-icon" />}
+					{isMention && <span className="notification__mention-badge">@</span>}
 					<ImageWithBackup src={avatarSrc} username={note.commentUsername} />
 				</div>
 				<div className="notification__body">

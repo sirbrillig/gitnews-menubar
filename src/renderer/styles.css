@@ -404,6 +404,24 @@ header h1 {
 	border-left: 4px solid #6b7ff5;
 }
 
+.notification__mention-badge {
+	position: absolute;
+	bottom: 0;
+	right: -4px;
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	border: 1.2px solid #fff;
+	background: #1a7bd3;
+	color: #fff;
+	font-size: 9px;
+	font-weight: bold;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	line-height: 1;
+}
+
 .notification__muted {
 	position: relative;
 }
