@@ -51,6 +51,7 @@ const initialState: AppReduxState = {
 	isTokenInvalid: false,
 	accounts: [],
 	selectedAccount: undefined,
+	locallyUnreadNotes: [],
 };
 
 function setAllAccountsValid(accounts: AccountInfo[]): AccountInfo[] {
@@ -116,27 +117,36 @@ export function createReducer() {
 				});
 			case 'CLEAR_ERRORS':
 				return Object.assign({}, state, { errors: [] });
-			case 'MARK_NOTE_UNREAD':
-				return Object.assign({}, state, {
-					notes: state.notes.map((note) => {
-						if (getNoteId(note) === getNoteId(action.note)) {
-							return Object.assign({}, note, { gitnewsMarkedUnread: true });
-						}
-						return note;
-					}),
-				});
-			case 'MARK_NOTE_READ':
-				return Object.assign({}, state, {
-					notes: state.notes.map((note) => {
-						if (getNoteId(note) === getNoteId(action.note)) {
-							return Object.assign({}, note, {
-								unread: false,
-								gitnewsMarkedUnread: false,
-							});
-						}
-						return note;
-					}),
-				});
+			case 'MARK_NOTE_UNREAD': {
+				const noteId = getNoteId(action.note);
+				const existingLocallyUnread = state.locallyUnreadNotes ?? [];
+				const filtered = existingLocallyUnread.filter(
+					(n) => getNoteId(n) !== noteId
+				);
+				return {
+					...state,
+					notes: state.notes.map((note) =>
+						getNoteId(note) === noteId
+							? { ...note, gitnewsMarkedUnread: true }
+							: note
+					),
+					locallyUnreadNotes: [...filtered, action.note],
+				};
+			}
+			case 'MARK_NOTE_READ': {
+				const noteId = getNoteId(action.note);
+				return {
+					...state,
+					notes: state.notes.map((note) =>
+						getNoteId(note) === noteId
+							? { ...note, unread: false, gitnewsMarkedUnread: false }
+							: note
+					),
+					locallyUnreadNotes: (state.locallyUnreadNotes ?? []).filter(
+						(n) => getNoteId(n) !== noteId
+					),
+				};
+			}
 			case 'MARK_ALL_NOTES_SEEN': {
 				const notes = state.notes
 					.filter((x) => x.api)
@@ -172,16 +182,35 @@ export function createReducer() {
 				});
 			case 'NOTES_RETRIEVED': {
 				const newNotes = mergeNotifications(state.notes, action.notes);
-				const unseen = newNotes.filter((note) => !note.gitnewsSeen);
-				const unread = newNotes.filter((note) => note.unread);
+				const mergedIds = new Set(newNotes.map(getNoteId));
+				const existingLocallyUnread = state.locallyUnreadNotes ?? [];
+
+				// Re-inject locally-unread notes that fell off the GitHub response
+				const notesToReinsert = existingLocallyUnread
+					.filter((note) => !mergedIds.has(getNoteId(note)))
+					.map((note) => ({ ...note, gitnewsMarkedUnread: true }));
+				const allNotes = [...newNotes, ...notesToReinsert];
+
+				// Update stored copies with latest data from fetch (keeps backup fresh)
+				const freshById = new Map(newNotes.map((n) => [getNoteId(n), n]));
+				const updatedLocallyUnread = existingLocallyUnread.map(
+					(localNote) => {
+						const fresh = freshById.get(getNoteId(localNote));
+						return fresh ? { ...fresh, gitnewsMarkedUnread: true } : localNote;
+					}
+				);
+
+				const unseen = allNotes.filter((note) => !note.gitnewsSeen);
+				const unread = allNotes.filter((note) => note.unread);
 				window.electronApi?.logMessage(
-					`Storing notifications in store. ${unseen.length} unseen/${unread.length} unread/${newNotes.length} total`,
+					`Storing notifications in store. ${unseen.length} unseen/${unread.length} unread/${allNotes.length} total`,
 					'info'
 				);
 				unseen.forEach((note) => {
 					window.electronApi?.logMessage(`Unseen: ${note.title}`, 'info');
 				});
-				return Object.assign({}, state, {
+				return {
+					...state,
 					offline: false,
 					isTokenInvalid: false,
 					lastChecked: Date.now(),
@@ -189,8 +218,9 @@ export function createReducer() {
 					fetchRetryCount: 0,
 					errors: [],
 					fetchInterval: defaultFetchInterval,
-					notes: newNotes,
-				});
+					notes: allNotes,
+					locallyUnreadNotes: updatedLocallyUnread,
+				};
 			}
 			case 'CHANGE_AUTO_LOAD':
 				return Object.assign({}, state, {

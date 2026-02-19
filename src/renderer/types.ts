@@ -36,6 +36,7 @@ export interface AppReduxState {
 	isTokenInvalid: boolean;
 	accounts: AccountInfo[];
 	selectedAccount: AccountInfo | undefined;
+	locallyUnreadNotes: Note[];
 }
 
 export type ActionMuteRepo = { type: 'MUTE_REPO'; repo: string };
