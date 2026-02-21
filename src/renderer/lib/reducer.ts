@@ -27,6 +27,7 @@ import {
 	AccountInfo,
 	ActionSelectAccount,
 	ActionInitSetAccounts,
+	ActionUnsubscribeNote,
 } from '../types';
 
 const defaultFetchInterval = secsToMs(120);
@@ -147,6 +148,16 @@ export function createReducer() {
 					),
 				};
 			}
+			case 'UNSUBSCRIBE_NOTE': {
+				const noteId = getNoteId(action.note);
+				return {
+					...state,
+					notes: state.notes.filter((note) => getNoteId(note) !== noteId),
+					locallyUnreadNotes: (state.locallyUnreadNotes ?? []).filter(
+						(n) => getNoteId(n) !== noteId
+					),
+				};
+			}
 			case 'MARK_ALL_NOTES_SEEN': {
 				const notes = state.notes
 					.filter((x) => x.api)
@@ -260,6 +271,10 @@ export function markRead(token: string, note: Note): ActionMarkRead {
 
 export function markUnread(note: Note): ActionMarkUnread {
 	return { type: 'MARK_NOTE_UNREAD', note };
+}
+
+export function unsubscribeNote(note: Note): ActionUnsubscribeNote {
+	return { type: 'UNSUBSCRIBE_NOTE', note };
 }
 
 export function clearErrors(): ActionClearErrors {

@@ -102,6 +102,25 @@ export async function markNotficationAsRead(
 	}
 }
 
+export async function unsubscribeFromNotification(
+	note: Note,
+	account: AccountInfo
+): Promise<void> {
+	const octokit = createOctokit(account);
+	const path = getOctokitRequestPathFromUrl(account, note.url);
+	try {
+		await octokit.request(`DELETE ${path}/subscription`, {
+			thread_id: note.id,
+		});
+	} catch (error) {
+		logMessage(
+			`Failed to unsubscribe from notification for ${path} (${note.url})`,
+			'error'
+		);
+		return;
+	}
+}
+
 interface RawNotification {
 	id: string;
 	url: string;

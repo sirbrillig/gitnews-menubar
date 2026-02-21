@@ -10,6 +10,7 @@ import {
 	MarkUnread,
 	MuteRepo,
 	UnmuteRepo,
+	UnsubscribeNote,
 	QueuedAction,
 } from '../types';
 import { ImageWithBackup } from './image-with-backup';
@@ -21,12 +22,15 @@ export default function Notification({
 	openUrl,
 	markRead,
 	markUnread,
+	unsubscribeNote,
 	token,
 	muteRepo,
 	unmuteRepo,
 	isMuted,
 	isMuteRequested,
 	setMuteRequested,
+	isUnsubscribeRequested,
+	setUnsubscribeRequested,
 	isMultiOpenMode,
 	queueNoteAction,
 	queuedAction,
@@ -35,12 +39,15 @@ export default function Notification({
 	openUrl: OpenUrl;
 	markRead: MarkRead;
 	markUnread: MarkUnread;
+	unsubscribeNote: UnsubscribeNote;
 	token: string;
 	muteRepo: MuteRepo;
 	unmuteRepo: UnmuteRepo;
 	isMuted: boolean;
 	isMuteRequested: boolean;
 	setMuteRequested: (n: Note | false) => void;
+	isUnsubscribeRequested: boolean;
+	setUnsubscribeRequested: (n: Note | false) => void;
 	isMultiOpenMode: boolean;
 	queueNoteAction: (note: Note, action: QueuedAction) => void;
 	queuedAction?: QueuedAction;
@@ -51,6 +58,7 @@ export default function Notification({
 	const onClick = () => {
 		debug('clicked on notification', note);
 		setMuteRequested(false);
+		setUnsubscribeRequested(false);
 		if (isMultiOpenMode) {
 			queueNoteAction(note, 'open');
 			return;
@@ -64,6 +72,7 @@ export default function Notification({
 		event.stopPropagation();
 		debug('clicked mark-as-read button', note);
 		setMuteRequested(false);
+		setUnsubscribeRequested(false);
 		if (isMultiOpenMode) {
 			queueNoteAction(note, 'markRead');
 			return;
@@ -76,6 +85,7 @@ export default function Notification({
 		event.stopPropagation();
 		debug('clicked mark-as-unread button', note);
 		setMuteRequested(false);
+		setUnsubscribeRequested(false);
 		if (isMultiOpenMode) {
 			queueNoteAction(note, 'markUnread');
 			return;
@@ -117,12 +127,19 @@ export default function Notification({
 	const doMute = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
 		event.stopPropagation();
+		setUnsubscribeRequested(false);
 		setMuteRequested(note);
 	};
 	const doUnmute = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
 		event.stopPropagation();
 		unmuteRepo(note.repositoryFullName);
+	};
+	const doRequestUnsubscribe = (event: React.MouseEvent<HTMLButtonElement>) => {
+		event.preventDefault();
+		event.stopPropagation();
+		setMuteRequested(false);
+		setUnsubscribeRequested(note);
 	};
 
 	if (isMuteRequested) {
@@ -146,6 +163,35 @@ export default function Notification({
 							onClick={() => {
 								setMuteRequested(false);
 								muteRepo(note.repositoryFullName);
+							}}
+						/>
+					</div>
+				</div>
+			</div>
+		);
+	}
+
+	if (isUnsubscribeRequested) {
+		return (
+			<div className={noteClasses.join(' ')}>
+				<div className="notification__mute-confirm">
+					<div className="notification__mute-confirm__text">
+						<div className="notification__mute-confirm__title">
+							Unsubscribe from this thread?
+						</div>
+						You will no longer receive notifications for this thread. This
+						cannot be undone from Gitnews.
+					</div>
+					<div className="notification__mute-confirm__buttons">
+						<MuteRepoCancelButton
+							disabled={isMultiOpenMode}
+							onClick={() => setUnsubscribeRequested(false)}
+						/>
+						<UnsubscribeButton
+							disabled={isMultiOpenMode}
+							onClick={() => {
+								setUnsubscribeRequested(false);
+								unsubscribeNote(note);
 							}}
 						/>
 					</div>
@@ -195,6 +241,10 @@ export default function Notification({
 									onClick={doMute}
 								/>
 							)}
+							<UnsubscribeRequestButton
+								disabled={isMultiOpenMode}
+								onClick={doRequestUnsubscribe}
+							/>
 						</span>
 					</div>
 				</div>
@@ -288,6 +338,46 @@ function UnmuteRepoButton({
 			disabled={disabled}
 		>
 			unmute repo
+		</button>
+	);
+}
+
+function UnsubscribeRequestButton({
+	onClick,
+	disabled,
+}: {
+	onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+	disabled?: boolean;
+}) {
+	if (disabled) {
+		return null;
+	}
+	return (
+		<button
+			className="notification__unsubscribe"
+			aria-label="Unsubscribe from this thread"
+			onClick={onClick}
+		>
+			unsubscribe
+		</button>
+	);
+}
+
+function UnsubscribeButton({
+	onClick,
+	disabled,
+}: {
+	onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+	disabled?: boolean;
+}) {
+	return (
+		<button
+			className="notification__mute-confirm__confirm btn btn--destructive"
+			aria-label="Unsubscribe from this thread"
+			onClick={onClick}
+			disabled={disabled}
+		>
+			Unsubscribe
 		</button>
 	);
 }

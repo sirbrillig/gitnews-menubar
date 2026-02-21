@@ -104,6 +104,13 @@ button {
 	cursor: pointer;
 }
 
+.btn--destructive {
+	background-color: #c0392b;
+	box-shadow: inset 0px 1px 0px 0px rgba(255, 255, 255, 0.2);
+	border-color: #922b21;
+	color: #fff;
+}
+
 .config-page__buttons {
 	display: flex;
 	justify-content: flex-start;
@@ -516,6 +523,7 @@ header h1 {
 }
 
 .notification__mute-repo,
+.notification__unsubscribe,
 .notification__mark-unread,
 .notification__mark-read {
 	font-size: 0.7em;
