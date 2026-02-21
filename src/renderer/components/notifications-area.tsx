@@ -13,6 +13,7 @@ import {
 	Note,
 	OpenUrl,
 	UnmuteRepo,
+	UnsubscribeNote,
 	QueuedAction,
 } from '../types';
 
@@ -47,6 +48,7 @@ export default function NotificationsArea({
 	unmuteRepo,
 	mutedRepos,
 	markUnread,
+	unsubscribeNote,
 	openUrl,
 	token,
 	searchValue,
@@ -62,6 +64,7 @@ export default function NotificationsArea({
 	unmuteRepo: UnmuteRepo;
 	mutedRepos: string[];
 	markUnread: MarkUnread;
+	unsubscribeNote: UnsubscribeNote;
 	openUrl: OpenUrl;
 	token: string;
 	searchValue: string;
@@ -156,6 +159,9 @@ export default function NotificationsArea({
 	const [muteRequestedFor, setMuteRequested] = React.useState<Note | false>(
 		false
 	);
+	const [unsubscribeRequestedFor, setUnsubscribeRequested] = React.useState<
+		Note | false
+	>(false);
 
 	const orderedNotes = [...newNotes, ...readNotes]
 		.filter((note) => doesNoteMatchSearch(note, searchValue))
@@ -168,6 +174,7 @@ export default function NotificationsArea({
 				key={getNoteId(note)}
 				markRead={markRead}
 				markUnread={markUnread}
+				unsubscribeNote={unsubscribeNote}
 				token={token}
 				openUrl={openUrl}
 				muteRepo={muteRepo}
@@ -175,6 +182,8 @@ export default function NotificationsArea({
 				isMuted={mutedRepos.includes(note.repositoryFullName)}
 				isMuteRequested={muteRequestedFor === note}
 				setMuteRequested={setMuteRequested}
+				isUnsubscribeRequested={unsubscribeRequestedFor === note}
+				setUnsubscribeRequested={setUnsubscribeRequested}
 				isMultiOpenMode={isMultiOpenMode}
 				queueNoteAction={queueNoteAction}
 				queuedAction={queuedAction}

@@ -20,6 +20,7 @@ import {
 	Note,
 	OpenUrl,
 	UnmuteRepo,
+	UnsubscribeNote,
 } from '../types';
 import { AppPane } from '../types';
 import AccountList from './account-list';
@@ -43,6 +44,7 @@ export default function MainPane({
 	readNotes,
 	markRead,
 	markUnread,
+	unsubscribeNote,
 	fetchingInProgress,
 	isAutoLoadEnabled,
 	changeAutoLoad,
@@ -70,6 +72,7 @@ export default function MainPane({
 	readNotes: Note[];
 	markRead: MarkRead;
 	markUnread: MarkUnread;
+	unsubscribeNote: UnsubscribeNote;
 	fetchingInProgress: AppReduxState['fetchingInProgress'];
 	isAutoLoadEnabled: boolean;
 	changeAutoLoad: ChangeAutoload;
@@ -153,6 +156,7 @@ export default function MainPane({
 			readNotes={readNotes}
 			markRead={markRead}
 			markUnread={markUnread}
+			unsubscribeNote={unsubscribeNote}
 			muteRepo={muteRepo}
 			unmuteRepo={unmuteRepo}
 			mutedRepos={mutedRepos}

@@ -24,6 +24,7 @@ import dotEnv from 'dotenv';
 import {
 	fetchNotificationsForAccount,
 	markNotficationAsRead,
+	unsubscribeFromNotification,
 } from './lib/github-interface';
 import { logMessage } from './lib/logging';
 import type { AccountInfo, FetchErrorObject, Note } from '../shared-types';
@@ -185,6 +186,13 @@ ipcMain.handle(
 	'mark-note-as-read',
 	async (_event, note: Note, account: AccountInfo) => {
 		return markNotficationAsRead(note, account);
+	}
+);
+
+ipcMain.handle(
+	'unsubscribe-notification',
+	async (_event, note: Note, account: AccountInfo) => {
+		return unsubscribeFromNotification(note, account);
 	}
 );
 

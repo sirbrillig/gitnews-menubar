@@ -47,6 +47,7 @@ export type ActionMarkRead = {
 	note: Note;
 };
 export type ActionMarkUnread = { type: 'MARK_NOTE_UNREAD'; note: Note };
+export type ActionUnsubscribeNote = { type: 'UNSUBSCRIBE_NOTE'; note: Note };
 export type ActionClearErrors = { type: 'CLEAR_ERRORS' };
 export type ActionMarkAllNotesSeen = { type: 'MARK_ALL_NOTES_SEEN' };
 export type ActionInitToken = { type: 'SET_INITIAL_TOKEN'; token: string };
@@ -106,6 +107,7 @@ export type AppReduxAction =
 	| ActionUnmuteRepo
 	| ActionMarkRead
 	| ActionMarkUnread
+	| ActionUnsubscribeNote
 	| ActionClearErrors
 	| ActionMarkAllNotesSeen
 	| ActionSetAccounts
@@ -132,6 +134,8 @@ export type OpenUrl = (url: string) => void;
 export type MarkRead = (token: string, note: Note) => void;
 
 export type MarkUnread = (note: Note) => void;
+
+export type UnsubscribeNote = (note: Note) => void;
 
 export type ChangeAutoload = (isEnabled: boolean) => void;
 
@@ -166,6 +170,7 @@ export interface MainBridge {
 		account: AccountInfo
 	) => Promise<Note[] | { error: Error }>;
 	markNotificationRead: (note: Note, account: AccountInfo) => void;
+	unsubscribeNotification: (note: Note, account: AccountInfo) => void;
 	isDemoMode: () => Promise<boolean>;
 	isAutoLaunchEnabled: () => Promise<boolean>;
 	saveAccounts: (accounts: AccountInfo[]) => void;

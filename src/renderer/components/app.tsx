@@ -16,6 +16,7 @@ import { getSecondsUntilNextFetch } from '../lib/helpers';
 import {
 	markRead,
 	markUnread,
+	unsubscribeNote,
 	clearErrors,
 	fetchNotifications,
 	openUrl,
@@ -38,6 +39,7 @@ import {
 	ChangeAutoload,
 	MuteRepo,
 	UnmuteRepo,
+	UnsubscribeNote,
 	FilterType,
 	IconType,
 } from '../types';
@@ -67,6 +69,7 @@ interface AppConnectedActions {
 	fetchNotifications: () => void;
 	markRead: MarkRead;
 	markUnread: MarkUnread;
+	unsubscribeNote: UnsubscribeNote;
 	clearErrors: () => void;
 	changeAutoLoad: ChangeAutoload;
 	muteRepo: MuteRepo;
@@ -291,6 +294,7 @@ class App extends React.Component<AppProps, AppState> {
 					showAccountEdit={showAccountEdit}
 					markRead={this.props.markRead}
 					markUnread={this.props.markUnread}
+					unsubscribeNote={this.props.unsubscribeNote}
 					isAutoLoadEnabled={this.props.isAutoLoadEnabled}
 					changeAutoLoad={this.props.changeAutoLoad}
 					muteRepo={this.props.muteRepo}
@@ -332,6 +336,7 @@ function mapStateToProps(state: AppReduxState): AppConnectedProps {
 const actions = {
 	markRead,
 	markUnread,
+	unsubscribeNote,
 	clearErrors,
 	fetchNotifications,
 	openUrl,
