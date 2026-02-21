@@ -1,8 +1,9 @@
-import type { AccountInfo, Note, NoteReason } from '../../shared-types';
 import { Octokit, RestEndpointMethodTypes } from '@octokit/rest';
 import { fetch as undiciFetch, ProxyAgent } from 'undici';
 import { socksDispatcher } from 'fetch-socks';
 import { logMessage } from './logging';
+import type { AccountInfo, Note, NoteReason } from '../../shared-types';
+import type { RequestInit } from 'undici';
 
 const userAgent = 'gitnews-menubar';
 const mainGithubApiUrl = 'https://api.github.com';
@@ -38,7 +39,7 @@ function makeProxyDispatcher(proxyUrl: string) {
 }
 
 function makeProxyFetch(proxyUrl: string) {
-	return (url: string, options: any) => {
+	return (url: string, options: Partial<RequestInit>) => {
 		return undiciFetch(url, {
 			...options,
 			dispatcher: makeProxyDispatcher(proxyUrl),
@@ -296,7 +297,7 @@ export async function fetchNotificationsForAccount(
 
 	// We need to make more requests to get the details of each notification. Do
 	// these fetches in parallel.
-	let promises = [];
+	const promises = [];
 	for (const notification of notificationsResponse.data) {
 		logMessage(
 			`Fetching additional details for notification ${notification.id}`,
