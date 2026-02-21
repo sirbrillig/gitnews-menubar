@@ -26,6 +26,7 @@ import {
 	unmuteRepo,
 	setFilterType,
 	toggleLogging,
+	setShowUnreadOnly,
 } from '../lib/reducer';
 import SearchNotifications from './search-notifications';
 import doesNoteMatchFilter from '../lib/does-note-match-filter';
@@ -61,6 +62,7 @@ interface AppConnectedProps {
 	appVisible: boolean;
 	isLogging: boolean;
 	isTokenInvalid: boolean;
+	showUnreadOnly: boolean;
 }
 
 interface AppConnectedActions {
@@ -76,6 +78,7 @@ interface AppConnectedActions {
 	unmuteRepo: UnmuteRepo;
 	setFilterType: (type: FilterType) => void;
 	toggleLogging: (newValue: boolean) => void;
+	setShowUnreadOnly: (value: boolean) => void;
 }
 
 interface AppProvidedProps {
@@ -205,7 +208,7 @@ class App extends React.Component<AppProps, AppState> {
 			fetchingInProgress,
 		} = this.props;
 		const newNotes = this.getUnreadNotifications();
-		const readNotes = this.getReadNotifications();
+		const readNotes = this.props.showUnreadOnly ? [] : this.getReadNotifications();
 		const unseenNotes = this.getUnseenNotifications();
 		const nextIcon = this.getNextIcon({
 			offline,
@@ -270,6 +273,8 @@ class App extends React.Component<AppProps, AppState> {
 					filterType={this.props.filterType}
 					setFilterType={this.props.setFilterType}
 					currentPane={currentPane}
+					showUnreadOnly={this.props.showUnreadOnly}
+					setShowUnreadOnly={this.props.setShowUnreadOnly}
 				>
 					{currentPane === PANE_NOTIFICATIONS && (
 						<SearchNotifications
@@ -330,6 +335,7 @@ function mapStateToProps(state: AppReduxState): AppConnectedProps {
 		appVisible: state.appVisible,
 		isLogging: state.isLogging,
 		isTokenInvalid: state.isTokenInvalid,
+		showUnreadOnly: state.showUnreadOnly,
 	};
 }
 
@@ -346,6 +352,7 @@ const actions = {
 	unmuteRepo,
 	setFilterType,
 	toggleLogging,
+	setShowUnreadOnly,
 };
 
 export default connect(mapStateToProps, actions)(App);

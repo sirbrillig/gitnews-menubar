@@ -193,6 +193,31 @@ header svg {
 	min-height: 1em;
 }
 
+.read-status-toggle {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.read-status-toggle__button {
+	background: none;
+	border: none;
+	color: var(--header-text-color);
+	padding: 2px 12px;
+	cursor: pointer;
+	font-size: 0.8em;
+	opacity: 0.5;
+}
+
+.read-status-toggle__button:first-child {
+	border-right: 1px solid var(--header-text-color);
+}
+
+.read-status-toggle__button--active {
+	opacity: 1;
+	font-weight: 600;
+}
+
 .filter-menu {
 	position: absolute;
 	z-index: 300;

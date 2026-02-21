@@ -59,6 +59,8 @@ export default function Header({
 	filterType,
 	setFilterType,
 	currentPane,
+	showUnreadOnly,
+	setShowUnreadOnly,
 }: {
 	lastSuccessfulCheck: number | false;
 	lastChecked: number | false;
@@ -73,6 +75,8 @@ export default function Header({
 	filterType: FilterType;
 	setFilterType: (type: FilterType) => void;
 	currentPane: AppPane;
+	showUnreadOnly: boolean;
+	setShowUnreadOnly: (value: boolean) => void;
 }) {
 	return (
 		<header>
@@ -88,6 +92,9 @@ export default function Header({
 			<SecondaryHeader
 				fetchingInProgress={fetchingInProgress}
 				lastSuccessfulCheck={lastSuccessfulCheck}
+				currentPane={currentPane}
+				showUnreadOnly={showUnreadOnly}
+				setShowUnreadOnly={setShowUnreadOnly}
 			/>
 			{isTokenInvalid && !fetchingInProgress && <InvalidTokenNotice />}
 			{!isTokenInvalid && offline && (
@@ -105,9 +112,15 @@ export default function Header({
 function SecondaryHeader({
 	lastSuccessfulCheck,
 	fetchingInProgress,
+	currentPane,
+	showUnreadOnly,
+	setShowUnreadOnly,
 }: {
 	lastSuccessfulCheck: false | number;
 	fetchingInProgress: boolean;
+	currentPane: AppPane;
+	showUnreadOnly: boolean;
+	setShowUnreadOnly: (value: boolean) => void;
 }) {
 	if (fetchingInProgress) {
 		return (
@@ -116,11 +129,46 @@ function SecondaryHeader({
 			</div>
 		);
 	}
+	if (currentPane === PANE_NOTIFICATIONS) {
+		return (
+			<div className="header__secondary">
+				<ReadStatusToggle
+					showUnreadOnly={showUnreadOnly}
+					setShowUnreadOnly={setShowUnreadOnly}
+				/>
+			</div>
+		);
+	}
 	return (
 		<div className="header__secondary">
 			{lastSuccessfulCheck && (
 				<UpdatingLastChecked lastSuccessfulCheck={lastSuccessfulCheck} />
 			)}
+		</div>
+	);
+}
+
+function ReadStatusToggle({
+	showUnreadOnly,
+	setShowUnreadOnly,
+}: {
+	showUnreadOnly: boolean;
+	setShowUnreadOnly: (value: boolean) => void;
+}) {
+	return (
+		<div className="read-status-toggle">
+			<button
+				className={`read-status-toggle__button${!showUnreadOnly ? ' read-status-toggle__button--active' : ''}`}
+				onClick={() => setShowUnreadOnly(false)}
+			>
+				All
+			</button>
+			<button
+				className={`read-status-toggle__button${showUnreadOnly ? ' read-status-toggle__button--active' : ''}`}
+				onClick={() => setShowUnreadOnly(true)}
+			>
+				Unread
+			</button>
 		</div>
 	);
 }
