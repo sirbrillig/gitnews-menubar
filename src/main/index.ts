@@ -61,7 +61,7 @@ const bar = menubar({
 });
 
 bar.on('ready', () => {
-	app.dock.hide(); // Buggy behavior with showDockIcon: https://github.com/maxogden/menubar/issues/306
+	app.dock?.hide(); // Buggy behavior with showDockIcon: https://github.com/maxogden/menubar/issues/306
 	isDev || bar.window?.setResizable(false);
 	isDev || attachAppMenu();
 
@@ -190,7 +190,18 @@ ipcMain.handle(
 
 // Errors must be JS objects to go through IPC. See
 // https://github.com/electron/electron/issues/26338
-function encodeError(accountId: string, error: any): FetchErrorObject {
+function encodeError(
+	accountId: string,
+	error: {
+		name?: string;
+		message?: string;
+		statusText?: string;
+		status?: number;
+		url?: string;
+		type?: string;
+		code?: string;
+	}
+): FetchErrorObject {
 	return {
 		name: error.name,
 		message: error.message,

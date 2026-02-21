@@ -4,7 +4,7 @@ import { Middleware } from 'redux';
 import type { AccountInfo, AppReduxState, Note } from '../types';
 import { isAction } from './helpers';
 
-export function createGitHubMiddleware(): Middleware<{}, AppReduxState> {
+export function createGitHubMiddleware(): Middleware<unknown, AppReduxState> {
 	return (store) => (next) => (action) => {
 		if (!isAction(action)) {
 			throw new Error(
