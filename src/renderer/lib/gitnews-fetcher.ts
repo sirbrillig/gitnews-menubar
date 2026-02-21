@@ -32,7 +32,7 @@ const debug = debugFactory('gitnews-menubar');
 
 let currentDemoNotifications = createDemoNotifications();
 
-export function createFetcher(): Middleware<{}, AppReduxState> {
+export function createFetcher(): Middleware<unknown, AppReduxState> {
 	const fetcher: Middleware<object, AppReduxState> =
 		(store) => (next) => (action) => {
 			if (!isAction(action)) {

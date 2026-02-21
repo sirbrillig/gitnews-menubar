@@ -2,8 +2,8 @@ import { Middleware } from 'redux';
 import { AppReduxState } from '../types';
 import { isAction } from './helpers';
 
-export const configMiddleware: Middleware<{}, AppReduxState> =
-	(_store) => (next) => (action) => {
+export const configMiddleware: Middleware<unknown, AppReduxState> =
+	() => (next) => (action) => {
 		if (!isAction(action)) {
 			throw new Error(
 				'Invalid action dispatched in config: ' + JSON.stringify(action)
