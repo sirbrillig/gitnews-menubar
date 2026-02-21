@@ -61,7 +61,7 @@ const bar = menubar({
 });
 
 bar.on('ready', () => {
-	app.dock.hide(); // Buggy behavior with showDockIcon: https://github.com/maxogden/menubar/issues/306
+	app.dock?.hide(); // Buggy behavior with showDockIcon: https://github.com/maxogden/menubar/issues/306
 	isDev || bar.window?.setResizable(false);
 	isDev || attachAppMenu();
 
