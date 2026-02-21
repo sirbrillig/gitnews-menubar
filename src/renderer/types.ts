@@ -38,6 +38,7 @@ export interface AppReduxState {
 	accounts: AccountInfo[];
 	selectedAccount: AccountInfo | undefined;
 	locallyUnreadNotes: Note[];
+	showUnreadOnly: boolean;
 }
 
 export type ActionMuteRepo = { type: 'MUTE_REPO'; repo: string };
@@ -97,6 +98,10 @@ export type ActionSetFilterType = {
 	type: 'SET_FILTER_TYPE';
 	filterType: FilterType;
 };
+export type ActionSetShowUnreadOnly = {
+	type: 'SET_SHOW_UNREAD_ONLY';
+	showUnreadOnly: boolean;
+};
 export type MarkAppHidden = { type: 'NOTE_APP_VISIBLE'; visible: false };
 export type MarkAppShown = { type: 'NOTE_APP_VISIBLE'; visible: true };
 export type ActionSetDemoMode = { type: 'SET_DEMO_MODE'; isDemoMode: boolean };
@@ -124,6 +129,7 @@ export type AppReduxAction =
 	| ActionChangeAutoLoad
 	| ActionScrollToTop
 	| ActionSetFilterType
+	| ActionSetShowUnreadOnly
 	| MarkAppHidden
 	| MarkAppShown
 	| ActionSetDemoMode

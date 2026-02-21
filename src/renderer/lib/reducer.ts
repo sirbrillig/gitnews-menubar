@@ -53,6 +53,7 @@ const initialState: AppReduxState = {
 	accounts: [],
 	selectedAccount: undefined,
 	locallyUnreadNotes: [],
+	showUnreadOnly: false,
 };
 
 function setAllAccountsValid(accounts: AccountInfo[]): AccountInfo[] {
@@ -248,6 +249,8 @@ export function createReducer() {
 				};
 			case 'SET_FILTER_TYPE':
 				return { ...state, filterType: action.filterType };
+			case 'SET_SHOW_UNREAD_ONLY':
+				return { ...state, showUnreadOnly: action.showUnreadOnly };
 		}
 		return state;
 	};
@@ -350,6 +353,10 @@ export function scrollToTop() {
 
 export function setFilterType(filterType: FilterType) {
 	return { type: 'SET_FILTER_TYPE', filterType };
+}
+
+export function setShowUnreadOnly(showUnreadOnly: boolean) {
+	return { type: 'SET_SHOW_UNREAD_ONLY', showUnreadOnly };
 }
 
 export function markAppHidden() {
