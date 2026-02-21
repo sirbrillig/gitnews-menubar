@@ -54,12 +54,12 @@ export type GitnewsUpdateData =
 			isUpdateAvailable: false;
 			updateUrl: undefined;
 			updatedVersion: undefined;
-	  }
+		}
 	| {
 			isUpdateAvailable: true;
 			updateUrl: string;
 			updatedVersion: string;
-	  };
+		};
 
 export function useGetGitnewsUpdate(): GitnewsUpdateData {
 	const [updateData, setUpdateData] = React.useState<GitnewsUpdateData>({
@@ -85,6 +85,6 @@ export function useGetGitnewsUpdate(): GitnewsUpdateData {
 					`Error fetching updated version: ${(error as Error).message}`
 				);
 			});
-	});
+	}, []);
 	return updateData;
 }
