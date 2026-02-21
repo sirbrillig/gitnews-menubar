@@ -2,7 +2,12 @@ import { Octokit, RestEndpointMethodTypes } from '@octokit/rest';
 import { fetch as undiciFetch, ProxyAgent } from 'undici';
 import { socksDispatcher } from 'fetch-socks';
 import { logMessage } from './logging';
-import type { AccountInfo, Note, NoteReason } from '../../shared-types';
+import type {
+	AccountInfo,
+	BasicNote,
+	Note,
+	NoteReason,
+} from '../../shared-types';
 import type { RequestInit } from 'undici';
 
 const userAgent = 'gitnews-menubar';
@@ -293,18 +298,48 @@ function isGithubActivityResponseValid(
 	return true;
 }
 
-export async function fetchNotificationsForAccount(
+function buildBasicNoteFromRaw(
+	account: AccountInfo,
+	n: RawNotification
+): BasicNote {
+	return {
+		id: n.id,
+		url: n.url,
+		repositoryFullName: n.repository.full_name,
+		repositoryName: n.repository.name,
+		repositoryOwnerAvatar: n.repository.owner.avatar_url,
+		reason: n.reason as NoteReason,
+		unread: n.unread,
+		updatedAt: n.updated_at,
+		title: n.subject.title,
+		type: n.subject.type,
+		subjectUrl: n.subject.url,
+		latestCommentUrl: n.subject.latest_comment_url ?? '',
+		gitnewsAccountId: account.id,
+	};
+}
+
+export async function listBasicNotificationsForAccount(
 	account: AccountInfo
-): Promise<Note[]> {
+): Promise<BasicNote[]> {
 	const octokit = createOctokit(account);
-	const notificationsResponse =
+
+	// Paginate ALL unread notifications (all: false = only unread)
+	const unreadRaw = await octokit.paginate(
+		octokit.rest.activity.listNotificationsForAuthenticatedUser,
+		{ all: false, per_page: 100 }
+	);
+
+	// Fetch first page of ALL notifications to capture recent read ones
+	const allRaw =
 		await octokit.rest.activity.listNotificationsForAuthenticatedUser({
 			all: true,
+			per_page: 100,
 		});
 
-	if (!isGithubActivityResponseValid(notificationsResponse)) {
+	if (!isGithubActivityResponseValid(allRaw)) {
 		logMessage(
-			`Raw notification data from account ${account.name} (${account.id}) is invalid: ${JSON.stringify(notificationsResponse)}`,
+			`Raw notification data from account ${account.name} (${account.id}) is invalid: ${JSON.stringify(allRaw)}`,
 			'error'
 		);
 		throw new Error(
@@ -312,14 +347,50 @@ export async function fetchNotificationsForAccount(
 		);
 	}
 
-	const notes: Note[] = [];
+	// Deduplicate: unread list takes precedence (it's the fully-paginated source)
+	const seen = new Set<string>();
+	const combined: RawNotification[] = [];
+	for (const n of [...unreadRaw, ...allRaw.data]) {
+		if (!seen.has(n.id)) {
+			seen.add(n.id);
+			combined.push(n as RawNotification);
+		}
+	}
 
-	// We need to make more requests to get the details of each notification. Do
-	// these fetches in parallel.
+	return combined.map((n) => buildBasicNoteFromRaw(account, n));
+}
+
+export async function enrichNotificationsForAccount(
+	account: AccountInfo,
+	basicNotes: BasicNote[]
+): Promise<Note[]> {
+	const octokit = createOctokit(account);
+	const notes: Note[] = [];
 	const promises = [];
-	for (const notification of notificationsResponse.data) {
+
+	for (const basicNote of basicNotes) {
+		// Reconstruct the RawNotification shape needed by existing helpers
+		const notification: RawNotification = {
+			id: basicNote.id,
+			url: basicNote.url,
+			subject: {
+				title: basicNote.title,
+				type: basicNote.type,
+				url: basicNote.subjectUrl,
+				latest_comment_url: basicNote.latestCommentUrl || basicNote.subjectUrl,
+			},
+			unread: basicNote.unread,
+			reason: basicNote.reason,
+			repository: {
+				full_name: basicNote.repositoryFullName,
+				name: basicNote.repositoryName,
+				owner: { avatar_url: basicNote.repositoryOwnerAvatar },
+			},
+			updated_at: basicNote.updatedAt,
+		};
+
 		logMessage(
-			`Fetching additional details for notification ${notification.id}`,
+			`Fetching additional details for notification ${basicNote.id}`,
 			'info'
 		);
 		const commentPromise = getCommentDataForNotification(
@@ -341,12 +412,7 @@ export async function fetchNotificationsForAccount(
 		promise
 			.then(([commentData, subjectData]) => {
 				notes.push(
-					buildNoteFromData({
-						account,
-						notification,
-						subjectData,
-						commentData,
-					})
+					buildNoteFromData({ account, notification, commentData, subjectData })
 				);
 			})
 			.catch((err) => {
@@ -357,6 +423,5 @@ export async function fetchNotificationsForAccount(
 	await Promise.all(promises).catch((err) => {
 		throw err;
 	});
-
 	return notes;
 }

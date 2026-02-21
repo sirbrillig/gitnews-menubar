@@ -22,12 +22,18 @@ import debugFactory from 'debug';
 import AutoLaunch from 'easy-auto-launch';
 import dotEnv from 'dotenv';
 import {
-	fetchNotificationsForAccount,
+	listBasicNotificationsForAccount,
+	enrichNotificationsForAccount,
 	markNotficationAsRead,
 	unsubscribeFromNotification,
 } from './lib/github-interface';
 import { logMessage } from './lib/logging';
-import type { AccountInfo, FetchErrorObject, Note } from '../shared-types';
+import type {
+	AccountInfo,
+	BasicNote,
+	FetchErrorObject,
+	Note,
+} from '../shared-types';
 
 // These are provided by electron forge
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -162,22 +168,35 @@ ipcMain.handle('is-demo-mode:get', async () => {
 });
 
 ipcMain.handle(
-	'notifications-for-account:get',
+	'basic-notifications-for-account:list',
 	async (_event, account: AccountInfo) => {
 		try {
-			const notes = await fetchNotificationsForAccount(account);
-			return notes;
+			return await listBasicNotificationsForAccount(account);
 		} catch (error) {
 			// Electron IPC does not preserve Error objects so we must serialize what
 			// data we actually want. See
 			// https://github.com/electron/electron/issues/24427
+
 			logMessage(
-				`Failure while fetching notifications for account ${account.name} (${account.serverUrl})`,
+				`Failure while listing notifications for account ${account.name} (${account.serverUrl})`,
 				'error'
 			);
-			return {
-				error: encodeError(account.id, error as Error),
-			};
+			return { error: encodeError(account.id, error as Error) };
+		}
+	}
+);
+
+ipcMain.handle(
+	'notifications-for-account:enrich',
+	async (_event, account: AccountInfo, basicNotes: BasicNote[]) => {
+		try {
+			return await enrichNotificationsForAccount(account, basicNotes);
+		} catch (error) {
+			logMessage(
+				`Failure while enriching notifications for account ${account.name} (${account.serverUrl})`,
+				'error'
+			);
+			return { error: encodeError(account.id, error as Error) };
 		}
 	}
 );

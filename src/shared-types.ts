@@ -51,6 +51,22 @@ export interface Note {
 	gitnewsAccountId: AccountInfo['id'];
 }
 
+export interface BasicNote {
+	id: string;
+	url: string;
+	repositoryFullName: string;
+	repositoryName: string;
+	repositoryOwnerAvatar: string;
+	reason: NoteReason;
+	unread: boolean;
+	updatedAt: string;
+	title: string;
+	type: string;
+	subjectUrl: string;
+	latestCommentUrl: string;
+	gitnewsAccountId: string;
+}
+
 export interface AccountInfo {
 	id: string;
 	name: string;

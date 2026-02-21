@@ -9,10 +9,11 @@ import type {
 	NoteReason,
 	Note,
 	AccountInfo,
+	BasicNote,
 	FetchErrorObject,
 } from '../shared-types';
 
-export type { NoteReason, Note, AccountInfo, FetchErrorObject };
+export type { NoteReason, Note, AccountInfo, BasicNote, FetchErrorObject };
 
 export type FilterType = NoteReason | 'all';
 
@@ -166,9 +167,13 @@ export interface MainBridge {
 	onClick: (callback: () => void) => void;
 	getToken: () => Promise<string>;
 	getVersion: () => Promise<string>;
-	getNotificationsForAccount: (
+	listBasicNotificationsForAccount: (
 		account: AccountInfo
-	) => Promise<Note[] | { error: Error }>;
+	) => Promise<BasicNote[] | { error: FetchErrorObject }>;
+	enrichNotificationsForAccount: (
+		account: AccountInfo,
+		basicNotes: BasicNote[]
+	) => Promise<Note[] | { error: FetchErrorObject }>;
 	markNotificationRead: (note: Note, account: AccountInfo) => void;
 	unsubscribeNotification: (note: Note, account: AccountInfo) => void;
 	isDemoMode: () => Promise<boolean>;
