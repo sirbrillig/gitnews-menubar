@@ -19,9 +19,10 @@ import {
 	setIsTokenInvalid,
 } from '../lib/reducer';
 import {
-	AccountInfo,
 	AppReduxState,
+	BasicNote,
 	FetchErrorObject,
+	FilterType,
 	Note,
 	UnknownFetchError,
 } from '../types';
@@ -31,6 +32,14 @@ import { createDemoNotifications } from './demo-mode';
 const debug = debugFactory('gitnews-menubar');
 
 let currentDemoNotifications = createDemoNotifications();
+
+function doesBasicNoteMatchFilter(
+	note: BasicNote,
+	filterType: FilterType
+): boolean {
+	if (filterType === 'all') return true;
+	return note.reason === filterType;
+}
 
 export function createFetcher(): Middleware<unknown, AppReduxState> {
 	const fetcher: Middleware<object, AppReduxState> =
@@ -100,6 +109,23 @@ export function createFetcher(): Middleware<unknown, AppReduxState> {
 				return;
 			}
 
+			if (action.type === 'SET_FILTER_TYPE') {
+				next(action); // update state.filterType FIRST so performFetch reads the new value
+				try {
+					performFetch(store.getState(), next);
+				} catch (err) {
+					window.electronApi.logMessage(
+						'Got an error fetching which somehow was not caught by the fetch handler',
+						'error'
+					);
+					console.error(
+						'Got an error fetching which somehow was not caught by the fetch handler',
+						err
+					);
+				}
+				return;
+			}
+
 			return next(action);
 		};
 
@@ -137,17 +163,82 @@ export function createFetcher(): Middleware<unknown, AppReduxState> {
 			// NOTE: After this point, any return action MUST disable fetchingInProgress
 			// or the app will get stuck never updating again.
 			next(fetchBegin());
-			const getGithubNotifications = getFetcher(
-				state.accounts,
-				state.isDemoMode
-			);
-			const notes = await getGithubNotifications();
-			debug('notifications retrieved', notes);
+
+			let allNotes: Note[];
+
+			if (state.isDemoMode) {
+				allNotes = await getDemoNotifications();
+			} else {
+				// Phase 1 — List basic notes for all accounts in parallel
+				const allBasicNotes: BasicNote[] = [];
+				await Promise.all(
+					state.accounts.map((account) => {
+						window.electronApi.logMessage(
+							`Fetching notifications for ${account.name} (${account.serverUrl})`,
+							'info'
+						);
+						return window.electronApi
+							.listBasicNotificationsForAccount(account)
+							.then((result) => {
+								if ('error' in result) throw result.error;
+								allBasicNotes.push(...result);
+							})
+							.catch((err) => {
+								window.electronApi.logMessage(
+									`Fetching notifications FAILED for ${account.name} (${account.serverUrl})`,
+									'error'
+								);
+								throw err;
+							});
+					})
+				);
+
+				// Phase 2 — Filter (renderer-side)
+				const locallyUnreadIds = new Set(
+					(state.locallyUnreadNotes ?? []).map((n) => n.gitnewsAccountId + n.id)
+				);
+				const toEnrich = allBasicNotes.filter((note) => {
+					if (locallyUnreadIds.has(note.gitnewsAccountId + note.id))
+						return true;
+					if (state.mutedRepos.includes(note.repositoryFullName)) return false;
+					return doesBasicNoteMatchFilter(note, state.filterType);
+				});
+
+				// Phase 3 — Enrich (grouped by account)
+				const byAccount = new Map<string, BasicNote[]>();
+				for (const note of toEnrich) {
+					const group = byAccount.get(note.gitnewsAccountId) ?? [];
+					group.push(note);
+					byAccount.set(note.gitnewsAccountId, group);
+				}
+
+				allNotes = [];
+				await Promise.all(
+					[...byAccount.entries()].map(([accountId, notes]) => {
+						const account = state.accounts.find((a) => a.id === accountId);
+						if (!account) return Promise.resolve();
+						return window.electronApi
+							.enrichNotificationsForAccount(account, notes)
+							.then((result) => {
+								if ('error' in result) throw result.error;
+								allNotes.push(...result);
+							});
+					})
+				);
+
+				allNotes.sort((a, b) => {
+					if (a.updatedAt < b.updatedAt) return 1;
+					if (a.updatedAt > b.updatedAt) return -1;
+					return 0;
+				});
+			}
+
+			debug('notifications retrieved', allNotes);
 			window.electronApi.logMessage(
-				`Notifications retrieved (${notes.length} found in ${state.accounts.length} accounts)`,
+				`Notifications retrieved (${allNotes.length} found in ${state.accounts.length} accounts)`,
 				'info'
 			);
-			next(gotNotes(notes));
+			next(gotNotes(allNotes));
 		} catch (err) {
 			debug('Fetching notifications threw an error', err);
 			window.electronApi.logMessage(
@@ -160,69 +251,7 @@ export function createFetcher(): Middleware<unknown, AppReduxState> {
 		}
 	}
 
-	function getFetcher(
-		accounts: AccountInfo[],
-		isDemoMode: boolean
-	): () => Promise<Note[]> {
-		if (isDemoMode) {
-			return () => getDemoNotifications();
-		}
-		return async () => {
-			let allNotes: Note[] = [];
-
-			const promises = [];
-
-			// Do the fetching in parallel.
-			for (const account of accounts) {
-				window.electronApi.logMessage(
-					`Fetching notifications for ${account.name} (${account.serverUrl})`,
-					'info'
-				);
-				const promise = fetchNotifications(account)
-					.then((notes) => {
-						if ('error' in notes) {
-							throw notes.error;
-						}
-						allNotes = [...allNotes, ...notes];
-					})
-					.catch((err) => {
-						window.electronApi.logMessage(
-							`Fetching notifications FAILED for ${account.name} (${account.serverUrl})`,
-							'error'
-						);
-						throw err;
-					});
-				promises.push(promise);
-			}
-
-			await Promise.all(promises).catch((err) => {
-				window.electronApi.logMessage(
-					`Waiting for fetched notifications FAILED`,
-					'error'
-				);
-				throw err;
-			});
-
-			allNotes.sort((a, b) => {
-				if (a.updatedAt < b.updatedAt) {
-					return 1;
-				}
-				if (a.updatedAt > b.updatedAt) {
-					return -1;
-				}
-				return 0;
-			});
-			return allNotes;
-		};
-	}
-
 	return fetcher;
-}
-
-async function fetchNotifications(
-	account: AccountInfo
-): Promise<Note[] | { error: Error }> {
-	return window.electronApi.getNotificationsForAccount(account);
 }
 
 async function getDemoNotifications(): Promise<Note[]> {
