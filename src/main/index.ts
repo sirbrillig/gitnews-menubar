@@ -87,6 +87,7 @@ bar.on('show', () => {
 	bar.window?.webContents.send('menubar-click', true);
 	bar.window?.webContents.send('show-app', true);
 });
+
 bar.on('focus-lost', () => {
 	bar.hideWindow();
 });
