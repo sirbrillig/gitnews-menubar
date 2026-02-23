@@ -1,6 +1,7 @@
 module.exports = {
 	packagerConfig: {
 		icon: './static/images/gitnews-menubar',
+		arch: 'arm64',
 	},
 	plugins: [
 		{

@@ -11,10 +11,14 @@
 		"build": "yarn && yarn make",
 		"test": "jest",
 		"typecheck": "yarn tsc --noEmit",
-		"package": "electron-forge package",
-		"make": "electron-forge make"
+		"package": "electron-forge package --arch arm64",
+		"make": "electron-forge make --arch arm64"
 	},
-	"keywords": ["menu", "github", "notifications"],
+	"keywords": [
+		"menu",
+		"github",
+		"notifications"
+	],
 	"author": "Payton Swick <payton@foolord.com>",
 	"license": "MIT",
 	"dependencies": {
@@ -50,12 +54,12 @@
 		"@babel/plugin-transform-runtime": "^7.25.4",
 		"@babel/preset-react": "^7.24.7",
 		"@babel/preset-typescript": "^7.24.7",
-		"@electron-forge/cli": "^7.4.0",
-		"@electron-forge/maker-deb": "^7.4.0",
-		"@electron-forge/maker-rpm": "^7.4.0",
-		"@electron-forge/maker-squirrel": "^7.4.0",
-		"@electron-forge/maker-zip": "^7.4.0",
-		"@electron-forge/plugin-webpack": "^7.4.0",
+		"@electron-forge/cli": "^7.11.1",
+		"@electron-forge/maker-deb": "^7.11.1",
+		"@electron-forge/maker-rpm": "^7.11.1",
+		"@electron-forge/maker-squirrel": "^7.11.1",
+		"@electron-forge/maker-zip": "^7.11.1",
+		"@electron-forge/plugin-webpack": "^7.11.1",
 		"@types/debug": "^4.1.12",
 		"@types/react": "^18.3.5",
 		"@types/react-dom": "^18.3.0",
@@ -65,7 +69,7 @@
 		"@typescript-eslint/parser": "^7.0.0",
 		"@vercel/webpack-asset-relocator-loader": "1.7.3",
 		"copy-webpack-plugin": "^12.0.2",
-		"electron": "^35.7.5",
+		"electron": "^40.0.0",
 		"electron-react-devtools": "^0.5.3",
 		"electron-webpack": "^2.8.2",
 		"eslint": "^8.57.0",
@@ -93,6 +97,8 @@
 		}
 	},
 	"lint-staged": {
-		"*.{js,ts,tsx}": ["prettier --write"]
+		"*.{js,ts,tsx}": [
+			"prettier --write"
+		]
 	}
 }
