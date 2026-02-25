@@ -104,6 +104,7 @@ export default function Header({
 					fetchInterval={fetchInterval}
 				/>
 			)}
+			{!isTokenInvalid && !offline && <FetchErrorNotice />}
 			{children}
 		</header>
 	);
@@ -184,6 +185,28 @@ function InvalidTokenNotice() {
 			<span>
 				Some of your accounts are not working: '{accountNames}'. Please
 				double-check your info!
+			</span>
+		</div>
+	);
+}
+
+function FetchErrorNotice() {
+	const accounts = useSelector((state: AppReduxState) => state.accounts);
+	const accountsWithFetchErrors = useSelector(
+		(state: AppReduxState) => state.accountsWithFetchErrors
+	);
+	const failingAccounts = accounts.filter((account) =>
+		accountsWithFetchErrors.includes(account.id)
+	);
+	if (failingAccounts.length === 0) {
+		return null;
+	}
+	const accountNames = failingAccounts.map((account) => account.name).join(', ');
+	return (
+		<div className="offline-notice">
+			<span>
+				Could not fetch notifications for: '{accountNames}'. Check your
+				connection or proxy settings.
 			</span>
 		</div>
 	);

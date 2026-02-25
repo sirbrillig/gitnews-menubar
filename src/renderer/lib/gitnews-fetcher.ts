@@ -16,6 +16,7 @@ import {
 	fetchDone,
 	gotNotes,
 	addConnectionError,
+	addAccountFetchError,
 	setIsTokenInvalid,
 } from '../lib/reducer';
 import {
@@ -316,6 +317,7 @@ function dispatchAccountFetchError(
 	account: AccountInfo,
 	err: FetchErrorObject
 ) {
+	dispatch(addAccountFetchError(account.id));
 	if (typeof err === 'object' && isTokenInvalid(err)) {
 		const message = `Token is invalid for account "${account.name}"`;
 		debug(message);
