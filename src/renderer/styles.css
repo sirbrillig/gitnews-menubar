@@ -118,12 +118,38 @@ button {
 }
 
 .config-section__label {
-	font-size: 0.7em;
+	font-size: 1em;
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 	opacity: 0.5;
 	margin: 0 0 5px 4px;
+}
+
+.config-section__header {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	margin-bottom: 5px;
+}
+
+.config-section__header .config-section__label {
+	margin-bottom: 0;
+}
+
+.config-section__actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.config-section__action-button {
+	font-size: 1em;
+	background: none;
+	border: none;
+	cursor: pointer;
+	color: var(--main-link-color);
+	padding: 0;
 }
 
 .config-page__settings {
@@ -702,12 +728,6 @@ header h1 {
 	gap: 10px;
 }
 
-.account-page-header {
-	display: flex;
-	width: 100%;
-	justify-content: space-between;
-	margin-bottom: 10px;
-}
 
 .no-notifications {
 	padding: 12px;
@@ -826,9 +846,10 @@ header h1 {
 }
 
 .account-list {
-	height: 150px;
-	border-top: 1px solid var(--notification-border-color);
-	overflow-y: scroll;
+	border: 1px solid var(--notification-border-color);
+	border-radius: 8px;
+	overflow-y: auto;
+	max-height: 220px;
 	padding: 0;
 	margin: 0;
 }
@@ -842,7 +863,6 @@ header h1 {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	font-size: 0.9em;
 }
 
 .account-list li:last-child {
@@ -851,12 +871,29 @@ header h1 {
 
 .account-list li::after {
 	content: '›';
-	font-size: 1.3em;
+	font-size: 1.2em;
 	opacity: 0.35;
+	flex-shrink: 0;
+	margin-left: 8px;
 }
 
 .account-list li:hover {
 	background-color: var(--button-background-color);
+}
+
+.account-list__info {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.account-list__name {
+	font-size: 0.9em;
+}
+
+.account-list__url {
+	font-size: 0.75em;
+	opacity: 0.6;
 }
 
 .config-page {
