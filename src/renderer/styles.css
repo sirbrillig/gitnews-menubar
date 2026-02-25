@@ -399,25 +399,55 @@ header svg {
 	width: 24px;
 }
 
-.muted-repos-list {
-	margin: 12px;
+.muted-repos-list__description {
+	font-size: 0.8em;
+	opacity: 0.6;
+	margin: 2px 0 8px 0;
+	line-height: 1.4;
 }
 
-.muted-repos-list h2 {
-	margin: 0 0 10px 0;
+.muted-repos-list__empty {
+	font-size: 0.85em;
+	opacity: 0.5;
+	padding: 10px;
+	border: 1px solid var(--notification-border-color);
+	border-radius: 8px;
 }
 
-.muted-repos-list ul {
+.muted-repos-list__repos {
+	border: 1px solid var(--notification-border-color);
+	border-radius: 8px;
+	overflow: hidden;
 	margin: 0;
 	padding: 0;
 }
 
-.muted-repos-list li {
+.muted-repos-list__repos li {
 	list-style-type: none;
+	padding: 8px 10px;
+	margin: 0;
+	border-bottom: 1px solid var(--notification-border-color);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 }
 
-.muted-repos-list li {
-	margin: 10px 0;
+.muted-repos-list__repos li:last-child {
+	border-bottom: none;
+}
+
+.muted-repos-list__repo-name {
+	font-size: 0.9em;
+}
+
+.muted-repos-list__unmute-button {
+	font-size: 0.85em;
+	background: none;
+	border: none;
+	cursor: pointer;
+	color: var(--main-link-color);
+	padding: 0;
+	flex-shrink: 0;
 }
 
 .mute-icon {
