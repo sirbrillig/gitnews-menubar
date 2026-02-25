@@ -362,8 +362,9 @@ header svg {
 	fill: var(--config-action-text-color);
 }
 
-.auto-load-setting {
+.config-page__settings input[type='checkbox'] {
 	margin-right: 0.5em;
+	vertical-align: -2px;
 }
 
 header h1 {
