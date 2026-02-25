@@ -38,7 +38,7 @@ export default function FilterButton({
 		setFiltersVisible(false);
 	};
 	return (
-		<div className="filter-button__area">
+		<div className={`filter-button__area${filterType !== 'all' ? ' filter-button__area--active' : ''}`}>
 			{filterType !== 'all' && (
 				<label
 					className="filter-label"

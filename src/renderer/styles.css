@@ -175,10 +175,16 @@ header svg {
 	justify-content: flex-end;
 	align-items: center;
 	font-size: 0.7em;
+	gap: 8px;
 }
 
 .filter-label {
-	margin-bottom: 2px;
+	color: #fff;
+	cursor: pointer;
+}
+
+.filter-button__area--active .filter-button svg {
+	fill: var(--main-link-color);
 }
 
 .header__primary a,
@@ -214,7 +220,9 @@ header svg {
 	font-size: 0.8em;
 	border-radius: 16px;
 	opacity: 0.6;
-	transition: background 0.15s ease, opacity 0.15s ease;
+	transition:
+		background 0.15s ease,
+		opacity 0.15s ease;
 }
 
 .read-status-toggle__button--active {
