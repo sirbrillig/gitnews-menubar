@@ -329,10 +329,20 @@ export async function listBasicNotificationsForAccount(
 ): Promise<BasicNote[]> {
 	const octokit = createOctokit(account);
 
+	logMessage(
+		`Asking octokit to fetch all unread notifications (paginated) for account ${account.name} (${account.id})`,
+		'info'
+	);
+
 	// Paginate ALL unread notifications (all: false = only unread)
 	const unreadRaw = await octokit.paginate(
 		octokit.rest.activity.listNotificationsForAuthenticatedUser,
 		{ all: false, per_page: 100 }
+	);
+
+	logMessage(
+		`Fetched ${unreadRaw.length} unread notifications. Asking octokit to fetch first page of all notifications for account ${account.name} (${account.id})`,
+		'info'
 	);
 
 	// Fetch first page of ALL notifications to capture recent read ones
@@ -341,6 +351,11 @@ export async function listBasicNotificationsForAccount(
 			all: true,
 			per_page: 100,
 		});
+
+	logMessage(
+		`All recent notifications fetched for account ${account.name} (${account.id})`,
+		'info'
+	);
 
 	if (!isGithubActivityResponseValid(allRaw)) {
 		logMessage(
@@ -395,7 +410,7 @@ export async function enrichNotificationsForAccount(
 		};
 
 		logMessage(
-			`Fetching additional details for notification ${basicNote.id}`,
+			`Fetching additional details for notification ${basicNote.id} in account ${account.name} (${account.id})`,
 			'info'
 		);
 		const commentPromise = getCommentDataForNotification(
