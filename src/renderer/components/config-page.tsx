@@ -35,13 +35,13 @@ export default function ConfigPage({
 			<h3>Settings</h3>
 			<ul className="config-page__settings">
 				<li>
-					<button className="edit-token-button" onClick={showAccounts}>
+					<button className="edit-token-button btn--cancel" onClick={showAccounts}>
 						Edit account information
 					</button>
 				</li>
 				<li>
 					<button
-						className="edit-muted-repos-button"
+						className="edit-muted-repos-button btn--cancel"
 						onClick={showMutedReposList}
 					>
 						Edit muted repos
