@@ -351,6 +351,10 @@ header svg {
 	padding: 2px;
 }
 
+.attributions {
+	margin-top: auto;
+}
+
 .attributions__icon {
 	vertical-align: middle;
 	padding-right: 0.5em;
@@ -810,7 +814,7 @@ header h1 {
 	height: 100%;
 	display: flex;
 	flex-direction: column;
-	justify-content: space-between;
+	justify-content: flex-start;
 }
 
 .config-page h2 {
@@ -818,7 +822,7 @@ header h1 {
 }
 
 .config-page h3 {
-	margin: 10px 0;
+	margin: 10px 0 4px 0;
 }
 
 .spinner {
