@@ -117,14 +117,70 @@ button {
 	margin-top: 10px;
 }
 
+.config-section__label {
+	font-size: 0.7em;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	opacity: 0.5;
+	margin: 0 0 5px 4px;
+}
+
 .config-page__settings {
+	border: 1px solid var(--notification-border-color);
+	border-radius: 8px;
+	overflow: hidden;
 	margin: 0;
 	padding: 0;
 }
 
 .config-page__settings li {
-	margin: 0 0 10px 0;
 	list-style-type: none;
+	margin: 0;
+	border-bottom: 1px solid var(--notification-border-color);
+}
+
+.config-page__settings li:last-child {
+	border-bottom: none;
+}
+
+.config-row--nav button {
+	display: flex;
+	width: 100%;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px 10px;
+	background: none;
+	border: none;
+	cursor: pointer;
+	font-size: inherit;
+	color: var(--main-text-color);
+}
+
+.config-row--nav button:hover {
+	background-color: var(--button-background-color);
+}
+
+.config-row--nav button::after {
+	content: '›';
+	font-size: 1.2em;
+	opacity: 0.35;
+}
+
+.config-row--toggle {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px 10px;
+	font-size: inherit;
+}
+
+.config-row--toggle label {
+	cursor: pointer;
+}
+
+.config-row--toggle input[type='checkbox'] {
+	margin: 0;
 }
 
 a {
@@ -364,10 +420,6 @@ header svg {
 	fill: var(--config-action-text-color);
 }
 
-.config-page__settings input[type='checkbox'] {
-	margin-right: 0.5em;
-	vertical-align: -2px;
-}
 
 header h1 {
 	font-size: 1.4em;
@@ -815,9 +867,6 @@ header h1 {
 	justify-content: flex-start;
 }
 
-.config-page h2 {
-	margin: 0;
-}
 
 .config-page h3 {
 	margin: 10px 0 4px 0;

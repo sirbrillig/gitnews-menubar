@@ -31,50 +31,42 @@ export default function ConfigPage({
 
 	return (
 		<div className="config-page">
-			<h2 className="config-page__title">Configuration</h2>
-			<h3>Settings</h3>
-			<ul className="config-page__settings">
-				<li>
-					<button className="edit-token-button btn--cancel" onClick={showAccounts}>
-						Edit account information
-					</button>
-				</li>
-				<li>
-					<button
-						className="edit-muted-repos-button btn--cancel"
-						onClick={showMutedReposList}
-					>
-						Edit muted repos
-					</button>
-				</li>
-				<li>
-					<input
-						type="checkbox"
-						id="auto-load-setting"
-						className="auto-load-setting"
-						checked={isAutoLoadEnabled}
-						onChange={toggleAutoLoad}
-					/>
-					<label
-						htmlFor="auto-load-setting"
-						className="auto-load-setting-label"
-					>
-						Launch Gitnews at login
-					</label>
-				</li>
-				<li>
-					<input
-						type="checkbox"
-						id="logging-setting"
-						className="logging-setting"
-						checked={isLogging}
-						onChange={toggleIsLogging}
-					/>
-					<label htmlFor="logging-setting" className="logging-setting-label">
-						Enable error logging
-					</label>
-				</li>
-			</ul>
+			<div className="config-section">
+				<div className="config-section__label">Settings</div>
+				<ul className="config-page__settings">
+					<li className="config-row config-row--nav">
+						<button className="edit-token-button" onClick={showAccounts}>
+							Accounts
+						</button>
+					</li>
+					<li className="config-row config-row--nav">
+						<button
+							className="edit-muted-repos-button"
+							onClick={showMutedReposList}
+						>
+							Muted repos
+						</button>
+					</li>
+					<li className="config-row config-row--toggle">
+						<label htmlFor="auto-load-setting">Launch at login</label>
+						<input
+							type="checkbox"
+							id="auto-load-setting"
+							checked={isAutoLoadEnabled}
+							onChange={toggleAutoLoad}
+						/>
+					</li>
+					<li className="config-row config-row--toggle">
+						<label htmlFor="logging-setting">Enable error logging</label>
+						<input
+							type="checkbox"
+							id="logging-setting"
+							checked={isLogging}
+							onChange={toggleIsLogging}
+						/>
+					</li>
+				</ul>
+			</div>
 			<Attributions openUrl={openUrl} />
 			<div className="config-page__buttons">
 				<button className="btn--cancel quit-button" onClick={quitApp}>
