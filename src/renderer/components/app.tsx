@@ -63,6 +63,7 @@ interface AppConnectedProps {
 	isLogging: boolean;
 	isTokenInvalid: boolean;
 	showUnreadOnly: boolean;
+	hasAccounts: boolean;
 }
 
 interface AppConnectedActions {
@@ -206,6 +207,7 @@ class App extends React.Component<AppProps, AppState> {
 			lastSuccessfulCheck,
 			getVersion,
 			fetchingInProgress,
+			hasAccounts,
 		} = this.props;
 		const newNotes = this.getUnreadNotifications();
 		const readNotes = this.props.showUnreadOnly ? [] : this.getReadNotifications();
@@ -235,7 +237,7 @@ class App extends React.Component<AppProps, AppState> {
 		const backButtonPanes = [PANE_CONFIG, PANE_MUTED_REPOS, PANE_ACCOUNTS];
 		const confugSubPanes = [PANE_MUTED_REPOS, PANE_ACCOUNTS];
 		const showBackButton = (() => {
-			if (!token) {
+			if (!hasAccounts) {
 				return false;
 			}
 			if (backButtonPanes.includes(currentPane)) {
@@ -252,7 +254,7 @@ class App extends React.Component<AppProps, AppState> {
 		};
 
 		const headerOnClickConfig = (() => {
-			if (token && currentPane === PANE_NOTIFICATIONS) {
+			if (hasAccounts && currentPane === PANE_NOTIFICATIONS) {
 				return showConfig;
 			}
 			return undefined;
@@ -336,6 +338,7 @@ function mapStateToProps(state: AppReduxState): AppConnectedProps {
 		isLogging: state.isLogging,
 		isTokenInvalid: state.isTokenInvalid,
 		showUnreadOnly: state.showUnreadOnly,
+		hasAccounts: state.accounts.length > 0 || Boolean(state.token),
 	};
 }
 
