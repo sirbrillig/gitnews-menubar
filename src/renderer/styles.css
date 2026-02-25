@@ -191,29 +191,34 @@ header svg {
 	margin: 0 10px 10px 10px;
 	width: 100%;
 	min-height: 1em;
+	display: flex;
+	justify-content: center;
 }
 
 .read-status-toggle {
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 20px;
+	padding: 3px;
+	width: fit-content;
 }
 
 .read-status-toggle__button {
 	background: none;
 	border: none;
 	color: var(--header-text-color);
-	padding: 2px 12px;
+	padding: 3px 14px;
 	cursor: pointer;
 	font-size: 0.8em;
-	opacity: 0.5;
-}
-
-.read-status-toggle__button:first-child {
-	border-right: 1px solid var(--header-text-color);
+	border-radius: 16px;
+	opacity: 0.6;
+	transition: background 0.15s ease, opacity 0.15s ease;
 }
 
 .read-status-toggle__button--active {
+	background: rgba(255, 255, 255, 0.2);
 	opacity: 1;
 	font-weight: 600;
 }
