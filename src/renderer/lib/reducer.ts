@@ -13,6 +13,7 @@ import {
 	ActionChangeToOffline,
 	ActionGotNotes,
 	ActionAddConnectionError,
+	ActionAddAccountFetchError,
 	ActionFetchBegin,
 	ActionFetchEnd,
 	ActionMarkAllNotesSeen,
@@ -36,6 +37,7 @@ const initialState: AppReduxState = {
 	token: undefined,
 	notes: [],
 	errors: [],
+	accountsWithFetchErrors: [],
 	mutedRepos: [],
 	fetchingInProgress: false,
 	lastChecked: false,
@@ -117,6 +119,15 @@ export function createReducer() {
 					errors: [...state.errors, action.error],
 					lastChecked: Date.now(),
 				});
+			case 'ADD_ACCOUNT_FETCH_ERROR':
+				return {
+					...state,
+					accountsWithFetchErrors: state.accountsWithFetchErrors.includes(
+						action.accountId
+					)
+						? state.accountsWithFetchErrors
+						: [...state.accountsWithFetchErrors, action.accountId],
+				};
 			case 'CLEAR_ERRORS':
 				return Object.assign({}, state, { errors: [] });
 			case 'MARK_NOTE_UNREAD': {
@@ -229,6 +240,7 @@ export function createReducer() {
 					lastSuccessfulCheck: Date.now(),
 					fetchRetryCount: 0,
 					errors: [],
+					accountsWithFetchErrors: [],
 					fetchInterval: defaultFetchInterval,
 					notes: allNotes,
 					locallyUnreadNotes: updatedLocallyUnread,
@@ -321,6 +333,12 @@ export function gotNotes(notes: Note[]): ActionGotNotes {
 
 export function addConnectionError(error: string): ActionAddConnectionError {
 	return { type: 'ADD_CONNECTION_ERROR', error };
+}
+
+export function addAccountFetchError(
+	accountId: string
+): ActionAddAccountFetchError {
+	return { type: 'ADD_ACCOUNT_FETCH_ERROR', accountId };
 }
 
 export function fetchBegin(): ActionFetchBegin {

@@ -21,6 +21,7 @@ export interface AppReduxState {
 	token: undefined | string;
 	notes: Note[];
 	errors: string[];
+	accountsWithFetchErrors: string[];
 	mutedRepos: string[];
 	fetchingInProgress: boolean;
 	lastChecked: false | number;
@@ -80,6 +81,10 @@ export type ActionAddConnectionError = {
 	type: 'ADD_CONNECTION_ERROR';
 	error: string;
 };
+export type ActionAddAccountFetchError = {
+	type: 'ADD_ACCOUNT_FETCH_ERROR';
+	accountId: string;
+};
 export type ActionFetchBegin = { type: 'FETCH_BEGIN' };
 export type ActionFetchEnd = { type: 'FETCH_END' };
 export type ActionFetchNotifications = { type: 'GITNEWS_FETCH_NOTIFICATIONS' };
@@ -121,6 +126,7 @@ export type AppReduxAction =
 	| ActionChangeToOffline
 	| ActionGotNotes
 	| ActionAddConnectionError
+	| ActionAddAccountFetchError
 	| ActionFetchBegin
 	| ActionFetchEnd
 	| ActionFetchNotifications
