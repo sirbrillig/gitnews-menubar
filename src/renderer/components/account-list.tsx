@@ -25,49 +25,56 @@ export default function AccountList({
 
 	return (
 		<div className="config-page">
-			<div className="account-page-header">
-				<h2 className="config-page__title">Accounts</h2>
-				<div className="account-page-actions">
-					{hasSelectedAccountBeenDeleted && selectedAccount && <button
-						className="add-account-button btn"
-						onClick={() => {
-							dispatch(setAccounts([selectedAccount, ...accounts]));
-						}}
-					>
-						Restore '{selectedAccount.name}'
-					</button>}
-					<button
-						className="add-account-button btn"
-						onClick={() => {
-							const newAccount: AccountInfo = {
-								id: crypto.randomUUID(),
-								name: '',
-								apiKey: '',
-								serverUrl: 'https://github.com',
-							};
-							dispatch(selectAccount(newAccount));
-							showAccountEdit();
-						}}
-					>
-						New
-					</button>
-				</div>
-			</div>
-			<ul className="account-list">
-				{accounts.map((account) => {
-					return (
-						<li
-							key={account.id}
+			<div className="config-section">
+				<div className="config-section__header">
+					<div className="config-section__label">Accounts</div>
+					<div className="config-section__actions">
+						{hasSelectedAccountBeenDeleted && selectedAccount && (
+							<button
+								className="add-account-button config-section__action-button"
+								onClick={() => {
+									dispatch(setAccounts([selectedAccount, ...accounts]));
+								}}
+							>
+								Restore &lsquo;{selectedAccount.name}&rsquo;
+							</button>
+						)}
+						<button
+							className="add-account-button config-section__action-button"
 							onClick={() => {
-								dispatch(selectAccount(account));
+								const newAccount: AccountInfo = {
+									id: crypto.randomUUID(),
+									name: '',
+									apiKey: '',
+									serverUrl: 'https://github.com',
+								};
+								dispatch(selectAccount(newAccount));
 								showAccountEdit();
 							}}
 						>
-							{account.name ?? 'Unnamed'}: {account.serverUrl}
-						</li>
-					);
-				})}
-			</ul>
+							+ New
+						</button>
+					</div>
+				</div>
+				<ul className="account-list">
+					{accounts.map((account) => {
+						return (
+							<li
+								key={account.id}
+								onClick={() => {
+									dispatch(selectAccount(account));
+									showAccountEdit();
+								}}
+							>
+								<div className="account-list__info">
+									<span className="account-list__name">{account.name ?? 'Unnamed'}</span>
+									<span className="account-list__url">{account.serverUrl}</span>
+								</div>
+							</li>
+						);
+					})}
+				</ul>
+			</div>
 		</div>
 	);
 }

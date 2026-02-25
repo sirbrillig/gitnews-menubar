@@ -9,9 +9,15 @@ export default function MutedReposList({
 	unmuteRepo: (note: string) => void;
 }) {
 	return (
-		<div className="muted-repos-list">
-			<h2>Muted repos</h2>
-			<MutedRepos mutedRepos={mutedRepos} unmuteRepo={unmuteRepo} />
+		<div className="config-page">
+			<div className="config-section">
+				<div className="config-section__label">Muted Repos</div>
+				<p className="muted-repos-list__description">
+					Notifications from muted repos do not change the icon. Mute a repo
+					from the notification list.
+				</p>
+				<MutedRepos mutedRepos={mutedRepos} unmuteRepo={unmuteRepo} />
+			</div>
 		</div>
 	);
 }
@@ -25,39 +31,31 @@ function MutedRepos({
 }) {
 	if (mutedRepos.length === 0) {
 		return (
-			<div className="muted-repos-list__text">
-				There are no muted repos. You can mute a repo by clicking the mute
-				button next to a notification for that repo. Notifications from muted
-				repos do not change the icon.
-			</div>
+			<div className="muted-repos-list__empty">No muted repos.</div>
 		);
 	}
 	return (
-		<>
-			<div className="muted-repos-list__text">
-				These repos are muted. Notifications from muted repos do not change the
-				icon. You can unmute repos below.
-			</div>
-			<ul>
-				{mutedRepos.map(repoName => {
-					const onClick = () => {
-						unmuteRepo(repoName);
-					};
-					return (
-						<li key={repoName}>
-							{repoName} <UnmuteRepoButton onClick={onClick} />
-						</li>
-					);
-				})}
-			</ul>
-		</>
+		<ul className="muted-repos-list__repos">
+			{mutedRepos.map((repoName) => {
+				return (
+					<li key={repoName}>
+						<span className="muted-repos-list__repo-name">{repoName}</span>
+						<UnmuteRepoButton onClick={() => unmuteRepo(repoName)} />
+					</li>
+				);
+			})}
+		</ul>
 	);
 }
 
 function UnmuteRepoButton({ onClick }: { onClick: () => void }) {
 	return (
-		<button aria-label="Unmute notifications from this repo" onClick={onClick}>
-			unmute repo
+		<button
+			className="muted-repos-list__unmute-button"
+			aria-label="Unmute notifications from this repo"
+			onClick={onClick}
+		>
+			Unmute
 		</button>
 	);
 }

@@ -117,14 +117,96 @@ button {
 	margin-top: 10px;
 }
 
+.config-section__label {
+	font-size: 1em;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	opacity: 0.5;
+	margin: 0 0 5px 4px;
+}
+
+.config-section__header {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	margin-bottom: 5px;
+}
+
+.config-section__header .config-section__label {
+	margin-bottom: 0;
+}
+
+.config-section__actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.config-section__action-button {
+	font-size: 1em;
+	background: none;
+	border: none;
+	cursor: pointer;
+	color: var(--main-link-color);
+	padding: 0;
+}
+
 .config-page__settings {
+	border: 1px solid var(--notification-border-color);
+	border-radius: 8px;
+	overflow: hidden;
 	margin: 0;
 	padding: 0;
 }
 
 .config-page__settings li {
-	margin: 0 0 10px 0;
 	list-style-type: none;
+	margin: 0;
+	border-bottom: 1px solid var(--notification-border-color);
+}
+
+.config-page__settings li:last-child {
+	border-bottom: none;
+}
+
+.config-row--nav button {
+	display: flex;
+	width: 100%;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px 10px;
+	background: none;
+	border: none;
+	cursor: pointer;
+	font-size: inherit;
+	color: var(--main-text-color);
+}
+
+.config-row--nav button:hover {
+	background-color: var(--button-background-color);
+}
+
+.config-row--nav button::after {
+	content: '›';
+	font-size: 1.2em;
+	opacity: 0.35;
+}
+
+.config-row--toggle {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px 10px;
+	font-size: inherit;
+}
+
+.config-row--toggle label {
+	cursor: pointer;
+}
+
+.config-row--toggle input[type='checkbox'] {
+	margin: 0;
 }
 
 a {
@@ -175,10 +257,16 @@ header svg {
 	justify-content: flex-end;
 	align-items: center;
 	font-size: 0.7em;
+	gap: 8px;
 }
 
 .filter-label {
-	margin-bottom: 2px;
+	color: #fff;
+	cursor: pointer;
+}
+
+.filter-button__area--active .filter-button svg {
+	fill: var(--main-link-color);
 }
 
 .header__primary a,
@@ -214,7 +302,9 @@ header svg {
 	font-size: 0.8em;
 	border-radius: 16px;
 	opacity: 0.6;
-	transition: background 0.15s ease, opacity 0.15s ease;
+	transition:
+		background 0.15s ease,
+		opacity 0.15s ease;
 }
 
 .read-status-toggle__button--active {
@@ -292,8 +382,6 @@ header svg {
 	justify-content: space-between;
 }
 
-.edit-token-button,
-.edit-muted-repos-button,
 .config-button,
 .filter-button,
 .back-button {
@@ -311,25 +399,55 @@ header svg {
 	width: 24px;
 }
 
-.muted-repos-list {
-	margin: 12px;
+.muted-repos-list__description {
+	font-size: 0.8em;
+	opacity: 0.6;
+	margin: 2px 0 8px 0;
+	line-height: 1.4;
 }
 
-.muted-repos-list h2 {
-	margin: 0 0 10px 0;
+.muted-repos-list__empty {
+	font-size: 0.85em;
+	opacity: 0.5;
+	padding: 10px;
+	border: 1px solid var(--notification-border-color);
+	border-radius: 8px;
 }
 
-.muted-repos-list ul {
+.muted-repos-list__repos {
+	border: 1px solid var(--notification-border-color);
+	border-radius: 8px;
+	overflow: hidden;
 	margin: 0;
 	padding: 0;
 }
 
-.muted-repos-list li {
+.muted-repos-list__repos li {
 	list-style-type: none;
+	padding: 8px 10px;
+	margin: 0;
+	border-bottom: 1px solid var(--notification-border-color);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 }
 
-.muted-repos-list li {
-	margin: 10px 0;
+.muted-repos-list__repos li:last-child {
+	border-bottom: none;
+}
+
+.muted-repos-list__repo-name {
+	font-size: 0.9em;
+}
+
+.muted-repos-list__unmute-button {
+	font-size: 0.85em;
+	background: none;
+	border: none;
+	cursor: pointer;
+	color: var(--main-link-color);
+	padding: 0;
+	flex-shrink: 0;
 }
 
 .mute-icon {
@@ -343,6 +461,10 @@ header svg {
 	padding: 2px;
 }
 
+.attributions {
+	margin-top: auto;
+}
+
 .attributions__icon {
 	vertical-align: middle;
 	padding-right: 0.5em;
@@ -354,9 +476,6 @@ header svg {
 	fill: var(--config-action-text-color);
 }
 
-.auto-load-setting {
-	margin-right: 0.5em;
-}
 
 header h1 {
 	font-size: 1.4em;
@@ -639,12 +758,6 @@ header h1 {
 	gap: 10px;
 }
 
-.account-page-header {
-	display: flex;
-	width: 100%;
-	justify-content: space-between;
-	margin-bottom: 10px;
-}
 
 .no-notifications {
 	padding: 12px;
@@ -763,17 +876,54 @@ header h1 {
 }
 
 .account-list {
-	height: 150px;
-	border-top: 1px solid var(--notification-border-color);
-	overflow-y: scroll;
-	padding: 5px;
+	border: 1px solid var(--notification-border-color);
+	border-radius: 8px;
+	overflow-y: auto;
+	max-height: 220px;
+	padding: 0;
 	margin: 0;
 }
 
 .account-list li {
 	list-style-type: none;
-	padding: 5px;
+	padding: 8px 10px;
 	margin: 0;
+	cursor: pointer;
+	border-bottom: 1px solid var(--notification-border-color);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.account-list li:last-child {
+	border-bottom: none;
+}
+
+.account-list li::after {
+	content: '›';
+	font-size: 1.2em;
+	opacity: 0.35;
+	flex-shrink: 0;
+	margin-left: 8px;
+}
+
+.account-list li:hover {
+	background-color: var(--button-background-color);
+}
+
+.account-list__info {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.account-list__name {
+	font-size: 0.9em;
+}
+
+.account-list__url {
+	font-size: 0.75em;
+	opacity: 0.6;
 }
 
 .config-page {
@@ -781,15 +931,12 @@ header h1 {
 	height: 100%;
 	display: flex;
 	flex-direction: column;
-	justify-content: space-between;
+	justify-content: flex-start;
 }
 
-.config-page h2 {
-	margin: 0;
-}
 
 .config-page h3 {
-	margin: 10px 0;
+	margin: 10px 0 4px 0;
 }
 
 .spinner {
