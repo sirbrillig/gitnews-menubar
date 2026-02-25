@@ -19,6 +19,7 @@ import {
 	setIsTokenInvalid,
 } from '../lib/reducer';
 import {
+	type AccountInfo,
 	AppReduxState,
 	BasicNote,
 	FetchErrorObject,
@@ -164,13 +165,23 @@ export function createFetcher(): Middleware<unknown, AppReduxState> {
 			// or the app will get stuck never updating again.
 			next(fetchBegin());
 
-			let allNotes: Note[];
-
 			if (state.isDemoMode) {
-				allNotes = await getDemoNotifications();
+				const allNotes = await getDemoNotifications();
+				debug('notifications retrieved', allNotes);
+				window.electronApi.logMessage(
+					`Notifications retrieved (${allNotes.length} found in ${state.accounts.length} accounts)`,
+					'info'
+				);
+				next(gotNotes(allNotes));
 			} else {
+				type AccountError = {
+					account: AccountInfo;
+					err: FetchErrorObject | unknown;
+				};
+
 				// Phase 1 — List basic notes for all accounts in parallel
 				const allBasicNotes: BasicNote[] = [];
+				const phase1Errors: AccountError[] = [];
 				await Promise.all(
 					state.accounts.map((account) => {
 						window.electronApi.logMessage(
@@ -180,7 +191,14 @@ export function createFetcher(): Middleware<unknown, AppReduxState> {
 						return window.electronApi
 							.listBasicNotificationsForAccount(account)
 							.then((result) => {
-								if ('error' in result) throw result.error;
+								if ('error' in result) {
+									window.electronApi.logMessage(
+										`Fetching notifications FAILED for ${account.name} (${account.serverUrl})`,
+										'error'
+									);
+									phase1Errors.push({ account, err: result.error });
+									return;
+								}
 								allBasicNotes.push(...result);
 							})
 							.catch((err) => {
@@ -188,7 +206,7 @@ export function createFetcher(): Middleware<unknown, AppReduxState> {
 									`Fetching notifications FAILED for ${account.name} (${account.serverUrl})`,
 									'error'
 								);
-								throw err;
+								phase1Errors.push({ account, err });
 							});
 					})
 				);
@@ -212,7 +230,8 @@ export function createFetcher(): Middleware<unknown, AppReduxState> {
 					byAccount.set(note.gitnewsAccountId, group);
 				}
 
-				allNotes = [];
+				const allNotes: Note[] = [];
+				const phase3Errors: AccountError[] = [];
 				await Promise.all(
 					[...byAccount.entries()].map(([accountId, notes]) => {
 						const account = state.accounts.find((a) => a.id === accountId);
@@ -220,25 +239,55 @@ export function createFetcher(): Middleware<unknown, AppReduxState> {
 						return window.electronApi
 							.enrichNotificationsForAccount(account, notes)
 							.then((result) => {
-								if ('error' in result) throw result.error;
+								if ('error' in result) {
+									phase3Errors.push({ account, err: result.error });
+									return;
+								}
 								allNotes.push(...result);
+							})
+							.catch((err) => {
+								phase3Errors.push({ account, err });
 							});
 					})
 				);
+
+				const allAccountErrors = [...phase1Errors, ...phase3Errors];
+				const failedAccountIds = new Set(
+					allAccountErrors.map((e) => e.account.id)
+				);
+				const anyAccountSucceeded = state.accounts.some(
+					(a) => !failedAccountIds.has(a.id)
+				);
+
+				if (anyAccountSucceeded) {
+					// Preserve existing notes from failed accounts so they don't disappear
+					const preservedNotes = state.notes.filter((n) =>
+						failedAccountIds.has(n.gitnewsAccountId)
+					);
+					allNotes.push(...preservedNotes);
+				}
 
 				allNotes.sort((a, b) => {
 					if (a.updatedAt < b.updatedAt) return 1;
 					if (a.updatedAt > b.updatedAt) return -1;
 					return 0;
 				});
-			}
 
-			debug('notifications retrieved', allNotes);
-			window.electronApi.logMessage(
-				`Notifications retrieved (${allNotes.length} found in ${state.accounts.length} accounts)`,
-				'info'
-			);
-			next(gotNotes(allNotes));
+				debug('notifications retrieved', allNotes);
+				window.electronApi.logMessage(
+					`Notifications retrieved (${allNotes.length} found in ${state.accounts.length} accounts, ${allAccountErrors.length} account(s) failed)`,
+					'info'
+				);
+
+				if (anyAccountSucceeded) {
+					// gotNotes clears errors[], so dispatch it before per-account errors
+					next(gotNotes(allNotes));
+				}
+
+				for (const { account, err } of allAccountErrors) {
+					dispatchAccountFetchError(next, account, err as FetchErrorObject);
+				}
+			}
 		} catch (err) {
 			debug('Fetching notifications threw an error', err);
 			window.electronApi.logMessage(
@@ -260,6 +309,24 @@ async function getDemoNotifications(): Promise<Note[]> {
 		...createDemoNotifications(),
 	];
 	return currentDemoNotifications;
+}
+
+function dispatchAccountFetchError(
+	dispatch: AppDispatch,
+	account: AccountInfo,
+	err: FetchErrorObject
+) {
+	if (typeof err === 'object' && isTokenInvalid(err)) {
+		const message = `Token is invalid for account "${account.name}"`;
+		debug(message);
+		window.electronApi.logMessage(message, 'warn');
+		dispatch(setIsTokenInvalid(err.accountId ?? account.id, true));
+		return;
+	}
+	const message = `Error fetching notifications for "${account.name}": ${getErrorMessage(err as UnknownFetchError)}`;
+	debug(message);
+	window.electronApi.logMessage(message, 'warn');
+	dispatch(addConnectionError(message));
 }
 
 export function getErrorHandler(dispatch: AppDispatch) {
