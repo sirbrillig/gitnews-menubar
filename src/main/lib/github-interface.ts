@@ -71,7 +71,7 @@ function createOctokit(account: AccountInfo) {
 }
 
 function getBaseUrlForServer(account: AccountInfo): string | undefined {
-	if (account.serverUrl === mainGithubApiUrl) {
+	if (!account.serverUrl || account.serverUrl === mainGithubApiUrl) {
 		return undefined;
 	}
 	// GitHub Enterprise Servers use this URL structure:
@@ -161,10 +161,12 @@ async function getCommentDataForNotification(
 	let commentAvatar: string = '';
 	let commentHtmlUrl: string = '';
 	let commentUsername: string = '';
-	const commentPath = getOctokitRequestPathFromUrl(
-		account,
-		notification.subject.latest_comment_url ?? notification.subject.url
-	);
+	const commentUrl =
+		notification.subject.latest_comment_url || notification.subject.url;
+	if (!commentUrl) {
+		return { commentAvatar, commentHtmlUrl, commentUsername };
+	}
+	const commentPath = getOctokitRequestPathFromUrl(account, commentUrl);
 	try {
 		const comment = await octokit.request(`GET ${commentPath}`, {});
 		if (!isGithubCommentResponseValid(comment)) {
@@ -201,6 +203,9 @@ async function getSubjectDataForNotification(
 	let noteState: string = '';
 	let noteMerged: boolean = false;
 	let subjectHtmlUrl: string = '';
+	if (!notification.subject.url) {
+		return { noteState, noteMerged, subjectHtmlUrl };
+	}
 	const subjectPath = getOctokitRequestPathFromUrl(
 		account,
 		notification.subject.url
@@ -313,7 +318,7 @@ function buildBasicNoteFromRaw(
 		updatedAt: n.updated_at,
 		title: n.subject.title,
 		type: n.subject.type,
-		subjectUrl: n.subject.url,
+		subjectUrl: n.subject.url ?? '',
 		latestCommentUrl: n.subject.latest_comment_url ?? '',
 		gitnewsAccountId: account.id,
 	};
