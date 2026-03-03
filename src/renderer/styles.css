@@ -28,6 +28,7 @@
 	--multi-open-notification-pending-overlay: rgba(255, 255, 255, 0.85);
 	--notification-image-background-color: #fff;
 	--no-notifications-icon-color: #000;
+	--filter-button-active-color: #f57023;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -266,7 +267,7 @@ header svg {
 }
 
 .filter-button__area--active .filter-button svg {
-	fill: var(--main-link-color);
+	fill: var(--filter-button-active-color);
 }
 
 .header__primary a,
