@@ -279,9 +279,10 @@ header svg {
 .header__secondary {
 	margin: 0 10px 10px 10px;
 	width: 100%;
-	min-height: 1em;
+	height: 28px;
 	display: flex;
 	justify-content: center;
+	align-items: center;
 }
 
 .read-status-toggle {
