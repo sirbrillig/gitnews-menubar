@@ -92,7 +92,6 @@ export default function Header({
 			<SecondaryHeader
 				fetchingInProgress={fetchingInProgress}
 				lastSuccessfulCheck={lastSuccessfulCheck}
-				currentPane={currentPane}
 				showUnreadOnly={showUnreadOnly}
 				setShowUnreadOnly={setShowUnreadOnly}
 			/>
@@ -113,37 +112,26 @@ export default function Header({
 function SecondaryHeader({
 	lastSuccessfulCheck,
 	fetchingInProgress,
-	currentPane,
 	showUnreadOnly,
 	setShowUnreadOnly,
 }: {
 	lastSuccessfulCheck: false | number;
 	fetchingInProgress: boolean;
-	currentPane: AppPane;
 	showUnreadOnly: boolean;
 	setShowUnreadOnly: (value: boolean) => void;
 }) {
-	if (fetchingInProgress) {
-		return (
-			<div className="header__secondary">
-				<FetchingInProgress />
-			</div>
-		);
-	}
-	if (currentPane === PANE_NOTIFICATIONS) {
-		return (
-			<div className="header__secondary">
-				<ReadStatusToggle
-					showUnreadOnly={showUnreadOnly}
-					setShowUnreadOnly={setShowUnreadOnly}
-				/>
-			</div>
-		);
-	}
 	return (
 		<div className="header__secondary">
-			{lastSuccessfulCheck && (
-				<UpdatingLastChecked lastSuccessfulCheck={lastSuccessfulCheck} />
+			<ReadStatusToggle
+				showUnreadOnly={showUnreadOnly}
+				setShowUnreadOnly={setShowUnreadOnly}
+			/>
+			{fetchingInProgress ? (
+				<FetchingInProgress />
+			) : (
+				lastSuccessfulCheck && (
+					<UpdatingLastChecked lastSuccessfulCheck={lastSuccessfulCheck} />
+				)
 			)}
 		</div>
 	);
@@ -201,7 +189,9 @@ function FetchErrorNotice() {
 	if (failingAccounts.length === 0) {
 		return null;
 	}
-	const accountNames = failingAccounts.map((account) => account.name).join(', ');
+	const accountNames = failingAccounts
+		.map((account) => account.name)
+		.join(', ');
 	return (
 		<div className="offline-notice">
 			<span>
