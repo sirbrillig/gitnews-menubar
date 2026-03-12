@@ -14,7 +14,7 @@ export type NoteReason =
 	| 'your_activity';
 
 export interface NoteApi {
-	subject?: { state?: string; merged?: boolean };
+	subject?: { state?: string; merged?: boolean; draft?: boolean };
 	notification?: { reason?: NoteReason };
 }
 
