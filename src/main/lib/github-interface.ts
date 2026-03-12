@@ -192,6 +192,7 @@ async function getCommentDataForNotification(
 interface SubjectData {
 	noteState: string;
 	noteMerged: boolean;
+	noteDraft: boolean;
 	subjectHtmlUrl: string;
 }
 
@@ -202,9 +203,10 @@ async function getSubjectDataForNotification(
 ): Promise<SubjectData> {
 	let noteState: string = '';
 	let noteMerged: boolean = false;
+	let noteDraft: boolean = false;
 	let subjectHtmlUrl: string = '';
 	if (!notification.subject.url) {
-		return { noteState, noteMerged, subjectHtmlUrl };
+		return { noteState, noteMerged, noteDraft, subjectHtmlUrl };
 	}
 	const subjectPath = getOctokitRequestPathFromUrl(
 		account,
@@ -214,6 +216,7 @@ async function getSubjectDataForNotification(
 		const subject = await octokit.request(`GET ${subjectPath}`, {});
 		noteState = subject.data.state;
 		noteMerged = subject.data.merged;
+		noteDraft = subject.data.draft ?? false;
 		subjectHtmlUrl = subject.data.html_url;
 	} catch (error) {
 		logMessage(
@@ -224,6 +227,7 @@ async function getSubjectDataForNotification(
 	return {
 		noteState,
 		noteMerged,
+		noteDraft,
 		subjectHtmlUrl,
 	};
 }
@@ -256,7 +260,7 @@ function buildNoteFromData({
 			commentData.commentAvatar ?? notification.repository.owner.avatar_url,
 		repositoryOwnerAvatar: notification.repository.owner.avatar_url,
 		api: {
-			subject: { state: subjectData.noteState, merged: subjectData.noteMerged },
+			subject: { state: subjectData.noteState, merged: subjectData.noteMerged, draft: subjectData.noteDraft },
 			notification: { reason: notification.reason as NoteReason },
 		},
 	};

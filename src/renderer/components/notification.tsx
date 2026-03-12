@@ -116,12 +116,18 @@ export default function Notification({
 		note.api.subject.state &&
 		note.api.subject.state === 'closed';
 	const isMerged = note.api.subject && note.api.subject.merged;
+	const isDraft =
+		note.type === 'PullRequest' &&
+		!isMerged &&
+		!isClosed &&
+		note.api.subject?.draft === true;
 	const iconType = isMerged || isClosed ? 'checkmark-circle' : 'chat';
-	const iconText = isMerged || isClosed ? 'closed' : 'open';
+	const iconText = isMerged || isClosed ? 'closed' : isDraft ? 'draft' : 'open';
 	const iconClasses = [
 		'notification__type',
 		...(isClosed && !isMerged ? ['notification__type--closed'] : []),
 		...(isMerged ? ['notification__type--merged'] : []),
+		...(isDraft ? ['notification__type--draft'] : []),
 	];
 
 	const doMute = (event: React.MouseEvent<HTMLButtonElement>) => {

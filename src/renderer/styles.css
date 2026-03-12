@@ -621,6 +621,10 @@ header h1 {
 	fill: #8957e5;
 }
 
+.notification__type--draft {
+	fill: #848d97;
+}
+
 .notification__type svg {
 	width: 16px;
 	height: 16px;
