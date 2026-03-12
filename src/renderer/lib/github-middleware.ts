@@ -50,6 +50,7 @@ export function createGitHubMiddleware(): Middleware<unknown, AppReduxState> {
 					);
 					return;
 				}
+				markNoteRead(action.note, account);
 				unsubscribeNote(action.note, account);
 				break;
 			}
