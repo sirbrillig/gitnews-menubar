@@ -43,7 +43,8 @@ Gitnews has three icons that you'll normally see:
 
 Currently the packaged version of Gitnews is only built for Mac OS but the app could work on any platform. If anyone wants to try running it in Windows or Linux I'd be happy to discuss adding support; please [create an issue](https://github.com/sirbrillig/gitnews-menubar/issues/new).
 
-💡 **Note:** I don't have a paid Apple developer account, so the package will warn you that the app is from an "Unidentified developer". The first time you open the app you will need to right-click on it and select "Open" from the context menu. [This Apple support doc](https://support.apple.com/kb/ph18657?locale=en_US) explains how to do this in more detail.
+> [!IMPORTANT]
+> I don't have a paid Apple developer account, so the package will warn you that "Apple could not verify “Gitnews.app” is free of malware that may harm your Mac or compromise your privacy." or "Gitnews.app is damaged and can't be opened." To run the app you'll need to disable this warning manually using a terminal and running `xattr -dr com.apple.quarantine /Applications/Gitnews.app` (assuming you've put Gitnews into your Applications folder – if not, specify the path to the app).
 
 👉 Visit [the releases page](https://github.com/sirbrillig/gitnews-menubar/releases) to download an image of the latest release.
 
@@ -59,15 +60,7 @@ When you run Gitnews, you will need to generate an API key from your GitHub acco
 
 ## Development
 
-gitnews-menubar is built using [Electron](https://electron.atom.io/), [React](https://facebook.github.io/react/), and [gitnews](https://github.com/sirbrillig/gitnews).
-
 To run the development version from the source, first install all dependencies by running `yarn` (you must have [yarn](https://yarnpkg.com/en/) installed for this to work). Next run the command `yarn start`.
-
-The app uses [debug](https://github.com/visionmedia/debug), so you can enable all sorts of debug output in the console by typing
-
-```js
-localStorage.setItem('debug', 'gitnews-menubar')
-```
 
 Rather than use real data, you can use mock data by enabling demo mode. This also disables network side effects (like marking a notification as read). To do this, create a `.env` file in the source directory and include the following:
 
