@@ -11,8 +11,8 @@
 		"build": "yarn && yarn make",
 		"test": "jest",
 		"typecheck": "yarn tsc --noEmit",
-		"package": "electron-forge package --arch arm64",
-		"make": "electron-forge make --arch arm64"
+		"package": "electron-forge package --arch universal",
+		"make": "electron-forge make --arch universal"
 	},
 	"keywords": [
 		"menu",
