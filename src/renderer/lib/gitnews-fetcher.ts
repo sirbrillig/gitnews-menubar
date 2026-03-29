@@ -8,6 +8,7 @@ import {
 	getErrorMessage,
 	isGitHubOffline,
 	isInvalidJson,
+	isServerReturningHtml,
 	isTokenInvalid,
 } from '../lib/helpers';
 import {
@@ -323,6 +324,12 @@ function dispatchAccountFetchError(
 		debug(message);
 		window.electronApi.logMessage(message, 'warn');
 		dispatch(setIsTokenInvalid(err.accountId ?? account.id, true));
+		return;
+	}
+	if (isServerReturningHtml(err as UnknownFetchError)) {
+		const message = `GitHub Enterprise server for "${account.name}" is temporarily unavailable (server may be starting up)`;
+		debug(message);
+		window.electronApi.logMessage(message, 'warn');
 		return;
 	}
 	const message = `Error fetching notifications for "${account.name}": ${getErrorMessage(err as UnknownFetchError)}`;

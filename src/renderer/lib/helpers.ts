@@ -141,6 +141,14 @@ export function isInvalidJson(error: UnknownFetchError): boolean {
 	return typeof error === 'object' && error.type === 'invalid-json';
 }
 
+export function isServerReturningHtml(error: UnknownFetchError): boolean {
+	return (
+		typeof error === 'object' &&
+		typeof error.message === 'string' &&
+		error.message.includes('<!DOCTYPE')
+	);
+}
+
 export function getSecondsUntilNextFetch(
 	lastChecked: number | false,
 	fetchInterval: number
