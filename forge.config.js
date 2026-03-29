@@ -1,7 +1,19 @@
+require('dotenv').config();
+
 module.exports = {
 	packagerConfig: {
 		icon: './static/images/gitnews-menubar',
 		arch: 'arm64',
+		osxSign: {
+			identity: `Developer ID Application: ${process.env.APPLE_IDENTITY}`,
+		},
+		...(process.env.APPLE_ID && {
+			osxNotarize: {
+				appleId: process.env.APPLE_ID,
+				appleIdPassword: process.env.APPLE_APP_SPECIFIC_PASSWORD,
+				teamId: process.env.APPLE_TEAM_ID,
+			},
+		}),
 	},
 	plugins: [
 		{
