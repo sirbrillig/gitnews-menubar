@@ -43,9 +43,6 @@ Gitnews has three icons that you'll normally see:
 
 Currently the packaged version of Gitnews is only built for Mac OS but the app could work on any platform. If anyone wants to try running it in Windows or Linux I'd be happy to discuss adding support; please [create an issue](https://github.com/sirbrillig/gitnews-menubar/issues/new).
 
-> [!IMPORTANT]
-> I don't have a paid Apple developer account, so the package will warn you that "Apple could not verify “Gitnews.app” is free of malware that may harm your Mac or compromise your privacy." or "Gitnews.app is damaged and can't be opened." To run the app you'll need to disable this warning manually using a terminal and running `xattr -dr com.apple.quarantine /Applications/Gitnews.app` (assuming you've put Gitnews into your Applications folder – if not, specify the path to the app).
-
 👉 Visit [the releases page](https://github.com/sirbrillig/gitnews-menubar/releases) to download an image of the latest release.
 
 When you run Gitnews, you will need to generate an API key from your GitHub account. The app will guide you through creating one.
