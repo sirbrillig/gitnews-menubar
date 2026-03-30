@@ -105,7 +105,7 @@ export default function NotificationsArea({
 			switch (action) {
 				case 'open':
 					markRead(token, note);
-					openUrl(note.commentUrl);
+					openUrl(note.commentUrl || note.subjectUrl);
 					break;
 				case 'markRead':
 					markRead(token, note);

@@ -64,7 +64,7 @@ export default function Notification({
 			return;
 		}
 		markRead(token, note);
-		openUrl(note.commentUrl);
+		openUrl(note.commentUrl || note.subjectUrl);
 	};
 
 	const onClickMarkRead = (event: React.MouseEvent<HTMLDivElement>) => {
