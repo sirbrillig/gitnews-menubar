@@ -4,7 +4,7 @@
   <img src="./gitnews-menubar-app-icon.png" />
 </p>
 
-An app to display GitHub notifications in your Mac OS menu bar.
+An app to display GitHub and GitHub Enterprise notifications in your Mac OS menu bar.
 
 <img src="./gitnews-demo.png" />
 
@@ -24,9 +24,9 @@ However, Gitnews has several unique features that I love and I hope you'll like 
 - Supports light and dark modes.
 - Supports notifications on private repos.
 - Shows read notifications as well as unread ones.
-- Allows marking notifications as unread.
+- Allows marking notifications as unread or unsubscribing.
 - Allows temporarily muting notifications from repos that you want to exclude.
-- Allows holding down the Command key to open multiple notifications at once.
+- Allows holding down the Command key to open or mark multiple notifications read at once.
 - The menubar icon is different when there are notifications that you've seen but not read.
 
 ## Icons
