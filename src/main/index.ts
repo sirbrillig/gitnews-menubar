@@ -128,11 +128,13 @@ ipcMain.on('set-icon', (_event, arg: unknown) => {
 
 ipcMain.on('open-url', (_event, url: unknown, options) => {
 	logMessage(`Opening url: ${url}`, 'info');
-	if (typeof url !== 'string') {
+	if (typeof url !== 'string' || !url) {
 		logMessage('Failed to open URL: it is invalid', 'error');
 		return;
 	}
-	shell.openExternal(url, options);
+	shell.openExternal(url, options).catch((error) => {
+		logMessage(`Failed to open URL ${url}: ${error}`, 'error');
+	});
 });
 
 ipcMain.on('quit-app', () => {
