@@ -94,6 +94,12 @@ export default function Notification({
 
 	const lastUpdated = new Date(note.updatedAt);
 	const timeString = formatDistanceToNow(lastUpdated, { addSuffix: true });
+	const RECENTLY_OPENED_MS = 30 * 60 * 1000; // 30 minutes
+	const openedRecentlyAt =
+		note.gitnewsOpenedAt &&
+		Date.now() - note.gitnewsOpenedAt < RECENTLY_OPENED_MS
+			? note.gitnewsOpenedAt
+			: null;
 	const isMention = note.api.notification?.reason === 'mention';
 	const isInvalid = note.gitnewsIsInvalid === true;
 	const noteClasses = [
@@ -258,6 +264,14 @@ export default function Notification({
 							/>
 						</span>
 					</div>
+					{openedRecentlyAt && (
+						<div className="notification__opened-recently">
+							{"opened "}
+							{formatDistanceToNow(new Date(openedRecentlyAt), {
+								addSuffix: true,
+							})}
+						</div>
+					)}
 				</div>
 			</div>
 			<div

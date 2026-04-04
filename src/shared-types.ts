@@ -33,6 +33,12 @@ export interface Note {
 	 */
 	gitnewsSeenAt?: number;
 
+	/**
+	 * Number of milliseconds since the epoc (what Date.now() returns).
+	 * Set when the user opens or manually marks the note as read in Gitnews.
+	 */
+	gitnewsOpenedAt?: number;
+
 	api: NoteApi;
 	commentUrl: string;
 

@@ -136,7 +136,7 @@ class App extends React.Component<AppProps, AppState> {
 	}
 
 	getReadNotifications() {
-		return this.props.notes.filter((note) => {
+		const notes = this.props.notes.filter((note) => {
 			if (!note.unread && !note.gitnewsMarkedUnread) {
 				return true;
 			}
@@ -148,6 +148,9 @@ class App extends React.Component<AppProps, AppState> {
 			}
 			return false;
 		});
+		return notes.sort(
+			(a, b) => (b.gitnewsOpenedAt ?? 0) - (a.gitnewsOpenedAt ?? 0)
+		);
 	}
 
 	getUnreadNotifications() {

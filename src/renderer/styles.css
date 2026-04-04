@@ -659,6 +659,11 @@ header h1 {
 	color: var(--notification-timestamp-color);
 }
 
+.notification__opened-recently {
+	font-size: 0.7em;
+	color: #3b82f6;
+}
+
 .notification__mute-confirm__text {
 	text-align: center;
 	font-size: 0.9em;
