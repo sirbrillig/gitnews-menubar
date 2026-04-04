@@ -124,7 +124,7 @@ export default function NotificationsArea({
 	}, []);
 	const onKeyDown = React.useCallback(
 		(event: KeyboardEvent) => {
-			if (event.code.includes('Meta')) {
+			if (event.code.includes('Meta') && !event.shiftKey) {
 				setMultiOpenMode(true);
 			}
 		},
