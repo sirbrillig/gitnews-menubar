@@ -240,6 +240,11 @@ export function createFetcher(): Middleware<unknown, AppReduxState> {
 						existing.updatedAt === basicNote.updatedAt &&
 						!existing.gitnewsIsInvalid
 					) {
+						debug(
+							'Reusing cached hydration for note %s (updatedAt: %s)',
+							basicNote.id,
+							basicNote.updatedAt
+						);
 						allNotes.push({
 							...existing,
 							unread: basicNote.unread,
