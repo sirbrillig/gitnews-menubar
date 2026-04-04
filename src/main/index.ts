@@ -126,15 +126,20 @@ ipcMain.on('set-icon', (_event, arg: unknown) => {
 	setIcon(arg);
 });
 
-ipcMain.on('open-url', (_event, url: unknown, options) => {
+ipcMain.handle('open-url', async (_event, url: unknown, options) => {
 	logMessage(`Opening url: ${url}`, 'info');
 	if (typeof url !== 'string' || !url) {
 		logMessage('Failed to open URL: it is invalid', 'error');
-		return;
+		return { error: 'Failed to open URL: it is invalid' };
 	}
-	shell.openExternal(url, options).catch((error) => {
-		logMessage(`Failed to open URL ${url}: ${error}`, 'error');
-	});
+	try {
+		await shell.openExternal(url, options);
+		return;
+	} catch (error) {
+		const message = `Failed to open URL: ${error}`;
+		logMessage(message, 'error');
+		return { error: message };
+	}
 });
 
 ipcMain.on('quit-app', () => {

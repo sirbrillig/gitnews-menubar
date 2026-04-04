@@ -63,8 +63,7 @@ export default function Notification({
 			queueNoteAction(note, 'open');
 			return;
 		}
-		markRead(token, note);
-		openUrl(note.commentUrl || note.subjectUrl);
+		openUrl(note.commentUrl || note.subjectUrl, { token, note });
 	};
 
 	const onClickMarkRead = (event: React.MouseEvent<HTMLDivElement>) => {
