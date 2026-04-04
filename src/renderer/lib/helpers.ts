@@ -63,12 +63,18 @@ export function mergeNotifications(
 				...note,
 				gitnewsSeen: previousNote.gitnewsSeen,
 				gitnewsMarkedUnread: previousNote.gitnewsMarkedUnread,
+				gitnewsOpenedAt: previousNote.gitnewsOpenedAt,
 				// Preserve local "mark as read" action if the note hasn't been updated.
 				// This prevents a race condition where marking a note as read locally
 				// gets overwritten by a fetch that completes before the API call to
 				// GitHub finishes.
 				unread: previousNote.unread === false ? false : note.unread,
 			};
+		}
+		// Always preserve gitnewsOpenedAt even when the note has new GitHub activity,
+		// since it tracks when the user last opened the note in Gitnews.
+		if (previousNote?.gitnewsOpenedAt) {
+			return { ...note, gitnewsOpenedAt: previousNote.gitnewsOpenedAt };
 		}
 		return note;
 	});

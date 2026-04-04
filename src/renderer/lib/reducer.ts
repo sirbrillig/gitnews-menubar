@@ -152,7 +152,12 @@ export function createReducer() {
 					...state,
 					notes: state.notes.map((note) =>
 						getNoteId(note) === noteId
-							? { ...note, unread: false, gitnewsMarkedUnread: false }
+							? {
+									...note,
+									unread: false,
+									gitnewsMarkedUnread: false,
+									gitnewsOpenedAt: Date.now(),
+								}
 							: note
 					),
 					locallyUnreadNotes: (state.locallyUnreadNotes ?? []).filter(
