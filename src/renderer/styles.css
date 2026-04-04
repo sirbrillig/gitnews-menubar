@@ -585,6 +585,17 @@ header h1 {
 	position: relative;
 }
 
+.notification__invalid {
+	border-left: 4px solid #d97706;
+	opacity: 0.75;
+}
+
+.notification__invalid-notice {
+	font-size: 0.75em;
+	color: #d97706;
+	margin-top: 2px;
+}
+
 .notification__unread {
 	background-color: var(--notification-unread-background-color);
 }

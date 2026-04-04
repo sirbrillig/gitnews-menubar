@@ -194,6 +194,7 @@ interface SubjectData {
 	noteMerged: boolean;
 	noteDraft: boolean;
 	subjectHtmlUrl: string;
+	failed?: boolean;
 }
 
 async function getSubjectDataForNotification(
@@ -223,6 +224,7 @@ async function getSubjectDataForNotification(
 			`Failed to fetch subject for ${subjectPath} (${notification.subject.url})`,
 			'error'
 		);
+		return { noteState, noteMerged, noteDraft, subjectHtmlUrl, failed: true };
 	}
 	return {
 		noteState,
@@ -259,6 +261,7 @@ function buildNoteFromData({
 		commentAvatar:
 			commentData.commentAvatar ?? notification.repository.owner.avatar_url,
 		repositoryOwnerAvatar: notification.repository.owner.avatar_url,
+		gitnewsIsInvalid: subjectData.failed === true,
 		api: {
 			subject: { state: subjectData.noteState, merged: subjectData.noteMerged, draft: subjectData.noteDraft },
 			notification: { reason: notification.reason as NoteReason },
