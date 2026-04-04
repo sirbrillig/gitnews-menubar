@@ -104,8 +104,7 @@ export default function NotificationsArea({
 		queuedNotes.forEach(({ note, action }) => {
 			switch (action) {
 				case 'open':
-					markRead(token, note);
-					openUrl(note.commentUrl || note.subjectUrl);
+					openUrl(note.commentUrl || note.subjectUrl, { token, note });
 					break;
 				case 'markRead':
 					markRead(token, note);
@@ -125,7 +124,7 @@ export default function NotificationsArea({
 	}, []);
 	const onKeyDown = React.useCallback(
 		(event: KeyboardEvent) => {
-			if (event.code.includes('Meta')) {
+			if (event.code.includes('Meta') && !event.shiftKey) {
 				setMultiOpenMode(true);
 			}
 		},

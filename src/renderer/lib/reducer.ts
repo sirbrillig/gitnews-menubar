@@ -353,8 +353,11 @@ export function fetchNotifications() {
 	return { type: 'GITNEWS_FETCH_NOTIFICATIONS' };
 }
 
-export function openUrl(url: string) {
-	return { type: 'OPEN_URL', url };
+export function openUrl(
+	url: string,
+	noteToMarkRead?: { token: string; note: Note }
+) {
+	return { type: 'OPEN_URL', url, noteToMarkRead };
 }
 
 export function setIcon(icon: string) {

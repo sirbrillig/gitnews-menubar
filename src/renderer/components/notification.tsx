@@ -63,8 +63,7 @@ export default function Notification({
 			queueNoteAction(note, 'open');
 			return;
 		}
-		markRead(token, note);
-		openUrl(note.commentUrl || note.subjectUrl);
+		openUrl(note.commentUrl || note.subjectUrl, { token, note });
 	};
 
 	const onClickMarkRead = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -96,6 +95,7 @@ export default function Notification({
 	const lastUpdated = new Date(note.updatedAt);
 	const timeString = formatDistanceToNow(lastUpdated, { addSuffix: true });
 	const isMention = note.api.notification?.reason === 'mention';
+	const isInvalid = note.gitnewsIsInvalid === true;
 	const noteClasses = [
 		'notification',
 		...(isMultiOpenMode && !queuedAction ? ['notification--multi-open'] : []),
@@ -106,7 +106,7 @@ export default function Notification({
 		...(queuedAction === 'markUnread'
 			? ['notification--multi-mark-unread-clicked']
 			: []),
-		...getNoteClasses({ isUnread, isMuted }),
+		...getNoteClasses({ isUnread, isMuted, isInvalid }),
 	];
 	const defaultAvatar = `https://avatars.io/twitter/${note.repositoryFullName}`;
 	const avatarSrc =
@@ -233,6 +233,11 @@ export default function Notification({
 						</span>
 					</div>
 					<div className="notification__title">{note.title}</div>
+					{isInvalid && (
+						<div className="notification__invalid-notice">
+							⚠ Failed to load details
+						</div>
+					)}
 					<div className="notification__footer">
 						<span className="notification__time">{timeString}</span>
 						<span className="notification__actions">
@@ -391,12 +396,17 @@ function UnsubscribeButton({
 function getNoteClasses({
 	isMuted,
 	isUnread,
+	isInvalid,
 }: {
 	isMuted?: boolean;
 	isUnread?: boolean;
+	isInvalid?: boolean;
 }) {
 	if (isMuted) {
 		return ['notification__muted'];
+	}
+	if (isInvalid) {
+		return ['notification__invalid'];
 	}
 	if (isUnread) {
 		return ['notification__unread'];

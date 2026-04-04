@@ -15,7 +15,7 @@ const bridge: MainBridge = {
 		ipcRenderer.send('log-message', message, level),
 	toggleAutoLaunch: (isEnabled: boolean) =>
 		ipcRenderer.send('toggle-auto-launch', isEnabled),
-	openUrl: (url: string) => ipcRenderer.send('open-url', url),
+	openUrl: (url: string) => ipcRenderer.invoke('open-url', url),
 	setIcon: (nextIcon: IconType) => ipcRenderer.send('set-icon', nextIcon),
 	onHide: (callback: () => void) => ipcRenderer.on('hide-app', callback),
 	onShow: (callback: () => void) => ipcRenderer.on('show-app', callback),

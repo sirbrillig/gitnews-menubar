@@ -2,10 +2,6 @@ import { Middleware } from 'redux';
 import { AppReduxState, IconType } from '../types';
 import { isAction } from './helpers';
 
-function openUrl(url: string) {
-	window.electronApi.openUrl(url);
-}
-
 function setIcon(nextIcon: IconType) {
 	window.electronApi.setIcon(nextIcon);
 }
@@ -15,7 +11,7 @@ function scrollToTopNotification() {
 }
 
 export const electronMiddleware: Middleware<unknown, AppReduxState> =
-	() => (next) => (action) => {
+	(store) => (next) => (action) => {
 		if (!isAction(action)) {
 			throw new Error(
 				'Invalid action dispatched in electron: ' + JSON.stringify(action)
@@ -23,7 +19,18 @@ export const electronMiddleware: Middleware<unknown, AppReduxState> =
 		}
 		switch (action.type) {
 			case 'OPEN_URL':
-				return openUrl(action.url);
+				window.electronApi.openUrl(action.url).then((result) => {
+					if (result?.error) {
+						store.dispatch({
+							type: 'ADD_CONNECTION_ERROR',
+							error: result.error,
+						});
+					} else if (action.noteToMarkRead) {
+						const { token, note } = action.noteToMarkRead;
+						store.dispatch({ type: 'MARK_NOTE_READ', token, note });
+					}
+				});
+				return;
 			case 'SET_ICON':
 				return setIcon(action.icon);
 			case 'SCROLL_TO_TOP':

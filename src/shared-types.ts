@@ -26,6 +26,7 @@ export interface Note {
 	repositoryFullName: string;
 	gitnewsMarkedUnread?: boolean;
 	gitnewsSeen?: boolean;
+	gitnewsIsInvalid?: boolean;
 
 	/**
 	 * Number of milliseconds since the epoc (what Date.now() returns).

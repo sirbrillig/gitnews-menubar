@@ -91,7 +91,8 @@ export type ActionFetchNotifications = { type: 'GITNEWS_FETCH_NOTIFICATIONS' };
 export type ActionOpenUrl = {
 	type: 'OPEN_URL';
 	url: string;
-	options: Electron.OpenExternalOptions;
+	options?: Electron.OpenExternalOptions;
+	noteToMarkRead?: { token: string; note: Note };
 };
 export type ActionSetIcon = { type: 'SET_ICON'; icon: IconType };
 export type ActionChangeAutoLoad = {
@@ -142,7 +143,7 @@ export type AppReduxAction =
 	| ActionToggleTokenInvalid
 	| ActionToggleLogging;
 
-export type OpenUrl = (url: string) => void;
+export type OpenUrl = (url: string, noteToMarkRead?: { token: string; note: Note }) => void;
 
 export type MarkRead = (token: string, note: Note) => void;
 
@@ -172,7 +173,7 @@ export interface MainBridge {
 	logMessage: (message: string, level: 'info' | 'warn' | 'error') => void;
 	toggleLogging: (isLogging: boolean) => void;
 	toggleAutoLaunch: (isEnabled: boolean) => void;
-	openUrl: OpenUrl;
+	openUrl: (url: string) => Promise<{ error: string } | undefined>;
 	setIcon: (nextIcon: IconType) => void;
 	onHide: (callback: () => void) => void;
 	onShow: (callback: () => void) => void;
