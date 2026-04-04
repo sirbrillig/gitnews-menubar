@@ -241,9 +241,11 @@ export function createFetcher(): Middleware<unknown, AppReduxState> {
 						!existing.gitnewsIsInvalid
 					) {
 						debug(
-							'Reusing cached hydration for note %s (updatedAt: %s)',
-							basicNote.id,
-							basicNote.updatedAt
+							`Reusing cached hydration for note ${basicNote.id} (updatedAt: ${basicNote.updatedAt})`
+						);
+						window.electronApi.logMessage(
+							`Reusing cached hydration for note ${basicNote.id} (updatedAt: ${basicNote.updatedAt})`,
+							'info'
 						);
 						allNotes.push({
 							...existing,
