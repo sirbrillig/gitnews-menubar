@@ -224,15 +224,49 @@ export function createFetcher(): Middleware<unknown, AppReduxState> {
 					return doesBasicNoteMatchFilter(note, state.filterType);
 				});
 
+				// Phase 2.5 — Skip re-hydration for notes whose updatedAt hasn't changed
+				const existingNotesByKey = new Map<string, Note>();
+				for (const note of state.notes) {
+					existingNotesByKey.set(note.gitnewsAccountId + note.id, note);
+				}
+
+				const allNotes: Note[] = [];
+				const needsHydration: BasicNote[] = [];
+				for (const basicNote of toEnrich) {
+					const key = basicNote.gitnewsAccountId + basicNote.id;
+					const existing = existingNotesByKey.get(key);
+					if (
+						existing &&
+						existing.updatedAt === basicNote.updatedAt &&
+						!existing.gitnewsIsInvalid
+					) {
+						debug(
+							`Reusing cached hydration for note ${basicNote.id} (updatedAt: ${basicNote.updatedAt})`
+						);
+						window.electronApi.logMessage(
+							`Reusing cached hydration for note ${basicNote.id} (updatedAt: ${basicNote.updatedAt})`,
+							'info'
+						);
+						allNotes.push({
+							...existing,
+							unread: basicNote.unread,
+							api: {
+								...existing.api,
+								notification: { reason: basicNote.reason },
+							},
+						});
+					} else {
+						needsHydration.push(basicNote);
+					}
+				}
+
 				// Phase 3 — Enrich (grouped by account)
 				const byAccount = new Map<string, BasicNote[]>();
-				for (const note of toEnrich) {
+				for (const note of needsHydration) {
 					const group = byAccount.get(note.gitnewsAccountId) ?? [];
 					group.push(note);
 					byAccount.set(note.gitnewsAccountId, group);
 				}
-
-				const allNotes: Note[] = [];
 				const phase3Errors: AccountError[] = [];
 				await Promise.all(
 					[...byAccount.entries()].map(([accountId, notes]) => {
