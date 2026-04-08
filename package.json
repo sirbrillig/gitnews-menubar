@@ -1,6 +1,6 @@
 {
 	"name": "gitnews-menubar",
-	"version": "2.1.1",
+	"version": "2.1.2",
 	"description": "GitHub notifications in your menu bar",
 	"productName": "Gitnews",
 	"main": ".webpack/main",
