@@ -52,6 +52,7 @@ interface AppConnectedProps {
 	mutedRepos: string[];
 	offline: boolean;
 	errors: string[];
+	accountsWithFetchErrors: string[];
 	token: string | undefined;
 	lastSuccessfulCheck: number | false;
 	fetchingInProgress: boolean;
@@ -166,17 +167,19 @@ class App extends React.Component<AppProps, AppState> {
 	getNextIcon({
 		offline,
 		errors,
+		accountsWithFetchErrors,
 		unseenNotes,
 		unreadNotes,
 		filterType,
 	}: {
 		offline: boolean;
 		errors: string[];
+		accountsWithFetchErrors: string[];
 		unseenNotes: Note[];
 		unreadNotes: Note[];
 		filterType: FilterType;
 	}) {
-		if (errors.length) {
+		if (errors.length || accountsWithFetchErrors.length) {
 			return 'error';
 		}
 		const unseenNotesFiltered = unseenNotes.filter((note) =>
@@ -206,6 +209,7 @@ class App extends React.Component<AppProps, AppState> {
 			offline,
 			isTokenInvalid,
 			errors,
+			accountsWithFetchErrors,
 			token,
 			lastSuccessfulCheck,
 			getVersion,
@@ -218,6 +222,7 @@ class App extends React.Component<AppProps, AppState> {
 		const nextIcon = this.getNextIcon({
 			offline,
 			errors,
+			accountsWithFetchErrors,
 			unseenNotes,
 			unreadNotes: newNotes,
 			filterType: this.props.filterType,
@@ -330,6 +335,7 @@ function mapStateToProps(state: AppReduxState): AppConnectedProps {
 		mutedRepos: state.mutedRepos,
 		offline: state.offline,
 		errors: state.errors,
+		accountsWithFetchErrors: state.accountsWithFetchErrors,
 		token: state.token,
 		lastSuccessfulCheck: state.lastSuccessfulCheck,
 		fetchingInProgress: state.fetchingInProgress,
