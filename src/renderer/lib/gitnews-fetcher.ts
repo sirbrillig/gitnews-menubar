@@ -369,7 +369,6 @@ function dispatchAccountFetchError(
 	const message = `Error fetching notifications for "${account.name}": ${getErrorMessage(err as UnknownFetchError)}`;
 	debug(message);
 	window.electronApi.logMessage(message, 'warn');
-	dispatch(addConnectionError(message));
 }
 
 export function getErrorHandler(dispatch: AppDispatch) {

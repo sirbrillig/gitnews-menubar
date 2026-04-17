@@ -122,6 +122,7 @@ export function createReducer() {
 			case 'ADD_ACCOUNT_FETCH_ERROR':
 				return {
 					...state,
+					lastChecked: Date.now(),
 					accountsWithFetchErrors: state.accountsWithFetchErrors.includes(
 						action.accountId
 					)
