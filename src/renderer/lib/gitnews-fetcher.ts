@@ -364,6 +364,7 @@ function dispatchAccountFetchError(
 		const message = `GitHub Enterprise server for "${account.name}" is temporarily unavailable (server may be starting up)`;
 		debug(message);
 		window.electronApi.logMessage(message, 'warn');
+		dispatch(addConnectionError(message));
 		return;
 	}
 	const message = `Error fetching notifications for "${account.name}": ${getErrorMessage(err as UnknownFetchError)}`;
