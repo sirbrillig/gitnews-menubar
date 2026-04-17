@@ -57,7 +57,12 @@ export default function ConfigPage({
 						/>
 					</li>
 					<li className="config-row config-row--toggle">
-						<label htmlFor="logging-setting">Enable error logging</label>
+						<div>
+							<label htmlFor="logging-setting">Enable error logging</label>
+							<p className="config-row__hint">
+								Logs are written to ~/Library/Logs/Gitnews/main.log
+							</p>
+						</div>
 						<input
 							type="checkbox"
 							id="logging-setting"
