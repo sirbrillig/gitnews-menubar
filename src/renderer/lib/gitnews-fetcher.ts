@@ -238,7 +238,8 @@ export function createFetcher(): Middleware<unknown, AppReduxState> {
 					if (
 						existing &&
 						existing.updatedAt === basicNote.updatedAt &&
-						!existing.gitnewsIsInvalid
+						!existing.gitnewsIsInvalid &&
+						(existing.subjectUrl || existing.commentUrl)
 					) {
 						debug(
 							`Reusing cached hydration for note ${basicNote.id} (updatedAt: ${basicNote.updatedAt})`

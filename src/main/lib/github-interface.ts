@@ -80,6 +80,13 @@ function getBaseUrlForServer(account: AccountInfo): string | undefined {
 	return `${serverUrl}/api/v3`;
 }
 
+function getWebBaseUrl(account: AccountInfo): string {
+	if (!account.serverUrl || account.serverUrl === mainGithubApiUrl) {
+		return 'https://github.com';
+	}
+	return account.serverUrl.replace(/\/$/, '');
+}
+
 function getOctokitRequestPathFromUrl(
 	account: AccountInfo,
 	urlString: string
@@ -207,6 +214,9 @@ async function getSubjectDataForNotification(
 	let noteDraft: boolean = false;
 	let subjectHtmlUrl: string = '';
 	if (!notification.subject.url) {
+		if (notification.subject.type === 'RepositoryInvitation') {
+			subjectHtmlUrl = `${getWebBaseUrl(account)}/${notification.repository.full_name}/invitations`;
+		}
 		return { noteState, noteMerged, noteDraft, subjectHtmlUrl };
 	}
 	const subjectPath = getOctokitRequestPathFromUrl(
