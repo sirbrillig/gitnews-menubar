@@ -663,13 +663,13 @@ header h1 {
 	position: relative;
 }
 
-.image-with-backup__fallback {
+.image-with-backup__wrapper {
 	display: inline-block;
 	position: relative;
 	vertical-align: top;
 }
 
-.image-with-backup__fallback img {
+.image-with-backup__wrapper img {
 	display: block;
 }
 
