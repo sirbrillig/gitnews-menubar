@@ -54,15 +54,17 @@ export function ImageWithBackup({
 	const onError = () => {
 		setDidImageFail(true);
 	};
-	if (didImageFail) {
-		return (
-			<span className="image-with-backup__fallback">
-				<img src={generateAvatar(username)} alt={username} />
-				<span className="image-with-backup__username" title={username}>
-					{username}
-				</span>
+	const imgSrc = didImageFail ? generateAvatar(username) : src;
+	return (
+		<span className="image-with-backup__wrapper">
+			<img
+				src={imgSrc}
+				alt={username}
+				onError={didImageFail ? undefined : onError}
+			/>
+			<span className="image-with-backup__username" title={username}>
+				{username}
 			</span>
-		);
-	}
-	return <img src={src} alt={username} onError={onError} />;
+		</span>
+	);
 }

@@ -461,7 +461,8 @@ header svg {
 
 .mute-icon {
 	position: absolute;
-	left: -9px;
+	z-index: 1;
+	left: -4px;
 	top: 20px;
 	background-color: rgba(255, 255, 255, 0.75);
 	border-radius: 20px;
@@ -571,7 +572,8 @@ header h1 {
 
 .notification__mention-badge {
 	position: absolute;
-	bottom: 0;
+	z-index: 1;
+	top: 3px;
 	right: -4px;
 	width: 14px;
 	height: 14px;
@@ -608,8 +610,9 @@ header h1 {
 
 .notification__new-dot {
 	position: absolute;
+	z-index: 1;
 	font-size: 2.5em;
-	left: -8px;
+	left: -4px;
 	top: 3px;
 	border-radius: 20px;
 	border: 1.2px solid #fff;
@@ -660,18 +663,26 @@ header h1 {
 	position: relative;
 }
 
-.image-with-backup__fallback {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	max-width: 50px;
+.image-with-backup__wrapper {
+	display: inline-block;
+	position: relative;
+	vertical-align: top;
+}
+
+.image-with-backup__wrapper img {
+	display: block;
 }
 
 .image-with-backup__username {
-	font-size: 9px;
-	line-height: 1.1;
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	transform: translateX(-50%);
 	margin-top: 3px;
 	max-width: 50px;
+	font-size: 9px;
+	line-height: 1.1;
+	text-align: center;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
