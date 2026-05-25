@@ -55,7 +55,14 @@ export function ImageWithBackup({
 		setDidImageFail(true);
 	};
 	if (didImageFail) {
-		return <img src={generateAvatar(username)} />;
+		return (
+			<span className="image-with-backup__fallback">
+				<img src={generateAvatar(username)} alt={username} />
+				<span className="image-with-backup__username" title={username}>
+					{username}
+				</span>
+			</span>
+		);
 	}
-	return <img src={src} onError={onError} />;
+	return <img src={src} alt={username} onError={onError} />;
 }
