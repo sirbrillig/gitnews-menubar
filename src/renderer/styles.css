@@ -573,7 +573,7 @@ header h1 {
 .notification__mention-badge {
 	position: absolute;
 	z-index: 1;
-	bottom: 0;
+	top: 3px;
 	right: -4px;
 	width: 14px;
 	height: 14px;
