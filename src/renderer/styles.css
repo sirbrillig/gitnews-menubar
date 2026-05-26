@@ -785,6 +785,12 @@ header h1 {
 
 .notification__actions {
 	display: flex;
+	opacity: 0.45;
+	transition: opacity 0.15s ease;
+}
+
+.notification:hover .notification__actions {
+	opacity: 1;
 }
 
 .notification__actions button {
