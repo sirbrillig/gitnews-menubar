@@ -492,7 +492,6 @@ header svg {
 	fill: var(--config-action-text-color);
 }
 
-
 header h1 {
 	font-size: 1.4em;
 	margin: 0;
@@ -770,8 +769,10 @@ header h1 {
 }
 
 .notification__repo {
-	font-weight: 800;
-	margin-bottom: 5px;
+	font-size: 0.85em;
+	font-weight: 500;
+	color: var(--notification-timestamp-color);
+	margin-bottom: 2px;
 	display: flex;
 	width: 100%;
 	justify-content: space-between;
@@ -823,7 +824,6 @@ header h1 {
 	flex-direction: column;
 	gap: 10px;
 }
-
 
 .no-notifications {
 	padding: 12px;
@@ -1000,7 +1000,6 @@ header h1 {
 	flex-direction: column;
 	justify-content: flex-start;
 }
-
 
 .config-page h3 {
 	margin: 10px 0 4px 0;
