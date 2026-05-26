@@ -294,7 +294,9 @@ export default function Notification({
 				onClick={isUnread ? onClickMarkRead : onClickMarkUnread}
 				title={isUnread ? 'Mark as read' : 'Mark as unread'}
 			>
-				<Gridicon icon={isUnread ? 'checkmark' : 'mail'} size={18} />
+				<span className="notification__mark-read-button">
+					<Gridicon icon={isUnread ? 'checkmark' : 'mail'} size={18} />
+				</span>
 			</div>
 		</div>
 	);

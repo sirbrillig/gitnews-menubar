@@ -878,13 +878,22 @@ header h1 {
 	align-items: center;
 	justify-content: center;
 	cursor: pointer;
-	border-left: 1px solid var(--notification-border-color);
 	fill: #4fb477;
-	transition: background-color 0.2s;
 }
 
-.notification__mark-read-target:hover {
-	background-color: rgba(79, 180, 119, 0.1);
+.notification__mark-read-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	background-color: rgba(79, 180, 119, 0.12);
+	transition: background-color 0.15s ease;
+}
+
+.notification__mark-read-target:hover .notification__mark-read-button {
+	background-color: rgba(79, 180, 119, 0.25);
 }
 
 .multi-open-pending-notice {
