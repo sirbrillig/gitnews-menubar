@@ -1,4 +1,5 @@
 import React from 'react';
+import { flushSync } from 'react-dom';
 import Gridicon from 'gridicons';
 import debugFactory from 'debug';
 import { formatDistanceToNow } from 'date-fns';
@@ -14,6 +15,18 @@ import {
 	QueuedAction,
 } from '../types';
 import { ImageWithBackup } from './image-with-backup';
+import { getNoteId } from '../lib/helpers';
+
+function runWithViewTransition(update: () => void) {
+	const doc = document as Document & {
+		startViewTransition?: (cb: () => void) => unknown;
+	};
+	if (typeof doc.startViewTransition === 'function') {
+		doc.startViewTransition(() => flushSync(update));
+		return;
+	}
+	update();
+}
 
 const debug = debugFactory('gitnews-menubar');
 
@@ -76,7 +89,7 @@ export default function Notification({
 			queueNoteAction(note, 'markRead');
 			return;
 		}
-		markRead(token, note);
+		runWithViewTransition(() => markRead(token, note));
 	};
 
 	const onClickMarkUnread = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -89,7 +102,7 @@ export default function Notification({
 			queueNoteAction(note, 'markUnread');
 			return;
 		}
-		markUnread(note);
+		runWithViewTransition(() => markUnread(note));
 	};
 
 	const lastUpdated = new Date(note.updatedAt);
@@ -114,6 +127,7 @@ export default function Notification({
 			: []),
 		...getNoteClasses({ isUnread, isMuted, isInvalid }),
 	];
+	const viewTransitionName = `note-${getNoteId(note).replace(/[^\w-]/g, '_')}`;
 	const defaultAvatar = `https://avatars.io/twitter/${note.repositoryFullName}`;
 	const avatarSrc =
 		note.commentAvatar || note.repositoryOwnerAvatar || defaultAvatar;
@@ -156,7 +170,10 @@ export default function Notification({
 
 	if (isMuteRequested) {
 		return (
-			<div className={noteClasses.join(' ')}>
+			<div
+				className={noteClasses.join(' ')}
+				style={{ viewTransitionName: viewTransitionName }}
+			>
 				<div className="notification__mute-confirm">
 					<div className="notification__mute-confirm__text">
 						<div className="notification__mute-confirm__title">
@@ -185,7 +202,10 @@ export default function Notification({
 
 	if (isUnsubscribeRequested) {
 		return (
-			<div className={noteClasses.join(' ')}>
+			<div
+				className={noteClasses.join(' ')}
+				style={{ viewTransitionName: viewTransitionName }}
+			>
 				<div className="notification__mute-confirm">
 					<div className="notification__mute-confirm__text">
 						<div className="notification__mute-confirm__title">
@@ -213,7 +233,10 @@ export default function Notification({
 	}
 
 	return (
-		<div className={noteClasses.join(' ')}>
+		<div
+			className={noteClasses.join(' ')}
+			style={{ viewTransitionName: viewTransitionName }}
+		>
 			{queuedAction === 'open' && <MultiOpenPendingNotice onClick={onClick} />}
 			{queuedAction === 'markRead' && (
 				<MultiMarkReadPendingNotice onClick={onClickMarkRead} />

@@ -562,6 +562,13 @@ header h1 {
 	position: relative;
 	display: flex;
 	gap: 6px;
+	transition: background-color 0.35s ease;
+}
+
+::view-transition-old(*),
+::view-transition-new(*) {
+	animation-duration: 0.35s;
+	animation-timing-function: ease;
 }
 
 .notification--multi-open {
@@ -889,11 +896,17 @@ header h1 {
 	height: 28px;
 	border-radius: 50%;
 	background-color: rgba(79, 180, 119, 0.12);
-	transition: background-color 0.15s ease;
+	transition:
+		background-color 0.15s ease,
+		transform 0.1s ease;
 }
 
 .notification__mark-read-target:hover .notification__mark-read-button {
 	background-color: rgba(79, 180, 119, 0.25);
+}
+
+.notification__mark-read-target:active .notification__mark-read-button {
+	transform: scale(0.88);
 }
 
 .multi-open-pending-notice {
