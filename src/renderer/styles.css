@@ -708,9 +708,14 @@ header h1 {
 	color: var(--notification-timestamp-color);
 }
 
-.notification__opened-recently {
-	font-size: 0.7em;
-	color: #3b82f6;
+.notification__opened-dot {
+	display: inline-block;
+	width: 6px;
+	height: 6px;
+	margin-right: 5px;
+	border-radius: 50%;
+	background-color: #3b82f6;
+	vertical-align: 1px;
 }
 
 .notification__mute-confirm__text {

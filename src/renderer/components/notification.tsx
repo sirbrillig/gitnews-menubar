@@ -257,7 +257,18 @@ export default function Notification({
 						</div>
 					)}
 					<div className="notification__footer">
-						<span className="notification__time">{timeString}</span>
+						<span className="notification__time">
+							{openedRecentlyAt && (
+								<span
+									className="notification__opened-dot"
+									title={`Opened ${formatDistanceToNow(
+										new Date(openedRecentlyAt),
+										{ addSuffix: true }
+									)}`}
+								/>
+							)}
+							{timeString}
+						</span>
 						<span className="notification__actions">
 							{isMuted ? (
 								<UnmuteRepoButton
@@ -276,14 +287,6 @@ export default function Notification({
 							/>
 						</span>
 					</div>
-					{openedRecentlyAt && (
-						<div className="notification__opened-recently">
-							{"opened "}
-							{formatDistanceToNow(new Date(openedRecentlyAt), {
-								addSuffix: true,
-							})}
-						</div>
-					)}
 				</div>
 			</div>
 			<div
