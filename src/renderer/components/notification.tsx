@@ -229,8 +229,10 @@ export default function Notification({
 				<div className="notification__image">
 					{isUnread && <span className="notification__new-dot" />}
 					{isMuted && <MuteIcon className="mute-icon" />}
-					{isMention && <span className="notification__mention-badge">@</span>}
 					<ImageWithBackup src={avatarSrc} username={note.commentUsername} />
+					{isMention && (
+						<span className="notification__mention-pill">@mention</span>
+					)}
 				</div>
 				<div className="notification__body">
 					<div className="notification__repo">

@@ -572,23 +572,17 @@ header h1 {
 	border-left: 4px solid #6b7ff5;
 }
 
-.notification__mention-badge {
-	position: absolute;
-	z-index: 1;
-	top: 3px;
-	right: calc(50% - var(--avatar-size) / 2 - var(--avatar-badge-offset));
-	width: 14px;
-	height: 14px;
-	border-radius: 50%;
-	border: 1.2px solid #fff;
-	background: #1a7bd3;
-	color: #fff;
-	font-size: 9px;
+.notification__mention-pill {
+	display: block;
+	width: fit-content;
+	margin: 20px auto 0;
+	padding: 1px 6px;
+	font-size: 0.7em;
 	font-weight: bold;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	line-height: 1;
+	background-color: #1a7bd3;
+	color: #fff;
+	border-radius: 3px;
+	line-height: 1.4;
 }
 
 .notification__muted {
@@ -660,7 +654,7 @@ header h1 {
 }
 
 .notification__image {
-	min-width: 50px;
+	min-width: 64px;
 	padding-top: 5px;
 	position: relative;
 	text-align: center;
