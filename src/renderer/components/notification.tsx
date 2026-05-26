@@ -248,7 +248,9 @@ export default function Notification({
 							{note.repositoryFullName}
 						</span>
 					</div>
-					<div className="notification__title">{note.title}</div>
+					<div className="notification__title" title={note.title}>
+						{note.title}
+					</div>
 					{isInvalid && (
 						<div className="notification__invalid-notice">
 							⚠ Failed to load details
