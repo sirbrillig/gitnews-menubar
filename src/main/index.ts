@@ -58,7 +58,7 @@ const bar = menubar({
 	index: MAIN_WINDOW_WEBPACK_ENTRY,
 	icon: getIconForState('loading'),
 	browserWindow: {
-		width: 440,
+		width: 430,
 		height: 600,
 		webPreferences: {
 			nodeIntegration: true,
