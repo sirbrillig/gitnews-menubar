@@ -21,6 +21,8 @@
 	--retry-button-text-color: #fff;
 	--offline-notice-background-color: #24292e;
 	--notification-unread-background-color: rgba(245, 112, 35, 0.1);
+	--notification-mention-pill-background-color: #f57023;
+	--notification-mention-pill-text-color: #fff;
 	--notification-timestamp-color: rgb(146, 146, 146);
 	--error-message-color: #d60000;
 	--notification-border-color: #ccc;
@@ -49,6 +51,8 @@
 		--dropdown-selected-text-color: #fff;
 		--search-icon-color: #c9c9c9;
 		--notification-unread-background-color: #172527;
+		--notification-mention-pill-background-color: #f57023;
+		--notification-mention-pill-text-color: #fff;
 		--notification-timestamp-color: #a8a8a8;
 		--notification-border-color: #424242;
 		--multi-open-notification-pending-overlay: rgba(4, 12, 18, 0.85);
@@ -573,16 +577,22 @@ header h1 {
 }
 
 .notification__mention-pill {
-	display: block;
-	width: fit-content;
-	margin: 20px auto 0;
-	padding: 1px 6px;
-	font-size: 0.7em;
-	font-weight: bold;
-	background-color: #1a7bd3;
-	color: #fff;
-	border-radius: 3px;
-	line-height: 1.4;
+	position: absolute;
+	z-index: 1;
+	top: 24px;
+	left: calc(50% + var(--avatar-size) / 2 - 10px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	height: 16px;
+	font-size: 10px;
+	font-weight: 700;
+	line-height: 1;
+	background-color: var(--notification-mention-pill-background-color);
+	color: var(--notification-mention-pill-text-color);
+	border: 1.2px solid var(--main-bg-color);
+	border-radius: 50%;
 }
 
 .notification__muted {

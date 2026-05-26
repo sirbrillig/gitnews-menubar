@@ -231,7 +231,12 @@ export default function Notification({
 					{isMuted && <MuteIcon className="mute-icon" />}
 					<ImageWithBackup src={avatarSrc} username={note.commentUsername} />
 					{isMention && (
-						<span className="notification__mention-pill">@mention</span>
+						<span
+							className="notification__mention-pill"
+							title="You were mentioned"
+						>
+							@
+						</span>
 					)}
 				</div>
 				<div className="notification__body">
