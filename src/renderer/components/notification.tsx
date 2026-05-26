@@ -222,10 +222,6 @@ export default function Notification({
 				<MultiMarkUnreadPendingNotice onClick={onClickMarkUnread} />
 			)}
 			<div className="notification__main-content" onClick={onClick}>
-				<div className={iconClasses.join(' ')}>
-					<Gridicon icon={iconType} />
-					<span className="notification__type--text">{iconText}</span>
-				</div>
 				<div className="notification__image">
 					{isUnread && <span className="notification__new-dot" />}
 					{isMuted && <MuteIcon className="mute-icon" />}
@@ -241,7 +237,14 @@ export default function Notification({
 				</div>
 				<div className="notification__body">
 					<div className="notification__repo">
-						<span className="notification__repo-name">
+						<span className={iconClasses.join(' ')}>
+							<Gridicon icon={iconType} />
+							<span className="notification__type--text">{iconText}</span>
+						</span>
+						<span
+							className="notification__repo-name"
+							title={note.repositoryFullName}
+						>
 							{note.repositoryFullName}
 						</span>
 					</div>

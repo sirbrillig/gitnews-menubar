@@ -627,33 +627,40 @@ header h1 {
 }
 
 .notification__type {
-	fill: #28a745;
-	display: flex;
-	flex-direction: column;
-	font-size: 0.7em;
-	max-width: 46px;
-	min-width: 46px;
-	width: 46px;
+	fill: #1a7f37;
+	color: #1a7f37;
+	display: inline-flex;
+	flex: 0 0 auto;
 	align-items: center;
-	overflow: hidden;
-	margin-top: 14px;
+	gap: 3px;
+	margin-right: 6px;
+}
+
+.notification__type--text {
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	font-weight: 600;
+	font-size: 0.85em;
 }
 
 .notification__type--closed {
-	fill: #cb2431;
+	fill: #a40e26;
+	color: #a40e26;
 }
 
 .notification__type--merged {
-	fill: #8957e5;
+	fill: #6f42c1;
+	color: #6f42c1;
 }
 
 .notification__type--draft {
-	fill: #848d97;
+	fill: #6e7681;
+	color: #6e7681;
 }
 
 .notification__type svg {
-	width: 16px;
-	height: 16px;
+	width: 12px;
+	height: 12px;
 }
 
 .notification__image img {
@@ -774,12 +781,16 @@ header h1 {
 	color: var(--notification-timestamp-color);
 	margin-bottom: 2px;
 	display: flex;
+	align-items: center;
 	width: 100%;
-	justify-content: space-between;
 }
 
 .notification__repo-name {
 	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .notification__title {
