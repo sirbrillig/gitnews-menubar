@@ -245,6 +245,11 @@ header {
 	z-index: 100;
 	background-color: var(--header-background-color);
 	color: var(--header-text-color);
+	view-transition-name: app-header;
+}
+
+::view-transition-group(app-header) {
+	z-index: 200;
 }
 
 header svg {
