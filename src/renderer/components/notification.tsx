@@ -1,5 +1,4 @@
 import React from 'react';
-import { flushSync } from 'react-dom';
 import Gridicon from 'gridicons';
 import debugFactory from 'debug';
 import { formatDistanceToNow } from 'date-fns';
@@ -16,17 +15,7 @@ import {
 } from '../types';
 import { ImageWithBackup } from './image-with-backup';
 import { getNoteId } from '../lib/helpers';
-
-function runWithViewTransition(update: () => void) {
-	const doc = document as Document & {
-		startViewTransition?: (cb: () => void) => unknown;
-	};
-	if (typeof doc.startViewTransition === 'function') {
-		doc.startViewTransition(() => flushSync(update));
-		return;
-	}
-	update();
-}
+import { runWithViewTransition } from '../lib/view-transitions';
 
 const debug = debugFactory('gitnews-menubar');
 
