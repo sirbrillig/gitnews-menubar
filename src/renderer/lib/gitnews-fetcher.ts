@@ -1,6 +1,7 @@
 import debugFactory from 'debug';
 import { Middleware } from 'redux';
 import {
+	getNoteId,
 	isAction,
 	isDispatch,
 	secsToMs,
@@ -11,6 +12,7 @@ import {
 	isServerReturningHtml,
 	isTokenInvalid,
 } from '../lib/helpers';
+import { runWithViewTransition } from '../lib/view-transitions';
 import {
 	changeToOffline,
 	fetchBegin,
@@ -174,7 +176,7 @@ export function createFetcher(): Middleware<unknown, AppReduxState> {
 					`Notifications retrieved (${allNotes.length} found in ${state.accounts.length} accounts)`,
 					'info'
 				);
-				next(gotNotes(allNotes));
+				dispatchGotNotes(state.notes, allNotes, next);
 			} else {
 				type AccountError = {
 					account: AccountInfo;
@@ -318,7 +320,7 @@ export function createFetcher(): Middleware<unknown, AppReduxState> {
 
 				if (anyAccountSucceeded) {
 					// gotNotes clears errors[], so dispatch it before per-account errors
-					next(gotNotes(allNotes));
+					dispatchGotNotes(state.notes, allNotes, next);
 				}
 
 				for (const { account, err } of allAccountErrors) {
@@ -338,6 +340,27 @@ export function createFetcher(): Middleware<unknown, AppReduxState> {
 	}
 
 	return fetcher;
+}
+
+function notesListSignature(notes: Note[]): string {
+	// Order, identity, and read state all affect the visible list ordering.
+	return notes
+		.map((n) => `${getNoteId(n)}:${n.unread ? 1 : 0}:${n.updatedAt}`)
+		.join('|');
+}
+
+function dispatchGotNotes(
+	previousNotes: Note[],
+	nextNotes: Note[],
+	dispatch: AppDispatch
+) {
+	const visibleChanged =
+		notesListSignature(previousNotes) !== notesListSignature(nextNotes);
+	if (visibleChanged) {
+		runWithViewTransition(() => dispatch(gotNotes(nextNotes)));
+		return;
+	}
+	dispatch(gotNotes(nextNotes));
 }
 
 async function getDemoNotifications(): Promise<Note[]> {

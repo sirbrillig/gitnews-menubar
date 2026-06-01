@@ -14,6 +14,8 @@ import {
 	QueuedAction,
 } from '../types';
 import { ImageWithBackup } from './image-with-backup';
+import { getNoteId } from '../lib/helpers';
+import { runWithViewTransition } from '../lib/view-transitions';
 
 const debug = debugFactory('gitnews-menubar');
 
@@ -76,7 +78,7 @@ export default function Notification({
 			queueNoteAction(note, 'markRead');
 			return;
 		}
-		markRead(token, note);
+		runWithViewTransition(() => markRead(token, note));
 	};
 
 	const onClickMarkUnread = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -89,7 +91,7 @@ export default function Notification({
 			queueNoteAction(note, 'markUnread');
 			return;
 		}
-		markUnread(note);
+		runWithViewTransition(() => markUnread(note));
 	};
 
 	const lastUpdated = new Date(note.updatedAt);
@@ -114,6 +116,7 @@ export default function Notification({
 			: []),
 		...getNoteClasses({ isUnread, isMuted, isInvalid }),
 	];
+	const viewTransitionName = `note-${getNoteId(note).replace(/[^\w-]/g, '_')}`;
 	const defaultAvatar = `https://avatars.io/twitter/${note.repositoryFullName}`;
 	const avatarSrc =
 		note.commentAvatar || note.repositoryOwnerAvatar || defaultAvatar;
@@ -156,7 +159,10 @@ export default function Notification({
 
 	if (isMuteRequested) {
 		return (
-			<div className={noteClasses.join(' ')}>
+			<div
+				className={noteClasses.join(' ')}
+				style={{ viewTransitionName: viewTransitionName }}
+			>
 				<div className="notification__mute-confirm">
 					<div className="notification__mute-confirm__text">
 						<div className="notification__mute-confirm__title">
@@ -185,7 +191,10 @@ export default function Notification({
 
 	if (isUnsubscribeRequested) {
 		return (
-			<div className={noteClasses.join(' ')}>
+			<div
+				className={noteClasses.join(' ')}
+				style={{ viewTransitionName: viewTransitionName }}
+			>
 				<div className="notification__mute-confirm">
 					<div className="notification__mute-confirm__text">
 						<div className="notification__mute-confirm__title">
@@ -213,7 +222,10 @@ export default function Notification({
 	}
 
 	return (
-		<div className={noteClasses.join(' ')}>
+		<div
+			className={noteClasses.join(' ')}
+			style={{ viewTransitionName: viewTransitionName }}
+		>
 			{queuedAction === 'open' && <MultiOpenPendingNotice onClick={onClick} />}
 			{queuedAction === 'markRead' && (
 				<MultiMarkReadPendingNotice onClick={onClickMarkRead} />
@@ -222,30 +234,53 @@ export default function Notification({
 				<MultiMarkUnreadPendingNotice onClick={onClickMarkUnread} />
 			)}
 			<div className="notification__main-content" onClick={onClick}>
-				<div className={iconClasses.join(' ')}>
-					<Gridicon icon={iconType} />
-					<span className="notification__type--text">{iconText}</span>
-				</div>
 				<div className="notification__image">
 					{isUnread && <span className="notification__new-dot" />}
 					{isMuted && <MuteIcon className="mute-icon" />}
-					{isMention && <span className="notification__mention-badge">@</span>}
 					<ImageWithBackup src={avatarSrc} username={note.commentUsername} />
+					{isMention && (
+						<span
+							className="notification__mention-pill"
+							title="You were mentioned"
+						>
+							@
+						</span>
+					)}
 				</div>
 				<div className="notification__body">
 					<div className="notification__repo">
-						<span className="notification__repo-name">
+						<span className={iconClasses.join(' ')}>
+							<Gridicon icon={iconType} />
+							<span className="notification__type--text">{iconText}</span>
+						</span>
+						<span
+							className="notification__repo-name"
+							title={note.repositoryFullName}
+						>
 							{note.repositoryFullName}
 						</span>
 					</div>
-					<div className="notification__title">{note.title}</div>
+					<div className="notification__title" title={note.title}>
+						{note.title}
+					</div>
 					{isInvalid && (
 						<div className="notification__invalid-notice">
 							⚠ Failed to load details
 						</div>
 					)}
 					<div className="notification__footer">
-						<span className="notification__time">{timeString}</span>
+						<span className="notification__time">
+							{openedRecentlyAt && (
+								<span
+									className="notification__opened-dot"
+									title={`Opened ${formatDistanceToNow(
+										new Date(openedRecentlyAt),
+										{ addSuffix: true }
+									)}`}
+								/>
+							)}
+							{timeString}
+						</span>
 						<span className="notification__actions">
 							{isMuted ? (
 								<UnmuteRepoButton
@@ -264,14 +299,6 @@ export default function Notification({
 							/>
 						</span>
 					</div>
-					{openedRecentlyAt && (
-						<div className="notification__opened-recently">
-							{"opened "}
-							{formatDistanceToNow(new Date(openedRecentlyAt), {
-								addSuffix: true,
-							})}
-						</div>
-					)}
 				</div>
 			</div>
 			<div
@@ -279,7 +306,9 @@ export default function Notification({
 				onClick={isUnread ? onClickMarkRead : onClickMarkUnread}
 				title={isUnread ? 'Mark as read' : 'Mark as unread'}
 			>
-				<Gridicon icon={isUnread ? 'checkmark' : 'mail'} size={18} />
+				<span className="notification__mark-read-button">
+					<Gridicon icon={isUnread ? 'checkmark' : 'mail'} size={18} />
+				</span>
 			</div>
 		</div>
 	);
