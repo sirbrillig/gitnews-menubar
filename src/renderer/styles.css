@@ -27,6 +27,7 @@
 	--notification-status-closed-color: #cf222e;
 	--notification-status-merged-color: #8250df;
 	--notification-status-draft-color: #656d76;
+	--notification-status-text-color: #fff;
 	--notification-unread-background-color: rgba(245, 112, 35, 0.1);
 	--notification-mark-read-color: #1a7f37;
 	--error-message-color: #d60000;
@@ -62,6 +63,7 @@
 		--notification-status-closed-color: #f85149;
 		--notification-status-merged-color: #a371f7;
 		--notification-status-draft-color: #8b949e;
+		--notification-status-text-color: #161616;
 		--notification-unread-background-color: rgba(59, 130, 246, 0.16);
 		--notification-mark-read-color: #4fb477;
 		--notification-border-color: #424242;
@@ -650,13 +652,16 @@ header h1 {
 }
 
 .notification__type {
-	fill: var(--notification-status-open-color);
-	color: var(--notification-status-open-color);
 	display: inline-flex;
 	flex: 0 0 auto;
 	align-items: center;
 	gap: 3px;
 	margin-right: 6px;
+	padding: 1px 8px;
+	border-radius: 999px;
+	background-color: var(--notification-status-open-color);
+	color: var(--notification-status-text-color);
+	fill: var(--notification-status-text-color);
 }
 
 .notification__type--text {
@@ -667,18 +672,15 @@ header h1 {
 }
 
 .notification__type--closed {
-	fill: var(--notification-status-closed-color);
-	color: var(--notification-status-closed-color);
+	background-color: var(--notification-status-closed-color);
 }
 
 .notification__type--merged {
-	fill: var(--notification-status-merged-color);
-	color: var(--notification-status-merged-color);
+	background-color: var(--notification-status-merged-color);
 }
 
 .notification__type--draft {
-	fill: var(--notification-status-draft-color);
-	color: var(--notification-status-draft-color);
+	background-color: var(--notification-status-draft-color);
 }
 
 .notification__type svg {
