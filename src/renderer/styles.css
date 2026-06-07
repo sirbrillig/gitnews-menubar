@@ -20,10 +20,16 @@
 	--dropdown-selected-text-color: #000;
 	--retry-button-text-color: #fff;
 	--offline-notice-background-color: #24292e;
-	--notification-unread-background-color: rgba(245, 112, 35, 0.1);
 	--notification-mention-pill-background-color: #f57023;
 	--notification-mention-pill-text-color: #fff;
 	--notification-timestamp-color: rgb(146, 146, 146);
+	--notification-status-open-color: #1a7f37;
+	--notification-status-closed-color: #cf222e;
+	--notification-status-merged-color: #8250df;
+	--notification-status-draft-color: #656d76;
+	--notification-status-text-color: #fff;
+	--notification-unread-background-color: rgba(245, 112, 35, 0.1);
+	--notification-mark-read-color: #1a7f37;
 	--error-message-color: #d60000;
 	--notification-border-color: #ccc;
 	--search-icon-color: #24292e;
@@ -50,10 +56,16 @@
 		--dropdown-selected-background-color: #2764ff;
 		--dropdown-selected-text-color: #fff;
 		--search-icon-color: #c9c9c9;
-		--notification-unread-background-color: #172527;
 		--notification-mention-pill-background-color: #f57023;
 		--notification-mention-pill-text-color: #fff;
 		--notification-timestamp-color: #a8a8a8;
+		--notification-status-open-color: #3fb950;
+		--notification-status-closed-color: #f85149;
+		--notification-status-merged-color: #a371f7;
+		--notification-status-draft-color: #8b949e;
+		--notification-status-text-color: #161616;
+		--notification-unread-background-color: rgba(59, 130, 246, 0.16);
+		--notification-mark-read-color: #4fb477;
 		--notification-border-color: #424242;
 		--multi-open-notification-pending-overlay: rgba(4, 12, 18, 0.85);
 		--no-notifications-icon-color: #fff;
@@ -640,13 +652,16 @@ header h1 {
 }
 
 .notification__type {
-	fill: #1a7f37;
-	color: #1a7f37;
 	display: inline-flex;
 	flex: 0 0 auto;
 	align-items: center;
 	gap: 3px;
 	margin-right: 6px;
+	padding: 1px 8px;
+	border-radius: 999px;
+	background-color: var(--notification-status-open-color);
+	color: var(--notification-status-text-color);
+	fill: var(--notification-status-text-color);
 }
 
 .notification__type--text {
@@ -657,18 +672,15 @@ header h1 {
 }
 
 .notification__type--closed {
-	fill: #a40e26;
-	color: #a40e26;
+	background-color: var(--notification-status-closed-color);
 }
 
 .notification__type--merged {
-	fill: #6f42c1;
-	color: #6f42c1;
+	background-color: var(--notification-status-merged-color);
 }
 
 .notification__type--draft {
-	fill: #6e7681;
-	color: #6e7681;
+	background-color: var(--notification-status-draft-color);
 }
 
 .notification__type svg {
@@ -896,7 +908,7 @@ header h1 {
 	align-items: center;
 	justify-content: center;
 	cursor: pointer;
-	fill: #4fb477;
+	fill: var(--notification-mark-read-color);
 }
 
 .notification__mark-read-button {
