@@ -157,19 +157,18 @@ export default function Notification({
 		setUnsubscribeRequested(note);
 	};
 
-	if (isMuteRequested) {
-		return (
-			<div
-				className={noteClasses.join(' ')}
-				style={{ viewTransitionName: viewTransitionName }}
-			>
+	return (
+		<div
+			className={noteClasses.join(' ')}
+			style={{ viewTransitionName: viewTransitionName }}
+		>
+			{isMuteRequested && (
 				<div className="notification__mute-confirm">
 					<div className="notification__mute-confirm__text">
 						<div className="notification__mute-confirm__title">
-							Mute all notifications from {note.repositoryFullName}?
+							Mute {note.repositoryFullName}?
 						</div>
-						Notifications from a muted repo will not cause the icon to change.
-						You can unmute it later.
+						Muted repos won&apos;t change the icon. You can unmute later.
 					</div>
 					<div className="notification__mute-confirm__buttons">
 						<MuteRepoCancelButton
@@ -185,23 +184,15 @@ export default function Notification({
 						/>
 					</div>
 				</div>
-			</div>
-		);
-	}
-
-	if (isUnsubscribeRequested) {
-		return (
-			<div
-				className={noteClasses.join(' ')}
-				style={{ viewTransitionName: viewTransitionName }}
-			>
+			)}
+			{isUnsubscribeRequested && (
 				<div className="notification__mute-confirm">
 					<div className="notification__mute-confirm__text">
 						<div className="notification__mute-confirm__title">
 							Unsubscribe from this thread?
 						</div>
-						You will no longer receive notifications for this thread. This
-						cannot be undone from Gitnews.
+						You&apos;ll stop receiving these. This can&apos;t be undone from
+						Gitnews.
 					</div>
 					<div className="notification__mute-confirm__buttons">
 						<MuteRepoCancelButton
@@ -217,15 +208,7 @@ export default function Notification({
 						/>
 					</div>
 				</div>
-			</div>
-		);
-	}
-
-	return (
-		<div
-			className={noteClasses.join(' ')}
-			style={{ viewTransitionName: viewTransitionName }}
-		>
+			)}
 			{queuedAction === 'open' && <MultiOpenPendingNotice onClick={onClick} />}
 			{queuedAction === 'markRead' && (
 				<MultiMarkReadPendingNotice onClick={onClickMarkRead} />
