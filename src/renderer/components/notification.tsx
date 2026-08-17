@@ -15,7 +15,10 @@ import {
 } from '../types';
 import { ImageWithBackup } from './image-with-backup';
 import { getNoteId } from '../lib/helpers';
-import { runWithViewTransition } from '../lib/view-transitions';
+import {
+	runWithViewTransition,
+	useVisibleViewTransitionName,
+} from '../lib/view-transitions';
 
 const debug = debugFactory('gitnews-menubar');
 
@@ -116,7 +119,9 @@ export default function Notification({
 			: []),
 		...getNoteClasses({ isUnread, isMuted, isInvalid }),
 	];
-	const viewTransitionName = `note-${getNoteId(note).replace(/[^\w-]/g, '_')}`;
+	const { ref: noteRef, viewTransitionName } = useVisibleViewTransitionName(
+		`note-${getNoteId(note).replace(/[^\w-]/g, '_')}`
+	);
 	const defaultAvatar = `https://avatars.io/twitter/${note.repositoryFullName}`;
 	const avatarSrc =
 		note.commentAvatar || note.repositoryOwnerAvatar || defaultAvatar;
@@ -159,6 +164,7 @@ export default function Notification({
 
 	return (
 		<div
+			ref={noteRef}
 			className={noteClasses.join(' ')}
 			style={{ viewTransitionName: viewTransitionName }}
 		>
