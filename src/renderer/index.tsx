@@ -5,12 +5,13 @@ import { Provider } from 'react-redux';
 import App from './components/app';
 import AppWrapper from './components/app-wrapper';
 import { initToken, setIsDemoMode, initAccounts } from './lib/reducer';
-import { store } from './lib/store';
+import { store, persistor } from './lib/store';
 
 import './styles.css';
 
 function quitApp(): void {
-	window.electronApi.quitApp();
+	// Saving state is throttled so make sure pending changes are written.
+	persistor.flush().finally(() => window.electronApi.quitApp());
 }
 
 async function getVersion(): Promise<string> {

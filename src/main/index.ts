@@ -14,6 +14,9 @@ import {
 	toggleLogging,
 	getAccounts,
 	setAccounts,
+	getAppStateItem,
+	setAppStateItem,
+	removeAppStateItem,
 } from './lib/main-store';
 import { getIconForState } from './lib/icon-path';
 import { version } from '../../package.json';
@@ -116,6 +119,33 @@ ipcMain.on('accounts:set', (_event, accounts: AccountInfo[]) => {
 
 ipcMain.handle('accounts:get', async () => {
 	return getAccounts();
+});
+
+ipcMain.handle('app-state:get', async (_event, key: unknown) => {
+	if (typeof key !== 'string') {
+		logMessage('Failed to get app state: key is invalid', 'error');
+		return null;
+	}
+	return getAppStateItem(key);
+});
+
+ipcMain.handle(
+	'app-state:set',
+	async (_event, key: unknown, value: unknown) => {
+		if (typeof key !== 'string' || typeof value !== 'string') {
+			logMessage('Failed to set app state: key or value is invalid', 'error');
+			return;
+		}
+		setAppStateItem(key, value);
+	}
+);
+
+ipcMain.handle('app-state:remove', async (_event, key: unknown) => {
+	if (typeof key !== 'string') {
+		logMessage('Failed to remove app state: key is invalid', 'error');
+		return;
+	}
+	removeAppStateItem(key);
 });
 
 ipcMain.on('set-icon', (_event, arg: unknown) => {
