@@ -38,6 +38,11 @@ const bridge: MainBridge = {
 	saveAccounts: (accounts: AccountInfo[]) =>
 		ipcRenderer.send('accounts:set', accounts),
 	getAccounts: () => ipcRenderer.invoke('accounts:get'),
+	getAppStateItem: (key: string) => ipcRenderer.invoke('app-state:get', key),
+	setAppStateItem: (key: string, value: string) =>
+		ipcRenderer.invoke('app-state:set', key, value),
+	removeAppStateItem: (key: string) =>
+		ipcRenderer.invoke('app-state:remove', key),
 };
 
 contextBridge.exposeInMainWorld('electronApi', bridge);

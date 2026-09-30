@@ -143,7 +143,10 @@ export type AppReduxAction =
 	| ActionToggleTokenInvalid
 	| ActionToggleLogging;
 
-export type OpenUrl = (url: string, noteToMarkRead?: { token: string; note: Note }) => void;
+export type OpenUrl = (
+	url: string,
+	noteToMarkRead?: { token: string; note: Note }
+) => void;
 
 export type MarkRead = (token: string, note: Note) => void;
 
@@ -193,6 +196,9 @@ export interface MainBridge {
 	isAutoLaunchEnabled: () => Promise<boolean>;
 	saveAccounts: (accounts: AccountInfo[]) => void;
 	getAccounts: () => Promise<AccountInfo[]>;
+	getAppStateItem: (key: string) => Promise<string | null>;
+	setAppStateItem: (key: string, value: string) => Promise<void>;
+	removeAppStateItem: (key: string) => Promise<void>;
 }
 
 export type UnknownFetchError = FetchErrorObject | string;

@@ -39,3 +39,26 @@ export function getAccounts(): AccountInfo[] {
 export function setAccounts(accounts: AccountInfo[]): void {
 	store.set('accounts', accounts);
 }
+
+/**
+ * Serialized renderer (redux-persist) state. This is kept in its own file,
+ * separate from the Electron context, so that it survives anything that
+ * clears localStorage and so that it can be read by other frameworks.
+ */
+const appStateStore = new Store<Record<string, string>>({
+	name: 'app-state',
+	// redux-persist keys are opaque strings; don't treat dots as paths.
+	accessPropertiesByDotNotation: false,
+});
+
+export function getAppStateItem(key: string): string | null {
+	return appStateStore.get(key) ?? null;
+}
+
+export function setAppStateItem(key: string, value: string): void {
+	appStateStore.set(key, value);
+}
+
+export function removeAppStateItem(key: string): void {
+	appStateStore.delete(key);
+}
