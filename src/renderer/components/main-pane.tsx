@@ -4,10 +4,14 @@ import UncheckedNotice from '../components/unchecked-notice';
 import NotificationsArea from '../components/notifications-area';
 import MutedReposList from '../components/muted-repos-list';
 import LowPriorityTitlesList from '../components/low-priority-titles-list';
+import ListSettingsPage from '../components/list-settings-page';
+import AboutPage from '../components/about-page';
 import {
 	PANE_CONFIG,
 	PANE_MUTED_REPOS,
 	PANE_LOW_PRIORITY_TITLES,
+	PANE_LIST_SETTINGS,
+	PANE_ABOUT,
 	PANE_ACCOUNTS,
 	PANE_ACCOUNT_EDIT,
 	defaultAccountInfo,
@@ -41,6 +45,8 @@ export default function MainPane({
 	showAccountEdit,
 	showMutedReposList,
 	showLowPriorityTitles,
+	showListSettings,
+	showAbout,
 	lastSuccessfulCheck,
 	getVersion,
 	newNotes,
@@ -70,6 +76,8 @@ export default function MainPane({
 	showAccountEdit: () => void;
 	showMutedReposList: () => void;
 	showLowPriorityTitles: () => void;
+	showListSettings: () => void;
+	showAbout: () => void;
 	lastSuccessfulCheck: AppReduxState['lastSuccessfulCheck'];
 	getVersion: () => Promise<string>;
 	newNotes: Note[];
@@ -124,6 +132,17 @@ export default function MainPane({
 	if (currentPane === PANE_LOW_PRIORITY_TITLES) {
 		return <LowPriorityTitlesList />;
 	}
+	if (currentPane === PANE_LIST_SETTINGS) {
+		return (
+			<ListSettingsPage
+				showMutedReposList={showMutedReposList}
+				showLowPriorityTitles={showLowPriorityTitles}
+			/>
+		);
+	}
+	if (currentPane === PANE_ABOUT) {
+		return <AboutPage openUrl={openUrl} getVersion={getVersion} />;
+	}
 	if (currentPane === PANE_ACCOUNT_EDIT && selectedAccount) {
 		return (
 			<AccountEdit account={selectedAccount} showAccounts={showAccounts} />
@@ -137,11 +156,9 @@ export default function MainPane({
 	if (currentPane === PANE_CONFIG) {
 		return (
 			<ConfigPage
-				openUrl={openUrl}
 				showAccounts={showAccounts}
-				showMutedReposList={showMutedReposList}
-				showLowPriorityTitles={showLowPriorityTitles}
-				getVersion={getVersion}
+				showListSettings={showListSettings}
+				showAbout={showAbout}
 				quitApp={quitApp}
 				isAutoLoadEnabled={isAutoLoadEnabled}
 				changeAutoLoad={changeAutoLoad}

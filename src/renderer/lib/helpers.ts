@@ -301,6 +301,32 @@ export function getMentionsSinceForNote(
 	return undefined;
 }
 
+export interface RepoNoteGroup {
+	repositoryFullName: string;
+	notes: Note[];
+}
+
+/**
+ * Group notes by repository, keeping their order within each group. Groups
+ * are ordered by their first note, so the repo of the first note comes first.
+ */
+export function groupNotesByRepo(notes: Note[]): RepoNoteGroup[] {
+	const groups = new Map<string, RepoNoteGroup>();
+	notes.forEach((note) => {
+		const key = note.repositoryFullName.toLowerCase();
+		const group = groups.get(key);
+		if (group) {
+			group.notes.push(note);
+			return;
+		}
+		groups.set(key, {
+			repositoryFullName: note.repositoryFullName,
+			notes: [note],
+		});
+	});
+	return Array.from(groups.values());
+}
+
 export function msToSecs(ms: number): number {
 	return Math.round(ms * 0.001);
 }

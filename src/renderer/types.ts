@@ -5,6 +5,8 @@ import {
 	PANE_ACCOUNTS,
 	PANE_ACCOUNT_EDIT,
 	PANE_LOW_PRIORITY_TITLES,
+	PANE_LIST_SETTINGS,
+	PANE_ABOUT,
 } from './lib/constants';
 import type {
 	NoteReason,
@@ -50,6 +52,7 @@ export interface AppReduxState {
 	recentlyUnsubscribed: RecentlyUnsubscribedNote[];
 	isLowPriorityEnabled: boolean;
 	lowPriorityTitlePatterns: LowPriorityTitlePatterns;
+	isGroupByRepoEnabled: boolean;
 }
 
 export interface RecentlyUnsubscribedNote {
@@ -98,6 +101,10 @@ export type ActionToggleLogging = {
 };
 export type ActionSetLowPriorityEnabled = {
 	type: 'SET_LOW_PRIORITY_ENABLED';
+	isEnabled: boolean;
+};
+export type ActionSetGroupByRepoEnabled = {
+	type: 'SET_GROUP_BY_REPO_ENABLED';
 	isEnabled: boolean;
 };
 export type ActionSetLowPriorityTitlePatterns = {
@@ -174,7 +181,8 @@ export type AppReduxAction =
 	| ActionToggleTokenInvalid
 	| ActionToggleLogging
 	| ActionSetLowPriorityEnabled
-	| ActionSetLowPriorityTitlePatterns;
+	| ActionSetLowPriorityTitlePatterns
+	| ActionSetGroupByRepoEnabled;
 
 export type OpenUrl = (
 	url: string,
@@ -207,7 +215,9 @@ export type AppPane =
 	| typeof PANE_NOTIFICATIONS
 	| typeof PANE_CONFIG
 	| typeof PANE_MUTED_REPOS
-	| typeof PANE_LOW_PRIORITY_TITLES;
+	| typeof PANE_LOW_PRIORITY_TITLES
+	| typeof PANE_LIST_SETTINGS
+	| typeof PANE_ABOUT;
 
 export interface MainBridge {
 	quitApp: () => void;

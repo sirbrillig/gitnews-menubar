@@ -1283,7 +1283,7 @@ main.config-pane {
 	text-decoration: line-through;
 }
 
-.low-priority-divider {
+.notes-divider {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -1294,26 +1294,36 @@ main.config-pane {
 	font-size: 0.8em;
 }
 
-.low-priority-divider__label {
+.notes-divider__label {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.notes-divider__label--caps {
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 }
 
-.low-priority-divider__actions {
+.notes-divider__actions {
+	flex-shrink: 0;
 	display: flex;
 	align-items: center;
 	gap: 8px;
 }
 
-.low-priority-divider__button {
+.notes-divider__button {
+	flex-shrink: 0;
 	padding: 0;
 	border: none;
 	background: none;
-	color: var(--main-link-color);
+	color: inherit;
 	font-size: inherit;
 	cursor: pointer;
 }
 
-.low-priority-divider__button:hover {
+.notes-divider__button:hover {
+	color: var(--main-text-color);
 	text-decoration: underline;
 }
