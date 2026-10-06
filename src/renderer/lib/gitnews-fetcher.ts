@@ -32,7 +32,7 @@ import {
 	UnknownFetchError,
 } from '../types';
 import { AppDispatch } from './store';
-import { createDemoNotifications } from './demo-mode';
+import { createDemoNotifications, bumpDemoNotifications } from './demo-mode';
 
 const debug = debugFactory('gitnews-menubar');
 
@@ -365,7 +365,7 @@ function dispatchGotNotes(
 
 async function getDemoNotifications(): Promise<Note[]> {
 	currentDemoNotifications = [
-		...currentDemoNotifications,
+		...bumpDemoNotifications(currentDemoNotifications),
 		...createDemoNotifications(),
 	];
 	return currentDemoNotifications;
