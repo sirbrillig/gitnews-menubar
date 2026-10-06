@@ -1318,11 +1318,12 @@ main.config-pane {
 	padding: 0;
 	border: none;
 	background: none;
-	color: var(--main-link-color);
+	color: inherit;
 	font-size: inherit;
 	cursor: pointer;
 }
 
 .notes-divider__button:hover {
+	color: var(--main-text-color);
 	text-decoration: underline;
 }
