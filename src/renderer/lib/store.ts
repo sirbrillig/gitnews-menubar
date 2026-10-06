@@ -23,6 +23,7 @@ const persistedKeys: Array<keyof AppReduxState> = [
 	'isAutoLoadEnabled',
 	'isLogging',
 	'isLowPriorityEnabled',
+	'lowPriorityTitlePatterns',
 	'selectedAccount',
 	'lastSuccessfulCheck',
 ];

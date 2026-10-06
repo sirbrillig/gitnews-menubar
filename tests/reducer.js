@@ -26,6 +26,54 @@ describe('reducer', function () {
 		});
 	});
 
+	describe('SET_LOW_PRIORITY_TITLE_PATTERNS', function () {
+		it('has no patterns by default', function () {
+			const result = reducer(undefined, { type: 'UNKNOWN' });
+			expect(result.lowPriorityTitlePatterns).toEqual({});
+		});
+
+		it('sets the patterns for a repo using a lowercase name', function () {
+			const action = {
+				type: 'SET_LOW_PRIORITY_TITLE_PATTERNS',
+				repo: ' Owner/Repo ',
+				patterns: ['^Bump ', ''],
+			};
+			const result = reducer({ lowPriorityTitlePatterns: {} }, action);
+			expect(result.lowPriorityTitlePatterns).toEqual({
+				'owner/repo': ['^Bump '],
+			});
+		});
+
+		it('does not affect other repos', function () {
+			const action = {
+				type: 'SET_LOW_PRIORITY_TITLE_PATTERNS',
+				repo: 'owner/repo',
+				patterns: ['b'],
+			};
+			const result = reducer(
+				{ lowPriorityTitlePatterns: { 'owner/repo': ['a'], 'other/repo': ['c'] } },
+				action
+			);
+			expect(result.lowPriorityTitlePatterns).toEqual({
+				'owner/repo': ['b'],
+				'other/repo': ['c'],
+			});
+		});
+
+		it('removes a repo with no patterns', function () {
+			const action = {
+				type: 'SET_LOW_PRIORITY_TITLE_PATTERNS',
+				repo: 'owner/repo',
+				patterns: [],
+			};
+			const result = reducer(
+				{ lowPriorityTitlePatterns: { 'owner/repo': ['a'] } },
+				action
+			);
+			expect(result.lowPriorityTitlePatterns).toEqual({});
+		});
+	});
+
 	describe('MARK_NOTE_READ', function () {
 		it('marks the note as read', function () {
 			const notes = [

@@ -10,9 +10,14 @@ import {
 	PANE_MUTED_REPOS,
 	PANE_ACCOUNTS,
 	PANE_ACCOUNT_EDIT,
+	PANE_LOW_PRIORITY_TITLES,
 } from '../lib/constants';
 import Poller from '../lib/poller';
-import { getSecondsUntilNextFetch, isNoteLowPriority } from '../lib/helpers';
+import {
+	getSecondsUntilNextFetch,
+	isNoteLowPriority,
+	getLowPriorityOptions,
+} from '../lib/helpers';
 import {
 	markRead,
 	markUnread,
@@ -33,6 +38,7 @@ import doesNoteMatchFilter from '../lib/does-note-match-filter';
 import {
 	Note,
 	AppReduxState,
+	LowPriorityTitlePatterns,
 	AppPane,
 	OpenUrl,
 	MarkRead,
@@ -65,6 +71,7 @@ interface AppConnectedProps {
 	isTokenInvalid: boolean;
 	showUnreadOnly: boolean;
 	isLowPriorityEnabled: boolean;
+	lowPriorityTitlePatterns: LowPriorityTitlePatterns;
 	hasAccounts: boolean;
 }
 
@@ -167,7 +174,7 @@ class App extends React.Component<AppProps, AppState> {
 	}
 
 	isLowPriority(note: Note) {
-		return this.props.isLowPriorityEnabled && isNoteLowPriority(note);
+		return isNoteLowPriority(note, getLowPriorityOptions(this.props));
 	}
 
 	getUnseenNotifications() {
@@ -254,11 +261,22 @@ class App extends React.Component<AppProps, AppState> {
 			this.setState({ currentPane: PANE_ACCOUNT_EDIT });
 		const showMutedReposList = () =>
 			this.setState({ currentPane: PANE_MUTED_REPOS });
+		const showLowPriorityTitles = () =>
+			this.setState({ currentPane: PANE_LOW_PRIORITY_TITLES });
 		const setSearchTo = (value: string) =>
 			this.setState({ searchValue: value });
 
-		const backButtonPanes = [PANE_CONFIG, PANE_MUTED_REPOS, PANE_ACCOUNTS];
-		const confugSubPanes = [PANE_MUTED_REPOS, PANE_ACCOUNTS];
+		const backButtonPanes = [
+			PANE_CONFIG,
+			PANE_MUTED_REPOS,
+			PANE_LOW_PRIORITY_TITLES,
+			PANE_ACCOUNTS,
+		];
+		const confugSubPanes = [
+			PANE_MUTED_REPOS,
+			PANE_LOW_PRIORITY_TITLES,
+			PANE_ACCOUNTS,
+		];
 		const showBackButton = (() => {
 			if (!hasAccounts) {
 				return false;
@@ -331,6 +349,7 @@ class App extends React.Component<AppProps, AppState> {
 					unmuteRepo={this.props.unmuteRepo}
 					mutedRepos={this.props.mutedRepos}
 					showMutedReposList={showMutedReposList}
+					showLowPriorityTitles={showLowPriorityTitles}
 					searchValue={this.state.searchValue}
 					filterType={this.props.filterType}
 					appVisible={this.props.appVisible}
@@ -363,6 +382,7 @@ function mapStateToProps(state: AppReduxState): AppConnectedProps {
 		isTokenInvalid: state.isTokenInvalid,
 		showUnreadOnly: state.showUnreadOnly,
 		isLowPriorityEnabled: state.isLowPriorityEnabled,
+		lowPriorityTitlePatterns: state.lowPriorityTitlePatterns,
 		hasAccounts: state.accounts.length > 0 || Boolean(state.token),
 	};
 }

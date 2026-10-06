@@ -315,6 +315,35 @@ describe('createFetcher() — two-phase fetch', function () {
 			expect(passedNotes[0]).not.toHaveProperty('mentionsSince');
 		});
 
+		it('searches for mentions on a dismissed note matching a title pattern', async function () {
+			const dismissedAt = Date.parse('2024-01-01T12:00:00Z');
+			const basicNote = makeBasicNote({
+				updatedAt: '2024-01-10T00:00:00Z',
+				repositoryFullName: 'Owner/Repo',
+				title: 'chore(deps): bump lodash',
+			});
+			const existingNote = makeHydratedNote(basicNote, {
+				updatedAt: '2024-01-01T00:00:00Z',
+				unread: false,
+				gitnewsDismissedAt: dismissedAt,
+				gitnewsDismissedReason: 'mention',
+			});
+			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([basicNote]);
+			const { dispatch } = makeMiddleware(
+				makeState({
+					notes: [existingNote],
+					isLowPriorityEnabled: false,
+					lowPriorityTitlePatterns: { 'owner/repo': ['^chore\\(deps\\)'] },
+				})
+			);
+			dispatch({ type: 'GITNEWS_FETCH_NOTIFICATIONS' });
+			await flushPromises();
+			expect(window.electronApi.enrichNotificationsForAccount).toHaveBeenCalledWith(
+				TEST_ACCOUNT,
+				[{ ...basicNote, mentionsSince: dismissedAt }]
+			);
+		});
+
 		it('re-enriches a note that was previously marked invalid', async function () {
 			const basicNote = makeBasicNote({ updatedAt: '2024-01-01T00:00:00Z' });
 			const existingNote = makeHydratedNote(basicNote, { gitnewsIsInvalid: true });

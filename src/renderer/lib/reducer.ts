@@ -32,6 +32,7 @@ import {
 	ActionDismissUnsubscribedNotice,
 	MarkReadSource,
 	ActionSetLowPriorityEnabled,
+	ActionSetLowPriorityTitlePatterns,
 } from '../types';
 
 const defaultFetchInterval = secsToMs(120);
@@ -61,6 +62,7 @@ const initialState: AppReduxState = {
 	showUnreadOnly: false,
 	recentlyUnsubscribed: [],
 	isLowPriorityEnabled: false,
+	lowPriorityTitlePatterns: {},
 };
 
 function setAllAccountsValid(accounts: AccountInfo[]): AccountInfo[] {
@@ -299,6 +301,21 @@ export function createReducer() {
 				return { ...state, showUnreadOnly: action.showUnreadOnly };
 			case 'SET_LOW_PRIORITY_ENABLED':
 				return { ...state, isLowPriorityEnabled: action.isEnabled };
+			case 'SET_LOW_PRIORITY_TITLE_PATTERNS': {
+				const repo = action.repo.trim().toLowerCase();
+				const patterns = action.patterns.filter(
+					(pattern) => pattern.trim() !== ''
+				);
+				const { [repo]: _removed, ...otherRepos } =
+					state.lowPriorityTitlePatterns ?? {};
+				return {
+					...state,
+					lowPriorityTitlePatterns:
+						patterns.length > 0
+							? { ...otherRepos, [repo]: patterns }
+							: otherRepos,
+				};
+			}
 		}
 		return state;
 	};
@@ -438,6 +455,17 @@ export function setLowPriorityEnabled(
 	isEnabled: boolean
 ): ActionSetLowPriorityEnabled {
 	return { type: 'SET_LOW_PRIORITY_ENABLED', isEnabled };
+}
+
+/**
+ * Replace the title patterns for a repo. Empty patterns are dropped, and a repo
+ * with no patterns is removed.
+ */
+export function setLowPriorityTitlePatterns(
+	repo: string,
+	patterns: string[]
+): ActionSetLowPriorityTitlePatterns {
+	return { type: 'SET_LOW_PRIORITY_TITLE_PATTERNS', repo, patterns };
 }
 
 export function toggleLogging(isLogging: boolean) {

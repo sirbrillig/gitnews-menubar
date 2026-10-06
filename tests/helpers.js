@@ -3,6 +3,7 @@ const {
 	getErrorMessage,
 	isOfflineCode,
 	isNoteLowPriority,
+	getLowPriorityReason,
 	getMentionsSinceForNote,
 	mergeNotifications,
 	LOW_PRIORITY_WINDOW_MS,
@@ -210,6 +211,7 @@ describe('getMentionsSinceForNote()', function () {
 		gitnewsDismissedAt: dismissedAt,
 		gitnewsDismissedReason: 'mention',
 	};
+	const enabled = { isDismissalEnabled: true };
 	const makeBasicNote = (overrides = {}) => ({
 		id: 'a1',
 		unread: true,
@@ -219,27 +221,28 @@ describe('getMentionsSinceForNote()', function () {
 	});
 
 	it('returns the dismissal time for a note that may be low priority', function () {
-		expect(getMentionsSinceForNote(existingNote, makeBasicNote())).toBe(
+		expect(getMentionsSinceForNote(existingNote, makeBasicNote(), enabled)).toBe(
 			dismissedAt
 		);
 	});
 
 	it('returns undefined if there is no existing note', function () {
-		expect(getMentionsSinceForNote(undefined, makeBasicNote())).toBeUndefined();
+		expect(getMentionsSinceForNote(undefined, makeBasicNote(), enabled)).toBeUndefined();
 	});
 
 	it('returns undefined if the note was not dismissed', function () {
 		expect(
 			getMentionsSinceForNote(
 				{ ...existingNote, gitnewsDismissedAt: undefined },
-				makeBasicNote()
+				makeBasicNote(),
+				enabled
 			)
 		).toBeUndefined();
 	});
 
 	it('returns undefined if the note is read', function () {
 		expect(
-			getMentionsSinceForNote(existingNote, makeBasicNote({ unread: false }))
+			getMentionsSinceForNote(existingNote, makeBasicNote({ unread: false }), enabled)
 		).toBeUndefined();
 	});
 
@@ -248,7 +251,7 @@ describe('getMentionsSinceForNote()', function () {
 			dismissedAt + LOW_PRIORITY_WINDOW_MS + 60_000
 		).toISOString();
 		expect(
-			getMentionsSinceForNote(existingNote, makeBasicNote({ updatedAt }))
+			getMentionsSinceForNote(existingNote, makeBasicNote({ updatedAt }), enabled)
 		).toBeUndefined();
 	});
 
@@ -256,8 +259,144 @@ describe('getMentionsSinceForNote()', function () {
 		expect(
 			getMentionsSinceForNote(
 				{ ...existingNote, gitnewsDismissedReason: 'subscribed' },
-				makeBasicNote()
+				makeBasicNote(),
+				enabled
 			)
 		).toBeUndefined();
+	});
+
+	it('returns undefined if dismissal low priority is disabled', function () {
+		expect(
+			getMentionsSinceForNote(existingNote, makeBasicNote(), {
+				isDismissalEnabled: false,
+			})
+		).toBeUndefined();
+	});
+
+	it('returns the dismissal time outside the window if the title matches', function () {
+		const updatedAt = new Date(
+			dismissedAt + LOW_PRIORITY_WINDOW_MS + 60_000
+		).toISOString();
+		expect(
+			getMentionsSinceForNote(
+				existingNote,
+				makeBasicNote({
+					updatedAt,
+					repositoryFullName: 'owner/repo',
+					title: 'Bump lodash',
+				}),
+				{ titlePatterns: { 'owner/repo': ['^bump '] } }
+			)
+		).toBe(dismissedAt);
+	});
+});
+
+describe('getLowPriorityReason()', function () {
+	const titlePatterns = { 'owner/repo': ['^chore\\(deps\\)', '[invalid'] };
+	const makeNote = (overrides = {}) => ({
+		id: 'a1',
+		unread: true,
+		repositoryFullName: 'Owner/Repo',
+		title: 'chore(deps): bump lodash',
+		updatedAt: '2026-10-01T15:00:00Z',
+		api: { notification: { reason: 'subscribed' } },
+		...overrides,
+	});
+
+	it('returns "title" if the title matches a pattern for the repo', function () {
+		expect(getLowPriorityReason(makeNote(), { titlePatterns })).toBe('title');
+	});
+
+	it('matches titles regardless of case', function () {
+		expect(
+			getLowPriorityReason(makeNote({ title: 'CHORE(DEPS): bump' }), {
+				titlePatterns,
+			})
+		).toBe('title');
+	});
+
+	it('returns undefined if the title does not match', function () {
+		expect(
+			getLowPriorityReason(makeNote({ title: 'Fix a bug' }), { titlePatterns })
+		).toBeUndefined();
+	});
+
+	it('returns undefined for a different repo', function () {
+		expect(
+			getLowPriorityReason(makeNote({ repositoryFullName: 'other/repo' }), {
+				titlePatterns,
+			})
+		).toBeUndefined();
+	});
+
+	it('ignores invalid patterns', function () {
+		expect(
+			getLowPriorityReason(makeNote({ title: '[invalid' }), { titlePatterns })
+		).toBeUndefined();
+	});
+
+	it('returns undefined for a read note', function () {
+		expect(
+			getLowPriorityReason(makeNote({ unread: false }), { titlePatterns })
+		).toBeUndefined();
+	});
+
+	it('returns undefined if the user was mentioned', function () {
+		expect(
+			getLowPriorityReason(
+				makeNote({ api: { notification: { reason: 'mention' } } }),
+				{ titlePatterns }
+			)
+		).toBeUndefined();
+	});
+
+	it('returns undefined if the latest comment mentions the user', function () {
+		expect(
+			getLowPriorityReason(makeNote({ latestCommentMentionsYou: true }), {
+				titlePatterns,
+			})
+		).toBeUndefined();
+	});
+
+	it('returns "title" for an old mention from before the note was dismissed', function () {
+		expect(
+			getLowPriorityReason(
+				makeNote({
+					gitnewsDismissedAt: Date.parse('2026-09-01T12:00:00Z'),
+					gitnewsDismissedReason: 'mention',
+					api: { notification: { reason: 'mention' } },
+				}),
+				{ titlePatterns }
+			)
+		).toBe('title');
+	});
+
+	it('returns undefined for a new mention after the note was dismissed', function () {
+		const dismissedAt = Date.parse('2026-09-01T12:00:00Z');
+		expect(
+			getLowPriorityReason(
+				makeNote({
+					gitnewsDismissedAt: dismissedAt,
+					gitnewsDismissedReason: 'mention',
+					mentionFoundSince: dismissedAt,
+					api: { notification: { reason: 'mention' } },
+				}),
+				{ titlePatterns }
+			)
+		).toBeUndefined();
+	});
+
+	it('returns "dismissed" only if dismissal low priority is enabled', function () {
+		const note = makeNote({
+			title: 'Fix a bug',
+			gitnewsDismissedAt: Date.parse('2026-10-01T12:00:00Z'),
+			gitnewsDismissedReason: 'subscribed',
+		});
+		expect(getLowPriorityReason(note, { isDismissalEnabled: true })).toBe(
+			'dismissed'
+		);
+		expect(getLowPriorityReason(note, { isDismissalEnabled: false })).toBe(
+			undefined
+		);
 	});
 });
