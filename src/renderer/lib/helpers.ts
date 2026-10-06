@@ -66,6 +66,7 @@ export function mergeNotifications(
 				gitnewsOpenedAt: previousNote.gitnewsOpenedAt,
 				gitnewsDismissedAt: previousNote.gitnewsDismissedAt,
 				gitnewsDismissedReason: previousNote.gitnewsDismissedReason,
+				gitnewsDismissedCommentUrl: previousNote.gitnewsDismissedCommentUrl,
 				// Preserve local "mark as read" action if the note hasn't been updated.
 				// This prevents a race condition where marking a note as read locally
 				// gets overwritten by a fetch that completes before the API call to
@@ -83,6 +84,7 @@ export function mergeNotifications(
 				gitnewsOpenedAt: previousNote.gitnewsOpenedAt,
 				gitnewsDismissedAt: previousNote.gitnewsDismissedAt,
 				gitnewsDismissedReason: previousNote.gitnewsDismissedReason,
+				gitnewsDismissedCommentUrl: previousNote.gitnewsDismissedCommentUrl,
 			};
 		}
 		return note;
@@ -115,6 +117,20 @@ export function isNoteLowPriority(note: Note): boolean {
 	}
 	const reason = note.api?.notification?.reason;
 	if (reason === 'mention' && note.gitnewsDismissedReason !== 'mention') {
+		return false;
+	}
+	if (
+		reason === 'team_mention' &&
+		note.gitnewsDismissedReason !== 'team_mention'
+	) {
+		return false;
+	}
+	// A thread's reason stays "mention" forever once you are mentioned, so also
+	// look for a new comment that mentions you.
+	if (
+		note.latestCommentMentionsYou &&
+		note.commentUrl !== note.gitnewsDismissedCommentUrl
+	) {
 		return false;
 	}
 	return true;

@@ -87,6 +87,11 @@ export function bumpDemoNotifications(notes: Note[]): Note[] {
 			...note,
 			unread: true,
 			updatedAt: new Date().toISOString(),
+			// A mention comes with a new comment; a push does not.
+			commentUrl: isNewMention
+				? `${note.subjectUrl}#issuecomment-${randomNumber(1000, 9999)}`
+				: note.commentUrl,
+			latestCommentMentionsYou: isNewMention,
 			api: {
 				...note.api,
 				notification: isNewMention

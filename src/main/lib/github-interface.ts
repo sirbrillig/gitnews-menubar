@@ -2,6 +2,7 @@ import { Octokit, RestEndpointMethodTypes } from '@octokit/rest';
 import { fetch as undiciFetch, ProxyAgent } from 'undici';
 import { socksDispatcher } from 'fetch-socks';
 import { logMessage } from './logging';
+import { doesTextMentionUser } from './mentions';
 import type {
 	AccountInfo,
 	BasicNote,
@@ -158,20 +159,64 @@ interface CommentData {
 	commentAvatar: string;
 	commentHtmlUrl: string;
 	commentUsername: string;
+	commentMentionsViewer: boolean;
+}
+
+// The login of the user who owns each account's token, keyed by account.
+const viewerLogins = new Map<string, string>();
+
+function getViewerLoginCacheKey(account: AccountInfo): string {
+	return [account.id, account.serverUrl, account.apiKey].join('|');
+}
+
+/**
+ * Return the login of the user who owns the account's token, or undefined if
+ * it cannot be fetched.
+ */
+async function getViewerLogin(
+	octokit: Octokit,
+	account: AccountInfo
+): Promise<string | undefined> {
+	const cacheKey = getViewerLoginCacheKey(account);
+	const cached = viewerLogins.get(cacheKey);
+	if (cached) {
+		return cached;
+	}
+	try {
+		const response = await octokit.request('GET /user');
+		const login = response.data?.login;
+		if (typeof login === 'string' && login) {
+			viewerLogins.set(cacheKey, login);
+			return login;
+		}
+	} catch (error) {
+		logMessage(
+			`Failed to fetch user login for account ${account.name} (${account.id})`,
+			'error'
+		);
+	}
+	return undefined;
 }
 
 async function getCommentDataForNotification(
 	octokit: Octokit,
 	account: AccountInfo,
-	notification: RawNotification
+	notification: RawNotification,
+	viewerLogin: string | undefined
 ): Promise<CommentData> {
 	let commentAvatar: string = '';
 	let commentHtmlUrl: string = '';
 	let commentUsername: string = '';
+	let commentMentionsViewer = false;
 	const commentUrl =
 		notification.subject.latest_comment_url || notification.subject.url;
 	if (!commentUrl) {
-		return { commentAvatar, commentHtmlUrl, commentUsername };
+		return {
+			commentAvatar,
+			commentHtmlUrl,
+			commentUsername,
+			commentMentionsViewer,
+		};
 	}
 	const commentPath = getOctokitRequestPathFromUrl(account, commentUrl);
 	try {
@@ -183,6 +228,7 @@ async function getCommentDataForNotification(
 		commentAvatar = commentData.user.avatar_url;
 		commentHtmlUrl = commentData.html_url;
 		commentUsername = commentData.user.login;
+		commentMentionsViewer = doesTextMentionUser(commentData.body, viewerLogin);
 	} catch (error) {
 		logMessage(
 			`Failed to fetch comment for ${commentPath} (${notification.subject.latest_comment_url ?? notification.subject.url})`,
@@ -193,6 +239,7 @@ async function getCommentDataForNotification(
 		commentAvatar,
 		commentHtmlUrl,
 		commentUsername,
+		commentMentionsViewer,
 	};
 }
 
@@ -272,8 +319,13 @@ function buildNoteFromData({
 			commentData.commentAvatar ?? notification.repository.owner.avatar_url,
 		repositoryOwnerAvatar: notification.repository.owner.avatar_url,
 		gitnewsIsInvalid: subjectData.failed === true,
+		latestCommentMentionsYou: commentData.commentMentionsViewer,
 		api: {
-			subject: { state: subjectData.noteState, merged: subjectData.noteMerged, draft: subjectData.noteDraft },
+			subject: {
+				state: subjectData.noteState,
+				merged: subjectData.noteMerged,
+				draft: subjectData.noteDraft,
+			},
 			notification: { reason: notification.reason as NoteReason },
 		},
 	};
@@ -282,6 +334,7 @@ function buildNoteFromData({
 interface RawCommentResponse {
 	data: {
 		html_url: string;
+		body?: string | null;
 		user: {
 			login: string;
 			avatar_url: string;
@@ -404,6 +457,8 @@ export async function enrichNotificationsForAccount(
 	const octokit = createOctokit(account);
 	const notes: Note[] = [];
 	const promises = [];
+	const viewerLogin =
+		basicNotes.length > 0 ? await getViewerLogin(octokit, account) : undefined;
 
 	for (const basicNote of basicNotes) {
 		// Reconstruct the RawNotification shape needed by existing helpers
@@ -433,7 +488,8 @@ export async function enrichNotificationsForAccount(
 		const commentPromise = getCommentDataForNotification(
 			octokit,
 			account,
-			notification
+			notification,
+			viewerLogin
 		);
 		const subjectPromise = getSubjectDataForNotification(
 			octokit,

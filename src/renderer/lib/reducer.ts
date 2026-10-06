@@ -170,6 +170,9 @@ export function createReducer() {
 									gitnewsDismissedReason: isDismissed
 										? note.api?.notification?.reason
 										: undefined,
+									gitnewsDismissedCommentUrl: isDismissed
+										? note.commentUrl
+										: undefined,
 								}
 							: note
 					),

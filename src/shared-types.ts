@@ -52,6 +52,17 @@ export interface Note {
 	 */
 	gitnewsDismissedReason?: NoteReason;
 
+	/**
+	 * The `commentUrl` at the time the note was dismissed, so we can tell if a
+	 * later update added a new comment.
+	 */
+	gitnewsDismissedCommentUrl?: string;
+
+	/**
+	 * True if the latest comment on the note mentions the account's user.
+	 */
+	latestCommentMentionsYou?: boolean;
+
 	api: NoteApi;
 	commentUrl: string;
 

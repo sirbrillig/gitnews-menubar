@@ -102,6 +102,42 @@ describe('isNoteLowPriority()', function () {
 		).toBe(false);
 	});
 
+	it('returns false if the update is a new team mention', function () {
+		expect(
+			isNoteLowPriority(
+				makeNote({ api: { notification: { reason: 'team_mention' } } })
+			)
+		).toBe(false);
+	});
+
+	it('returns false if a new comment mentions the user', function () {
+		expect(
+			isNoteLowPriority(
+				makeNote({
+					gitnewsDismissedReason: 'mention',
+					gitnewsDismissedCommentUrl: 'https://github.com/a/b/pull/1#c1',
+					commentUrl: 'https://github.com/a/b/pull/1#c2',
+					latestCommentMentionsYou: true,
+					api: { notification: { reason: 'mention' } },
+				})
+			)
+		).toBe(false);
+	});
+
+	it('returns true if the comment that mentions the user is not new', function () {
+		expect(
+			isNoteLowPriority(
+				makeNote({
+					gitnewsDismissedReason: 'mention',
+					gitnewsDismissedCommentUrl: 'https://github.com/a/b/pull/1#c1',
+					commentUrl: 'https://github.com/a/b/pull/1#c1',
+					latestCommentMentionsYou: true,
+					api: { notification: { reason: 'mention' } },
+				})
+			)
+		).toBe(true);
+	});
+
 	it('returns true if the note was already a mention when dismissed', function () {
 		expect(
 			isNoteLowPriority(
