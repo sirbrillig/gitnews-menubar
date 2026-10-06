@@ -1282,3 +1282,38 @@ main.config-pane {
 	color: #c0392b;
 	text-decoration: line-through;
 }
+
+.low-priority-divider {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 8px;
+	padding: 3px 16px 3px 12px;
+	border-top: 1px solid var(--notification-border-color);
+	color: var(--notification-timestamp-color);
+	font-size: 0.8em;
+}
+
+.low-priority-divider__label {
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+.low-priority-divider__actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.low-priority-divider__button {
+	padding: 0;
+	border: none;
+	background: none;
+	color: var(--main-link-color);
+	font-size: inherit;
+	cursor: pointer;
+}
+
+.low-priority-divider__button:hover {
+	text-decoration: underline;
+}

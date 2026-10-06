@@ -4,7 +4,12 @@ import debugFactory from 'debug';
 import { useSelector } from 'react-redux';
 import Notification from '../components/notification';
 import UnsubscribedNotices from '../components/unsubscribed-notice';
-import { getNoteId } from '../lib/helpers';
+import {
+	getNoteId,
+	getLowPriorityOptions,
+	isNoteLowPriority,
+} from '../lib/helpers';
+import { runWithViewTransition } from '../lib/view-transitions';
 import { useGetGitnewsUpdate } from '../lib/updates';
 import doesNoteMatchFilter from '../lib/does-note-match-filter';
 import {
@@ -169,12 +174,31 @@ export default function NotificationsArea({
 		(state: AppReduxState) => (state.recentlyUnsubscribed ?? []).length > 0
 	);
 
+	const isLowPriorityEnabled = useSelector(
+		(state: AppReduxState) => state.isLowPriorityEnabled
+	);
+	const lowPriorityTitlePatterns = useSelector(
+		(state: AppReduxState) => state.lowPriorityTitlePatterns
+	);
+	const lowPriorityOptions = getLowPriorityOptions({
+		isLowPriorityEnabled,
+		lowPriorityTitlePatterns,
+	});
+
 	const orderedNotes = [...newNotes, ...readNotes]
 		.filter((note) => doesNoteMatchSearch(note, searchValue))
 		.filter((note) => doesNoteMatchFilter(note, filterType));
+	const lowPriorityNotes = orderedNotes.filter((note) =>
+		isNoteLowPriority(note, lowPriorityOptions)
+	);
+	const markLowPriorityNotesRead = () => {
+		runWithViewTransition(() =>
+			lowPriorityNotes.forEach((note) => markRead(token, note, 'dismiss'))
+		);
+	};
 	const noteRows = orderedNotes.map((note) => {
 		const queuedAction = queuedNotes.get(getNoteId(note))?.action;
-		return (
+		const notification = (
 			<Notification
 				note={note}
 				key={getNoteId(note)}
@@ -195,6 +219,20 @@ export default function NotificationsArea({
 				queuedAction={queuedAction}
 			/>
 		);
+		// Low priority notes are sorted together below the other unread notes, so
+		// put a divider above the first one.
+		if (note === lowPriorityNotes[0]) {
+			return (
+				<React.Fragment key={getNoteId(note)}>
+					<LowPriorityDivider
+						count={lowPriorityNotes.length}
+						markAllRead={markLowPriorityNotesRead}
+					/>
+					{notification}
+				</React.Fragment>
+			);
+		}
+		return notification;
 	});
 
 	return (
@@ -228,6 +266,50 @@ function doesNoteMatchSearch(note: Note, searchValue: string) {
 
 function isNoteInNotes(note: Note, notes: Note[]) {
 	return notes.some((item) => getNoteId(item) === getNoteId(note));
+}
+
+function LowPriorityDivider({
+	count,
+	markAllRead,
+}: {
+	count: number;
+	markAllRead: () => void;
+}) {
+	const [isConfirming, setIsConfirming] = React.useState(false);
+	return (
+		<div className="low-priority-divider">
+			<span className="low-priority-divider__label">
+				Low priority ({count})
+			</span>
+			{isConfirming ? (
+				<span className="low-priority-divider__actions">
+					<span>Mark {count} read?</span>
+					<button
+						className="low-priority-divider__button"
+						onClick={() => {
+							setIsConfirming(false);
+							markAllRead();
+						}}
+					>
+						Yes
+					</button>
+					<button
+						className="low-priority-divider__button"
+						onClick={() => setIsConfirming(false)}
+					>
+						Cancel
+					</button>
+				</span>
+			) : (
+				<button
+					className="low-priority-divider__button"
+					onClick={() => setIsConfirming(true)}
+				>
+					Mark all read
+				</button>
+			)}
+		</div>
+	);
 }
 
 function MultiOpenNotice() {
