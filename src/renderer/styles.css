@@ -22,6 +22,7 @@
 	--offline-notice-background-color: #24292e;
 	--notification-mention-pill-background-color: #f57023;
 	--notification-mention-pill-text-color: #fff;
+	--notification-older-mention-pill-color: #6e7781;
 	--notification-timestamp-color: rgb(146, 146, 146);
 	--notification-status-open-color: #1a7f37;
 	--notification-status-closed-color: #cf222e;
@@ -58,6 +59,7 @@
 		--search-icon-color: #c9c9c9;
 		--notification-mention-pill-background-color: #f57023;
 		--notification-mention-pill-text-color: #fff;
+		--notification-older-mention-pill-color: #8b949e;
 		--notification-timestamp-color: #a8a8a8;
 		--notification-status-open-color: #3fb950;
 		--notification-status-closed-color: #f85149;
@@ -617,6 +619,14 @@ header h1 {
 	color: var(--notification-mention-pill-text-color);
 	border: 1.2px solid var(--main-bg-color);
 	border-radius: 50%;
+}
+
+/* Hollow instead of solid so it can be told apart without relying on color. */
+.notification__mention-pill--older {
+	background-color: var(--main-bg-color);
+	color: var(--notification-older-mention-pill-color);
+	border-color: var(--notification-older-mention-pill-color);
+	box-shadow: 0 0 0 1px var(--main-bg-color);
 }
 
 .notification__muted {

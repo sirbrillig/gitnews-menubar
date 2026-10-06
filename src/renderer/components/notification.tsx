@@ -20,6 +20,7 @@ import {
 	getNoteId,
 	getLowPriorityReason,
 	getLowPriorityOptions,
+	hasRecentMention,
 } from '../lib/helpers';
 import {
 	runWithViewTransition,
@@ -123,6 +124,10 @@ export default function Notification({
 			? note.gitnewsOpenedAt
 			: null;
 	const isMention = note.api.notification?.reason === 'mention';
+	const isRecentMention = isMention && hasRecentMention(note);
+	const mentionLabel = isRecentMention
+		? 'You were mentioned recently'
+		: 'You were mentioned earlier in this thread';
 	const isInvalid = note.gitnewsIsInvalid === true;
 	const noteClasses = [
 		'notification',
@@ -254,8 +259,14 @@ export default function Notification({
 					<ImageWithBackup src={avatarSrc} username={note.commentUsername} />
 					{isMention && (
 						<span
-							className="notification__mention-pill"
-							title="You were mentioned"
+							className={
+								isRecentMention
+									? 'notification__mention-pill'
+									: 'notification__mention-pill notification__mention-pill--older'
+							}
+							title={mentionLabel}
+							aria-label={mentionLabel}
+							role="img"
 						>
 							@
 						</span>
