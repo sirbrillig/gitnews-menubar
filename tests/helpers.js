@@ -5,6 +5,7 @@ const {
 	isNoteLowPriority,
 	getLowPriorityReason,
 	getMentionsSinceForNote,
+	hasRecentMention,
 	mergeNotifications,
 	groupNotesByRepo,
 	LOW_PRIORITY_WINDOW_MS,
@@ -409,6 +410,63 @@ describe('getLowPriorityReason()', function () {
 		expect(getLowPriorityReason(note, { isDismissalEnabled: false })).toBe(
 			undefined
 		);
+	});
+});
+
+describe('hasRecentMention()', function () {
+	const dismissedAt = Date.parse('2026-09-01T12:00:00Z');
+	const makeNote = (overrides = {}) => ({
+		id: 'a1',
+		unread: true,
+		commentUrl: 'https://example.com/comment/2',
+		api: { notification: { reason: 'mention' } },
+		...overrides,
+	});
+
+	it('returns true if the latest comment mentions the user', function () {
+		expect(hasRecentMention(makeNote({ latestCommentMentionsYou: true }))).toBe(
+			true
+		);
+	});
+
+	it('returns false if the user was only mentioned earlier in the thread', function () {
+		expect(hasRecentMention(makeNote())).toBe(false);
+	});
+
+	it('returns true if a mention was found since the dismissal', function () {
+		expect(
+			hasRecentMention(
+				makeNote({
+					gitnewsDismissedAt: dismissedAt,
+					gitnewsDismissedReason: 'mention',
+					mentionFoundSince: dismissedAt,
+				})
+			)
+		).toBe(true);
+	});
+
+	it('returns true if the reason became a mention after the dismissal', function () {
+		expect(
+			hasRecentMention(
+				makeNote({
+					gitnewsDismissedAt: dismissedAt,
+					gitnewsDismissedReason: 'subscribed',
+				})
+			)
+		).toBe(true);
+	});
+
+	it('returns false if the mentioning comment was already dismissed', function () {
+		expect(
+			hasRecentMention(
+				makeNote({
+					gitnewsDismissedAt: dismissedAt,
+					gitnewsDismissedReason: 'mention',
+					gitnewsDismissedCommentUrl: 'https://example.com/comment/2',
+					latestCommentMentionsYou: true,
+				})
+			)
+		).toBe(false);
 	});
 });
 

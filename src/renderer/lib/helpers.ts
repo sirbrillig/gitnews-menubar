@@ -200,6 +200,21 @@ function hasNewMention(note: Note): boolean {
 	return false;
 }
 
+/**
+ * Return true if the user was mentioned recently in the note's thread rather
+ * than only at some point in its history (a thread's reason stays "mention"
+ * forever once you are mentioned).
+ *
+ * A mention is recent if it came after the note was dismissed or, if the note
+ * was never dismissed, if the latest comment mentions the user.
+ */
+export function hasRecentMention(note: Note): boolean {
+	if (!note.gitnewsDismissedAt) {
+		return note.latestCommentMentionsYou === true;
+	}
+	return hasNewMention(note);
+}
+
 function isMentionReason(reason: NoteReason | undefined): boolean {
 	return reason === 'mention' || reason === 'team_mention';
 }
