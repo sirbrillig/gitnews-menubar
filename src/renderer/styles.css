@@ -1194,7 +1194,6 @@ header h1 {
 
 .config-page {
 	margin: 12px;
-	height: 100%;
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-start;
@@ -1218,14 +1217,19 @@ header h1 {
 	height: 100%;
 }
 
+/* Only the area below the header scrolls, so the scrollbar starts below it. */
 main {
 	display: flex;
 	flex-direction: column;
 	width: 100%;
+	height: 100vh;
+	overflow: hidden;
 }
 
-main.config-pane {
-	height: 100vh;
+.main-pane-scroll {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
 }
 
 .low-priority-titles__form {
