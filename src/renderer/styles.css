@@ -1009,6 +1009,81 @@ header h1 {
 	border-radius: 20px;
 }
 
+.unsubscribed-notices {
+	width: 100%;
+	padding: 4px 5px;
+	position: fixed;
+	bottom: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	z-index: 375;
+}
+
+.unsubscribed-notice {
+	background-color: var(--bottom-bar-background-color);
+	color: var(--bottom-bar-text-color);
+	font-size: 0.9em;
+	border-radius: 8px;
+	overflow: hidden;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.unsubscribed-notice__body {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 6px 6px 12px;
+}
+
+.unsubscribed-notice__message {
+	flex: 1;
+	min-width: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.unsubscribed-notice__link {
+	color: var(--bottom-bar-action-text-color);
+	background: none !important;
+	border: none;
+	padding: 0 !important;
+	font-size: inherit;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.unsubscribed-notice__dismiss {
+	flex-shrink: 0;
+	display: flex;
+	background: none !important;
+	border: none;
+	padding: 0 !important;
+	cursor: pointer;
+}
+
+.unsubscribed-notice__dismiss svg {
+	fill: var(--bottom-bar-text-color);
+	opacity: 0.75;
+}
+
+.unsubscribed-notice__dismiss:hover svg {
+	opacity: 1;
+}
+
+.unsubscribed-notice__timer {
+	height: 3px;
+	background-color: rgba(255, 255, 255, 0.15);
+}
+
+.unsubscribed-notice__timer-bar {
+	height: 100%;
+	background-color: var(--main-link-color);
+	transition-property: width;
+	transition-timing-function: linear;
+}
+
 .update-available-notice {
 	width: 100%;
 	padding: 4px 5px;

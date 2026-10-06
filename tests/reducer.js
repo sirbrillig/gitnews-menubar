@@ -242,4 +242,51 @@ describe('reducer', function () {
 			expect(result.lastChecked).toBeTruthy();
 		});
 	});
+	describe('UNSUBSCRIBE_NOTE', function () {
+		const notes = [
+			{ id: 'a1', gitnewsAccountId: 'acc', title: 'test note 1' },
+			{ id: 'a2', gitnewsAccountId: 'acc', title: 'test note 2' },
+		];
+
+		it('removes the note', function () {
+			const action = { type: 'UNSUBSCRIBE_NOTE', note: notes[0] };
+			const result = reducer({ notes }, action);
+			expect(result.notes).toEqual([notes[1]]);
+		});
+
+		it('remembers the note as recently unsubscribed', function () {
+			const action = { type: 'UNSUBSCRIBE_NOTE', note: notes[0] };
+			const result = reducer({ notes }, action);
+			expect(result.recentlyUnsubscribed).toHaveLength(1);
+			expect(result.recentlyUnsubscribed[0].note).toBe(notes[0]);
+			expect(typeof result.recentlyUnsubscribed[0].unsubscribedAt).toBe(
+				'number'
+			);
+		});
+
+		it('does not duplicate a note unsubscribed twice', function () {
+			const action = { type: 'UNSUBSCRIBE_NOTE', note: notes[0] };
+			const result = reducer(reducer({ notes }, action), action);
+			expect(result.recentlyUnsubscribed).toHaveLength(1);
+		});
+	});
+
+	describe('DISMISS_UNSUBSCRIBED_NOTICE', function () {
+		it('removes only the matching recently unsubscribed note', function () {
+			const note1 = { id: 'a1', gitnewsAccountId: 'acc' };
+			const note2 = { id: 'a2', gitnewsAccountId: 'acc' };
+			let state = reducer(
+				{ notes: [note1, note2] },
+				{ type: 'UNSUBSCRIBE_NOTE', note: note1 }
+			);
+			state = reducer(state, { type: 'UNSUBSCRIBE_NOTE', note: note2 });
+			const result = reducer(state, {
+				type: 'DISMISS_UNSUBSCRIBED_NOTICE',
+				noteId: 'gh_acc:acc-__-gh_id:a1',
+			});
+			expect(result.recentlyUnsubscribed.map((item) => item.note)).toEqual([
+				note2,
+			]);
+		});
+	});
 });
