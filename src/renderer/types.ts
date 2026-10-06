@@ -50,10 +50,12 @@ export interface RecentlyUnsubscribedNote {
 
 export type ActionMuteRepo = { type: 'MUTE_REPO'; repo: string };
 export type ActionUnmuteRepo = { type: 'UNMUTE_REPO'; repo: string };
+export type MarkReadSource = 'open' | 'dismiss';
 export type ActionMarkRead = {
 	type: 'MARK_NOTE_READ';
 	token: string;
 	note: Note;
+	source?: MarkReadSource;
 };
 export type ActionMarkUnread = { type: 'MARK_NOTE_UNREAD'; note: Note };
 export type ActionUnsubscribeNote = { type: 'UNSUBSCRIBE_NOTE'; note: Note };
@@ -159,7 +161,11 @@ export type OpenUrl = (
 	noteToMarkRead?: { token: string; note: Note }
 ) => void;
 
-export type MarkRead = (token: string, note: Note) => void;
+export type MarkRead = (
+	token: string,
+	note: Note,
+	source?: MarkReadSource
+) => void;
 
 export type MarkUnread = (note: Note) => void;
 

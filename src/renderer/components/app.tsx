@@ -12,7 +12,7 @@ import {
 	PANE_ACCOUNT_EDIT,
 } from '../lib/constants';
 import Poller from '../lib/poller';
-import { getSecondsUntilNextFetch } from '../lib/helpers';
+import { getSecondsUntilNextFetch, isNoteLowPriority } from '../lib/helpers';
 import {
 	markRead,
 	markUnread,
@@ -155,13 +155,21 @@ class App extends React.Component<AppProps, AppState> {
 	}
 
 	getUnreadNotifications() {
-		return this.getUnmutedNotifications().filter(
+		const unread = this.getUnmutedNotifications().filter(
 			(note) => note.unread || note.gitnewsMarkedUnread
 		);
+		// Low priority notes go below all other unread notes.
+		return [
+			...unread.filter((note) => !isNoteLowPriority(note)),
+			...unread.filter((note) => isNoteLowPriority(note)),
+		];
 	}
 
 	getUnseenNotifications() {
-		return this.getUnreadNotifications().filter((note) => !note.gitnewsSeen);
+		// Low priority notes should not trigger the "unseen" icon.
+		return this.getUnreadNotifications().filter(
+			(note) => !note.gitnewsSeen && !isNoteLowPriority(note)
+		);
 	}
 
 	getNextIcon({
@@ -217,7 +225,9 @@ class App extends React.Component<AppProps, AppState> {
 			hasAccounts,
 		} = this.props;
 		const newNotes = this.getUnreadNotifications();
-		const readNotes = this.props.showUnreadOnly ? [] : this.getReadNotifications();
+		const readNotes = this.props.showUnreadOnly
+			? []
+			: this.getReadNotifications();
 		const unseenNotes = this.getUnseenNotifications();
 		const nextIcon = this.getNextIcon({
 			offline,

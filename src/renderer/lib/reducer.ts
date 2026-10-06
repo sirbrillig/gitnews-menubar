@@ -30,6 +30,7 @@ import {
 	ActionInitSetAccounts,
 	ActionUnsubscribeNote,
 	ActionDismissUnsubscribedNotice,
+	MarkReadSource,
 } from '../types';
 
 const defaultFetchInterval = secsToMs(120);
@@ -151,6 +152,7 @@ export function createReducer() {
 			}
 			case 'MARK_NOTE_READ': {
 				const noteId = getNoteId(action.note);
+				const isDismissed = action.source === 'dismiss';
 				return {
 					...state,
 					notes: state.notes.map((note) =>
@@ -160,6 +162,12 @@ export function createReducer() {
 									unread: false,
 									gitnewsMarkedUnread: false,
 									gitnewsOpenedAt: Date.now(),
+									// Remember notes dismissed without being opened so that
+									// minor follow-up activity can be shown as low priority.
+									gitnewsDismissedAt: isDismissed ? Date.now() : undefined,
+									gitnewsDismissedReason: isDismissed
+										? note.api?.notification?.reason
+										: undefined,
 								}
 							: note
 					),
@@ -301,8 +309,12 @@ export function setAccounts(accounts: AccountInfo[]): ActionSetAccounts {
 	return { type: 'SET_ACCOUNTS', accounts };
 }
 
-export function markRead(token: string, note: Note): ActionMarkRead {
-	return { type: 'MARK_NOTE_READ', token, note };
+export function markRead(
+	token: string,
+	note: Note,
+	source?: MarkReadSource
+): ActionMarkRead {
+	return { type: 'MARK_NOTE_READ', token, note, source };
 }
 
 export function markUnread(note: Note): ActionMarkUnread {

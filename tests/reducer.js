@@ -36,6 +36,42 @@ describe('reducer', function () {
 			expect(result.notes[1].unread).toBe(false);
 			expect(result.notes[2].unread).toBe(true);
 		});
+
+		it('records dismissal when marked read without opening', function () {
+			const notes = [
+				{
+					id: 'a1',
+					unread: true,
+					title: 'test note 1',
+					api: { notification: { reason: 'subscribed' } },
+				},
+			];
+			const action = {
+				type: 'MARK_NOTE_READ',
+				note: notes[0],
+				source: 'dismiss',
+			};
+			const result = reducer({ notes }, action);
+			expect(result.notes[0].gitnewsDismissedAt).toEqual(expect.any(Number));
+			expect(result.notes[0].gitnewsDismissedReason).toBe('subscribed');
+		});
+
+		it('clears dismissal when the note is opened', function () {
+			const notes = [
+				{
+					id: 'a1',
+					unread: true,
+					title: 'test note 1',
+					gitnewsDismissedAt: 1000,
+					gitnewsDismissedReason: 'subscribed',
+					api: { notification: { reason: 'subscribed' } },
+				},
+			];
+			const action = { type: 'MARK_NOTE_READ', note: notes[0] };
+			const result = reducer({ notes }, action);
+			expect(result.notes[0].gitnewsDismissedAt).toBeUndefined();
+			expect(result.notes[0].gitnewsDismissedReason).toBeUndefined();
+		});
 	});
 
 	describe('NOTES_RETRIEVED', function () {
@@ -150,7 +186,12 @@ describe('reducer', function () {
 			const action = {
 				type: 'NOTES_RETRIEVED',
 				notes: [
-					{ id: 'a1', unread: true, title: 'test note 1', updatedAt: newerTime },
+					{
+						id: 'a1',
+						unread: true,
+						title: 'test note 1',
+						updatedAt: newerTime,
+					},
 				],
 			};
 			const result = reducer(

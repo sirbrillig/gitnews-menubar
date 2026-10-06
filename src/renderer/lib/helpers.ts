@@ -64,6 +64,8 @@ export function mergeNotifications(
 				gitnewsSeen: previousNote.gitnewsSeen,
 				gitnewsMarkedUnread: previousNote.gitnewsMarkedUnread,
 				gitnewsOpenedAt: previousNote.gitnewsOpenedAt,
+				gitnewsDismissedAt: previousNote.gitnewsDismissedAt,
+				gitnewsDismissedReason: previousNote.gitnewsDismissedReason,
 				// Preserve local "mark as read" action if the note hasn't been updated.
 				// This prevents a race condition where marking a note as read locally
 				// gets overwritten by a fetch that completes before the API call to
@@ -72,12 +74,50 @@ export function mergeNotifications(
 			};
 		}
 		// Always preserve gitnewsOpenedAt even when the note has new GitHub activity,
-		// since it tracks when the user last opened the note in Gitnews.
-		if (previousNote?.gitnewsOpenedAt) {
-			return { ...note, gitnewsOpenedAt: previousNote.gitnewsOpenedAt };
+		// since it tracks when the user last opened the note in Gitnews. The same
+		// goes for the dismissal data, which is used to decide if the new activity
+		// is low priority.
+		if (previousNote) {
+			return {
+				...note,
+				gitnewsOpenedAt: previousNote.gitnewsOpenedAt,
+				gitnewsDismissedAt: previousNote.gitnewsDismissedAt,
+				gitnewsDismissedReason: previousNote.gitnewsDismissedReason,
+			};
 		}
 		return note;
 	});
+}
+
+/**
+ * How long after a note is dismissed that new activity on it is considered
+ * low priority.
+ */
+export const LOW_PRIORITY_WINDOW_MS = 48 * 60 * 60 * 1000; // 48 hours
+
+/**
+ * Return true if the note is unread again only because of activity shortly
+ * after the user dismissed it (marked it read without opening it).
+ *
+ * That activity is probably minor (a pushed commit, a rebase, an automated
+ * review) so we show it with lower priority. A new mention overrides this.
+ */
+export function isNoteLowPriority(note: Note): boolean {
+	if (!note.unread || note.gitnewsMarkedUnread || !note.gitnewsDismissedAt) {
+		return false;
+	}
+	const updatedAt = Date.parse(note.updatedAt);
+	if (Number.isNaN(updatedAt)) {
+		return false;
+	}
+	if (updatedAt - note.gitnewsDismissedAt > LOW_PRIORITY_WINDOW_MS) {
+		return false;
+	}
+	const reason = note.api?.notification?.reason;
+	if (reason === 'mention' && note.gitnewsDismissedReason !== 'mention') {
+		return false;
+	}
+	return true;
 }
 
 export function msToSecs(ms: number): number {

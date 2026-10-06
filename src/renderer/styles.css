@@ -638,6 +638,20 @@ header h1 {
 	background-color: var(--notification-unread-background-color);
 }
 
+/* Unread again shortly after being dismissed; probably a minor update. */
+.notification__low-priority {
+	background-color: transparent;
+}
+
+.notification__low-priority .notification__title {
+	opacity: 0.7;
+}
+
+.notification__low-priority-label {
+	margin-left: 4px;
+	font-style: italic;
+}
+
 .notification__new-dot {
 	position: absolute;
 	z-index: 1;
@@ -649,6 +663,10 @@ header h1 {
 	width: 14px;
 	height: 14px;
 	background: #a6111d;
+}
+
+.notification__new-dot--low-priority {
+	background: var(--notification-timestamp-color);
 }
 
 .notification__type {

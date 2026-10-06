@@ -39,6 +39,19 @@ export interface Note {
 	 */
 	gitnewsOpenedAt?: number;
 
+	/**
+	 * Number of milliseconds since the epoc (what Date.now() returns).
+	 * Set when the user marks the note as read with the mark-as-read button
+	 * without opening it. Cleared when the note is opened.
+	 */
+	gitnewsDismissedAt?: number;
+
+	/**
+	 * The notification reason at the time the note was dismissed, so we can
+	 * tell if a later update brought a new reason (like a mention).
+	 */
+	gitnewsDismissedReason?: NoteReason;
+
 	api: NoteApi;
 	commentUrl: string;
 
