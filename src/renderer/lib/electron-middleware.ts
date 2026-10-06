@@ -7,7 +7,7 @@ function setIcon(nextIcon: IconType) {
 }
 
 function scrollToTopNotification() {
-	window.scrollTo(0, 0);
+	document.querySelector('.main-pane-scroll')?.scrollTo(0, 0);
 }
 
 export const electronMiddleware: Middleware<unknown, AppReduxState> =

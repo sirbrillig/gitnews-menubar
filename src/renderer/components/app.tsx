@@ -318,39 +318,41 @@ class App extends React.Component<AppProps, AppState> {
 					)}
 				</Header>
 				<ErrorsArea errors={errors} clearErrors={this.props.clearErrors} />
-				<MainPane
-					token={token ?? ''}
-					isTokenInvalid={isTokenInvalid}
-					currentPane={currentPane}
-					getVersion={getVersion}
-					newNotes={newNotes}
-					readNotes={readNotes}
-					lastSuccessfulCheck={lastSuccessfulCheck}
-					fetchingInProgress={fetchingInProgress}
-					openUrl={this.props.openUrl}
-					quitApp={this.props.quitApp}
-					showAccounts={showAccounts}
-					showAccountEdit={showAccountEdit}
-					markRead={this.props.markRead}
-					markUnread={this.props.markUnread}
-					unsubscribeNote={this.props.unsubscribeNote}
-					isAutoLoadEnabled={this.props.isAutoLoadEnabled}
-					changeAutoLoad={this.props.changeAutoLoad}
-					muteRepo={this.props.muteRepo}
-					unmuteRepo={this.props.unmuteRepo}
-					mutedRepos={this.props.mutedRepos}
-					showMutedReposList={showMutedReposList}
-					showLowPriorityTitles={showLowPriorityTitles}
-					showListSettings={showListSettings}
-					showAbout={showAbout}
-					searchValue={this.state.searchValue}
-					filterType={this.props.filterType}
-					appVisible={this.props.appVisible}
-					isLogging={this.props.isLogging}
-					toggleLogging={this.props.toggleLogging}
-					isMultiOpenMode={this.state.isMultiOpenMode}
-					setMultiOpenMode={this.setMultiOpenMode}
-				/>
+				<div className="main-pane-scroll">
+						<MainPane
+						token={token ?? ''}
+						isTokenInvalid={isTokenInvalid}
+						currentPane={currentPane}
+						getVersion={getVersion}
+						newNotes={newNotes}
+						readNotes={readNotes}
+						lastSuccessfulCheck={lastSuccessfulCheck}
+						fetchingInProgress={fetchingInProgress}
+						openUrl={this.props.openUrl}
+						quitApp={this.props.quitApp}
+						showAccounts={showAccounts}
+						showAccountEdit={showAccountEdit}
+						markRead={this.props.markRead}
+						markUnread={this.props.markUnread}
+						unsubscribeNote={this.props.unsubscribeNote}
+						isAutoLoadEnabled={this.props.isAutoLoadEnabled}
+						changeAutoLoad={this.props.changeAutoLoad}
+						muteRepo={this.props.muteRepo}
+						unmuteRepo={this.props.unmuteRepo}
+						mutedRepos={this.props.mutedRepos}
+						showMutedReposList={showMutedReposList}
+						showLowPriorityTitles={showLowPriorityTitles}
+						showListSettings={showListSettings}
+						showAbout={showAbout}
+						searchValue={this.state.searchValue}
+						filterType={this.props.filterType}
+						appVisible={this.props.appVisible}
+						isLogging={this.props.isLogging}
+						toggleLogging={this.props.toggleLogging}
+						isMultiOpenMode={this.state.isMultiOpenMode}
+						setMultiOpenMode={this.setMultiOpenMode}
+					/>
+				</div>
 			</main>
 		);
 	}

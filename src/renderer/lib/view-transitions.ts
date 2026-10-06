@@ -44,7 +44,12 @@ export function useVisibleViewTransitionName(name: string): {
 			(entries) => {
 				setIsNearViewport(entries.some((entry) => entry.isIntersecting));
 			},
-			{ rootMargin: nearViewportMargin }
+			{
+				// The list scrolls inside this element rather than the window, and
+				// rootMargin only extends past the root's own clipping.
+				root: element.closest('.main-pane-scroll'),
+				rootMargin: nearViewportMargin,
+			}
 		);
 		observer.observe(element);
 		return () => observer.disconnect();
