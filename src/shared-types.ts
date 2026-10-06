@@ -63,6 +63,12 @@ export interface Note {
 	 */
 	latestCommentMentionsYou?: boolean;
 
+	/**
+	 * Set to the `mentionsSince` timestamp of the BasicNote if any comment or
+	 * review made after that time mentions the account's user.
+	 */
+	mentionFoundSince?: number;
+
 	api: NoteApi;
 	commentUrl: string;
 
@@ -96,6 +102,13 @@ export interface BasicNote {
 	subjectUrl: string;
 	latestCommentUrl: string;
 	gitnewsAccountId: string;
+
+	/**
+	 * Number of milliseconds since the epoc. If set, enriching the note will
+	 * look through all comments and reviews made after this time for a mention
+	 * of the account's user.
+	 */
+	mentionsSince?: number;
 }
 
 export interface AccountInfo {

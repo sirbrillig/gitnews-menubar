@@ -243,6 +243,101 @@ async function getCommentDataForNotification(
 	};
 }
 
+interface RawMentionCandidate {
+	body?: string | null;
+	user?: { login?: string } | null;
+	submitted_at?: string | null;
+}
+
+/**
+ * Return the issue path (like `/repos/owner/repo/issues/12`) and, if the
+ * subject is a pull request, the pull path for a notification subject.
+ */
+function getThreadPathsForSubject(
+	account: AccountInfo,
+	subjectUrl: string
+): { issuePath: string; pullPath?: string } | undefined {
+	const subjectPath = getOctokitRequestPathFromUrl(account, subjectUrl);
+	const match = subjectPath.match(
+		/^(.*\/repos\/[^/]+\/[^/]+)\/(issues|pulls)\/(\d+)$/
+	);
+	if (!match) {
+		return undefined;
+	}
+	const [, repoPath, kind, number] = match;
+	return {
+		issuePath: `${repoPath}/issues/${number}`,
+		pullPath: kind === 'pulls' ? `${repoPath}/pulls/${number}` : undefined,
+	};
+}
+
+/**
+ * Return true if any comment, review comment, or review on the notification's
+ * subject made after `since` mentions the user.
+ *
+ * This finds mentions that the latest comment alone would miss, like a
+ * mention followed by a bot comment, or a mention added by an edit.
+ */
+async function hasMentionSince(
+	octokit: Octokit,
+	account: AccountInfo,
+	notification: RawNotification,
+	since: number,
+	viewerLogin: string
+): Promise<boolean> {
+	const paths = notification.subject.url
+		? getThreadPathsForSubject(account, notification.subject.url)
+		: undefined;
+	if (!paths) {
+		return false;
+	}
+	const sinceIso = new Date(since).toISOString();
+	const requests: Promise<RawMentionCandidate[]>[] = [
+		octokit
+			.request(`GET ${paths.issuePath}/comments`, {
+				since: sinceIso,
+				per_page: 100,
+			})
+			.then((response) => response.data as RawMentionCandidate[]),
+	];
+	if (paths.pullPath) {
+		requests.push(
+			octokit
+				.request(`GET ${paths.pullPath}/comments`, {
+					since: sinceIso,
+					per_page: 100,
+				})
+				.then((response) => response.data as RawMentionCandidate[])
+		);
+		// Reviews cannot be filtered by date in the request.
+		requests.push(
+			octokit
+				.request(`GET ${paths.pullPath}/reviews`, { per_page: 100 })
+				.then((response) =>
+					(response.data as RawMentionCandidate[]).filter(
+						(review) =>
+							review.submitted_at && Date.parse(review.submitted_at) >= since
+					)
+				)
+		);
+	}
+	// If one request fails, still check the results of the others.
+	const results = await Promise.allSettled(requests);
+	if (results.some((result) => result.status === 'rejected')) {
+		logMessage(
+			`Failed to search for some mentions in ${paths.issuePath} (${notification.subject.url})`,
+			'error'
+		);
+	}
+	return results
+		.flatMap((result) => (result.status === 'fulfilled' ? result.value : []))
+		.some(
+			(item) =>
+				item.user?.login?.toLowerCase() !== viewerLogin.toLowerCase() &&
+				doesTextMentionUser(item.body, viewerLogin)
+		);
+}
+
 interface SubjectData {
 	noteState: string;
 	noteMerged: boolean;
@@ -296,11 +391,13 @@ function buildNoteFromData({
 	notification,
 	commentData,
 	subjectData,
+	mentionFoundSince,
 }: {
 	account: AccountInfo;
 	notification: RawNotification;
 	commentData: CommentData;
 	subjectData: SubjectData;
+	mentionFoundSince?: number;
 }): Note {
 	return {
 		gitnewsAccountId: account.id,
@@ -320,6 +417,7 @@ function buildNoteFromData({
 		repositoryOwnerAvatar: notification.repository.owner.avatar_url,
 		gitnewsIsInvalid: subjectData.failed === true,
 		latestCommentMentionsYou: commentData.commentMentionsViewer,
+		mentionFoundSince,
 		api: {
 			subject: {
 				state: subjectData.noteState,
@@ -496,16 +594,35 @@ export async function enrichNotificationsForAccount(
 			account,
 			notification
 		);
-		const promise = Promise.all([commentPromise, subjectPromise]).catch(
-			(err) => {
-				throw err;
-			}
-		);
+		const mentionsSince = basicNote.mentionsSince;
+		const mentionPromise =
+			mentionsSince && viewerLogin
+				? hasMentionSince(
+						octokit,
+						account,
+						notification,
+						mentionsSince,
+						viewerLogin
+					)
+				: Promise.resolve(false);
+		const promise = Promise.all([
+			commentPromise,
+			subjectPromise,
+			mentionPromise,
+		]).catch((err) => {
+			throw err;
+		});
 		promises.push(promise);
 		promise
-			.then(([commentData, subjectData]) => {
+			.then(([commentData, subjectData, hasNewMention]) => {
 				notes.push(
-					buildNoteFromData({ account, notification, commentData, subjectData })
+					buildNoteFromData({
+						account,
+						notification,
+						commentData,
+						subjectData,
+						mentionFoundSince: hasNewMention ? mentionsSince : undefined,
+					})
 				);
 			})
 			.catch((err) => {

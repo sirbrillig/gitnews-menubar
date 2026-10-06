@@ -1,4 +1,10 @@
-import { Note, UnknownFetchError, AppReduxAction } from '../types';
+import {
+	BasicNote,
+	Note,
+	NoteReason,
+	UnknownFetchError,
+	AppReduxAction,
+} from '../types';
 import { AppDispatch } from './store';
 
 const maxFetchInterval = secsToMs(300); // 5 minutes
@@ -108,25 +114,24 @@ export function isNoteLowPriority(note: Note): boolean {
 	if (!note.unread || note.gitnewsMarkedUnread || !note.gitnewsDismissedAt) {
 		return false;
 	}
-	const updatedAt = Date.parse(note.updatedAt);
-	if (Number.isNaN(updatedAt)) {
-		return false;
-	}
-	if (updatedAt - note.gitnewsDismissedAt > LOW_PRIORITY_WINDOW_MS) {
-		return false;
-	}
-	const reason = note.api?.notification?.reason;
-	if (reason === 'mention' && note.gitnewsDismissedReason !== 'mention') {
+	if (
+		!isUpdateWithinLowPriorityWindow(note.gitnewsDismissedAt, note.updatedAt)
+	) {
 		return false;
 	}
 	if (
-		reason === 'team_mention' &&
-		note.gitnewsDismissedReason !== 'team_mention'
+		hasReasonBecomeMention(
+			note.api?.notification?.reason,
+			note.gitnewsDismissedReason
+		)
 	) {
 		return false;
 	}
 	// A thread's reason stays "mention" forever once you are mentioned, so also
-	// look for a new comment that mentions you.
+	// look for new comments that mention you.
+	if (note.mentionFoundSince === note.gitnewsDismissedAt) {
+		return false;
+	}
 	if (
 		note.latestCommentMentionsYou &&
 		note.commentUrl !== note.gitnewsDismissedCommentUrl
@@ -134,6 +139,57 @@ export function isNoteLowPriority(note: Note): boolean {
 		return false;
 	}
 	return true;
+}
+
+function isUpdateWithinLowPriorityWindow(
+	dismissedAt: number,
+	updatedAtString: string
+): boolean {
+	const updatedAt = Date.parse(updatedAtString);
+	if (Number.isNaN(updatedAt)) {
+		return false;
+	}
+	return updatedAt - dismissedAt <= LOW_PRIORITY_WINDOW_MS;
+}
+
+function hasReasonBecomeMention(
+	reason: NoteReason | undefined,
+	dismissedReason: NoteReason | undefined
+): boolean {
+	if (reason === 'mention' && dismissedReason !== 'mention') {
+		return true;
+	}
+	if (reason === 'team_mention' && dismissedReason !== 'team_mention') {
+		return true;
+	}
+	return false;
+}
+
+/**
+ * If the updated note might be shown as low priority, return the time since
+ * which its comments should be searched for a new mention. Otherwise return
+ * undefined, since the search would make extra API requests for no reason.
+ */
+export function getMentionsSinceForNote(
+	existingNote: Note | undefined,
+	basicNote: BasicNote
+): number | undefined {
+	const dismissedAt = existingNote?.gitnewsDismissedAt;
+	if (!dismissedAt || !basicNote.unread || existingNote.gitnewsMarkedUnread) {
+		return undefined;
+	}
+	if (!isUpdateWithinLowPriorityWindow(dismissedAt, basicNote.updatedAt)) {
+		return undefined;
+	}
+	if (
+		hasReasonBecomeMention(
+			basicNote.reason,
+			existingNote.gitnewsDismissedReason
+		)
+	) {
+		return undefined;
+	}
+	return dismissedAt;
 }
 
 export function msToSecs(ms: number): number {

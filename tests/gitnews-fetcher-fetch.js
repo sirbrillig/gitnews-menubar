@@ -275,6 +275,46 @@ describe('createFetcher() — two-phase fetch', function () {
 			);
 		});
 
+		it('asks enrichment to search for mentions since a recent dismissal', async function () {
+			const dismissedAt = Date.parse('2024-01-01T12:00:00Z');
+			const basicNote = makeBasicNote({ updatedAt: '2024-01-02T00:00:00Z' });
+			const existingNote = makeHydratedNote(basicNote, {
+				updatedAt: '2024-01-01T00:00:00Z',
+				unread: false,
+				gitnewsDismissedAt: dismissedAt,
+				gitnewsDismissedReason: 'mention',
+			});
+			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([basicNote]);
+			const { dispatch } = makeMiddleware(
+				makeState({ notes: [existingNote], isLowPriorityEnabled: true })
+			);
+			dispatch({ type: 'GITNEWS_FETCH_NOTIFICATIONS' });
+			await flushPromises();
+			expect(window.electronApi.enrichNotificationsForAccount).toHaveBeenCalledWith(
+				TEST_ACCOUNT,
+				[{ ...basicNote, mentionsSince: dismissedAt }]
+			);
+		});
+
+		it('does not search for mentions when low priority notes are disabled', async function () {
+			const basicNote = makeBasicNote({ updatedAt: '2024-01-02T00:00:00Z' });
+			const existingNote = makeHydratedNote(basicNote, {
+				updatedAt: '2024-01-01T00:00:00Z',
+				unread: false,
+				gitnewsDismissedAt: Date.parse('2024-01-01T12:00:00Z'),
+				gitnewsDismissedReason: 'mention',
+			});
+			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([basicNote]);
+			const { dispatch } = makeMiddleware(
+				makeState({ notes: [existingNote], isLowPriorityEnabled: false })
+			);
+			dispatch({ type: 'GITNEWS_FETCH_NOTIFICATIONS' });
+			await flushPromises();
+			const [, passedNotes] =
+				window.electronApi.enrichNotificationsForAccount.mock.calls[0];
+			expect(passedNotes[0]).not.toHaveProperty('mentionsSince');
+		});
+
 		it('re-enriches a note that was previously marked invalid', async function () {
 			const basicNote = makeBasicNote({ updatedAt: '2024-01-01T00:00:00Z' });
 			const existingNote = makeHydratedNote(basicNote, { gitnewsIsInvalid: true });

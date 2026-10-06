@@ -3,6 +3,7 @@ const {
 	getErrorMessage,
 	isOfflineCode,
 	isNoteLowPriority,
+	getMentionsSinceForNote,
 	mergeNotifications,
 	LOW_PRIORITY_WINDOW_MS,
 } = require('../src/renderer/lib/helpers');
@@ -138,6 +139,30 @@ describe('isNoteLowPriority()', function () {
 		).toBe(true);
 	});
 
+	it('returns false if a mention was found since the dismissal', function () {
+		expect(
+			isNoteLowPriority(
+				makeNote({
+					gitnewsDismissedReason: 'mention',
+					mentionFoundSince: dismissedAt,
+					api: { notification: { reason: 'mention' } },
+				})
+			)
+		).toBe(false);
+	});
+
+	it('returns true if a mention was found since an older dismissal', function () {
+		expect(
+			isNoteLowPriority(
+				makeNote({
+					gitnewsDismissedReason: 'mention',
+					mentionFoundSince: dismissedAt - 1000,
+					api: { notification: { reason: 'mention' } },
+				})
+			)
+		).toBe(true);
+	});
+
 	it('returns true if the note was already a mention when dismissed', function () {
 		expect(
 			isNoteLowPriority(
@@ -174,5 +199,65 @@ describe('mergeNotifications()', function () {
 		expect(merged.unread).toBe(true);
 		expect(merged.gitnewsDismissedAt).toBe(1000);
 		expect(merged.gitnewsDismissedReason).toBe('subscribed');
+	});
+});
+
+describe('getMentionsSinceForNote()', function () {
+	const dismissedAt = Date.parse('2026-10-01T12:00:00Z');
+	const existingNote = {
+		id: 'a1',
+		unread: false,
+		gitnewsDismissedAt: dismissedAt,
+		gitnewsDismissedReason: 'mention',
+	};
+	const makeBasicNote = (overrides = {}) => ({
+		id: 'a1',
+		unread: true,
+		reason: 'mention',
+		updatedAt: '2026-10-01T15:00:00Z',
+		...overrides,
+	});
+
+	it('returns the dismissal time for a note that may be low priority', function () {
+		expect(getMentionsSinceForNote(existingNote, makeBasicNote())).toBe(
+			dismissedAt
+		);
+	});
+
+	it('returns undefined if there is no existing note', function () {
+		expect(getMentionsSinceForNote(undefined, makeBasicNote())).toBeUndefined();
+	});
+
+	it('returns undefined if the note was not dismissed', function () {
+		expect(
+			getMentionsSinceForNote(
+				{ ...existingNote, gitnewsDismissedAt: undefined },
+				makeBasicNote()
+			)
+		).toBeUndefined();
+	});
+
+	it('returns undefined if the note is read', function () {
+		expect(
+			getMentionsSinceForNote(existingNote, makeBasicNote({ unread: false }))
+		).toBeUndefined();
+	});
+
+	it('returns undefined if the update is outside the window', function () {
+		const updatedAt = new Date(
+			dismissedAt + LOW_PRIORITY_WINDOW_MS + 60_000
+		).toISOString();
+		expect(
+			getMentionsSinceForNote(existingNote, makeBasicNote({ updatedAt }))
+		).toBeUndefined();
+	});
+
+	it('returns undefined if the reason already shows a new mention', function () {
+		expect(
+			getMentionsSinceForNote(
+				{ ...existingNote, gitnewsDismissedReason: 'subscribed' },
+				makeBasicNote()
+			)
+		).toBeUndefined();
 	});
 });
