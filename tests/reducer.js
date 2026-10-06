@@ -13,6 +13,19 @@ describe('reducer', function () {
 		});
 	});
 
+	describe('SET_LOW_PRIORITY_ENABLED', function () {
+		it('is enabled by default', function () {
+			const result = reducer(undefined, { type: 'UNKNOWN' });
+			expect(result.isLowPriorityEnabled).toBe(true);
+		});
+
+		it('changes the setting', function () {
+			const action = { type: 'SET_LOW_PRIORITY_ENABLED', isEnabled: false };
+			const result = reducer({ isLowPriorityEnabled: true }, action);
+			expect(result.isLowPriorityEnabled).toBe(false);
+		});
+	});
+
 	describe('MARK_NOTE_READ', function () {
 		it('marks the note as read', function () {
 			const notes = [

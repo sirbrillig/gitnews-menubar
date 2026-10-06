@@ -2,8 +2,10 @@ import React from 'react';
 import Gridicon from 'gridicons';
 import debugFactory from 'debug';
 import { formatDistanceToNow } from 'date-fns';
+import { useSelector } from 'react-redux';
 import MuteIcon from './mute-icon';
 import {
+	AppReduxState,
 	Note,
 	OpenUrl,
 	MarkRead,
@@ -59,7 +61,10 @@ export default function Notification({
 }) {
 	const isUnread =
 		note.unread === true ? true : note.gitnewsMarkedUnread === true;
-	const isLowPriority = isNoteLowPriority(note);
+	const isLowPriorityEnabled = useSelector(
+		(state: AppReduxState) => state.isLowPriorityEnabled
+	);
+	const isLowPriority = isLowPriorityEnabled && isNoteLowPriority(note);
 
 	const onClick = () => {
 		debug('clicked on notification', note);

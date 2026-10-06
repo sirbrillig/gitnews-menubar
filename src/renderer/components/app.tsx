@@ -64,6 +64,7 @@ interface AppConnectedProps {
 	isLogging: boolean;
 	isTokenInvalid: boolean;
 	showUnreadOnly: boolean;
+	isLowPriorityEnabled: boolean;
 	hasAccounts: boolean;
 }
 
@@ -160,15 +161,19 @@ class App extends React.Component<AppProps, AppState> {
 		);
 		// Low priority notes go below all other unread notes.
 		return [
-			...unread.filter((note) => !isNoteLowPriority(note)),
-			...unread.filter((note) => isNoteLowPriority(note)),
+			...unread.filter((note) => !this.isLowPriority(note)),
+			...unread.filter((note) => this.isLowPriority(note)),
 		];
+	}
+
+	isLowPriority(note: Note) {
+		return this.props.isLowPriorityEnabled && isNoteLowPriority(note);
 	}
 
 	getUnseenNotifications() {
 		// Low priority notes should not trigger the "unseen" icon.
 		return this.getUnreadNotifications().filter(
-			(note) => !note.gitnewsSeen && !isNoteLowPriority(note)
+			(note) => !note.gitnewsSeen && !this.isLowPriority(note)
 		);
 	}
 
@@ -357,6 +362,7 @@ function mapStateToProps(state: AppReduxState): AppConnectedProps {
 		isLogging: state.isLogging,
 		isTokenInvalid: state.isTokenInvalid,
 		showUnreadOnly: state.showUnreadOnly,
+		isLowPriorityEnabled: state.isLowPriorityEnabled,
 		hasAccounts: state.accounts.length > 0 || Boolean(state.token),
 	};
 }

@@ -31,6 +31,7 @@ import {
 	ActionUnsubscribeNote,
 	ActionDismissUnsubscribedNotice,
 	MarkReadSource,
+	ActionSetLowPriorityEnabled,
 } from '../types';
 
 const defaultFetchInterval = secsToMs(120);
@@ -59,6 +60,7 @@ const initialState: AppReduxState = {
 	locallyUnreadNotes: [],
 	showUnreadOnly: false,
 	recentlyUnsubscribed: [],
+	isLowPriorityEnabled: true,
 };
 
 function setAllAccountsValid(accounts: AccountInfo[]): AccountInfo[] {
@@ -292,6 +294,8 @@ export function createReducer() {
 				return { ...state, filterType: action.filterType };
 			case 'SET_SHOW_UNREAD_ONLY':
 				return { ...state, showUnreadOnly: action.showUnreadOnly };
+			case 'SET_LOW_PRIORITY_ENABLED':
+				return { ...state, isLowPriorityEnabled: action.isEnabled };
 		}
 		return state;
 	};
@@ -425,6 +429,12 @@ export function markAppHidden() {
 
 export function markAppShown() {
 	return { type: 'NOTE_APP_VISIBLE', visible: true };
+}
+
+export function setLowPriorityEnabled(
+	isEnabled: boolean
+): ActionSetLowPriorityEnabled {
+	return { type: 'SET_LOW_PRIORITY_ENABLED', isEnabled };
 }
 
 export function toggleLogging(isLogging: boolean) {

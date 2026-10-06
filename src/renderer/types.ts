@@ -41,6 +41,7 @@ export interface AppReduxState {
 	locallyUnreadNotes: Note[];
 	showUnreadOnly: boolean;
 	recentlyUnsubscribed: RecentlyUnsubscribedNote[];
+	isLowPriorityEnabled: boolean;
 }
 
 export interface RecentlyUnsubscribedNote {
@@ -86,6 +87,10 @@ export type ActionToggleTokenInvalid = {
 export type ActionToggleLogging = {
 	type: 'TOGGLE_LOGGING';
 	isLogging: boolean;
+};
+export type ActionSetLowPriorityEnabled = {
+	type: 'SET_LOW_PRIORITY_ENABLED';
+	isEnabled: boolean;
 };
 export type ActionChangeToOffline = { type: 'OFFLINE' };
 export type ActionGotNotes = { type: 'NOTES_RETRIEVED'; notes: Note[] };
@@ -154,7 +159,8 @@ export type AppReduxAction =
 	| MarkAppShown
 	| ActionSetDemoMode
 	| ActionToggleTokenInvalid
-	| ActionToggleLogging;
+	| ActionToggleLogging
+	| ActionSetLowPriorityEnabled;
 
 export type OpenUrl = (
 	url: string,

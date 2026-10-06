@@ -22,6 +22,7 @@ const persistedKeys: Array<keyof AppReduxState> = [
 	'showUnreadOnly',
 	'isAutoLoadEnabled',
 	'isLogging',
+	'isLowPriorityEnabled',
 	'selectedAccount',
 	'lastSuccessfulCheck',
 ];
