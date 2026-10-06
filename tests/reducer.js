@@ -14,15 +14,15 @@ describe('reducer', function () {
 	});
 
 	describe('SET_LOW_PRIORITY_ENABLED', function () {
-		it('is enabled by default', function () {
+		it('is disabled by default', function () {
 			const result = reducer(undefined, { type: 'UNKNOWN' });
-			expect(result.isLowPriorityEnabled).toBe(true);
+			expect(result.isLowPriorityEnabled).toBe(false);
 		});
 
 		it('changes the setting', function () {
-			const action = { type: 'SET_LOW_PRIORITY_ENABLED', isEnabled: false };
-			const result = reducer({ isLowPriorityEnabled: true }, action);
-			expect(result.isLowPriorityEnabled).toBe(false);
+			const action = { type: 'SET_LOW_PRIORITY_ENABLED', isEnabled: true };
+			const result = reducer({ isLowPriorityEnabled: false }, action);
+			expect(result.isLowPriorityEnabled).toBe(true);
 		});
 	});
 

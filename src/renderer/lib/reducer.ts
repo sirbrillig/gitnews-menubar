@@ -60,7 +60,7 @@ const initialState: AppReduxState = {
 	locallyUnreadNotes: [],
 	showUnreadOnly: false,
 	recentlyUnsubscribed: [],
-	isLowPriorityEnabled: true,
+	isLowPriorityEnabled: false,
 };
 
 function setAllAccountsValid(accounts: AccountInfo[]): AccountInfo[] {
