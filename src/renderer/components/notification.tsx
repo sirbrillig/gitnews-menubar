@@ -16,7 +16,11 @@ import {
 	QueuedAction,
 } from '../types';
 import { ImageWithBackup } from './image-with-backup';
-import { getNoteId, isNoteLowPriority } from '../lib/helpers';
+import {
+	getNoteId,
+	getLowPriorityReason,
+	getLowPriorityOptions,
+} from '../lib/helpers';
 import {
 	runWithViewTransition,
 	useVisibleViewTransitionName,
@@ -64,7 +68,14 @@ export default function Notification({
 	const isLowPriorityEnabled = useSelector(
 		(state: AppReduxState) => state.isLowPriorityEnabled
 	);
-	const isLowPriority = isLowPriorityEnabled && isNoteLowPriority(note);
+	const lowPriorityTitlePatterns = useSelector(
+		(state: AppReduxState) => state.lowPriorityTitlePatterns
+	);
+	const lowPriorityReason = getLowPriorityReason(
+		note,
+		getLowPriorityOptions({ isLowPriorityEnabled, lowPriorityTitlePatterns })
+	);
+	const isLowPriority = Boolean(lowPriorityReason);
 
 	const onClick = () => {
 		debug('clicked on notification', note);
@@ -286,9 +297,15 @@ export default function Notification({
 							{isLowPriority && (
 								<span
 									className="notification__low-priority-label"
-									title="You dismissed this recently without opening it, so this update is probably minor"
+									title={
+										lowPriorityReason === 'title'
+											? 'The title matches a low priority pattern for this repo'
+											: 'You dismissed this recently without opening it, so this update is probably minor'
+									}
 								>
-									· minor update
+									{lowPriorityReason === 'title'
+										? '· low priority'
+										: '· minor update'}
 								</span>
 							)}
 						</span>

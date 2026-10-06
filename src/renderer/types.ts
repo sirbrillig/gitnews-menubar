@@ -4,6 +4,7 @@ import {
 	PANE_MUTED_REPOS,
 	PANE_ACCOUNTS,
 	PANE_ACCOUNT_EDIT,
+	PANE_LOW_PRIORITY_TITLES,
 } from './lib/constants';
 import type {
 	NoteReason,
@@ -16,6 +17,12 @@ import type {
 export type { NoteReason, Note, AccountInfo, BasicNote, FetchErrorObject };
 
 export type FilterType = NoteReason | 'all';
+
+/**
+ * Regular expressions, keyed by lowercase repository full name, which mark a
+ * note in that repository as low priority if they match its title.
+ */
+export type LowPriorityTitlePatterns = Record<string, string[]>;
 
 export interface AppReduxState {
 	token: undefined | string;
@@ -42,6 +49,7 @@ export interface AppReduxState {
 	showUnreadOnly: boolean;
 	recentlyUnsubscribed: RecentlyUnsubscribedNote[];
 	isLowPriorityEnabled: boolean;
+	lowPriorityTitlePatterns: LowPriorityTitlePatterns;
 }
 
 export interface RecentlyUnsubscribedNote {
@@ -91,6 +99,11 @@ export type ActionToggleLogging = {
 export type ActionSetLowPriorityEnabled = {
 	type: 'SET_LOW_PRIORITY_ENABLED';
 	isEnabled: boolean;
+};
+export type ActionSetLowPriorityTitlePatterns = {
+	type: 'SET_LOW_PRIORITY_TITLE_PATTERNS';
+	repo: string;
+	patterns: string[];
 };
 export type ActionChangeToOffline = { type: 'OFFLINE' };
 export type ActionGotNotes = { type: 'NOTES_RETRIEVED'; notes: Note[] };
@@ -160,7 +173,8 @@ export type AppReduxAction =
 	| ActionSetDemoMode
 	| ActionToggleTokenInvalid
 	| ActionToggleLogging
-	| ActionSetLowPriorityEnabled;
+	| ActionSetLowPriorityEnabled
+	| ActionSetLowPriorityTitlePatterns;
 
 export type OpenUrl = (
 	url: string,
@@ -192,7 +206,8 @@ export type AppPane =
 	| typeof PANE_ACCOUNT_EDIT
 	| typeof PANE_NOTIFICATIONS
 	| typeof PANE_CONFIG
-	| typeof PANE_MUTED_REPOS;
+	| typeof PANE_MUTED_REPOS
+	| typeof PANE_LOW_PRIORITY_TITLES;
 
 export interface MainBridge {
 	quitApp: () => void;

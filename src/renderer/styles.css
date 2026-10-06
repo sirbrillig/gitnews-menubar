@@ -1217,3 +1217,68 @@ main {
 main.config-pane {
 	height: 100vh;
 }
+
+.low-priority-titles__form {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	margin-bottom: 12px;
+	font-size: 0.9em;
+}
+
+.low-priority-titles__add-button {
+	align-self: flex-start;
+	margin-top: 6px;
+}
+
+.low-priority-titles__add-button:disabled {
+	opacity: 0.5;
+	cursor: default;
+}
+
+.low-priority-titles__error {
+	margin: 0;
+	font-size: 0.85em;
+	color: #c0392b;
+}
+
+.muted-repos-list__repos li.low-priority-titles__repo {
+	flex-direction: column;
+	align-items: stretch;
+}
+
+.low-priority-titles__patterns {
+	margin: 6px 0 0 0;
+	padding: 0;
+	border: 1px solid var(--notification-border-color);
+	border-radius: 6px;
+	overflow: hidden;
+}
+
+.low-priority-titles__patterns li {
+	list-style-type: none;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 8px;
+	border-bottom: 1px solid var(--notification-border-color);
+}
+
+.low-priority-titles__patterns li:last-child {
+	border-bottom: none;
+}
+
+.low-priority-titles__patterns li:hover {
+	background-color: var(--button-background-color);
+}
+
+.low-priority-titles__pattern {
+	font-size: 0.85em;
+	word-break: break-all;
+}
+
+.low-priority-titles__pattern--invalid {
+	color: #c0392b;
+	text-decoration: line-through;
+}

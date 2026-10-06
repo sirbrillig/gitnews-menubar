@@ -3,9 +3,11 @@ import ConfigPage from '../components/config-page';
 import UncheckedNotice from '../components/unchecked-notice';
 import NotificationsArea from '../components/notifications-area';
 import MutedReposList from '../components/muted-repos-list';
+import LowPriorityTitlesList from '../components/low-priority-titles-list';
 import {
 	PANE_CONFIG,
 	PANE_MUTED_REPOS,
+	PANE_LOW_PRIORITY_TITLES,
 	PANE_ACCOUNTS,
 	PANE_ACCOUNT_EDIT,
 	defaultAccountInfo,
@@ -38,6 +40,7 @@ export default function MainPane({
 	showAccounts,
 	showAccountEdit,
 	showMutedReposList,
+	showLowPriorityTitles,
 	lastSuccessfulCheck,
 	getVersion,
 	newNotes,
@@ -66,6 +69,7 @@ export default function MainPane({
 	showAccounts: () => void;
 	showAccountEdit: () => void;
 	showMutedReposList: () => void;
+	showLowPriorityTitles: () => void;
 	lastSuccessfulCheck: AppReduxState['lastSuccessfulCheck'];
 	getVersion: () => Promise<string>;
 	newNotes: Note[];
@@ -117,6 +121,9 @@ export default function MainPane({
 	if (currentPane === PANE_MUTED_REPOS) {
 		return <MutedReposList mutedRepos={mutedRepos} unmuteRepo={unmuteRepo} />;
 	}
+	if (currentPane === PANE_LOW_PRIORITY_TITLES) {
+		return <LowPriorityTitlesList />;
+	}
 	if (currentPane === PANE_ACCOUNT_EDIT && selectedAccount) {
 		return (
 			<AccountEdit account={selectedAccount} showAccounts={showAccounts} />
@@ -133,6 +140,7 @@ export default function MainPane({
 				openUrl={openUrl}
 				showAccounts={showAccounts}
 				showMutedReposList={showMutedReposList}
+				showLowPriorityTitles={showLowPriorityTitles}
 				getVersion={getVersion}
 				quitApp={quitApp}
 				isAutoLoadEnabled={isAutoLoadEnabled}

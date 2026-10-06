@@ -8,6 +8,7 @@ import { AppReduxState, ChangeAutoload, OpenUrl } from '../types';
 export default function ConfigPage({
 	showAccounts,
 	showMutedReposList,
+	showLowPriorityTitles,
 	openUrl,
 	getVersion,
 	quitApp,
@@ -18,6 +19,7 @@ export default function ConfigPage({
 }: {
 	showAccounts: () => void;
 	showMutedReposList: () => void;
+	showLowPriorityTitles: () => void;
 	openUrl: OpenUrl;
 	getVersion: () => Promise<string>;
 	quitApp: () => void;
@@ -53,6 +55,14 @@ export default function ConfigPage({
 							onClick={showMutedReposList}
 						>
 							Muted repos
+						</button>
+					</li>
+					<li className="config-row config-row--nav">
+						<button
+							className="edit-low-priority-titles-button"
+							onClick={showLowPriorityTitles}
+						>
+							Low priority titles
 						</button>
 					</li>
 					<li className="config-row config-row--toggle">

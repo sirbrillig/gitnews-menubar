@@ -4,6 +4,8 @@ import {
 	NoteReason,
 	UnknownFetchError,
 	AppReduxAction,
+	LowPriorityTitlePatterns,
+	AppReduxState,
 } from '../types';
 import { AppDispatch } from './store';
 
@@ -103,42 +105,136 @@ export function mergeNotifications(
  */
 export const LOW_PRIORITY_WINDOW_MS = 48 * 60 * 60 * 1000; // 48 hours
 
+export type LowPriorityReason = 'dismissed' | 'title';
+
+export interface LowPriorityOptions {
+	/**
+	 * True if activity shortly after dismissing a note should be low priority.
+	 */
+	isDismissalEnabled?: boolean;
+	titlePatterns?: LowPriorityTitlePatterns;
+}
+
+export function getLowPriorityOptions(
+	state: Pick<
+		AppReduxState,
+		'isLowPriorityEnabled' | 'lowPriorityTitlePatterns'
+	>
+): LowPriorityOptions {
+	return {
+		isDismissalEnabled: state.isLowPriorityEnabled,
+		titlePatterns: state.lowPriorityTitlePatterns ?? {},
+	};
+}
+
 /**
- * Return true if the note is unread again only because of activity shortly
- * after the user dismissed it (marked it read without opening it).
+ * Return true if the note should be shown with lower priority.
  *
- * That activity is probably minor (a pushed commit, a rebase, an automated
- * review) so we show it with lower priority. A new mention overrides this.
+ * See `getLowPriorityReason()`.
  */
-export function isNoteLowPriority(note: Note): boolean {
-	if (!note.unread || note.gitnewsMarkedUnread || !note.gitnewsDismissedAt) {
-		return false;
+export function isNoteLowPriority(
+	note: Note,
+	options: LowPriorityOptions = { isDismissalEnabled: true }
+): boolean {
+	return Boolean(getLowPriorityReason(note, options));
+}
+
+/**
+ * Return why the unread note should be shown with lower priority, or
+ * undefined if it should not be.
+ *
+ * A note is low priority if its title matches one of its repository's title
+ * patterns, or if it is unread again only because of activity shortly after
+ * the user dismissed it (marked it read without opening it). That activity is
+ * probably minor (a pushed commit, a rebase, an automated review). A new
+ * mention overrides both.
+ */
+export function getLowPriorityReason(
+	note: Note,
+	{ isDismissalEnabled = false, titlePatterns = {} }: LowPriorityOptions
+): LowPriorityReason | undefined {
+	if (!note.unread || note.gitnewsMarkedUnread) {
+		return undefined;
+	}
+	if (hasNewMention(note)) {
+		return undefined;
 	}
 	if (
-		!isUpdateWithinLowPriorityWindow(note.gitnewsDismissedAt, note.updatedAt)
+		doesTitleMatchPatterns(note.repositoryFullName, note.title, titlePatterns)
 	) {
-		return false;
+		return 'title';
 	}
 	if (
-		hasReasonBecomeMention(
-			note.api?.notification?.reason,
-			note.gitnewsDismissedReason
-		)
+		isDismissalEnabled &&
+		note.gitnewsDismissedAt &&
+		isUpdateWithinLowPriorityWindow(note.gitnewsDismissedAt, note.updatedAt)
 	) {
-		return false;
+		return 'dismissed';
+	}
+	return undefined;
+}
+
+/**
+ * Return true if the note mentions the user since it was dismissed or, if it
+ * was never dismissed, if it mentions the user at all.
+ */
+function hasNewMention(note: Note): boolean {
+	const reason = note.api?.notification?.reason;
+	if (!note.gitnewsDismissedAt) {
+		return isMentionReason(reason) || note.latestCommentMentionsYou === true;
+	}
+	if (hasReasonBecomeMention(reason, note.gitnewsDismissedReason)) {
+		return true;
 	}
 	// A thread's reason stays "mention" forever once you are mentioned, so also
 	// look for new comments that mention you.
 	if (note.mentionFoundSince === note.gitnewsDismissedAt) {
-		return false;
+		return true;
 	}
 	if (
 		note.latestCommentMentionsYou &&
 		note.commentUrl !== note.gitnewsDismissedCommentUrl
 	) {
+		return true;
+	}
+	return false;
+}
+
+function isMentionReason(reason: NoteReason | undefined): boolean {
+	return reason === 'mention' || reason === 'team_mention';
+}
+
+const compiledPatterns = new Map<string, RegExp | null>();
+
+/**
+ * Compile a title pattern into a case-insensitive regular expression, or
+ * return null if it is not valid.
+ */
+export function compileTitlePattern(pattern: string): RegExp | null {
+	if (!compiledPatterns.has(pattern)) {
+		let regexp: RegExp | null = null;
+		try {
+			regexp = new RegExp(pattern, 'i');
+		} catch {
+			regexp = null;
+		}
+		compiledPatterns.set(pattern, regexp);
+	}
+	return compiledPatterns.get(pattern) ?? null;
+}
+
+export function doesTitleMatchPatterns(
+	repositoryFullName: string | undefined,
+	title: string | undefined,
+	titlePatterns: LowPriorityTitlePatterns
+): boolean {
+	if (!repositoryFullName || !title) {
 		return false;
 	}
-	return true;
+	const patterns = titlePatterns[repositoryFullName.toLowerCase()] ?? [];
+	return patterns.some((pattern) =>
+		Boolean(compileTitlePattern(pattern)?.test(title))
+	);
 }
 
 function isUpdateWithinLowPriorityWindow(
@@ -172,13 +268,11 @@ function hasReasonBecomeMention(
  */
 export function getMentionsSinceForNote(
 	existingNote: Note | undefined,
-	basicNote: BasicNote
+	basicNote: BasicNote,
+	{ isDismissalEnabled = false, titlePatterns = {} }: LowPriorityOptions = {}
 ): number | undefined {
 	const dismissedAt = existingNote?.gitnewsDismissedAt;
 	if (!dismissedAt || !basicNote.unread || existingNote.gitnewsMarkedUnread) {
-		return undefined;
-	}
-	if (!isUpdateWithinLowPriorityWindow(dismissedAt, basicNote.updatedAt)) {
 		return undefined;
 	}
 	if (
@@ -189,7 +283,22 @@ export function getMentionsSinceForNote(
 	) {
 		return undefined;
 	}
-	return dismissedAt;
+	if (
+		doesTitleMatchPatterns(
+			basicNote.repositoryFullName,
+			basicNote.title,
+			titlePatterns
+		)
+	) {
+		return dismissedAt;
+	}
+	if (
+		isDismissalEnabled &&
+		isUpdateWithinLowPriorityWindow(dismissedAt, basicNote.updatedAt)
+	) {
+		return dismissedAt;
+	}
+	return undefined;
 }
 
 export function msToSecs(ms: number): number {

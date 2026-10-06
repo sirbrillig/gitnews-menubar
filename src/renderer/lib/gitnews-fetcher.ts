@@ -12,6 +12,7 @@ import {
 	isServerReturningHtml,
 	isTokenInvalid,
 	getMentionsSinceForNote,
+	getLowPriorityOptions,
 } from '../lib/helpers';
 import { runWithViewTransition } from '../lib/view-transitions';
 import {
@@ -262,9 +263,11 @@ export function createFetcher(): Middleware<unknown, AppReduxState> {
 					} else {
 						// Notes that may be shown as low priority need a deeper search
 						// for new mentions while being enriched.
-						const mentionsSince = state.isLowPriorityEnabled
-							? getMentionsSinceForNote(existing, basicNote)
-							: undefined;
+						const mentionsSince = getMentionsSinceForNote(
+							existing,
+							basicNote,
+							getLowPriorityOptions(state)
+						);
 						needsHydration.push(
 							mentionsSince ? { ...basicNote, mentionsSince } : basicNote
 						);
