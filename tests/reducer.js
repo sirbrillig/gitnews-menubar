@@ -26,6 +26,19 @@ describe('reducer', function () {
 		});
 	});
 
+	describe('SET_GROUP_BY_REPO_ENABLED', function () {
+		it('is disabled by default', function () {
+			const result = reducer(undefined, { type: 'UNKNOWN' });
+			expect(result.isGroupByRepoEnabled).toBe(false);
+		});
+
+		it('changes the setting', function () {
+			const action = { type: 'SET_GROUP_BY_REPO_ENABLED', isEnabled: true };
+			const result = reducer({ isGroupByRepoEnabled: false }, action);
+			expect(result.isGroupByRepoEnabled).toBe(true);
+		});
+	});
+
 	describe('SET_LOW_PRIORITY_TITLE_PATTERNS', function () {
 		it('has no patterns by default', function () {
 			const result = reducer(undefined, { type: 'UNKNOWN' });
@@ -51,7 +64,12 @@ describe('reducer', function () {
 				patterns: ['b'],
 			};
 			const result = reducer(
-				{ lowPriorityTitlePatterns: { 'owner/repo': ['a'], 'other/repo': ['c'] } },
+				{
+					lowPriorityTitlePatterns: {
+						'owner/repo': ['a'],
+						'other/repo': ['c'],
+					},
+				},
 				action
 			);
 			expect(result.lowPriorityTitlePatterns).toEqual({

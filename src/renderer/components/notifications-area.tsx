@@ -8,6 +8,7 @@ import {
 	getNoteId,
 	getLowPriorityOptions,
 	isNoteLowPriority,
+	groupNotesByRepo,
 } from '../lib/helpers';
 import { runWithViewTransition } from '../lib/view-transitions';
 import { useGetGitnewsUpdate } from '../lib/updates';
@@ -185,20 +186,24 @@ export default function NotificationsArea({
 		lowPriorityTitlePatterns,
 	});
 
-	const orderedNotes = [...newNotes, ...readNotes]
-		.filter((note) => doesNoteMatchSearch(note, searchValue))
-		.filter((note) => doesNoteMatchFilter(note, filterType));
-	const lowPriorityNotes = orderedNotes.filter((note) =>
-		isNoteLowPriority(note, lowPriorityOptions)
+	const isGroupByRepoEnabled = useSelector(
+		(state: AppReduxState) => state.isGroupByRepoEnabled
 	);
-	const markLowPriorityNotesRead = () => {
+
+	const isNoteVisible = (note: Note) =>
+		doesNoteMatchSearch(note, searchValue) &&
+		doesNoteMatchFilter(note, filterType);
+	const visibleUnreadNotes = newNotes.filter(isNoteVisible);
+	const visibleReadNotes = readNotes.filter(isNoteVisible);
+	const markNotesRead = (notes: Note[]) => {
 		runWithViewTransition(() =>
-			lowPriorityNotes.forEach((note) => markRead(token, note, 'dismiss'))
+			notes.forEach((note) => markRead(token, note, 'dismiss'))
 		);
 	};
-	const noteRows = orderedNotes.map((note) => {
+
+	const renderNote = (note: Note) => {
 		const queuedAction = queuedNotes.get(getNoteId(note))?.action;
-		const notification = (
+		return (
 			<Notification
 				note={note}
 				key={getNoteId(note)}
@@ -219,21 +224,46 @@ export default function NotificationsArea({
 				queuedAction={queuedAction}
 			/>
 		);
-		// Low priority notes are sorted together below the other unread notes, so
-		// put a divider above the first one.
-		if (note === lowPriorityNotes[0]) {
-			return (
-				<React.Fragment key={getNoteId(note)}>
-					<LowPriorityDivider
-						count={lowPriorityNotes.length}
-						markAllRead={markLowPriorityNotesRead}
-					/>
-					{notification}
-				</React.Fragment>
+	};
+
+	const noteRows: React.ReactNode[] = [];
+	if (isGroupByRepoEnabled) {
+		groupNotesByRepo(visibleUnreadNotes).forEach((group) => {
+			noteRows.push(
+				<NotesDivider
+					key={`repo-divider-${group.repositoryFullName}`}
+					label={group.repositoryFullName}
+					count={group.notes.length}
+					markAllRead={() => markNotesRead(group.notes)}
+				/>,
+				...group.notes.map(renderNote)
 			);
+		});
+		if (visibleUnreadNotes.length > 0 && visibleReadNotes.length > 0) {
+			noteRows.push(<NotesDivider key="read-divider" label="Read" isCaps />);
 		}
-		return notification;
-	});
+		noteRows.push(...visibleReadNotes.map(renderNote));
+	} else {
+		// Low priority notes are sorted together below the other unread notes,
+		// so put a divider above the first one.
+		const lowPriorityNotes = visibleUnreadNotes.filter((note) =>
+			isNoteLowPriority(note, lowPriorityOptions)
+		);
+		[...visibleUnreadNotes, ...visibleReadNotes].forEach((note) => {
+			if (note === lowPriorityNotes[0]) {
+				noteRows.push(
+					<NotesDivider
+						key="low-priority-divider"
+						label="Low priority"
+						isCaps
+						count={lowPriorityNotes.length}
+						markAllRead={() => markNotesRead(lowPriorityNotes)}
+					/>
+				);
+			}
+			noteRows.push(renderNote(note));
+		});
+	}
 
 	return (
 		<div className="notifications-area">
@@ -268,46 +298,58 @@ function isNoteInNotes(note: Note, notes: Note[]) {
 	return notes.some((item) => getNoteId(item) === getNoteId(note));
 }
 
-function LowPriorityDivider({
+function NotesDivider({
+	label,
 	count,
+	isCaps,
 	markAllRead,
 }: {
-	count: number;
-	markAllRead: () => void;
+	label: string;
+	count?: number;
+	isCaps?: boolean;
+	markAllRead?: () => void;
 }) {
 	const [isConfirming, setIsConfirming] = React.useState(false);
 	return (
-		<div className="low-priority-divider">
-			<span className="low-priority-divider__label">
-				Low priority ({count})
+		<div className="notes-divider">
+			<span
+				className={
+					isCaps
+						? 'notes-divider__label notes-divider__label--caps'
+						: 'notes-divider__label'
+				}
+			>
+				{label}
+				{count !== undefined && ` (${count})`}
 			</span>
-			{isConfirming ? (
-				<span className="low-priority-divider__actions">
-					<span>Mark {count} read?</span>
+			{markAllRead &&
+				(isConfirming ? (
+					<span className="notes-divider__actions">
+						<span>Mark {count} read?</span>
+						<button
+							className="notes-divider__button"
+							onClick={() => {
+								setIsConfirming(false);
+								markAllRead();
+							}}
+						>
+							Yes
+						</button>
+						<button
+							className="notes-divider__button"
+							onClick={() => setIsConfirming(false)}
+						>
+							Cancel
+						</button>
+					</span>
+				) : (
 					<button
-						className="low-priority-divider__button"
-						onClick={() => {
-							setIsConfirming(false);
-							markAllRead();
-						}}
+						className="notes-divider__button"
+						onClick={() => setIsConfirming(true)}
 					>
-						Yes
+						Mark all read
 					</button>
-					<button
-						className="low-priority-divider__button"
-						onClick={() => setIsConfirming(false)}
-					>
-						Cancel
-					</button>
-				</span>
-			) : (
-				<button
-					className="low-priority-divider__button"
-					onClick={() => setIsConfirming(true)}
-				>
-					Mark all read
-				</button>
-			)}
+				))}
 		</div>
 	);
 }

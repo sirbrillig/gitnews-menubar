@@ -6,6 +6,7 @@ const {
 	getLowPriorityReason,
 	getMentionsSinceForNote,
 	mergeNotifications,
+	groupNotesByRepo,
 	LOW_PRIORITY_WINDOW_MS,
 } = require('../src/renderer/lib/helpers');
 
@@ -221,13 +222,15 @@ describe('getMentionsSinceForNote()', function () {
 	});
 
 	it('returns the dismissal time for a note that may be low priority', function () {
-		expect(getMentionsSinceForNote(existingNote, makeBasicNote(), enabled)).toBe(
-			dismissedAt
-		);
+		expect(
+			getMentionsSinceForNote(existingNote, makeBasicNote(), enabled)
+		).toBe(dismissedAt);
 	});
 
 	it('returns undefined if there is no existing note', function () {
-		expect(getMentionsSinceForNote(undefined, makeBasicNote(), enabled)).toBeUndefined();
+		expect(
+			getMentionsSinceForNote(undefined, makeBasicNote(), enabled)
+		).toBeUndefined();
 	});
 
 	it('returns undefined if the note was not dismissed', function () {
@@ -242,7 +245,11 @@ describe('getMentionsSinceForNote()', function () {
 
 	it('returns undefined if the note is read', function () {
 		expect(
-			getMentionsSinceForNote(existingNote, makeBasicNote({ unread: false }), enabled)
+			getMentionsSinceForNote(
+				existingNote,
+				makeBasicNote({ unread: false }),
+				enabled
+			)
 		).toBeUndefined();
 	});
 
@@ -251,7 +258,11 @@ describe('getMentionsSinceForNote()', function () {
 			dismissedAt + LOW_PRIORITY_WINDOW_MS + 60_000
 		).toISOString();
 		expect(
-			getMentionsSinceForNote(existingNote, makeBasicNote({ updatedAt }), enabled)
+			getMentionsSinceForNote(
+				existingNote,
+				makeBasicNote({ updatedAt }),
+				enabled
+			)
 		).toBeUndefined();
 	});
 
@@ -398,5 +409,38 @@ describe('getLowPriorityReason()', function () {
 		expect(getLowPriorityReason(note, { isDismissalEnabled: false })).toBe(
 			undefined
 		);
+	});
+});
+
+describe('groupNotesByRepo()', function () {
+	const makeNote = (id, repositoryFullName) => ({ id, repositoryFullName });
+
+	it('returns no groups for no notes', function () {
+		expect(groupNotesByRepo([])).toEqual([]);
+	});
+
+	it('orders groups by their first note and keeps note order', function () {
+		const notes = [
+			makeNote('1', 'a/one'),
+			makeNote('2', 'b/two'),
+			makeNote('3', 'a/one'),
+			makeNote('4', 'b/two'),
+		];
+		const groups = groupNotesByRepo(notes);
+		expect(groups.map((group) => group.repositoryFullName)).toEqual([
+			'a/one',
+			'b/two',
+		]);
+		expect(groups[0].notes.map((note) => note.id)).toEqual(['1', '3']);
+		expect(groups[1].notes.map((note) => note.id)).toEqual(['2', '4']);
+	});
+
+	it('groups repos regardless of case', function () {
+		const groups = groupNotesByRepo([
+			makeNote('1', 'Owner/Repo'),
+			makeNote('2', 'owner/repo'),
+		]);
+		expect(groups).toHaveLength(1);
+		expect(groups[0].repositoryFullName).toBe('Owner/Repo');
 	});
 });

@@ -6,6 +6,8 @@ export const PANE_ACCOUNT_EDIT = 'account-edit-pane';
 export const PANE_CONFIG = 'config-pane';
 export const PANE_MUTED_REPOS = 'muted-repos-pane';
 export const PANE_LOW_PRIORITY_TITLES = 'low-priority-titles-pane';
+export const PANE_LIST_SETTINGS = 'list-settings-pane';
+export const PANE_ABOUT = 'about-pane';
 
 export const defaultAccountInfo: AccountInfo = {
 	id: 'main-github-api',

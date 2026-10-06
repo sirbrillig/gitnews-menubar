@@ -32,6 +32,7 @@ import {
 	ActionDismissUnsubscribedNotice,
 	MarkReadSource,
 	ActionSetLowPriorityEnabled,
+	ActionSetGroupByRepoEnabled,
 	ActionSetLowPriorityTitlePatterns,
 } from '../types';
 
@@ -63,6 +64,7 @@ const initialState: AppReduxState = {
 	recentlyUnsubscribed: [],
 	isLowPriorityEnabled: false,
 	lowPriorityTitlePatterns: {},
+	isGroupByRepoEnabled: false,
 };
 
 function setAllAccountsValid(accounts: AccountInfo[]): AccountInfo[] {
@@ -301,6 +303,8 @@ export function createReducer() {
 				return { ...state, showUnreadOnly: action.showUnreadOnly };
 			case 'SET_LOW_PRIORITY_ENABLED':
 				return { ...state, isLowPriorityEnabled: action.isEnabled };
+			case 'SET_GROUP_BY_REPO_ENABLED':
+				return { ...state, isGroupByRepoEnabled: action.isEnabled };
 			case 'SET_LOW_PRIORITY_TITLE_PATTERNS': {
 				const repo = action.repo.trim().toLowerCase();
 				const patterns = action.patterns.filter(
@@ -455,6 +459,12 @@ export function setLowPriorityEnabled(
 	isEnabled: boolean
 ): ActionSetLowPriorityEnabled {
 	return { type: 'SET_LOW_PRIORITY_ENABLED', isEnabled };
+}
+
+export function setGroupByRepoEnabled(
+	isEnabled: boolean
+): ActionSetGroupByRepoEnabled {
+	return { type: 'SET_GROUP_BY_REPO_ENABLED', isEnabled };
 }
 
 /**

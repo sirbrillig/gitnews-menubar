@@ -24,6 +24,7 @@ const persistedKeys: Array<keyof AppReduxState> = [
 	'isLogging',
 	'isLowPriorityEnabled',
 	'lowPriorityTitlePatterns',
+	'isGroupByRepoEnabled',
 	'selectedAccount',
 	'lastSuccessfulCheck',
 ];

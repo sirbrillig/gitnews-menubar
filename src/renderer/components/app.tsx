@@ -11,6 +11,8 @@ import {
 	PANE_ACCOUNTS,
 	PANE_ACCOUNT_EDIT,
 	PANE_LOW_PRIORITY_TITLES,
+	PANE_LIST_SETTINGS,
+	PANE_ABOUT,
 } from '../lib/constants';
 import Poller from '../lib/poller';
 import {
@@ -254,7 +256,6 @@ class App extends React.Component<AppProps, AppState> {
 		this.props.setIcon(nextIcon);
 
 		const { currentPane } = this.state;
-		const hideConfig = () => this.setState({ currentPane: PANE_NOTIFICATIONS });
 		const showConfig = () => this.setState({ currentPane: PANE_CONFIG });
 		const showAccounts = () => this.setState({ currentPane: PANE_ACCOUNTS });
 		const showAccountEdit = () =>
@@ -263,35 +264,25 @@ class App extends React.Component<AppProps, AppState> {
 			this.setState({ currentPane: PANE_MUTED_REPOS });
 		const showLowPriorityTitles = () =>
 			this.setState({ currentPane: PANE_LOW_PRIORITY_TITLES });
+		const showListSettings = () =>
+			this.setState({ currentPane: PANE_LIST_SETTINGS });
+		const showAbout = () => this.setState({ currentPane: PANE_ABOUT });
 		const setSearchTo = (value: string) =>
 			this.setState({ searchValue: value });
 
-		const backButtonPanes = [
-			PANE_CONFIG,
-			PANE_MUTED_REPOS,
-			PANE_LOW_PRIORITY_TITLES,
-			PANE_ACCOUNTS,
-		];
-		const confugSubPanes = [
-			PANE_MUTED_REPOS,
-			PANE_LOW_PRIORITY_TITLES,
-			PANE_ACCOUNTS,
-		];
-		const showBackButton = (() => {
-			if (!hasAccounts) {
-				return false;
-			}
-			if (backButtonPanes.includes(currentPane)) {
-				return true;
-			}
-			return false;
-		})();
+		// The pane that the back button returns to from each pane.
+		const parentPanes: Partial<Record<AppPane, AppPane>> = {
+			[PANE_CONFIG]: PANE_NOTIFICATIONS,
+			[PANE_ACCOUNTS]: PANE_CONFIG,
+			[PANE_LIST_SETTINGS]: PANE_CONFIG,
+			[PANE_ABOUT]: PANE_CONFIG,
+			[PANE_MUTED_REPOS]: PANE_LIST_SETTINGS,
+			[PANE_LOW_PRIORITY_TITLES]: PANE_LIST_SETTINGS,
+		};
+		const parentPane = parentPanes[currentPane];
+		const showBackButton = hasAccounts && Boolean(parentPane);
 		const onBack = () => {
-			if (confugSubPanes.includes(currentPane)) {
-				showConfig();
-				return;
-			}
-			hideConfig();
+			this.setState({ currentPane: parentPane ?? PANE_NOTIFICATIONS });
 		};
 
 		const headerOnClickConfig = (() => {
@@ -350,6 +341,8 @@ class App extends React.Component<AppProps, AppState> {
 					mutedRepos={this.props.mutedRepos}
 					showMutedReposList={showMutedReposList}
 					showLowPriorityTitles={showLowPriorityTitles}
+					showListSettings={showListSettings}
+					showAbout={showAbout}
 					searchValue={this.state.searchValue}
 					filterType={this.props.filterType}
 					appVisible={this.props.appVisible}

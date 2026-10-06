@@ -1,16 +1,10 @@
 import React from 'react';
-import Copyright from '../components/copyright';
-import Attributions from '../components/attributions';
-import { useDispatch, useSelector } from 'react-redux';
-import { setLowPriorityEnabled } from '../lib/reducer';
-import { AppReduxState, ChangeAutoload, OpenUrl } from '../types';
+import { ChangeAutoload } from '../types';
 
 export default function ConfigPage({
 	showAccounts,
-	showMutedReposList,
-	showLowPriorityTitles,
-	openUrl,
-	getVersion,
+	showListSettings,
+	showAbout,
 	quitApp,
 	isAutoLoadEnabled,
 	changeAutoLoad,
@@ -18,10 +12,8 @@ export default function ConfigPage({
 	toggleLogging,
 }: {
 	showAccounts: () => void;
-	showMutedReposList: () => void;
-	showLowPriorityTitles: () => void;
-	openUrl: OpenUrl;
-	getVersion: () => Promise<string>;
+	showListSettings: () => void;
+	showAbout: () => void;
 	quitApp: () => void;
 	isAutoLoadEnabled: boolean;
 	changeAutoLoad: ChangeAutoload;
@@ -32,12 +24,6 @@ export default function ConfigPage({
 		changeAutoLoad(event.target.checked);
 	const toggleIsLogging = (event: { target: { checked: boolean } }) =>
 		toggleLogging(event.target.checked);
-	const dispatch = useDispatch();
-	const isLowPriorityEnabled = useSelector(
-		(state: AppReduxState) => state.isLowPriorityEnabled
-	);
-	const toggleLowPriority = (event: { target: { checked: boolean } }) =>
-		dispatch(setLowPriorityEnabled(event.target.checked));
 
 	return (
 		<div className="config-page">
@@ -50,19 +36,8 @@ export default function ConfigPage({
 						</button>
 					</li>
 					<li className="config-row config-row--nav">
-						<button
-							className="edit-muted-repos-button"
-							onClick={showMutedReposList}
-						>
-							Muted repos
-						</button>
-					</li>
-					<li className="config-row config-row--nav">
-						<button
-							className="edit-low-priority-titles-button"
-							onClick={showLowPriorityTitles}
-						>
-							Low priority titles
+						<button className="list-settings-button" onClick={showListSettings}>
+							Notification list
 						</button>
 					</li>
 					<li className="config-row config-row--toggle">
@@ -72,24 +47,6 @@ export default function ConfigPage({
 							id="auto-load-setting"
 							checked={isAutoLoadEnabled}
 							onChange={toggleAutoLoad}
-						/>
-					</li>
-					<li className="config-row config-row--toggle">
-						<div>
-							<label htmlFor="low-priority-setting">
-								De-prioritize minor updates
-							</label>
-							<p className="config-row__hint">
-								New activity within 48 hours of marking a note read without
-								opening it is shown lower in the list, unless it is a new
-								mention
-							</p>
-						</div>
-						<input
-							type="checkbox"
-							id="low-priority-setting"
-							checked={isLowPriorityEnabled}
-							onChange={toggleLowPriority}
 						/>
 					</li>
 					<li className="config-row config-row--toggle">
@@ -106,15 +63,18 @@ export default function ConfigPage({
 							onChange={toggleIsLogging}
 						/>
 					</li>
+					<li className="config-row config-row--nav">
+						<button className="about-button" onClick={showAbout}>
+							About
+						</button>
+					</li>
 				</ul>
 			</div>
-			<Attributions openUrl={openUrl} />
 			<div className="config-page__buttons">
 				<button className="btn--cancel quit-button" onClick={quitApp}>
 					Quit
 				</button>
 			</div>
-			<Copyright openUrl={openUrl} getVersion={getVersion} />
 		</div>
 	);
 }
