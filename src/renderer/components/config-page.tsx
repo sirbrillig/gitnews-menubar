@@ -1,7 +1,9 @@
 import React from 'react';
 import Copyright from '../components/copyright';
 import Attributions from '../components/attributions';
-import { ChangeAutoload, OpenUrl } from '../types';
+import { useDispatch, useSelector } from 'react-redux';
+import { setLowPriorityEnabled } from '../lib/reducer';
+import { AppReduxState, ChangeAutoload, OpenUrl } from '../types';
 
 export default function ConfigPage({
 	showAccounts,
@@ -28,6 +30,12 @@ export default function ConfigPage({
 		changeAutoLoad(event.target.checked);
 	const toggleIsLogging = (event: { target: { checked: boolean } }) =>
 		toggleLogging(event.target.checked);
+	const dispatch = useDispatch();
+	const isLowPriorityEnabled = useSelector(
+		(state: AppReduxState) => state.isLowPriorityEnabled
+	);
+	const toggleLowPriority = (event: { target: { checked: boolean } }) =>
+		dispatch(setLowPriorityEnabled(event.target.checked));
 
 	return (
 		<div className="config-page">
@@ -54,6 +62,24 @@ export default function ConfigPage({
 							id="auto-load-setting"
 							checked={isAutoLoadEnabled}
 							onChange={toggleAutoLoad}
+						/>
+					</li>
+					<li className="config-row config-row--toggle">
+						<div>
+							<label htmlFor="low-priority-setting">
+								De-prioritize minor updates
+							</label>
+							<p className="config-row__hint">
+								New activity within 48 hours of marking a note read without
+								opening it is shown lower in the list, unless it is a new
+								mention
+							</p>
+						</div>
+						<input
+							type="checkbox"
+							id="low-priority-setting"
+							checked={isLowPriorityEnabled}
+							onChange={toggleLowPriority}
 						/>
 					</li>
 					<li className="config-row config-row--toggle">

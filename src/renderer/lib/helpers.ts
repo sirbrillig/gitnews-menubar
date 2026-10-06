@@ -1,4 +1,10 @@
-import { Note, UnknownFetchError, AppReduxAction } from '../types';
+import {
+	BasicNote,
+	Note,
+	NoteReason,
+	UnknownFetchError,
+	AppReduxAction,
+} from '../types';
 import { AppDispatch } from './store';
 
 const maxFetchInterval = secsToMs(300); // 5 minutes
@@ -64,6 +70,9 @@ export function mergeNotifications(
 				gitnewsSeen: previousNote.gitnewsSeen,
 				gitnewsMarkedUnread: previousNote.gitnewsMarkedUnread,
 				gitnewsOpenedAt: previousNote.gitnewsOpenedAt,
+				gitnewsDismissedAt: previousNote.gitnewsDismissedAt,
+				gitnewsDismissedReason: previousNote.gitnewsDismissedReason,
+				gitnewsDismissedCommentUrl: previousNote.gitnewsDismissedCommentUrl,
 				// Preserve local "mark as read" action if the note hasn't been updated.
 				// This prevents a race condition where marking a note as read locally
 				// gets overwritten by a fetch that completes before the API call to
@@ -72,12 +81,115 @@ export function mergeNotifications(
 			};
 		}
 		// Always preserve gitnewsOpenedAt even when the note has new GitHub activity,
-		// since it tracks when the user last opened the note in Gitnews.
-		if (previousNote?.gitnewsOpenedAt) {
-			return { ...note, gitnewsOpenedAt: previousNote.gitnewsOpenedAt };
+		// since it tracks when the user last opened the note in Gitnews. The same
+		// goes for the dismissal data, which is used to decide if the new activity
+		// is low priority.
+		if (previousNote) {
+			return {
+				...note,
+				gitnewsOpenedAt: previousNote.gitnewsOpenedAt,
+				gitnewsDismissedAt: previousNote.gitnewsDismissedAt,
+				gitnewsDismissedReason: previousNote.gitnewsDismissedReason,
+				gitnewsDismissedCommentUrl: previousNote.gitnewsDismissedCommentUrl,
+			};
 		}
 		return note;
 	});
+}
+
+/**
+ * How long after a note is dismissed that new activity on it is considered
+ * low priority.
+ */
+export const LOW_PRIORITY_WINDOW_MS = 48 * 60 * 60 * 1000; // 48 hours
+
+/**
+ * Return true if the note is unread again only because of activity shortly
+ * after the user dismissed it (marked it read without opening it).
+ *
+ * That activity is probably minor (a pushed commit, a rebase, an automated
+ * review) so we show it with lower priority. A new mention overrides this.
+ */
+export function isNoteLowPriority(note: Note): boolean {
+	if (!note.unread || note.gitnewsMarkedUnread || !note.gitnewsDismissedAt) {
+		return false;
+	}
+	if (
+		!isUpdateWithinLowPriorityWindow(note.gitnewsDismissedAt, note.updatedAt)
+	) {
+		return false;
+	}
+	if (
+		hasReasonBecomeMention(
+			note.api?.notification?.reason,
+			note.gitnewsDismissedReason
+		)
+	) {
+		return false;
+	}
+	// A thread's reason stays "mention" forever once you are mentioned, so also
+	// look for new comments that mention you.
+	if (note.mentionFoundSince === note.gitnewsDismissedAt) {
+		return false;
+	}
+	if (
+		note.latestCommentMentionsYou &&
+		note.commentUrl !== note.gitnewsDismissedCommentUrl
+	) {
+		return false;
+	}
+	return true;
+}
+
+function isUpdateWithinLowPriorityWindow(
+	dismissedAt: number,
+	updatedAtString: string
+): boolean {
+	const updatedAt = Date.parse(updatedAtString);
+	if (Number.isNaN(updatedAt)) {
+		return false;
+	}
+	return updatedAt - dismissedAt <= LOW_PRIORITY_WINDOW_MS;
+}
+
+function hasReasonBecomeMention(
+	reason: NoteReason | undefined,
+	dismissedReason: NoteReason | undefined
+): boolean {
+	if (reason === 'mention' && dismissedReason !== 'mention') {
+		return true;
+	}
+	if (reason === 'team_mention' && dismissedReason !== 'team_mention') {
+		return true;
+	}
+	return false;
+}
+
+/**
+ * If the updated note might be shown as low priority, return the time since
+ * which its comments should be searched for a new mention. Otherwise return
+ * undefined, since the search would make extra API requests for no reason.
+ */
+export function getMentionsSinceForNote(
+	existingNote: Note | undefined,
+	basicNote: BasicNote
+): number | undefined {
+	const dismissedAt = existingNote?.gitnewsDismissedAt;
+	if (!dismissedAt || !basicNote.unread || existingNote.gitnewsMarkedUnread) {
+		return undefined;
+	}
+	if (!isUpdateWithinLowPriorityWindow(dismissedAt, basicNote.updatedAt)) {
+		return undefined;
+	}
+	if (
+		hasReasonBecomeMention(
+			basicNote.reason,
+			existingNote.gitnewsDismissedReason
+		)
+	) {
+		return undefined;
+	}
+	return dismissedAt;
 }
 
 export function msToSecs(ms: number): number {

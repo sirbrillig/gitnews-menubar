@@ -11,6 +11,7 @@ import {
 	isInvalidJson,
 	isServerReturningHtml,
 	isTokenInvalid,
+	getMentionsSinceForNote,
 } from '../lib/helpers';
 import { runWithViewTransition } from '../lib/view-transitions';
 import {
@@ -32,7 +33,7 @@ import {
 	UnknownFetchError,
 } from '../types';
 import { AppDispatch } from './store';
-import { createDemoNotifications } from './demo-mode';
+import { createDemoNotifications, bumpDemoNotifications } from './demo-mode';
 
 const debug = debugFactory('gitnews-menubar');
 
@@ -259,7 +260,14 @@ export function createFetcher(): Middleware<unknown, AppReduxState> {
 							},
 						});
 					} else {
-						needsHydration.push(basicNote);
+						// Notes that may be shown as low priority need a deeper search
+						// for new mentions while being enriched.
+						const mentionsSince = state.isLowPriorityEnabled
+							? getMentionsSinceForNote(existing, basicNote)
+							: undefined;
+						needsHydration.push(
+							mentionsSince ? { ...basicNote, mentionsSince } : basicNote
+						);
 					}
 				}
 
@@ -365,7 +373,7 @@ function dispatchGotNotes(
 
 async function getDemoNotifications(): Promise<Note[]> {
 	currentDemoNotifications = [
-		...currentDemoNotifications,
+		...bumpDemoNotifications(currentDemoNotifications),
 		...createDemoNotifications(),
 	];
 	return currentDemoNotifications;

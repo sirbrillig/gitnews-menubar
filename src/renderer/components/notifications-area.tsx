@@ -110,7 +110,7 @@ export default function NotificationsArea({
 					openUrl(note.commentUrl || note.subjectUrl, { token, note });
 					break;
 				case 'markRead':
-					markRead(token, note);
+					markRead(token, note, 'dismiss');
 					break;
 				case 'markUnread':
 					markUnread(note);

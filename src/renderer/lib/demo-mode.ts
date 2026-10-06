@@ -1,4 +1,4 @@
-import { Note } from '../types';
+import { Note, NoteReason } from '../types';
 import { defaultAccountInfo } from './constants';
 import { words } from './random-words';
 
@@ -15,6 +15,15 @@ function getRandomWord() {
 function capitalizeFirstLetter(string: string): string {
 	return string.charAt(0).toUpperCase() + string.slice(1);
 }
+
+const demoReasons: NoteReason[] = [
+	'subscribed',
+	'subscribed',
+	'comment',
+	'author',
+	'review_requested',
+	'mention',
+];
 
 function createDemoNotification(initialDate: Date): Note {
 	const repositoryName = [...Array(2)].map(getRandomWord).join('-');
@@ -50,6 +59,9 @@ function createDemoNotification(initialDate: Date): Note {
 				state: isOpen ? 'open' : 'closed',
 				merged: isMerged,
 			},
+			notification: {
+				reason: demoReasons[randomNumber(0, demoReasons.length - 1)],
+			},
 		},
 	};
 }
@@ -59,4 +71,33 @@ export function createDemoNotifications(): Note[] {
 	return [...Array(randomNumber(1, 6))].map(() =>
 		createDemoNotification(initialDate)
 	);
+}
+
+/**
+ * Simulate new activity on some read notes, as if someone pushed a commit to
+ * them. Occasionally the new activity is a mention instead.
+ */
+export function bumpDemoNotifications(notes: Note[]): Note[] {
+	return notes.map((note) => {
+		if (note.unread || randomNumber(1, 3) !== 1) {
+			return note;
+		}
+		const isNewMention = randomNumber(1, 4) === 1;
+		return {
+			...note,
+			unread: true,
+			updatedAt: new Date().toISOString(),
+			// A mention comes with a new comment; a push does not.
+			commentUrl: isNewMention
+				? `${note.subjectUrl}#issuecomment-${randomNumber(1000, 9999)}`
+				: note.commentUrl,
+			latestCommentMentionsYou: isNewMention,
+			api: {
+				...note.api,
+				notification: isNewMention
+					? { reason: 'mention' }
+					: note.api.notification,
+			},
+		};
+	});
 }

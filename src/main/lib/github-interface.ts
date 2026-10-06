@@ -2,6 +2,7 @@ import { Octokit, RestEndpointMethodTypes } from '@octokit/rest';
 import { fetch as undiciFetch, ProxyAgent } from 'undici';
 import { socksDispatcher } from 'fetch-socks';
 import { logMessage } from './logging';
+import { doesTextMentionUser } from './mentions';
 import type {
 	AccountInfo,
 	BasicNote,
@@ -158,20 +159,64 @@ interface CommentData {
 	commentAvatar: string;
 	commentHtmlUrl: string;
 	commentUsername: string;
+	commentMentionsViewer: boolean;
+}
+
+// The login of the user who owns each account's token, keyed by account.
+const viewerLogins = new Map<string, string>();
+
+function getViewerLoginCacheKey(account: AccountInfo): string {
+	return [account.id, account.serverUrl, account.apiKey].join('|');
+}
+
+/**
+ * Return the login of the user who owns the account's token, or undefined if
+ * it cannot be fetched.
+ */
+async function getViewerLogin(
+	octokit: Octokit,
+	account: AccountInfo
+): Promise<string | undefined> {
+	const cacheKey = getViewerLoginCacheKey(account);
+	const cached = viewerLogins.get(cacheKey);
+	if (cached) {
+		return cached;
+	}
+	try {
+		const response = await octokit.request('GET /user');
+		const login = response.data?.login;
+		if (typeof login === 'string' && login) {
+			viewerLogins.set(cacheKey, login);
+			return login;
+		}
+	} catch (error) {
+		logMessage(
+			`Failed to fetch user login for account ${account.name} (${account.id})`,
+			'error'
+		);
+	}
+	return undefined;
 }
 
 async function getCommentDataForNotification(
 	octokit: Octokit,
 	account: AccountInfo,
-	notification: RawNotification
+	notification: RawNotification,
+	viewerLogin: string | undefined
 ): Promise<CommentData> {
 	let commentAvatar: string = '';
 	let commentHtmlUrl: string = '';
 	let commentUsername: string = '';
+	let commentMentionsViewer = false;
 	const commentUrl =
 		notification.subject.latest_comment_url || notification.subject.url;
 	if (!commentUrl) {
-		return { commentAvatar, commentHtmlUrl, commentUsername };
+		return {
+			commentAvatar,
+			commentHtmlUrl,
+			commentUsername,
+			commentMentionsViewer,
+		};
 	}
 	const commentPath = getOctokitRequestPathFromUrl(account, commentUrl);
 	try {
@@ -183,6 +228,7 @@ async function getCommentDataForNotification(
 		commentAvatar = commentData.user.avatar_url;
 		commentHtmlUrl = commentData.html_url;
 		commentUsername = commentData.user.login;
+		commentMentionsViewer = doesTextMentionUser(commentData.body, viewerLogin);
 	} catch (error) {
 		logMessage(
 			`Failed to fetch comment for ${commentPath} (${notification.subject.latest_comment_url ?? notification.subject.url})`,
@@ -193,7 +239,103 @@ async function getCommentDataForNotification(
 		commentAvatar,
 		commentHtmlUrl,
 		commentUsername,
+		commentMentionsViewer,
 	};
+}
+
+interface RawMentionCandidate {
+	body?: string | null;
+	user?: { login?: string } | null;
+	submitted_at?: string | null;
+}
+
+/**
+ * Return the issue path (like `/repos/owner/repo/issues/12`) and, if the
+ * subject is a pull request, the pull path for a notification subject.
+ */
+function getThreadPathsForSubject(
+	account: AccountInfo,
+	subjectUrl: string
+): { issuePath: string; pullPath?: string } | undefined {
+	const subjectPath = getOctokitRequestPathFromUrl(account, subjectUrl);
+	const match = subjectPath.match(
+		/^(.*\/repos\/[^/]+\/[^/]+)\/(issues|pulls)\/(\d+)$/
+	);
+	if (!match) {
+		return undefined;
+	}
+	const [, repoPath, kind, number] = match;
+	return {
+		issuePath: `${repoPath}/issues/${number}`,
+		pullPath: kind === 'pulls' ? `${repoPath}/pulls/${number}` : undefined,
+	};
+}
+
+/**
+ * Return true if any comment, review comment, or review on the notification's
+ * subject made after `since` mentions the user.
+ *
+ * This finds mentions that the latest comment alone would miss, like a
+ * mention followed by a bot comment, or a mention added by an edit.
+ */
+async function hasMentionSince(
+	octokit: Octokit,
+	account: AccountInfo,
+	notification: RawNotification,
+	since: number,
+	viewerLogin: string
+): Promise<boolean> {
+	const paths = notification.subject.url
+		? getThreadPathsForSubject(account, notification.subject.url)
+		: undefined;
+	if (!paths) {
+		return false;
+	}
+	const sinceIso = new Date(since).toISOString();
+	const requests: Promise<RawMentionCandidate[]>[] = [
+		octokit
+			.request(`GET ${paths.issuePath}/comments`, {
+				since: sinceIso,
+				per_page: 100,
+			})
+			.then((response) => response.data as RawMentionCandidate[]),
+	];
+	if (paths.pullPath) {
+		requests.push(
+			octokit
+				.request(`GET ${paths.pullPath}/comments`, {
+					since: sinceIso,
+					per_page: 100,
+				})
+				.then((response) => response.data as RawMentionCandidate[])
+		);
+		// Reviews cannot be filtered by date in the request.
+		requests.push(
+			octokit
+				.request(`GET ${paths.pullPath}/reviews`, { per_page: 100 })
+				.then((response) =>
+					(response.data as RawMentionCandidate[]).filter(
+						(review) =>
+							review.submitted_at && Date.parse(review.submitted_at) >= since
+					)
+				)
+		);
+	}
+	// If one request fails, still check the results of the others.
+	const results = await Promise.allSettled(requests);
+	if (results.some((result) => result.status === 'rejected')) {
+		logMessage(
+			`Failed to search for some mentions in ${paths.issuePath} (${notification.subject.url})`,
+			'error'
+		);
+	}
+	return results
+		.flatMap((result) => (result.status === 'fulfilled' ? result.value : []))
+		.some(
+			(item) =>
+				item.user?.login?.toLowerCase() !== viewerLogin.toLowerCase() &&
+				doesTextMentionUser(item.body, viewerLogin)
+		);
 }
 
 interface SubjectData {
@@ -249,11 +391,13 @@ function buildNoteFromData({
 	notification,
 	commentData,
 	subjectData,
+	mentionFoundSince,
 }: {
 	account: AccountInfo;
 	notification: RawNotification;
 	commentData: CommentData;
 	subjectData: SubjectData;
+	mentionFoundSince?: number;
 }): Note {
 	return {
 		gitnewsAccountId: account.id,
@@ -272,8 +416,14 @@ function buildNoteFromData({
 			commentData.commentAvatar ?? notification.repository.owner.avatar_url,
 		repositoryOwnerAvatar: notification.repository.owner.avatar_url,
 		gitnewsIsInvalid: subjectData.failed === true,
+		latestCommentMentionsYou: commentData.commentMentionsViewer,
+		mentionFoundSince,
 		api: {
-			subject: { state: subjectData.noteState, merged: subjectData.noteMerged, draft: subjectData.noteDraft },
+			subject: {
+				state: subjectData.noteState,
+				merged: subjectData.noteMerged,
+				draft: subjectData.noteDraft,
+			},
 			notification: { reason: notification.reason as NoteReason },
 		},
 	};
@@ -282,6 +432,7 @@ function buildNoteFromData({
 interface RawCommentResponse {
 	data: {
 		html_url: string;
+		body?: string | null;
 		user: {
 			login: string;
 			avatar_url: string;
@@ -404,6 +555,8 @@ export async function enrichNotificationsForAccount(
 	const octokit = createOctokit(account);
 	const notes: Note[] = [];
 	const promises = [];
+	const viewerLogin =
+		basicNotes.length > 0 ? await getViewerLogin(octokit, account) : undefined;
 
 	for (const basicNote of basicNotes) {
 		// Reconstruct the RawNotification shape needed by existing helpers
@@ -433,23 +586,43 @@ export async function enrichNotificationsForAccount(
 		const commentPromise = getCommentDataForNotification(
 			octokit,
 			account,
-			notification
+			notification,
+			viewerLogin
 		);
 		const subjectPromise = getSubjectDataForNotification(
 			octokit,
 			account,
 			notification
 		);
-		const promise = Promise.all([commentPromise, subjectPromise]).catch(
-			(err) => {
-				throw err;
-			}
-		);
+		const mentionsSince = basicNote.mentionsSince;
+		const mentionPromise =
+			mentionsSince && viewerLogin
+				? hasMentionSince(
+						octokit,
+						account,
+						notification,
+						mentionsSince,
+						viewerLogin
+					)
+				: Promise.resolve(false);
+		const promise = Promise.all([
+			commentPromise,
+			subjectPromise,
+			mentionPromise,
+		]).catch((err) => {
+			throw err;
+		});
 		promises.push(promise);
 		promise
-			.then(([commentData, subjectData]) => {
+			.then(([commentData, subjectData, hasNewMention]) => {
 				notes.push(
-					buildNoteFromData({ account, notification, commentData, subjectData })
+					buildNoteFromData({
+						account,
+						notification,
+						commentData,
+						subjectData,
+						mentionFoundSince: hasNewMention ? mentionsSince : undefined,
+					})
 				);
 			})
 			.catch((err) => {

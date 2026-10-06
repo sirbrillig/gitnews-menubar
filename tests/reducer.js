@@ -13,6 +13,19 @@ describe('reducer', function () {
 		});
 	});
 
+	describe('SET_LOW_PRIORITY_ENABLED', function () {
+		it('is disabled by default', function () {
+			const result = reducer(undefined, { type: 'UNKNOWN' });
+			expect(result.isLowPriorityEnabled).toBe(false);
+		});
+
+		it('changes the setting', function () {
+			const action = { type: 'SET_LOW_PRIORITY_ENABLED', isEnabled: true };
+			const result = reducer({ isLowPriorityEnabled: false }, action);
+			expect(result.isLowPriorityEnabled).toBe(true);
+		});
+	});
+
 	describe('MARK_NOTE_READ', function () {
 		it('marks the note as read', function () {
 			const notes = [
@@ -35,6 +48,42 @@ describe('reducer', function () {
 			const result = reducer({ notes }, action);
 			expect(result.notes[1].unread).toBe(false);
 			expect(result.notes[2].unread).toBe(true);
+		});
+
+		it('records dismissal when marked read without opening', function () {
+			const notes = [
+				{
+					id: 'a1',
+					unread: true,
+					title: 'test note 1',
+					api: { notification: { reason: 'subscribed' } },
+				},
+			];
+			const action = {
+				type: 'MARK_NOTE_READ',
+				note: notes[0],
+				source: 'dismiss',
+			};
+			const result = reducer({ notes }, action);
+			expect(result.notes[0].gitnewsDismissedAt).toEqual(expect.any(Number));
+			expect(result.notes[0].gitnewsDismissedReason).toBe('subscribed');
+		});
+
+		it('clears dismissal when the note is opened', function () {
+			const notes = [
+				{
+					id: 'a1',
+					unread: true,
+					title: 'test note 1',
+					gitnewsDismissedAt: 1000,
+					gitnewsDismissedReason: 'subscribed',
+					api: { notification: { reason: 'subscribed' } },
+				},
+			];
+			const action = { type: 'MARK_NOTE_READ', note: notes[0] };
+			const result = reducer({ notes }, action);
+			expect(result.notes[0].gitnewsDismissedAt).toBeUndefined();
+			expect(result.notes[0].gitnewsDismissedReason).toBeUndefined();
 		});
 	});
 
@@ -150,7 +199,12 @@ describe('reducer', function () {
 			const action = {
 				type: 'NOTES_RETRIEVED',
 				notes: [
-					{ id: 'a1', unread: true, title: 'test note 1', updatedAt: newerTime },
+					{
+						id: 'a1',
+						unread: true,
+						title: 'test note 1',
+						updatedAt: newerTime,
+					},
 				],
 			};
 			const result = reducer(

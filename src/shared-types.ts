@@ -39,6 +39,36 @@ export interface Note {
 	 */
 	gitnewsOpenedAt?: number;
 
+	/**
+	 * Number of milliseconds since the epoc (what Date.now() returns).
+	 * Set when the user marks the note as read with the mark-as-read button
+	 * without opening it. Cleared when the note is opened.
+	 */
+	gitnewsDismissedAt?: number;
+
+	/**
+	 * The notification reason at the time the note was dismissed, so we can
+	 * tell if a later update brought a new reason (like a mention).
+	 */
+	gitnewsDismissedReason?: NoteReason;
+
+	/**
+	 * The `commentUrl` at the time the note was dismissed, so we can tell if a
+	 * later update added a new comment.
+	 */
+	gitnewsDismissedCommentUrl?: string;
+
+	/**
+	 * True if the latest comment on the note mentions the account's user.
+	 */
+	latestCommentMentionsYou?: boolean;
+
+	/**
+	 * Set to the `mentionsSince` timestamp of the BasicNote if any comment or
+	 * review made after that time mentions the account's user.
+	 */
+	mentionFoundSince?: number;
+
 	api: NoteApi;
 	commentUrl: string;
 
@@ -72,6 +102,13 @@ export interface BasicNote {
 	subjectUrl: string;
 	latestCommentUrl: string;
 	gitnewsAccountId: string;
+
+	/**
+	 * Number of milliseconds since the epoc. If set, enriching the note will
+	 * look through all comments and reviews made after this time for a mention
+	 * of the account's user.
+	 */
+	mentionsSince?: number;
 }
 
 export interface AccountInfo {

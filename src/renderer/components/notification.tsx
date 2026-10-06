@@ -2,8 +2,10 @@ import React from 'react';
 import Gridicon from 'gridicons';
 import debugFactory from 'debug';
 import { formatDistanceToNow } from 'date-fns';
+import { useSelector } from 'react-redux';
 import MuteIcon from './mute-icon';
 import {
+	AppReduxState,
 	Note,
 	OpenUrl,
 	MarkRead,
@@ -14,7 +16,7 @@ import {
 	QueuedAction,
 } from '../types';
 import { ImageWithBackup } from './image-with-backup';
-import { getNoteId } from '../lib/helpers';
+import { getNoteId, isNoteLowPriority } from '../lib/helpers';
 import {
 	runWithViewTransition,
 	useVisibleViewTransitionName,
@@ -59,6 +61,10 @@ export default function Notification({
 }) {
 	const isUnread =
 		note.unread === true ? true : note.gitnewsMarkedUnread === true;
+	const isLowPriorityEnabled = useSelector(
+		(state: AppReduxState) => state.isLowPriorityEnabled
+	);
+	const isLowPriority = isLowPriorityEnabled && isNoteLowPriority(note);
 
 	const onClick = () => {
 		debug('clicked on notification', note);
@@ -81,7 +87,7 @@ export default function Notification({
 			queueNoteAction(note, 'markRead');
 			return;
 		}
-		runWithViewTransition(() => markRead(token, note));
+		runWithViewTransition(() => markRead(token, note, 'dismiss'));
 	};
 
 	const onClickMarkUnread = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -117,7 +123,7 @@ export default function Notification({
 		...(queuedAction === 'markUnread'
 			? ['notification--multi-mark-unread-clicked']
 			: []),
-		...getNoteClasses({ isUnread, isMuted, isInvalid }),
+		...getNoteClasses({ isUnread, isMuted, isInvalid, isLowPriority }),
 	];
 	const { ref: noteRef, viewTransitionName } = useVisibleViewTransitionName(
 		`note-${getNoteId(note).replace(/[^\w-]/g, '_')}`
@@ -224,7 +230,15 @@ export default function Notification({
 			)}
 			<div className="notification__main-content" onClick={onClick}>
 				<div className="notification__image">
-					{isUnread && <span className="notification__new-dot" />}
+					{isUnread && (
+						<span
+							className={
+								isLowPriority
+									? 'notification__new-dot notification__new-dot--low-priority'
+									: 'notification__new-dot'
+							}
+						/>
+					)}
 					{isMuted && <MuteIcon className="mute-icon" />}
 					<ImageWithBackup src={avatarSrc} username={note.commentUsername} />
 					{isMention && (
@@ -269,6 +283,14 @@ export default function Notification({
 								/>
 							)}
 							{timeString}
+							{isLowPriority && (
+								<span
+									className="notification__low-priority-label"
+									title="You dismissed this recently without opening it, so this update is probably minor"
+								>
+									· minor update
+								</span>
+							)}
 						</span>
 						<span className="notification__actions">
 							{isMuted ? (
@@ -429,16 +451,21 @@ function getNoteClasses({
 	isMuted,
 	isUnread,
 	isInvalid,
+	isLowPriority,
 }: {
 	isMuted?: boolean;
 	isUnread?: boolean;
 	isInvalid?: boolean;
+	isLowPriority?: boolean;
 }) {
 	if (isMuted) {
 		return ['notification__muted'];
 	}
 	if (isInvalid) {
 		return ['notification__invalid'];
+	}
+	if (isUnread && isLowPriority) {
+		return ['notification__unread', 'notification__low-priority'];
 	}
 	if (isUnread) {
 		return ['notification__unread'];

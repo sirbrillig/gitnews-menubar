@@ -41,6 +41,7 @@ export interface AppReduxState {
 	locallyUnreadNotes: Note[];
 	showUnreadOnly: boolean;
 	recentlyUnsubscribed: RecentlyUnsubscribedNote[];
+	isLowPriorityEnabled: boolean;
 }
 
 export interface RecentlyUnsubscribedNote {
@@ -50,10 +51,12 @@ export interface RecentlyUnsubscribedNote {
 
 export type ActionMuteRepo = { type: 'MUTE_REPO'; repo: string };
 export type ActionUnmuteRepo = { type: 'UNMUTE_REPO'; repo: string };
+export type MarkReadSource = 'open' | 'dismiss';
 export type ActionMarkRead = {
 	type: 'MARK_NOTE_READ';
 	token: string;
 	note: Note;
+	source?: MarkReadSource;
 };
 export type ActionMarkUnread = { type: 'MARK_NOTE_UNREAD'; note: Note };
 export type ActionUnsubscribeNote = { type: 'UNSUBSCRIBE_NOTE'; note: Note };
@@ -84,6 +87,10 @@ export type ActionToggleTokenInvalid = {
 export type ActionToggleLogging = {
 	type: 'TOGGLE_LOGGING';
 	isLogging: boolean;
+};
+export type ActionSetLowPriorityEnabled = {
+	type: 'SET_LOW_PRIORITY_ENABLED';
+	isEnabled: boolean;
 };
 export type ActionChangeToOffline = { type: 'OFFLINE' };
 export type ActionGotNotes = { type: 'NOTES_RETRIEVED'; notes: Note[] };
@@ -152,14 +159,19 @@ export type AppReduxAction =
 	| MarkAppShown
 	| ActionSetDemoMode
 	| ActionToggleTokenInvalid
-	| ActionToggleLogging;
+	| ActionToggleLogging
+	| ActionSetLowPriorityEnabled;
 
 export type OpenUrl = (
 	url: string,
 	noteToMarkRead?: { token: string; note: Note }
 ) => void;
 
-export type MarkRead = (token: string, note: Note) => void;
+export type MarkRead = (
+	token: string,
+	note: Note,
+	source?: MarkReadSource
+) => void;
 
 export type MarkUnread = (note: Note) => void;
 

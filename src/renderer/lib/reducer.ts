@@ -30,6 +30,8 @@ import {
 	ActionInitSetAccounts,
 	ActionUnsubscribeNote,
 	ActionDismissUnsubscribedNotice,
+	MarkReadSource,
+	ActionSetLowPriorityEnabled,
 } from '../types';
 
 const defaultFetchInterval = secsToMs(120);
@@ -58,6 +60,7 @@ const initialState: AppReduxState = {
 	locallyUnreadNotes: [],
 	showUnreadOnly: false,
 	recentlyUnsubscribed: [],
+	isLowPriorityEnabled: false,
 };
 
 function setAllAccountsValid(accounts: AccountInfo[]): AccountInfo[] {
@@ -151,6 +154,7 @@ export function createReducer() {
 			}
 			case 'MARK_NOTE_READ': {
 				const noteId = getNoteId(action.note);
+				const isDismissed = action.source === 'dismiss';
 				return {
 					...state,
 					notes: state.notes.map((note) =>
@@ -160,6 +164,15 @@ export function createReducer() {
 									unread: false,
 									gitnewsMarkedUnread: false,
 									gitnewsOpenedAt: Date.now(),
+									// Remember notes dismissed without being opened so that
+									// minor follow-up activity can be shown as low priority.
+									gitnewsDismissedAt: isDismissed ? Date.now() : undefined,
+									gitnewsDismissedReason: isDismissed
+										? note.api?.notification?.reason
+										: undefined,
+									gitnewsDismissedCommentUrl: isDismissed
+										? note.commentUrl
+										: undefined,
 								}
 							: note
 					),
@@ -284,6 +297,8 @@ export function createReducer() {
 				return { ...state, filterType: action.filterType };
 			case 'SET_SHOW_UNREAD_ONLY':
 				return { ...state, showUnreadOnly: action.showUnreadOnly };
+			case 'SET_LOW_PRIORITY_ENABLED':
+				return { ...state, isLowPriorityEnabled: action.isEnabled };
 		}
 		return state;
 	};
@@ -301,8 +316,12 @@ export function setAccounts(accounts: AccountInfo[]): ActionSetAccounts {
 	return { type: 'SET_ACCOUNTS', accounts };
 }
 
-export function markRead(token: string, note: Note): ActionMarkRead {
-	return { type: 'MARK_NOTE_READ', token, note };
+export function markRead(
+	token: string,
+	note: Note,
+	source?: MarkReadSource
+): ActionMarkRead {
+	return { type: 'MARK_NOTE_READ', token, note, source };
 }
 
 export function markUnread(note: Note): ActionMarkUnread {
@@ -413,6 +432,12 @@ export function markAppHidden() {
 
 export function markAppShown() {
 	return { type: 'NOTE_APP_VISIBLE', visible: true };
+}
+
+export function setLowPriorityEnabled(
+	isEnabled: boolean
+): ActionSetLowPriorityEnabled {
+	return { type: 'SET_LOW_PRIORITY_ENABLED', isEnabled };
 }
 
 export function toggleLogging(isLogging: boolean) {
