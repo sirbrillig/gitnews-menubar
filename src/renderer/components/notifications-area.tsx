@@ -1,11 +1,14 @@
 import React from 'react';
 import Gridicon from 'gridicons';
 import debugFactory from 'debug';
+import { useSelector } from 'react-redux';
 import Notification from '../components/notification';
+import UnsubscribedNotices from '../components/unsubscribed-notice';
 import { getNoteId } from '../lib/helpers';
 import { useGetGitnewsUpdate } from '../lib/updates';
 import doesNoteMatchFilter from '../lib/does-note-match-filter';
 import {
+	AppReduxState,
 	FilterType,
 	MarkRead,
 	MarkUnread,
@@ -162,6 +165,10 @@ export default function NotificationsArea({
 		Note | false
 	>(false);
 
+	const hasUnsubscribedNotices = useSelector(
+		(state: AppReduxState) => (state.recentlyUnsubscribed ?? []).length > 0
+	);
+
 	const orderedNotes = [...newNotes, ...readNotes]
 		.filter((note) => doesNoteMatchSearch(note, searchValue))
 		.filter((note) => doesNoteMatchFilter(note, filterType));
@@ -195,7 +202,8 @@ export default function NotificationsArea({
 			{newNotes.length === 0 && readNotes.length === 0 && <NoNotifications />}
 			{noteRows}
 			{isMultiOpenMode && <MultiOpenNotice />}
-			{isUpdateAvailable && (
+			<UnsubscribedNotices openUrl={openUrl} />
+			{isUpdateAvailable && !hasUnsubscribedNotices && (
 				<UpdateAvailableNotice
 					url={updateUrl}
 					newVersion={updatedVersion}

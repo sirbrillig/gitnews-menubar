@@ -40,6 +40,12 @@ export interface AppReduxState {
 	selectedAccount: AccountInfo | undefined;
 	locallyUnreadNotes: Note[];
 	showUnreadOnly: boolean;
+	recentlyUnsubscribed: RecentlyUnsubscribedNote[];
+}
+
+export interface RecentlyUnsubscribedNote {
+	note: Note;
+	unsubscribedAt: number;
 }
 
 export type ActionMuteRepo = { type: 'MUTE_REPO'; repo: string };
@@ -51,6 +57,10 @@ export type ActionMarkRead = {
 };
 export type ActionMarkUnread = { type: 'MARK_NOTE_UNREAD'; note: Note };
 export type ActionUnsubscribeNote = { type: 'UNSUBSCRIBE_NOTE'; note: Note };
+export type ActionDismissUnsubscribedNotice = {
+	type: 'DISMISS_UNSUBSCRIBED_NOTICE';
+	noteId: string;
+};
 export type ActionClearErrors = { type: 'CLEAR_ERRORS' };
 export type ActionMarkAllNotesSeen = { type: 'MARK_ALL_NOTES_SEEN' };
 export type ActionInitToken = { type: 'SET_INITIAL_TOKEN'; token: string };
@@ -120,6 +130,7 @@ export type AppReduxAction =
 	| ActionMarkRead
 	| ActionMarkUnread
 	| ActionUnsubscribeNote
+	| ActionDismissUnsubscribedNotice
 	| ActionClearErrors
 	| ActionMarkAllNotesSeen
 	| ActionSetAccounts

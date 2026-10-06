@@ -29,6 +29,7 @@ import {
 	ActionSelectAccount,
 	ActionInitSetAccounts,
 	ActionUnsubscribeNote,
+	ActionDismissUnsubscribedNotice,
 } from '../types';
 
 const defaultFetchInterval = secsToMs(120);
@@ -56,6 +57,7 @@ const initialState: AppReduxState = {
 	selectedAccount: undefined,
 	locallyUnreadNotes: [],
 	showUnreadOnly: false,
+	recentlyUnsubscribed: [],
 };
 
 function setAllAccountsValid(accounts: AccountInfo[]): AccountInfo[] {
@@ -174,8 +176,23 @@ export function createReducer() {
 					locallyUnreadNotes: (state.locallyUnreadNotes ?? []).filter(
 						(n) => getNoteId(n) !== noteId
 					),
+					// Keep a reference to the note briefly so the user has a way to get
+					// back to the thread; once it's gone there's no way to find it.
+					recentlyUnsubscribed: [
+						...(state.recentlyUnsubscribed ?? []).filter(
+							(item) => getNoteId(item.note) !== noteId
+						),
+						{ note: action.note, unsubscribedAt: Date.now() },
+					],
 				};
 			}
+			case 'DISMISS_UNSUBSCRIBED_NOTICE':
+				return {
+					...state,
+					recentlyUnsubscribed: (state.recentlyUnsubscribed ?? []).filter(
+						(item) => getNoteId(item.note) !== action.noteId
+					),
+				};
 			case 'MARK_ALL_NOTES_SEEN': {
 				const notes = state.notes
 					.filter((x) => x.api)
@@ -222,12 +239,10 @@ export function createReducer() {
 
 				// Update stored copies with latest data from fetch (keeps backup fresh)
 				const freshById = new Map(newNotes.map((n) => [getNoteId(n), n]));
-				const updatedLocallyUnread = existingLocallyUnread.map(
-					(localNote) => {
-						const fresh = freshById.get(getNoteId(localNote));
-						return fresh ? { ...fresh, gitnewsMarkedUnread: true } : localNote;
-					}
-				);
+				const updatedLocallyUnread = existingLocallyUnread.map((localNote) => {
+					const fresh = freshById.get(getNoteId(localNote));
+					return fresh ? { ...fresh, gitnewsMarkedUnread: true } : localNote;
+				});
 
 				const unseen = allNotes.filter((note) => !note.gitnewsSeen);
 				const unread = allNotes.filter((note) => note.unread);
@@ -296,6 +311,12 @@ export function markUnread(note: Note): ActionMarkUnread {
 
 export function unsubscribeNote(note: Note): ActionUnsubscribeNote {
 	return { type: 'UNSUBSCRIBE_NOTE', note };
+}
+
+export function dismissUnsubscribedNotice(
+	noteId: string
+): ActionDismissUnsubscribedNotice {
+	return { type: 'DISMISS_UNSUBSCRIBED_NOTICE', noteId };
 }
 
 export function clearErrors(): ActionClearErrors {
