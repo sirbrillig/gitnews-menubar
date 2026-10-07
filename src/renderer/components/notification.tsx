@@ -278,6 +278,16 @@ export default function Notification({
 							<Gridicon icon={iconType} />
 							<span className="notification__type--text">{iconText}</span>
 						</span>
+						{note.authoredByYou && (
+							<span
+								className="notification__author-icon"
+								title="You created this"
+								aria-label="You created this"
+								role="img"
+							>
+								<Gridicon icon="user" />
+							</span>
+						)}
 						<span
 							className="notification__repo-name"
 							title={note.repositoryFullName}
