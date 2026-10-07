@@ -71,6 +71,10 @@ export type ActionMarkRead = {
 };
 export type ActionMarkUnread = { type: 'MARK_NOTE_UNREAD'; note: Note };
 export type ActionUnsubscribeNote = { type: 'UNSUBSCRIBE_NOTE'; note: Note };
+export type ActionUndoUnsubscribeNote = {
+	type: 'UNDO_UNSUBSCRIBE_NOTE';
+	note: Note;
+};
 export type ActionDismissUnsubscribedNotice = {
 	type: 'DISMISS_UNSUBSCRIBED_NOTICE';
 	noteId: string;
@@ -157,6 +161,7 @@ export type AppReduxAction =
 	| ActionMarkRead
 	| ActionMarkUnread
 	| ActionUnsubscribeNote
+	| ActionUndoUnsubscribeNote
 	| ActionDismissUnsubscribedNotice
 	| ActionClearErrors
 	| ActionMarkAllNotesSeen
@@ -240,6 +245,7 @@ export interface MainBridge {
 	) => Promise<Note[] | { error: FetchErrorObject }>;
 	markNotificationRead: (note: Note, account: AccountInfo) => void;
 	unsubscribeNotification: (note: Note, account: AccountInfo) => void;
+	resubscribeNotification: (note: Note, account: AccountInfo) => void;
 	isDemoMode: () => Promise<boolean>;
 	isAutoLaunchEnabled: () => Promise<boolean>;
 	saveAccounts: (accounts: AccountInfo[]) => void;

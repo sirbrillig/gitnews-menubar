@@ -29,6 +29,7 @@ import {
 	ActionSelectAccount,
 	ActionInitSetAccounts,
 	ActionUnsubscribeNote,
+	ActionUndoUnsubscribeNote,
 	ActionDismissUnsubscribedNotice,
 	MarkReadSource,
 	ActionSetLowPriorityEnabled,
@@ -203,6 +204,32 @@ export function createReducer() {
 					],
 				};
 			}
+			case 'UNDO_UNSUBSCRIBE_NOTE': {
+				const noteId = getNoteId(action.note);
+				// Unsubscribing also marked the note as read on GitHub, which cannot
+				// be reversed through the API, so keep it unread locally instead.
+				const restoredNote = action.note.unread
+					? { ...action.note, gitnewsMarkedUnread: true }
+					: action.note;
+				return {
+					...state,
+					notes: [
+						...state.notes.filter((note) => getNoteId(note) !== noteId),
+						restoredNote,
+					],
+					locallyUnreadNotes: action.note.unread
+						? [
+								...(state.locallyUnreadNotes ?? []).filter(
+									(n) => getNoteId(n) !== noteId
+								),
+								action.note,
+							]
+						: state.locallyUnreadNotes,
+					recentlyUnsubscribed: (state.recentlyUnsubscribed ?? []).filter(
+						(item) => getNoteId(item.note) !== noteId
+					),
+				};
+			}
 			case 'DISMISS_UNSUBSCRIBED_NOTICE':
 				return {
 					...state,
@@ -351,6 +378,10 @@ export function markUnread(note: Note): ActionMarkUnread {
 
 export function unsubscribeNote(note: Note): ActionUnsubscribeNote {
 	return { type: 'UNSUBSCRIBE_NOTE', note };
+}
+
+export function undoUnsubscribeNote(note: Note): ActionUndoUnsubscribeNote {
+	return { type: 'UNDO_UNSUBSCRIBE_NOTE', note };
 }
 
 export function dismissUnsubscribedNotice(

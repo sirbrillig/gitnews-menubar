@@ -54,6 +54,25 @@ export function createGitHubMiddleware(): Middleware<unknown, AppReduxState> {
 				unsubscribeNote(action.note, account);
 				break;
 			}
+			case 'UNDO_UNSUBSCRIBE_NOTE': {
+				if (store.getState().isDemoMode) {
+					break;
+				}
+				const account = store
+					.getState()
+					.accounts.find(
+						(account) => account.id === action.note.gitnewsAccountId
+					);
+				if (!account) {
+					console.error(
+						'Cannot find account for notification to resubscribe',
+						action.note
+					);
+					return;
+				}
+				resubscribeNote(action.note, account);
+				break;
+			}
 		}
 		next(action);
 	};
@@ -64,5 +83,9 @@ export function createGitHubMiddleware(): Middleware<unknown, AppReduxState> {
 
 	function unsubscribeNote(note: Note, account: AccountInfo) {
 		window.electronApi.unsubscribeNotification(note, account);
+	}
+
+	function resubscribeNote(note: Note, account: AccountInfo) {
+		window.electronApi.resubscribeNotification(note, account);
 	}
 }
