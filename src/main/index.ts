@@ -29,6 +29,7 @@ import {
 	enrichNotificationsForAccount,
 	markNotficationAsRead,
 	unsubscribeFromNotification,
+	resubscribeToNotification,
 } from './lib/github-interface';
 import { logMessage } from './lib/logging';
 import type {
@@ -250,6 +251,13 @@ ipcMain.handle(
 	'unsubscribe-notification',
 	async (_event, note: Note, account: AccountInfo) => {
 		return unsubscribeFromNotification(note, account);
+	}
+);
+
+ipcMain.handle(
+	'resubscribe-notification',
+	async (_event, note: Note, account: AccountInfo) => {
+		return resubscribeToNotification(note, account);
 	}
 );
 

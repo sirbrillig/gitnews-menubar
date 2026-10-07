@@ -134,6 +134,26 @@ export async function unsubscribeFromNotification(
 	}
 }
 
+export async function resubscribeToNotification(
+	note: Note,
+	account: AccountInfo
+): Promise<void> {
+	const octokit = createOctokit(account);
+	const path = getOctokitRequestPathFromUrl(account, note.url);
+	try {
+		await octokit.request(`PUT ${path}/subscription`, {
+			thread_id: note.id,
+			ignored: false,
+		});
+	} catch (error) {
+		logMessage(
+			`Failed to resubscribe to notification for ${path} (${note.url})`,
+			'error'
+		);
+		return;
+	}
+}
+
 interface RawNotification {
 	id: string;
 	url: string;

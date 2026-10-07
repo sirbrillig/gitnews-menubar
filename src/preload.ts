@@ -35,6 +35,8 @@ const bridge: MainBridge = {
 		ipcRenderer.invoke('mark-note-as-read', note, account),
 	unsubscribeNotification: (note: Note, account: AccountInfo) =>
 		ipcRenderer.invoke('unsubscribe-notification', note, account),
+	resubscribeNotification: (note: Note, account: AccountInfo) =>
+		ipcRenderer.invoke('resubscribe-notification', note, account),
 	saveAccounts: (accounts: AccountInfo[]) =>
 		ipcRenderer.send('accounts:set', accounts),
 	getAccounts: () => ipcRenderer.invoke('accounts:get'),

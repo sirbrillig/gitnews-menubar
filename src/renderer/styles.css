@@ -1064,21 +1064,44 @@ header h1 {
 	padding: 6px 6px 6px 12px;
 }
 
+/* The title is a button, which can't be truncated as part of the surrounding
+   text, so it is a flex item that truncates itself. */
 .unsubscribed-notice__message {
 	flex: 1;
 	min-width: 0;
+	display: flex;
+	align-items: baseline;
+	gap: 0.3em;
 	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+}
+
+.unsubscribed-notice__prefix {
+	flex-shrink: 0;
 }
 
 .unsubscribed-notice__link {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	text-align: left;
 	color: var(--bottom-bar-action-text-color);
 	background: none !important;
 	border: none;
 	padding: 0 !important;
 	font-size: inherit;
 	text-decoration: underline;
+	cursor: pointer;
+}
+
+.unsubscribed-notice__undo {
+	flex-shrink: 0;
+	color: var(--bottom-bar-action-text-color);
+	background: none !important;
+	border: none;
+	padding: 0 4px !important;
+	font-size: inherit;
+	font-weight: bold;
 	cursor: pointer;
 }
 

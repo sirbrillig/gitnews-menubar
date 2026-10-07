@@ -391,6 +391,31 @@ describe('reducer', function () {
 		});
 	});
 
+	describe('UNDO_UNSUBSCRIBE_NOTE', function () {
+		const note1 = { id: 'a1', gitnewsAccountId: 'acc', unread: false };
+		const note2 = { id: 'a2', gitnewsAccountId: 'acc', unread: true };
+
+		it('restores the note and clears its notice', function () {
+			let state = reducer(
+				{ notes: [note1, note2] },
+				{ type: 'UNSUBSCRIBE_NOTE', note: note1 }
+			);
+			state = reducer(state, { type: 'UNDO_UNSUBSCRIBE_NOTE', note: note1 });
+			expect(state.notes).toEqual([note2, note1]);
+			expect(state.recentlyUnsubscribed).toEqual([]);
+		});
+
+		it('keeps a previously unread note unread locally', function () {
+			let state = reducer(
+				{ notes: [note1, note2] },
+				{ type: 'UNSUBSCRIBE_NOTE', note: note2 }
+			);
+			state = reducer(state, { type: 'UNDO_UNSUBSCRIBE_NOTE', note: note2 });
+			expect(state.notes[1]).toEqual({ ...note2, gitnewsMarkedUnread: true });
+			expect(state.locallyUnreadNotes).toEqual([note2]);
+		});
+	});
+
 	describe('DISMISS_UNSUBSCRIBED_NOTICE', function () {
 		it('removes only the matching recently unsubscribed note', function () {
 			const note1 = { id: 'a1', gitnewsAccountId: 'acc' };

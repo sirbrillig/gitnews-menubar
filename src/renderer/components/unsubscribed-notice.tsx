@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Gridicon from 'gridicons';
-import { dismissUnsubscribedNotice } from '../lib/reducer';
+import { dismissUnsubscribedNotice, undoUnsubscribeNote } from '../lib/reducer';
 import { getNoteId } from '../lib/helpers';
 import { AppReduxState, OpenUrl, RecentlyUnsubscribedNote } from '../types';
 
@@ -53,6 +53,7 @@ export default function UnsubscribedNotices({ openUrl }: { openUrl: OpenUrl }) {
 					dismiss={() =>
 						dispatch(dismissUnsubscribedNotice(getNoteId(item.note)))
 					}
+					undo={() => dispatch(undoUnsubscribeNote(item.note))}
 				/>
 			))}
 		</div>
@@ -68,11 +69,13 @@ function UnsubscribedNotice({
 	remainingMs,
 	openUrl,
 	dismiss,
+	undo,
 }: {
 	item: RecentlyUnsubscribedNote;
 	remainingMs: number;
 	openUrl: OpenUrl;
 	dismiss: () => void;
+	undo: () => void;
 }) {
 	const { note } = item;
 	const url = note.commentUrl || note.subjectUrl;
@@ -93,7 +96,7 @@ function UnsubscribedNotice({
 		<div className="unsubscribed-notice" role="status">
 			<div className="unsubscribed-notice__body">
 				<span className="unsubscribed-notice__message">
-					Unsubscribed from{' '}
+					<span className="unsubscribed-notice__prefix">Unsubscribed from</span>
 					<button
 						className="unsubscribed-notice__link"
 						onClick={() => openUrl(url)}
@@ -102,6 +105,9 @@ function UnsubscribedNotice({
 						{note.title}
 					</button>
 				</span>
+				<button className="unsubscribed-notice__undo" onClick={undo}>
+					Undo
+				</button>
 				<button
 					className="unsubscribed-notice__dismiss"
 					onClick={dismiss}
