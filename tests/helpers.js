@@ -8,6 +8,7 @@ const {
 	hasRecentMention,
 	mergeNotifications,
 	groupNotesByRepo,
+	wouldDismissalMakeNoteLowPriority,
 	LOW_PRIORITY_WINDOW_MS,
 } = require('../src/renderer/lib/helpers');
 
@@ -300,6 +301,48 @@ describe('getMentionsSinceForNote()', function () {
 				{ titlePatterns: { 'owner/repo': ['^bump '] } }
 			)
 		).toBe(dismissedAt);
+	});
+});
+
+describe('wouldDismissalMakeNoteLowPriority()', function () {
+	const makeNote = (overrides = {}) => ({
+		id: 'a1',
+		unread: true,
+		repositoryFullName: 'Owner/Repo',
+		title: 'Fix the thing',
+		updatedAt: '2026-10-01T15:00:00Z',
+		gitnewsDismissedAt: Date.parse('2026-10-01T12:00:00Z'),
+		gitnewsDismissedReason: 'subscribed',
+		api: { notification: { reason: 'subscribed' } },
+		...overrides,
+	});
+
+	it('returns true for a note updated soon after being dismissed', function () {
+		expect(wouldDismissalMakeNoteLowPriority(makeNote())).toBe(true);
+	});
+
+	it('returns false if the note was never dismissed', function () {
+		expect(
+			wouldDismissalMakeNoteLowPriority(
+				makeNote({ gitnewsDismissedAt: undefined })
+			)
+		).toBe(false);
+	});
+
+	it('returns false if the update is a new mention', function () {
+		expect(
+			wouldDismissalMakeNoteLowPriority(
+				makeNote({ api: { notification: { reason: 'mention' } } })
+			)
+		).toBe(false);
+	});
+
+	it('returns false if the note is already low priority by title', function () {
+		expect(
+			wouldDismissalMakeNoteLowPriority(makeNote(), {
+				'owner/repo': ['^fix '],
+			})
+		).toBe(false);
 	});
 });
 

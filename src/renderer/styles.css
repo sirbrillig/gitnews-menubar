@@ -1384,3 +1384,49 @@ main {
 	color: var(--main-text-color);
 	text-decoration: underline;
 }
+
+/* Sized like the note's footer so it reads as part of the note. */
+.feature-tip {
+	margin-top: 6px;
+	padding: 5px 8px;
+	border: 1px solid var(--notification-border-color);
+	border-radius: 6px;
+	background-color: var(--main-bg-color);
+	font-size: 0.7em;
+	line-height: 1.4;
+	color: var(--notification-timestamp-color);
+	cursor: default;
+}
+
+.feature-tip__action,
+.feature-tip__dismiss,
+.feature-tip__learn-more {
+	padding: 0;
+	border: none;
+	background: none;
+	font-size: inherit;
+	color: inherit;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.feature-tip__action {
+	color: var(--main-link-color);
+	font-weight: bold;
+}
+
+.feature-tip__dismiss:hover,
+.feature-tip__learn-more:hover {
+	color: var(--main-text-color);
+}
+
+.reset-tips-button {
+	flex-shrink: 0;
+	margin: 0 0 0 10px;
+	padding: 4px 12px;
+}
+
+.reset-tips-button:disabled {
+	opacity: 0.5;
+	cursor: default;
+}

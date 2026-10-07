@@ -1,20 +1,28 @@
 import React from 'react';
 import Gridicon from 'gridicons';
 import debugFactory from 'debug';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Notification from '../components/notification';
 import UnsubscribedNotices from '../components/unsubscribed-notice';
+import FeatureTip from '../components/feature-tip';
 import {
 	getNoteId,
 	getLowPriorityOptions,
 	isNoteLowPriority,
 	groupNotesByRepo,
 } from '../lib/helpers';
+import {
+	dismissFeatureTip,
+	setGroupByRepoEnabled,
+	setLowPriorityEnabled,
+} from '../lib/reducer';
+import { getFeatureTip } from '../lib/feature-tips';
 import { runWithViewTransition } from '../lib/view-transitions';
 import { useGetGitnewsUpdate } from '../lib/updates';
 import doesNoteMatchFilter from '../lib/does-note-match-filter';
 import {
 	AppReduxState,
+	FeatureTipId,
 	FilterType,
 	MarkRead,
 	MarkUnread,
@@ -65,6 +73,7 @@ export default function NotificationsArea({
 	appVisible,
 	isMultiOpenMode,
 	setMultiOpenMode,
+	showListSettings,
 }: {
 	newNotes: Note[];
 	readNotes: Note[];
@@ -81,6 +90,7 @@ export default function NotificationsArea({
 	appVisible: boolean;
 	isMultiOpenMode: boolean;
 	setMultiOpenMode: (isActive: boolean) => void;
+	showListSettings: () => void;
 }) {
 	const { isUpdateAvailable, updateUrl, updatedVersion } =
 		useGetGitnewsUpdate();
@@ -149,6 +159,7 @@ export default function NotificationsArea({
 	React.useEffect(() => {
 		if (!appVisible) {
 			setMultiOpenMode(false);
+			setConfirmingTipId(undefined);
 		}
 	}, [appVisible]);
 	React.useEffect(() => {
@@ -190,6 +201,19 @@ export default function NotificationsArea({
 		(state: AppReduxState) => state.isGroupByRepoEnabled
 	);
 
+	const dispatch = useDispatch();
+	const dismissedFeatureTips = useSelector(
+		(state: AppReduxState) => state.dismissedFeatureTips
+	);
+	const lastFeatureTipDismissedAt = useSelector(
+		(state: AppReduxState) => state.lastFeatureTipDismissedAt
+	);
+	// After a setting is turned on from its tip, keep showing the tip as a
+	// confirmation until it is closed or the app is hidden.
+	const [confirmingTipId, setConfirmingTipId] = React.useState<
+		FeatureTipId | undefined
+	>(undefined);
+
 	const isNoteVisible = (note: Note) =>
 		doesNoteMatchSearch(note, searchValue) &&
 		doesNoteMatchFilter(note, filterType);
@@ -201,6 +225,64 @@ export default function NotificationsArea({
 		);
 	};
 
+	// Suggest a setting that is off by default when the list gets into a state
+	// that the setting would help with.
+	const featureTip = getFeatureTip(
+		visibleUnreadNotes,
+		{
+			isLowPriorityEnabled,
+			lowPriorityTitlePatterns,
+			isGroupByRepoEnabled,
+			dismissedFeatureTips,
+			lastFeatureTipDismissedAt,
+		},
+		{ confirmingTipId }
+	);
+	const setTipSettingEnabled = (tipId: FeatureTipId, isEnabled: boolean) => {
+		runWithViewTransition(() =>
+			dispatch(
+				tipId === 'low-priority'
+					? setLowPriorityEnabled(isEnabled)
+					: setGroupByRepoEnabled(isEnabled)
+			)
+		);
+	};
+	const renderFeatureTip = (tipId: FeatureTipId, count?: number) => {
+		if (tipId === confirmingTipId) {
+			return (
+				<FeatureTip
+					actionLabel="Undo"
+					dismissLabel="OK"
+					onAction={() => {
+						setTipSettingEnabled(tipId, false);
+						setConfirmingTipId(undefined);
+					}}
+					onDismiss={() => setConfirmingTipId(undefined)}
+				>
+					{tipId === 'low-priority'
+						? 'Moved to low priority.'
+						: 'Grouped by repo.'}
+				</FeatureTip>
+			);
+		}
+		return (
+			<FeatureTip
+				actionLabel="Turn on"
+				dismissLabel="No thanks"
+				onLearnMore={showListSettings}
+				onAction={() => {
+					setTipSettingEnabled(tipId, true);
+					dispatch(dismissFeatureTip(tipId));
+					setConfirmingTipId(tipId);
+				}}
+				onDismiss={() => dispatch(dismissFeatureTip(tipId))}
+			>
+				{tipId === 'low-priority'
+					? 'Updated soon after you dismissed it. Show updates like this as low priority?'
+					: `${count} unread notes from this repo. Group notes by repo to mark them read together?`}
+			</FeatureTip>
+		);
+	};
 	const renderNote = (note: Note) => {
 		const queuedAction = queuedNotes.get(getNoteId(note))?.action;
 		return (
@@ -222,6 +304,11 @@ export default function NotificationsArea({
 				isMultiOpenMode={isMultiOpenMode}
 				queueNoteAction={queueNoteAction}
 				queuedAction={queuedAction}
+				tip={
+					note === featureTip?.note
+						? renderFeatureTip(featureTip.tipId, featureTip.count)
+						: undefined
+				}
 			/>
 		);
 	};

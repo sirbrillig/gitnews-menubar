@@ -1,6 +1,10 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setLowPriorityEnabled, setGroupByRepoEnabled } from '../lib/reducer';
+import {
+	setLowPriorityEnabled,
+	setGroupByRepoEnabled,
+	resetFeatureTips,
+} from '../lib/reducer';
 import { AppReduxState } from '../types';
 
 export default function ListSettingsPage({
@@ -21,6 +25,9 @@ export default function ListSettingsPage({
 	);
 	const toggleGroupByRepo = (event: { target: { checked: boolean } }) =>
 		dispatch(setGroupByRepoEnabled(event.target.checked));
+	const hasDismissedTips = useSelector(
+		(state: AppReduxState) => (state.dismissedFeatureTips ?? []).length > 0
+	);
 
 	return (
 		<div className="config-page">
@@ -76,6 +83,22 @@ export default function ListSettingsPage({
 							onClick={showMutedReposList}
 						>
 							Muted repos
+						</button>
+					</li>
+					<li className="config-row config-row--toggle">
+						<div>
+							<label htmlFor="reset-tips-button">Reset tips</label>
+							<p className="config-row__hint">
+								Show dismissed tips about these settings again
+							</p>
+						</div>
+						<button
+							id="reset-tips-button"
+							className="btn--cancel reset-tips-button"
+							disabled={!hasDismissedTips}
+							onClick={() => dispatch(resetFeatureTips())}
+						>
+							Reset
 						</button>
 					</li>
 				</ul>

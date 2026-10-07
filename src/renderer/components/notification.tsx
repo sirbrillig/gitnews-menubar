@@ -46,6 +46,7 @@ export default function Notification({
 	isMultiOpenMode,
 	queueNoteAction,
 	queuedAction,
+	tip,
 }: {
 	note: Note;
 	openUrl: OpenUrl;
@@ -63,6 +64,11 @@ export default function Notification({
 	isMultiOpenMode: boolean;
 	queueNoteAction: (note: Note, action: QueuedAction) => void;
 	queuedAction?: QueuedAction;
+	/**
+	 * A tip about this note, shown inside it so it is clear which note it is
+	 * about.
+	 */
+	tip?: React.ReactNode;
 }) {
 	const isUnread =
 		note.unread === true ? true : note.gitnewsMarkedUnread === true;
@@ -348,6 +354,7 @@ export default function Notification({
 							/>
 						</span>
 					</div>
+					{tip}
 				</div>
 			</div>
 			<div

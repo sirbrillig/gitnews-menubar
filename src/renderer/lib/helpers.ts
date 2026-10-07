@@ -175,6 +175,20 @@ export function getLowPriorityReason(
 }
 
 /**
+ * Return true if the note would be low priority because it was dismissed, if
+ * that setting were turned on. Used to suggest the setting when it is off.
+ */
+export function wouldDismissalMakeNoteLowPriority(
+	note: Note,
+	titlePatterns: LowPriorityTitlePatterns = {}
+): boolean {
+	return (
+		getLowPriorityReason(note, { isDismissalEnabled: true, titlePatterns }) ===
+		'dismissed'
+	);
+}
+
+/**
  * Return true if the note mentions the user since it was dismissed or, if it
  * was never dismissed, if it mentions the user at all.
  */
