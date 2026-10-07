@@ -69,6 +69,11 @@ export interface Note {
 	 */
 	mentionFoundSince?: number;
 
+	/**
+	 * True if the account's user created the issue or pull request.
+	 */
+	authoredByYou?: boolean;
+
 	api: NoteApi;
 	commentUrl: string;
 

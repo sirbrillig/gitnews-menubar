@@ -363,6 +363,7 @@ interface SubjectData {
 	noteMerged: boolean;
 	noteDraft: boolean;
 	subjectHtmlUrl: string;
+	subjectAuthorLogin?: string;
 	failed?: boolean;
 }
 
@@ -375,6 +376,7 @@ async function getSubjectDataForNotification(
 	let noteMerged: boolean = false;
 	let noteDraft: boolean = false;
 	let subjectHtmlUrl: string = '';
+	let subjectAuthorLogin: string | undefined;
 	if (!notification.subject.url) {
 		if (notification.subject.type === 'RepositoryInvitation') {
 			subjectHtmlUrl = `${getWebBaseUrl(account)}/${notification.repository.full_name}/invitations`;
@@ -391,6 +393,7 @@ async function getSubjectDataForNotification(
 		noteMerged = subject.data.merged;
 		noteDraft = subject.data.draft ?? false;
 		subjectHtmlUrl = subject.data.html_url;
+		subjectAuthorLogin = subject.data.user?.login;
 	} catch (error) {
 		logMessage(
 			`Failed to fetch subject for ${subjectPath} (${notification.subject.url})`,
@@ -403,6 +406,7 @@ async function getSubjectDataForNotification(
 		noteMerged,
 		noteDraft,
 		subjectHtmlUrl,
+		subjectAuthorLogin,
 	};
 }
 
@@ -412,12 +416,14 @@ function buildNoteFromData({
 	commentData,
 	subjectData,
 	mentionFoundSince,
+	viewerLogin,
 }: {
 	account: AccountInfo;
 	notification: RawNotification;
 	commentData: CommentData;
 	subjectData: SubjectData;
 	mentionFoundSince?: number;
+	viewerLogin?: string;
 }): Note {
 	return {
 		gitnewsAccountId: account.id,
@@ -438,6 +444,11 @@ function buildNoteFromData({
 		gitnewsIsInvalid: subjectData.failed === true,
 		latestCommentMentionsYou: commentData.commentMentionsViewer,
 		mentionFoundSince,
+		authoredByYou: Boolean(
+			viewerLogin &&
+				subjectData.subjectAuthorLogin?.toLowerCase() ===
+					viewerLogin.toLowerCase()
+		),
 		api: {
 			subject: {
 				state: subjectData.noteState,
@@ -642,6 +653,7 @@ export async function enrichNotificationsForAccount(
 						commentData,
 						subjectData,
 						mentionFoundSince: hasNewMention ? mentionsSince : undefined,
+						viewerLogin,
 					})
 				);
 			})

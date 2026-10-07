@@ -716,6 +716,26 @@ header h1 {
 	height: 12px;
 }
 
+/* Outlined so it reads as secondary to the status pill beside it. */
+.notification__author-icon {
+	display: inline-flex;
+	flex: 0 0 auto;
+	align-items: center;
+	margin-right: 6px;
+	padding: 0 5px;
+	border: 1px solid currentColor;
+	border-radius: 999px;
+	color: var(--main-text-color);
+	fill: currentColor;
+}
+
+.notification__author-icon svg {
+	width: 12px;
+	height: 12px;
+	/* Let hovers land on the span so its title tooltip shows. */
+	pointer-events: none;
+}
+
 .notification__image img {
 	width: var(--avatar-size);
 	border-radius: 50%;
