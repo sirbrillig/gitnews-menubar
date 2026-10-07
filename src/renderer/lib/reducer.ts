@@ -35,6 +35,9 @@ import {
 	ActionSetLowPriorityEnabled,
 	ActionSetGroupByRepoEnabled,
 	ActionSetLowPriorityTitlePatterns,
+	ActionDismissFeatureTip,
+	ActionResetFeatureTips,
+	FeatureTipId,
 } from '../types';
 
 const defaultFetchInterval = secsToMs(120);
@@ -66,6 +69,7 @@ const initialState: AppReduxState = {
 	isLowPriorityEnabled: false,
 	lowPriorityTitlePatterns: {},
 	isGroupByRepoEnabled: false,
+	dismissedFeatureTips: [],
 };
 
 function setAllAccountsValid(accounts: AccountInfo[]): AccountInfo[] {
@@ -332,6 +336,18 @@ export function createReducer() {
 				return { ...state, isLowPriorityEnabled: action.isEnabled };
 			case 'SET_GROUP_BY_REPO_ENABLED':
 				return { ...state, isGroupByRepoEnabled: action.isEnabled };
+			case 'DISMISS_FEATURE_TIP': {
+				const dismissedFeatureTips = state.dismissedFeatureTips ?? [];
+				if (dismissedFeatureTips.includes(action.tipId)) {
+					return state;
+				}
+				return {
+					...state,
+					dismissedFeatureTips: [...dismissedFeatureTips, action.tipId],
+				};
+			}
+			case 'RESET_FEATURE_TIPS':
+				return { ...state, dismissedFeatureTips: [] };
 			case 'SET_LOW_PRIORITY_TITLE_PATTERNS': {
 				const repo = action.repo.trim().toLowerCase();
 				const patterns = action.patterns.filter(
@@ -496,6 +512,16 @@ export function setGroupByRepoEnabled(
 	isEnabled: boolean
 ): ActionSetGroupByRepoEnabled {
 	return { type: 'SET_GROUP_BY_REPO_ENABLED', isEnabled };
+}
+
+export function dismissFeatureTip(
+	tipId: FeatureTipId
+): ActionDismissFeatureTip {
+	return { type: 'DISMISS_FEATURE_TIP', tipId };
+}
+
+export function resetFeatureTips(): ActionResetFeatureTips {
+	return { type: 'RESET_FEATURE_TIPS' };
 }
 
 /**

@@ -53,7 +53,13 @@ export interface AppReduxState {
 	isLowPriorityEnabled: boolean;
 	lowPriorityTitlePatterns: LowPriorityTitlePatterns;
 	isGroupByRepoEnabled: boolean;
+	dismissedFeatureTips: FeatureTipId[];
 }
+
+/**
+ * One-time tips shown in the list to suggest settings that are off by default.
+ */
+export type FeatureTipId = 'low-priority';
 
 export interface RecentlyUnsubscribedNote {
 	note: Note;
@@ -116,6 +122,11 @@ export type ActionSetLowPriorityTitlePatterns = {
 	repo: string;
 	patterns: string[];
 };
+export type ActionDismissFeatureTip = {
+	type: 'DISMISS_FEATURE_TIP';
+	tipId: FeatureTipId;
+};
+export type ActionResetFeatureTips = { type: 'RESET_FEATURE_TIPS' };
 export type ActionChangeToOffline = { type: 'OFFLINE' };
 export type ActionGotNotes = { type: 'NOTES_RETRIEVED'; notes: Note[] };
 export type ActionAddConnectionError = {
@@ -187,7 +198,9 @@ export type AppReduxAction =
 	| ActionToggleLogging
 	| ActionSetLowPriorityEnabled
 	| ActionSetLowPriorityTitlePatterns
-	| ActionSetGroupByRepoEnabled;
+	| ActionSetGroupByRepoEnabled
+	| ActionDismissFeatureTip
+	| ActionResetFeatureTips;
 
 export type OpenUrl = (
 	url: string,

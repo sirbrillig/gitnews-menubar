@@ -192,6 +192,7 @@ export default function MainPane({
 			appVisible={appVisible}
 			isMultiOpenMode={isMultiOpenMode}
 			setMultiOpenMode={setMultiOpenMode}
+			showListSettings={showListSettings}
 		/>
 	);
 }

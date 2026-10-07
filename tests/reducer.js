@@ -39,6 +39,38 @@ describe('reducer', function () {
 		});
 	});
 
+	describe('DISMISS_FEATURE_TIP', function () {
+		it('has no dismissed tips by default', function () {
+			const result = reducer(undefined, { type: 'UNKNOWN' });
+			expect(result.dismissedFeatureTips).toEqual([]);
+		});
+
+		it('adds the tip to the dismissed tips', function () {
+			const action = { type: 'DISMISS_FEATURE_TIP', tipId: 'low-priority' };
+			const result = reducer({}, action);
+			expect(result.dismissedFeatureTips).toEqual(['low-priority']);
+		});
+
+		it('does not add a tip twice', function () {
+			const action = { type: 'DISMISS_FEATURE_TIP', tipId: 'low-priority' };
+			const result = reducer(
+				{ dismissedFeatureTips: ['low-priority'] },
+				action
+			);
+			expect(result.dismissedFeatureTips).toEqual(['low-priority']);
+		});
+	});
+
+	describe('RESET_FEATURE_TIPS', function () {
+		it('clears the dismissed tips', function () {
+			const result = reducer(
+				{ dismissedFeatureTips: ['low-priority'] },
+				{ type: 'RESET_FEATURE_TIPS' }
+			);
+			expect(result.dismissedFeatureTips).toEqual([]);
+		});
+	});
+
 	describe('SET_LOW_PRIORITY_TITLE_PATTERNS', function () {
 		it('has no patterns by default', function () {
 			const result = reducer(undefined, { type: 'UNKNOWN' });

@@ -1,15 +1,18 @@
 import React from 'react';
 import Gridicon from 'gridicons';
 import debugFactory from 'debug';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Notification from '../components/notification';
 import UnsubscribedNotices from '../components/unsubscribed-notice';
+import FeatureTip from '../components/feature-tip';
 import {
 	getNoteId,
 	getLowPriorityOptions,
 	isNoteLowPriority,
 	groupNotesByRepo,
+	wouldDismissalMakeNoteLowPriority,
 } from '../lib/helpers';
+import { dismissFeatureTip, setLowPriorityEnabled } from '../lib/reducer';
 import { runWithViewTransition } from '../lib/view-transitions';
 import { useGetGitnewsUpdate } from '../lib/updates';
 import doesNoteMatchFilter from '../lib/does-note-match-filter';
@@ -65,6 +68,7 @@ export default function NotificationsArea({
 	appVisible,
 	isMultiOpenMode,
 	setMultiOpenMode,
+	showListSettings,
 }: {
 	newNotes: Note[];
 	readNotes: Note[];
@@ -81,6 +85,7 @@ export default function NotificationsArea({
 	appVisible: boolean;
 	isMultiOpenMode: boolean;
 	setMultiOpenMode: (isActive: boolean) => void;
+	showListSettings: () => void;
 }) {
 	const { isUpdateAvailable, updateUrl, updatedVersion } =
 		useGetGitnewsUpdate();
@@ -149,6 +154,7 @@ export default function NotificationsArea({
 	React.useEffect(() => {
 		if (!appVisible) {
 			setMultiOpenMode(false);
+			setIsLowPriorityTipConfirming(false);
 		}
 	}, [appVisible]);
 	React.useEffect(() => {
@@ -186,6 +192,15 @@ export default function NotificationsArea({
 		lowPriorityTitlePatterns,
 	});
 
+	const dispatch = useDispatch();
+	const isLowPriorityTipDismissed = useSelector((state: AppReduxState) =>
+		(state.dismissedFeatureTips ?? []).includes('low-priority')
+	);
+	// After the setting is turned on from the tip, keep showing it as a
+	// confirmation until it is closed or the app is hidden.
+	const [isLowPriorityTipConfirming, setIsLowPriorityTipConfirming] =
+		React.useState(false);
+
 	const isGroupByRepoEnabled = useSelector(
 		(state: AppReduxState) => state.isGroupByRepoEnabled
 	);
@@ -201,6 +216,44 @@ export default function NotificationsArea({
 		);
 	};
 
+	// Suggest the low priority setting when a note the user dismissed comes back
+	// because of activity that the setting would have de-prioritized.
+	const shouldOfferLowPriorityTip =
+		isLowPriorityTipConfirming ||
+		(!isLowPriorityEnabled && !isLowPriorityTipDismissed);
+	const lowPriorityTipNote = shouldOfferLowPriorityTip
+		? visibleUnreadNotes.find((note) =>
+				wouldDismissalMakeNoteLowPriority(note, lowPriorityTitlePatterns)
+			)
+		: undefined;
+	const lowPriorityTip = isLowPriorityTipConfirming ? (
+		<FeatureTip
+			actionLabel="Undo"
+			dismissLabel="OK"
+			onAction={() => {
+				dispatch(setLowPriorityEnabled(false));
+				setIsLowPriorityTipConfirming(false);
+			}}
+			onDismiss={() => setIsLowPriorityTipConfirming(false)}
+		>
+			Moved to low priority.
+		</FeatureTip>
+	) : (
+		<FeatureTip
+			actionLabel="Turn on"
+			dismissLabel="No thanks"
+			onLearnMore={showListSettings}
+			onAction={() => {
+				dispatch(setLowPriorityEnabled(true));
+				dispatch(dismissFeatureTip('low-priority'));
+				setIsLowPriorityTipConfirming(true);
+			}}
+			onDismiss={() => dispatch(dismissFeatureTip('low-priority'))}
+		>
+			Updated soon after you dismissed it. Show updates like this as low
+			priority?
+		</FeatureTip>
+	);
 	const renderNote = (note: Note) => {
 		const queuedAction = queuedNotes.get(getNoteId(note))?.action;
 		return (
@@ -222,6 +275,7 @@ export default function NotificationsArea({
 				isMultiOpenMode={isMultiOpenMode}
 				queueNoteAction={queueNoteAction}
 				queuedAction={queuedAction}
+				tip={note === lowPriorityTipNote ? lowPriorityTip : undefined}
 			/>
 		);
 	};
