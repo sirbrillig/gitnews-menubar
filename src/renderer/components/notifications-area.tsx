@@ -226,9 +226,27 @@ export default function NotificationsArea({
 		);
 	};
 
+	const lowPriorityNotes = visibleUnreadNotes.filter((note) =>
+		isNoteLowPriority(note, lowPriorityOptions)
+	);
+	const lowPriorityDivider = (
+		<NotesDivider
+			key="low-priority-divider"
+			label="Low priority"
+			isCaps
+			count={lowPriorityNotes.length}
+			markAllRead={() => markNotesRead(lowPriorityNotes)}
+		/>
+	);
+
 	const noteRows: React.ReactNode[] = [];
 	if (isGroupByRepoEnabled) {
-		groupNotesByRepo(visibleUnreadNotes).forEach((group) => {
+		// Low priority notes get their own section below the repo groups rather
+		// than being mixed into them.
+		const normalPriorityNotes = visibleUnreadNotes.filter(
+			(note) => !lowPriorityNotes.includes(note)
+		);
+		groupNotesByRepo(normalPriorityNotes).forEach((group) => {
 			noteRows.push(
 				<NotesDivider
 					key={`repo-divider-${group.repositoryFullName}`}
@@ -239,6 +257,9 @@ export default function NotificationsArea({
 				...group.notes.map(renderNote)
 			);
 		});
+		if (lowPriorityNotes.length > 0) {
+			noteRows.push(lowPriorityDivider, ...lowPriorityNotes.map(renderNote));
+		}
 		if (visibleUnreadNotes.length > 0 && visibleReadNotes.length > 0) {
 			noteRows.push(<NotesDivider key="read-divider" label="Read" isCaps />);
 		}
@@ -246,20 +267,9 @@ export default function NotificationsArea({
 	} else {
 		// Low priority notes are sorted together below the other unread notes,
 		// so put a divider above the first one.
-		const lowPriorityNotes = visibleUnreadNotes.filter((note) =>
-			isNoteLowPriority(note, lowPriorityOptions)
-		);
 		[...visibleUnreadNotes, ...visibleReadNotes].forEach((note) => {
 			if (note === lowPriorityNotes[0]) {
-				noteRows.push(
-					<NotesDivider
-						key="low-priority-divider"
-						label="Low priority"
-						isCaps
-						count={lowPriorityNotes.length}
-						markAllRead={() => markNotesRead(lowPriorityNotes)}
-					/>
-				);
+				noteRows.push(lowPriorityDivider);
 			}
 			noteRows.push(renderNote(note));
 		});
