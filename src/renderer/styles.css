@@ -638,6 +638,22 @@ header h1 {
 	opacity: 0.75;
 }
 
+.notification__preview {
+	font-size: 0.75em;
+	color: var(--notification-timestamp-color);
+	border-left: 2px solid var(--notification-timestamp-color);
+	padding-left: 6px;
+	margin-bottom: 5px;
+	max-height: 10em;
+	overflow-y: auto;
+	overflow-wrap: break-word;
+	word-break: break-word;
+}
+
+.notification__preview-author {
+	font-weight: 600;
+}
+
 .notification__invalid-notice {
 	font-size: 0.75em;
 	color: #d97706;
@@ -849,6 +865,7 @@ header h1 {
 
 .notification__mute-repo,
 .notification__unsubscribe,
+.notification__preview-toggle,
 .notification__mark-unread,
 .notification__mark-read {
 	font-size: 0.7em;

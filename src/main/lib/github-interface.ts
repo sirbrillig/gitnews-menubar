@@ -3,6 +3,7 @@ import { fetch as undiciFetch, ProxyAgent } from 'undici';
 import { socksDispatcher } from 'fetch-socks';
 import { logMessage } from './logging';
 import { doesTextMentionUser } from './mentions';
+import { getPlainTextExcerpt } from './excerpt';
 import type {
 	AccountInfo,
 	BasicNote,
@@ -180,6 +181,7 @@ interface CommentData {
 	commentHtmlUrl: string;
 	commentUsername: string;
 	commentMentionsViewer: boolean;
+	commentExcerpt: string;
 }
 
 // The login of the user who owns each account's token, keyed by account.
@@ -228,6 +230,7 @@ async function getCommentDataForNotification(
 	let commentHtmlUrl: string = '';
 	let commentUsername: string = '';
 	let commentMentionsViewer = false;
+	let commentExcerpt: string = '';
 	const commentUrl =
 		notification.subject.latest_comment_url || notification.subject.url;
 	if (!commentUrl) {
@@ -236,6 +239,7 @@ async function getCommentDataForNotification(
 			commentHtmlUrl,
 			commentUsername,
 			commentMentionsViewer,
+			commentExcerpt,
 		};
 	}
 	const commentPath = getOctokitRequestPathFromUrl(account, commentUrl);
@@ -249,6 +253,7 @@ async function getCommentDataForNotification(
 		commentHtmlUrl = commentData.html_url;
 		commentUsername = commentData.user.login;
 		commentMentionsViewer = doesTextMentionUser(commentData.body, viewerLogin);
+		commentExcerpt = getPlainTextExcerpt(commentData.body);
 	} catch (error) {
 		logMessage(
 			`Failed to fetch comment for ${commentPath} (${notification.subject.latest_comment_url ?? notification.subject.url})`,
@@ -260,6 +265,7 @@ async function getCommentDataForNotification(
 		commentHtmlUrl,
 		commentUsername,
 		commentMentionsViewer,
+		commentExcerpt,
 	};
 }
 
@@ -438,6 +444,7 @@ function buildNoteFromData({
 		type: notification.subject.type,
 		subjectUrl: subjectData.subjectHtmlUrl,
 		commentUsername: commentData.commentUsername,
+		commentExcerpt: commentData.commentExcerpt,
 		commentAvatar:
 			commentData.commentAvatar ?? notification.repository.owner.avatar_url,
 		repositoryOwnerAvatar: notification.repository.owner.avatar_url,

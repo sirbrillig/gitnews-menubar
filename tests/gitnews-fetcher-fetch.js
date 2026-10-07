@@ -69,6 +69,7 @@ function makeHydratedNote(basicNote, overrides = {}) {
 		subjectUrl: 'https://github.com/owner/repo/issues/1',
 		commentUsername: 'hydrateduser',
 		commentAvatar: 'https://example.com/avatar.png',
+		commentExcerpt: 'A hydrated comment',
 		api: {
 			subject: { state: 'open', merged: false, draft: false },
 			notification: { reason: basicNote.reason },
@@ -106,7 +107,12 @@ describe('createFetcher() — two-phase fetch', function () {
 		it('calls listBasicNotificationsForAccount once per account', async function () {
 			const accounts = [
 				TEST_ACCOUNT,
-				{ id: 'acc2', name: 'Account 2', apiKey: 'key2', serverUrl: 'https://api.github.com' },
+				{
+					id: 'acc2',
+					name: 'Account 2',
+					apiKey: 'key2',
+					serverUrl: 'https://api.github.com',
+				},
 			];
 			const { dispatch } = makeMiddleware(makeState({ accounts }));
 			dispatch({ type: 'GITNEWS_FETCH_NOTIFICATIONS' });
@@ -255,24 +261,31 @@ describe('createFetcher() — two-phase fetch', function () {
 		it('does not enrich a note that already exists with the same updatedAt', async function () {
 			const basicNote = makeBasicNote({ updatedAt: '2024-01-01T00:00:00Z' });
 			const existingNote = makeHydratedNote(basicNote);
-			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([basicNote]);
+			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([
+				basicNote,
+			]);
 			const { dispatch } = makeMiddleware(makeState({ notes: [existingNote] }));
 			dispatch({ type: 'GITNEWS_FETCH_NOTIFICATIONS' });
 			await flushPromises();
-			expect(window.electronApi.enrichNotificationsForAccount).not.toHaveBeenCalled();
+			expect(
+				window.electronApi.enrichNotificationsForAccount
+			).not.toHaveBeenCalled();
 		});
 
 		it('enriches a note when its updatedAt has changed', async function () {
 			const basicNote = makeBasicNote({ updatedAt: '2024-02-01T00:00:00Z' });
-			const existingNote = makeHydratedNote(basicNote, { updatedAt: '2024-01-01T00:00:00Z' });
-			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([basicNote]);
+			const existingNote = makeHydratedNote(basicNote, {
+				updatedAt: '2024-01-01T00:00:00Z',
+			});
+			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([
+				basicNote,
+			]);
 			const { dispatch } = makeMiddleware(makeState({ notes: [existingNote] }));
 			dispatch({ type: 'GITNEWS_FETCH_NOTIFICATIONS' });
 			await flushPromises();
-			expect(window.electronApi.enrichNotificationsForAccount).toHaveBeenCalledWith(
-				TEST_ACCOUNT,
-				[basicNote]
-			);
+			expect(
+				window.electronApi.enrichNotificationsForAccount
+			).toHaveBeenCalledWith(TEST_ACCOUNT, [basicNote]);
 		});
 
 		it('asks enrichment to search for mentions since a recent dismissal', async function () {
@@ -284,16 +297,19 @@ describe('createFetcher() — two-phase fetch', function () {
 				gitnewsDismissedAt: dismissedAt,
 				gitnewsDismissedReason: 'mention',
 			});
-			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([basicNote]);
+			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([
+				basicNote,
+			]);
 			const { dispatch } = makeMiddleware(
 				makeState({ notes: [existingNote], isLowPriorityEnabled: true })
 			);
 			dispatch({ type: 'GITNEWS_FETCH_NOTIFICATIONS' });
 			await flushPromises();
-			expect(window.electronApi.enrichNotificationsForAccount).toHaveBeenCalledWith(
-				TEST_ACCOUNT,
-				[{ ...basicNote, mentionsSince: dismissedAt }]
-			);
+			expect(
+				window.electronApi.enrichNotificationsForAccount
+			).toHaveBeenCalledWith(TEST_ACCOUNT, [
+				{ ...basicNote, mentionsSince: dismissedAt },
+			]);
 		});
 
 		it('does not search for mentions when low priority notes are disabled', async function () {
@@ -304,7 +320,9 @@ describe('createFetcher() — two-phase fetch', function () {
 				gitnewsDismissedAt: Date.parse('2024-01-01T12:00:00Z'),
 				gitnewsDismissedReason: 'mention',
 			});
-			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([basicNote]);
+			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([
+				basicNote,
+			]);
 			const { dispatch } = makeMiddleware(
 				makeState({ notes: [existingNote], isLowPriorityEnabled: false })
 			);
@@ -328,7 +346,9 @@ describe('createFetcher() — two-phase fetch', function () {
 				gitnewsDismissedAt: dismissedAt,
 				gitnewsDismissedReason: 'mention',
 			});
-			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([basicNote]);
+			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([
+				basicNote,
+			]);
 			const { dispatch } = makeMiddleware(
 				makeState({
 					notes: [existingNote],
@@ -338,23 +358,57 @@ describe('createFetcher() — two-phase fetch', function () {
 			);
 			dispatch({ type: 'GITNEWS_FETCH_NOTIFICATIONS' });
 			await flushPromises();
-			expect(window.electronApi.enrichNotificationsForAccount).toHaveBeenCalledWith(
-				TEST_ACCOUNT,
-				[{ ...basicNote, mentionsSince: dismissedAt }]
-			);
+			expect(
+				window.electronApi.enrichNotificationsForAccount
+			).toHaveBeenCalledWith(TEST_ACCOUNT, [
+				{ ...basicNote, mentionsSince: dismissedAt },
+			]);
 		});
 
 		it('re-enriches a note that was previously marked invalid', async function () {
 			const basicNote = makeBasicNote({ updatedAt: '2024-01-01T00:00:00Z' });
-			const existingNote = makeHydratedNote(basicNote, { gitnewsIsInvalid: true });
-			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([basicNote]);
+			const existingNote = makeHydratedNote(basicNote, {
+				gitnewsIsInvalid: true,
+			});
+			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([
+				basicNote,
+			]);
 			const { dispatch } = makeMiddleware(makeState({ notes: [existingNote] }));
 			dispatch({ type: 'GITNEWS_FETCH_NOTIFICATIONS' });
 			await flushPromises();
-			expect(window.electronApi.enrichNotificationsForAccount).toHaveBeenCalledWith(
-				TEST_ACCOUNT,
-				[basicNote]
-			);
+			expect(
+				window.electronApi.enrichNotificationsForAccount
+			).toHaveBeenCalledWith(TEST_ACCOUNT, [basicNote]);
+		});
+
+		it('re-enriches a cached note that has no comment excerpt', async function () {
+			const basicNote = makeBasicNote({ updatedAt: '2024-01-01T00:00:00Z' });
+			const existingNote = makeHydratedNote(basicNote, {
+				commentExcerpt: undefined,
+			});
+			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([
+				basicNote,
+			]);
+			const { dispatch } = makeMiddleware(makeState({ notes: [existingNote] }));
+			dispatch({ type: 'GITNEWS_FETCH_NOTIFICATIONS' });
+			await flushPromises();
+			expect(
+				window.electronApi.enrichNotificationsForAccount
+			).toHaveBeenCalledWith(TEST_ACCOUNT, [basicNote]);
+		});
+
+		it('reuses a cached note whose comment excerpt is empty', async function () {
+			const basicNote = makeBasicNote({ updatedAt: '2024-01-01T00:00:00Z' });
+			const existingNote = makeHydratedNote(basicNote, { commentExcerpt: '' });
+			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([
+				basicNote,
+			]);
+			const { dispatch } = makeMiddleware(makeState({ notes: [existingNote] }));
+			dispatch({ type: 'GITNEWS_FETCH_NOTIFICATIONS' });
+			await flushPromises();
+			expect(
+				window.electronApi.enrichNotificationsForAccount
+			).not.toHaveBeenCalled();
 		});
 
 		it('includes cached hydration data in NOTES_RETRIEVED for unchanged notes', async function () {
@@ -367,11 +421,17 @@ describe('createFetcher() — two-phase fetch', function () {
 					notification: { reason: 'mention' },
 				},
 			});
-			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([basicNote]);
-			const { dispatch, next } = makeMiddleware(makeState({ notes: [existingNote] }));
+			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([
+				basicNote,
+			]);
+			const { dispatch, next } = makeMiddleware(
+				makeState({ notes: [existingNote] })
+			);
 			dispatch({ type: 'GITNEWS_FETCH_NOTIFICATIONS' });
 			await flushPromises();
-			const call = next.mock.calls.find((c) => c[0]?.type === 'NOTES_RETRIEVED');
+			const call = next.mock.calls.find(
+				(c) => c[0]?.type === 'NOTES_RETRIEVED'
+			);
 			expect(call[0].notes[0].commentUrl).toBe(
 				'https://github.com/owner/repo/issues/1#comment-99'
 			);
@@ -380,39 +440,61 @@ describe('createFetcher() — two-phase fetch', function () {
 		});
 
 		it('updates unread from the fresh basic note even when using cached hydration', async function () {
-			const basicNote = makeBasicNote({ updatedAt: '2024-01-01T00:00:00Z', unread: false });
+			const basicNote = makeBasicNote({
+				updatedAt: '2024-01-01T00:00:00Z',
+				unread: false,
+			});
 			const existingNote = makeHydratedNote(basicNote, { unread: true });
-			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([basicNote]);
-			const { dispatch, next } = makeMiddleware(makeState({ notes: [existingNote] }));
+			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([
+				basicNote,
+			]);
+			const { dispatch, next } = makeMiddleware(
+				makeState({ notes: [existingNote] })
+			);
 			dispatch({ type: 'GITNEWS_FETCH_NOTIFICATIONS' });
 			await flushPromises();
-			const call = next.mock.calls.find((c) => c[0]?.type === 'NOTES_RETRIEVED');
+			const call = next.mock.calls.find(
+				(c) => c[0]?.type === 'NOTES_RETRIEVED'
+			);
 			expect(call[0].notes[0].unread).toBe(false);
 		});
 
 		it('only enriches notes with changed updatedAt, reusing the rest from cache', async function () {
-			const cachedNote = makeBasicNote({ id: 'n1', updatedAt: '2024-01-01T00:00:00Z' });
-			const updatedNote = makeBasicNote({ id: 'n2', updatedAt: '2024-02-01T00:00:00Z' });
+			const cachedNote = makeBasicNote({
+				id: 'n1',
+				updatedAt: '2024-01-01T00:00:00Z',
+			});
+			const updatedNote = makeBasicNote({
+				id: 'n2',
+				updatedAt: '2024-02-01T00:00:00Z',
+			});
 			const existingN1 = makeHydratedNote(cachedNote);
-			const existingN2 = makeHydratedNote(updatedNote, { updatedAt: '2024-01-15T00:00:00Z' });
+			const existingN2 = makeHydratedNote(updatedNote, {
+				updatedAt: '2024-01-15T00:00:00Z',
+			});
 			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([
 				cachedNote,
 				updatedNote,
 			]);
-			const { dispatch } = makeMiddleware(makeState({ notes: [existingN1, existingN2] }));
+			const { dispatch } = makeMiddleware(
+				makeState({ notes: [existingN1, existingN2] })
+			);
 			dispatch({ type: 'GITNEWS_FETCH_NOTIFICATIONS' });
 			await flushPromises();
-			expect(window.electronApi.enrichNotificationsForAccount).toHaveBeenCalledWith(
-				TEST_ACCOUNT,
-				[updatedNote]
-			);
+			expect(
+				window.electronApi.enrichNotificationsForAccount
+			).toHaveBeenCalledWith(TEST_ACCOUNT, [updatedNote]);
 		});
 	});
 
 	describe('Phase 3 — enrich', function () {
 		it('dispatches NOTES_RETRIEVED with the enriched notes', async function () {
 			const basicNote = makeBasicNote();
-			const enrichedNote = { id: 'note1', title: 'Enriched', updatedAt: '2024-01-01T00:00:00Z' };
+			const enrichedNote = {
+				id: 'note1',
+				title: 'Enriched',
+				updatedAt: '2024-01-01T00:00:00Z',
+			};
 			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([
 				basicNote,
 			]);
@@ -461,7 +543,12 @@ describe('createFetcher() — two-phase fetch', function () {
 		});
 
 		it('groups notes by account before calling enrichNotificationsForAccount', async function () {
-			const acc2 = { id: 'acc2', name: 'Account 2', apiKey: 'key2', serverUrl: 'https://api.github.com' };
+			const acc2 = {
+				id: 'acc2',
+				name: 'Account 2',
+				apiKey: 'key2',
+				serverUrl: 'https://api.github.com',
+			};
 			const noteAcc1 = makeBasicNote({ id: 'n1', gitnewsAccountId: 'acc1' });
 			const noteAcc2 = makeBasicNote({ id: 'n2', gitnewsAccountId: 'acc2' });
 			window.electronApi.listBasicNotificationsForAccount

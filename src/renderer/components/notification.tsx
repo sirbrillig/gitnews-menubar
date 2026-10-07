@@ -83,6 +83,7 @@ export default function Notification({
 		getLowPriorityOptions({ isLowPriorityEnabled, lowPriorityTitlePatterns })
 	);
 	const isLowPriority = Boolean(lowPriorityReason);
+	const [isPreviewOpen, setPreviewOpen] = React.useState(false);
 
 	const onClick = () => {
 		debug('clicked on notification', note);
@@ -182,6 +183,11 @@ export default function Notification({
 		event.preventDefault();
 		event.stopPropagation();
 		unmuteRepo(note.repositoryFullName);
+	};
+	const doTogglePreview = (event: React.MouseEvent<HTMLButtonElement>) => {
+		event.preventDefault();
+		event.stopPropagation();
+		setPreviewOpen((isOpen) => !isOpen);
 	};
 	const doRequestUnsubscribe = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
@@ -309,6 +315,16 @@ export default function Notification({
 							⚠ Failed to load details
 						</div>
 					)}
+					{isPreviewOpen && note.commentExcerpt && (
+						<div className="notification__preview">
+							{note.commentUsername && (
+								<span className="notification__preview-author">
+									@{note.commentUsername}:{' '}
+								</span>
+							)}
+							{note.commentExcerpt}
+						</div>
+					)}
 					<div className="notification__footer">
 						<span className="notification__time">
 							{openedRecentlyAt && (
@@ -337,6 +353,12 @@ export default function Notification({
 							)}
 						</span>
 						<span className="notification__actions">
+							{note.commentExcerpt && (
+								<PreviewToggleButton
+									isOpen={isPreviewOpen}
+									onClick={doTogglePreview}
+								/>
+							)}
 							{isMuted ? (
 								<UnmuteRepoButton
 									disabled={isMultiOpenMode}
@@ -448,6 +470,25 @@ function UnmuteRepoButton({
 			disabled={disabled}
 		>
 			unmute repo
+		</button>
+	);
+}
+
+function PreviewToggleButton({
+	isOpen,
+	onClick,
+}: {
+	isOpen: boolean;
+	onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+}) {
+	return (
+		<button
+			className="notification__preview-toggle"
+			aria-label={isOpen ? 'Hide comment preview' : 'Show comment preview'}
+			aria-expanded={isOpen}
+			onClick={onClick}
+		>
+			{isOpen ? 'hide preview' : 'preview'}
 		</button>
 	);
 }

@@ -243,7 +243,9 @@ export function createFetcher(): Middleware<unknown, AppReduxState> {
 						existing &&
 						existing.updatedAt === basicNote.updatedAt &&
 						!existing.gitnewsIsInvalid &&
-						(existing.subjectUrl || existing.commentUrl)
+						(existing.subjectUrl || existing.commentUrl) &&
+						// Notes cached before excerpts existed need one re-hydration.
+						existing.commentExcerpt !== undefined
 					) {
 						debug(
 							`Reusing cached hydration for note ${basicNote.id} (updatedAt: ${basicNote.updatedAt})`

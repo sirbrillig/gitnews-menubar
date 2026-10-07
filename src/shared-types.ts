@@ -90,6 +90,12 @@ export interface Note {
 
 	commentUsername: string;
 
+	/**
+	 * A short plain-text excerpt of the latest comment (or the issue/PR
+	 * description if there are no comments yet).
+	 */
+	commentExcerpt?: string;
+
 	gitnewsAccountId: AccountInfo['id'];
 }
 
