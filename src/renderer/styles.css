@@ -1387,7 +1387,11 @@ main {
 
 /* Sized like the note's footer so it reads as part of the note. */
 .feature-tip {
-	margin-top: 4px;
+	margin-top: 6px;
+	padding: 5px 8px;
+	border: 1px solid var(--notification-border-color);
+	border-radius: 6px;
+	background-color: var(--main-bg-color);
 	font-size: 0.7em;
 	line-height: 1.4;
 	color: var(--notification-timestamp-color);
