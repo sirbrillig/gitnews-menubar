@@ -54,12 +54,13 @@ export interface AppReduxState {
 	lowPriorityTitlePatterns: LowPriorityTitlePatterns;
 	isGroupByRepoEnabled: boolean;
 	dismissedFeatureTips: FeatureTipId[];
+	lastFeatureTipDismissedAt: false | number;
 }
 
 /**
  * One-time tips shown in the list to suggest settings that are off by default.
  */
-export type FeatureTipId = 'low-priority';
+export type FeatureTipId = 'low-priority' | 'group-by-repo';
 
 export interface RecentlyUnsubscribedNote {
 	note: Note;

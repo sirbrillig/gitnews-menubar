@@ -51,6 +51,12 @@ describe('reducer', function () {
 			expect(result.dismissedFeatureTips).toEqual(['low-priority']);
 		});
 
+		it('records when a tip was dismissed', function () {
+			const action = { type: 'DISMISS_FEATURE_TIP', tipId: 'low-priority' };
+			const result = reducer({}, action);
+			expect(typeof result.lastFeatureTipDismissedAt).toBe('number');
+		});
+
 		it('does not add a tip twice', function () {
 			const action = { type: 'DISMISS_FEATURE_TIP', tipId: 'low-priority' };
 			const result = reducer(
@@ -64,10 +70,14 @@ describe('reducer', function () {
 	describe('RESET_FEATURE_TIPS', function () {
 		it('clears the dismissed tips', function () {
 			const result = reducer(
-				{ dismissedFeatureTips: ['low-priority'] },
+				{
+					dismissedFeatureTips: ['low-priority'],
+					lastFeatureTipDismissedAt: 1000,
+				},
 				{ type: 'RESET_FEATURE_TIPS' }
 			);
 			expect(result.dismissedFeatureTips).toEqual([]);
+			expect(result.lastFeatureTipDismissedAt).toBe(false);
 		});
 	});
 

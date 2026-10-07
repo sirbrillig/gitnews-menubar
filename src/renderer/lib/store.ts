@@ -26,6 +26,7 @@ const persistedKeys: Array<keyof AppReduxState> = [
 	'lowPriorityTitlePatterns',
 	'isGroupByRepoEnabled',
 	'dismissedFeatureTips',
+	'lastFeatureTipDismissedAt',
 	'selectedAccount',
 	'lastSuccessfulCheck',
 ];

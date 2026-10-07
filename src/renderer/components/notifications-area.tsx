@@ -10,14 +10,19 @@ import {
 	getLowPriorityOptions,
 	isNoteLowPriority,
 	groupNotesByRepo,
-	wouldDismissalMakeNoteLowPriority,
 } from '../lib/helpers';
-import { dismissFeatureTip, setLowPriorityEnabled } from '../lib/reducer';
+import {
+	dismissFeatureTip,
+	setGroupByRepoEnabled,
+	setLowPriorityEnabled,
+} from '../lib/reducer';
+import { getFeatureTip } from '../lib/feature-tips';
 import { runWithViewTransition } from '../lib/view-transitions';
 import { useGetGitnewsUpdate } from '../lib/updates';
 import doesNoteMatchFilter from '../lib/does-note-match-filter';
 import {
 	AppReduxState,
+	FeatureTipId,
 	FilterType,
 	MarkRead,
 	MarkUnread,
@@ -154,7 +159,7 @@ export default function NotificationsArea({
 	React.useEffect(() => {
 		if (!appVisible) {
 			setMultiOpenMode(false);
-			setIsLowPriorityTipConfirming(false);
+			setConfirmingTipId(undefined);
 		}
 	}, [appVisible]);
 	React.useEffect(() => {
@@ -192,18 +197,22 @@ export default function NotificationsArea({
 		lowPriorityTitlePatterns,
 	});
 
-	const dispatch = useDispatch();
-	const isLowPriorityTipDismissed = useSelector((state: AppReduxState) =>
-		(state.dismissedFeatureTips ?? []).includes('low-priority')
-	);
-	// After the setting is turned on from the tip, keep showing it as a
-	// confirmation until it is closed or the app is hidden.
-	const [isLowPriorityTipConfirming, setIsLowPriorityTipConfirming] =
-		React.useState(false);
-
 	const isGroupByRepoEnabled = useSelector(
 		(state: AppReduxState) => state.isGroupByRepoEnabled
 	);
+
+	const dispatch = useDispatch();
+	const dismissedFeatureTips = useSelector(
+		(state: AppReduxState) => state.dismissedFeatureTips
+	);
+	const lastFeatureTipDismissedAt = useSelector(
+		(state: AppReduxState) => state.lastFeatureTipDismissedAt
+	);
+	// After a setting is turned on from its tip, keep showing the tip as a
+	// confirmation until it is closed or the app is hidden.
+	const [confirmingTipId, setConfirmingTipId] = React.useState<
+		FeatureTipId | undefined
+	>(undefined);
 
 	const isNoteVisible = (note: Note) =>
 		doesNoteMatchSearch(note, searchValue) &&
@@ -216,44 +225,64 @@ export default function NotificationsArea({
 		);
 	};
 
-	// Suggest the low priority setting when a note the user dismissed comes back
-	// because of activity that the setting would have de-prioritized.
-	const shouldOfferLowPriorityTip =
-		isLowPriorityTipConfirming ||
-		(!isLowPriorityEnabled && !isLowPriorityTipDismissed);
-	const lowPriorityTipNote = shouldOfferLowPriorityTip
-		? visibleUnreadNotes.find((note) =>
-				wouldDismissalMakeNoteLowPriority(note, lowPriorityTitlePatterns)
-			)
-		: undefined;
-	const lowPriorityTip = isLowPriorityTipConfirming ? (
-		<FeatureTip
-			actionLabel="Undo"
-			dismissLabel="OK"
-			onAction={() => {
-				dispatch(setLowPriorityEnabled(false));
-				setIsLowPriorityTipConfirming(false);
-			}}
-			onDismiss={() => setIsLowPriorityTipConfirming(false)}
-		>
-			Moved to low priority.
-		</FeatureTip>
-	) : (
-		<FeatureTip
-			actionLabel="Turn on"
-			dismissLabel="No thanks"
-			onLearnMore={showListSettings}
-			onAction={() => {
-				dispatch(setLowPriorityEnabled(true));
-				dispatch(dismissFeatureTip('low-priority'));
-				setIsLowPriorityTipConfirming(true);
-			}}
-			onDismiss={() => dispatch(dismissFeatureTip('low-priority'))}
-		>
-			Updated soon after you dismissed it. Show updates like this as low
-			priority?
-		</FeatureTip>
+	// Suggest a setting that is off by default when the list gets into a state
+	// that the setting would help with.
+	const featureTip = getFeatureTip(
+		visibleUnreadNotes,
+		{
+			isLowPriorityEnabled,
+			lowPriorityTitlePatterns,
+			isGroupByRepoEnabled,
+			dismissedFeatureTips,
+			lastFeatureTipDismissedAt,
+		},
+		{ confirmingTipId }
 	);
+	const setTipSettingEnabled = (tipId: FeatureTipId, isEnabled: boolean) => {
+		runWithViewTransition(() =>
+			dispatch(
+				tipId === 'low-priority'
+					? setLowPriorityEnabled(isEnabled)
+					: setGroupByRepoEnabled(isEnabled)
+			)
+		);
+	};
+	const renderFeatureTip = (tipId: FeatureTipId, count?: number) => {
+		if (tipId === confirmingTipId) {
+			return (
+				<FeatureTip
+					actionLabel="Undo"
+					dismissLabel="OK"
+					onAction={() => {
+						setTipSettingEnabled(tipId, false);
+						setConfirmingTipId(undefined);
+					}}
+					onDismiss={() => setConfirmingTipId(undefined)}
+				>
+					{tipId === 'low-priority'
+						? 'Moved to low priority.'
+						: 'Grouped by repo.'}
+				</FeatureTip>
+			);
+		}
+		return (
+			<FeatureTip
+				actionLabel="Turn on"
+				dismissLabel="No thanks"
+				onLearnMore={showListSettings}
+				onAction={() => {
+					setTipSettingEnabled(tipId, true);
+					dispatch(dismissFeatureTip(tipId));
+					setConfirmingTipId(tipId);
+				}}
+				onDismiss={() => dispatch(dismissFeatureTip(tipId))}
+			>
+				{tipId === 'low-priority'
+					? 'Updated soon after you dismissed it. Show updates like this as low priority?'
+					: `${count} unread notes from this repo. Group notes by repo to mark them read together?`}
+			</FeatureTip>
+		);
+	};
 	const renderNote = (note: Note) => {
 		const queuedAction = queuedNotes.get(getNoteId(note))?.action;
 		return (
@@ -275,7 +304,11 @@ export default function NotificationsArea({
 				isMultiOpenMode={isMultiOpenMode}
 				queueNoteAction={queueNoteAction}
 				queuedAction={queuedAction}
-				tip={note === lowPriorityTipNote ? lowPriorityTip : undefined}
+				tip={
+					note === featureTip?.note
+						? renderFeatureTip(featureTip.tipId, featureTip.count)
+						: undefined
+				}
 			/>
 		);
 	};
