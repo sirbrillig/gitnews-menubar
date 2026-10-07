@@ -15,7 +15,7 @@ export const FEATURE_TIP_COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 hours
 /**
  * How many unread notes from one repo it takes to suggest grouping by repo.
  */
-export const GROUP_BY_REPO_TIP_MIN_NOTES = 3;
+export const GROUP_BY_REPO_TIP_MIN_NOTES = 5;
 
 export interface FeatureTip {
 	tipId: FeatureTipId;

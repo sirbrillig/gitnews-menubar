@@ -2,6 +2,7 @@
 const {
 	getFeatureTip,
 	FEATURE_TIP_COOLDOWN_MS,
+	GROUP_BY_REPO_TIP_MIN_NOTES,
 } = require('../src/renderer/lib/feature-tips');
 
 const now = Date.parse('2026-10-02T12:00:00Z');
@@ -16,6 +17,10 @@ const makeNote = (id, overrides = {}) => ({
 	api: { notification: { reason: 'subscribed' } },
 	...overrides,
 });
+
+// Enough unread notes from owner/repo to suggest grouping by repo.
+const makeRepoNotes = (count = GROUP_BY_REPO_TIP_MIN_NOTES) =>
+	Array.from({ length: count }, (_, index) => makeNote(`r${index}`));
 
 const makeDismissedNote = (id, overrides = {}) =>
 	makeNote(id, {
@@ -78,29 +83,30 @@ describe('getFeatureTip()', function () {
 	});
 
 	describe('group by repo tip', function () {
+		const repoNotes = makeRepoNotes();
 		const notes = [
 			makeNote('a1', { repositoryFullName: 'other/repo' }),
-			makeNote('a2'),
-			makeNote('a3', { repositoryFullName: 'Owner/Repo' }),
-			makeNote('a4'),
+			...repoNotes.slice(0, -1),
+			// Repo names are compared regardless of case.
+			{ ...repoNotes[repoNotes.length - 1], repositoryFullName: 'Owner/Repo' },
 		];
 
 		it('is shown in the first note of a repo with enough unread notes', function () {
 			expect(getFeatureTip(notes, makeState(), { now })).toEqual({
 				tipId: 'group-by-repo',
-				note: notes[1],
-				count: 3,
+				note: repoNotes[0],
+				count: GROUP_BY_REPO_TIP_MIN_NOTES,
 			});
 		});
 
 		it('is not shown if no repo has enough unread notes', function () {
 			expect(
-				getFeatureTip(notes.slice(0, 3), makeState(), { now })
+				getFeatureTip(notes.slice(0, -1), makeState(), { now })
 			).toBeUndefined();
 		});
 
 		it('does not count low priority notes', function () {
-			const withLowPriority = [...notes.slice(0, 3), makeDismissedNote('a4')];
+			const withLowPriority = [...notes.slice(0, -1), makeDismissedNote('a2')];
 			expect(
 				getFeatureTip(
 					withLowPriority,
@@ -132,9 +138,7 @@ describe('getFeatureTip()', function () {
 	describe('with more than one tip', function () {
 		const notes = [
 			makeDismissedNote('a1', { repositoryFullName: 'other/repo' }),
-			makeNote('a2'),
-			makeNote('a3'),
-			makeNote('a4'),
+			...makeRepoNotes(),
 		];
 
 		it('shows the low priority tip first', function () {
