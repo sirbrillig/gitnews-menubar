@@ -89,6 +89,7 @@ export default function Notification({
 		debug('clicked on notification', note);
 		setMuteRequested(false);
 		setUnsubscribeRequested(false);
+		setPreviewOpen(false);
 		if (isMultiOpenMode) {
 			queueNoteAction(note, 'open');
 			return;
@@ -102,6 +103,7 @@ export default function Notification({
 		debug('clicked mark-as-read button', note);
 		setMuteRequested(false);
 		setUnsubscribeRequested(false);
+		setPreviewOpen(false);
 		if (isMultiOpenMode) {
 			queueNoteAction(note, 'markRead');
 			return;
@@ -115,6 +117,7 @@ export default function Notification({
 		debug('clicked mark-as-unread button', note);
 		setMuteRequested(false);
 		setUnsubscribeRequested(false);
+		setPreviewOpen(false);
 		if (isMultiOpenMode) {
 			queueNoteAction(note, 'markUnread');
 			return;
@@ -177,11 +180,13 @@ export default function Notification({
 		event.preventDefault();
 		event.stopPropagation();
 		setUnsubscribeRequested(false);
+		setPreviewOpen(false);
 		setMuteRequested(note);
 	};
 	const doUnmute = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
 		event.stopPropagation();
+		setPreviewOpen(false);
 		unmuteRepo(note.repositoryFullName);
 	};
 	const doTogglePreview = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -193,6 +198,7 @@ export default function Notification({
 		event.preventDefault();
 		event.stopPropagation();
 		setMuteRequested(false);
+		setPreviewOpen(false);
 		setUnsubscribeRequested(note);
 	};
 
@@ -315,16 +321,6 @@ export default function Notification({
 							⚠ Failed to load details
 						</div>
 					)}
-					{isPreviewOpen && note.commentExcerpt && (
-						<div className="notification__preview">
-							{note.commentUsername && (
-								<span className="notification__preview-author">
-									@{note.commentUsername}:{' '}
-								</span>
-							)}
-							{note.commentExcerpt}
-						</div>
-					)}
 					<div className="notification__footer">
 						<span className="notification__time">
 							{openedRecentlyAt && (
@@ -346,9 +342,7 @@ export default function Notification({
 											: 'You dismissed this recently without opening it, so this update is probably minor'
 									}
 								>
-									{lowPriorityReason === 'title'
-										? '· low priority'
-										: '· minor update'}
+									{lowPriorityReason === 'title' ? '· low' : '· minor'}
 								</span>
 							)}
 						</span>
@@ -376,6 +370,16 @@ export default function Notification({
 							/>
 						</span>
 					</div>
+					{isPreviewOpen && note.commentExcerpt && (
+						<div className="notification__preview">
+							{note.commentUsername && (
+								<span className="notification__preview-author">
+									@{note.commentUsername}:{' '}
+								</span>
+							)}
+							{note.commentExcerpt}
+						</div>
+					)}
 					{tip}
 				</div>
 			</div>
@@ -486,9 +490,18 @@ function PreviewToggleButton({
 			className="notification__preview-toggle"
 			aria-label={isOpen ? 'Hide comment preview' : 'Show comment preview'}
 			aria-expanded={isOpen}
+			title={isOpen ? 'Hide comment preview' : 'Show comment preview'}
 			onClick={onClick}
 		>
-			{isOpen ? 'hide preview' : 'preview'}
+			<Gridicon
+				icon="chevron-right"
+				size={12}
+				className={
+					'notification__preview-toggle-icon' +
+					(isOpen ? ' notification__preview-toggle-icon--open' : '')
+				}
+			/>
+			<span className="notification__preview-toggle-text">preview</span>
 		</button>
 	);
 }

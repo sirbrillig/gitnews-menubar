@@ -643,7 +643,7 @@ header h1 {
 	color: var(--notification-timestamp-color);
 	border-left: 2px solid var(--notification-timestamp-color);
 	padding-left: 6px;
-	margin-bottom: 5px;
+	margin-top: 5px;
 	max-height: 10em;
 	overflow-y: auto;
 	overflow-wrap: break-word;
@@ -794,6 +794,10 @@ header h1 {
 .notification__time {
 	font-size: 0.7em;
 	color: var(--notification-timestamp-color);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	min-width: 0;
 }
 
 .notification__opened-dot {
@@ -878,6 +882,26 @@ header h1 {
 	flex: 0 0 auto;
 }
 
+.notification__preview-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 1px;
+	text-decoration: none;
+}
+
+.notification__preview-toggle-text {
+	text-decoration: underline;
+}
+
+.notification__preview-toggle-icon {
+	fill: currentColor;
+	transition: transform 0.15s ease;
+}
+
+.notification__preview-toggle-icon--open {
+	transform: rotate(90deg);
+}
+
 .notification__body {
 	overflow: hidden;
 	flex: 1;
@@ -894,6 +918,7 @@ header h1 {
 
 .notification__actions {
 	display: flex;
+	flex-shrink: 0;
 	opacity: 0.45;
 	transition: opacity 0.15s ease;
 }
