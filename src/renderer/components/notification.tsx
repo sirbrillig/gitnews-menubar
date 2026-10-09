@@ -83,11 +83,13 @@ export default function Notification({
 		getLowPriorityOptions({ isLowPriorityEnabled, lowPriorityTitlePatterns })
 	);
 	const isLowPriority = Boolean(lowPriorityReason);
+	const [isPreviewOpen, setPreviewOpen] = React.useState(false);
 
 	const onClick = () => {
 		debug('clicked on notification', note);
 		setMuteRequested(false);
 		setUnsubscribeRequested(false);
+		setPreviewOpen(false);
 		if (isMultiOpenMode) {
 			queueNoteAction(note, 'open');
 			return;
@@ -101,6 +103,7 @@ export default function Notification({
 		debug('clicked mark-as-read button', note);
 		setMuteRequested(false);
 		setUnsubscribeRequested(false);
+		setPreviewOpen(false);
 		if (isMultiOpenMode) {
 			queueNoteAction(note, 'markRead');
 			return;
@@ -114,6 +117,7 @@ export default function Notification({
 		debug('clicked mark-as-unread button', note);
 		setMuteRequested(false);
 		setUnsubscribeRequested(false);
+		setPreviewOpen(false);
 		if (isMultiOpenMode) {
 			queueNoteAction(note, 'markUnread');
 			return;
@@ -176,17 +180,25 @@ export default function Notification({
 		event.preventDefault();
 		event.stopPropagation();
 		setUnsubscribeRequested(false);
+		setPreviewOpen(false);
 		setMuteRequested(note);
 	};
 	const doUnmute = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
 		event.stopPropagation();
+		setPreviewOpen(false);
 		unmuteRepo(note.repositoryFullName);
+	};
+	const doTogglePreview = (event: React.MouseEvent<HTMLButtonElement>) => {
+		event.preventDefault();
+		event.stopPropagation();
+		setPreviewOpen((isOpen) => !isOpen);
 	};
 	const doRequestUnsubscribe = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
 		event.stopPropagation();
 		setMuteRequested(false);
+		setPreviewOpen(false);
 		setUnsubscribeRequested(note);
 	};
 
@@ -330,13 +342,17 @@ export default function Notification({
 											: 'You dismissed this recently without opening it, so this update is probably minor'
 									}
 								>
-									{lowPriorityReason === 'title'
-										? '· low priority'
-										: '· minor update'}
+									{lowPriorityReason === 'title' ? '· low' : '· minor'}
 								</span>
 							)}
 						</span>
 						<span className="notification__actions">
+							{note.commentExcerpt && (
+								<PreviewToggleButton
+									isOpen={isPreviewOpen}
+									onClick={doTogglePreview}
+								/>
+							)}
 							{isMuted ? (
 								<UnmuteRepoButton
 									disabled={isMultiOpenMode}
@@ -354,6 +370,16 @@ export default function Notification({
 							/>
 						</span>
 					</div>
+					{isPreviewOpen && note.commentExcerpt && (
+						<div className="notification__preview">
+							{note.commentUsername && (
+								<span className="notification__preview-author">
+									@{note.commentUsername}:{' '}
+								</span>
+							)}
+							{note.commentExcerpt}
+						</div>
+					)}
 					{tip}
 				</div>
 			</div>
@@ -448,6 +474,34 @@ function UnmuteRepoButton({
 			disabled={disabled}
 		>
 			unmute repo
+		</button>
+	);
+}
+
+function PreviewToggleButton({
+	isOpen,
+	onClick,
+}: {
+	isOpen: boolean;
+	onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+}) {
+	return (
+		<button
+			className="notification__preview-toggle"
+			aria-label={isOpen ? 'Hide comment preview' : 'Show comment preview'}
+			aria-expanded={isOpen}
+			title={isOpen ? 'Hide comment preview' : 'Show comment preview'}
+			onClick={onClick}
+		>
+			<Gridicon
+				icon="chevron-right"
+				size={12}
+				className={
+					'notification__preview-toggle-icon' +
+					(isOpen ? ' notification__preview-toggle-icon--open' : '')
+				}
+			/>
+			<span className="notification__preview-toggle-text">preview</span>
 		</button>
 	);
 }
