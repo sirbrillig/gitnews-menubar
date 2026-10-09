@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 
 import App from './components/app';
@@ -37,13 +37,12 @@ async function runApp() {
 	store.dispatch(initToken(token));
 	store.dispatch(initAccounts(accounts));
 
-	ReactDOM.render(
+	createRoot(main).render(
 		<Provider store={store}>
 			<AppWrapper quitApp={quitApp}>
 				<App getVersion={getVersion} quitApp={quitApp} />
 			</AppWrapper>
-		</Provider>,
-		main
+		</Provider>
 	);
 }
 
