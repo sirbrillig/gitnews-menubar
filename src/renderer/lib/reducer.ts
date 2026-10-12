@@ -3,6 +3,8 @@ import {
 	getNoteId,
 	mergeNotifications,
 	getFetchInterval,
+	isValidLowPriorityWindowHours,
+	DEFAULT_LOW_PRIORITY_WINDOW_HOURS,
 } from '../lib/helpers';
 import {
 	AppReduxState,
@@ -35,6 +37,7 @@ import {
 	ActionSetLowPriorityEnabled,
 	ActionSetGroupByRepoEnabled,
 	ActionSetLowPriorityTitlePatterns,
+	ActionSetLowPriorityWindowHours,
 	ActionDismissFeatureTip,
 	ActionResetFeatureTips,
 	FeatureTipId,
@@ -68,6 +71,7 @@ const initialState: AppReduxState = {
 	recentlyUnsubscribed: [],
 	isLowPriorityEnabled: false,
 	lowPriorityTitlePatterns: {},
+	lowPriorityWindowHours: DEFAULT_LOW_PRIORITY_WINDOW_HOURS,
 	isGroupByRepoEnabled: false,
 	dismissedFeatureTips: [],
 	lastFeatureTipDismissedAt: false,
@@ -335,6 +339,11 @@ export function createReducer() {
 				return { ...state, showUnreadOnly: action.showUnreadOnly };
 			case 'SET_LOW_PRIORITY_ENABLED':
 				return { ...state, isLowPriorityEnabled: action.isEnabled };
+			case 'SET_LOW_PRIORITY_WINDOW_HOURS':
+				if (!isValidLowPriorityWindowHours(action.hours)) {
+					return state;
+				}
+				return { ...state, lowPriorityWindowHours: action.hours };
 			case 'SET_GROUP_BY_REPO_ENABLED':
 				return { ...state, isGroupByRepoEnabled: action.isEnabled };
 			case 'DISMISS_FEATURE_TIP': {
@@ -512,6 +521,12 @@ export function setLowPriorityEnabled(
 	isEnabled: boolean
 ): ActionSetLowPriorityEnabled {
 	return { type: 'SET_LOW_PRIORITY_ENABLED', isEnabled };
+}
+
+export function setLowPriorityWindowHours(
+	hours: number
+): ActionSetLowPriorityWindowHours {
+	return { type: 'SET_LOW_PRIORITY_WINDOW_HOURS', hours };
 }
 
 export function setGroupByRepoEnabled(

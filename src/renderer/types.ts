@@ -52,6 +52,7 @@ export interface AppReduxState {
 	recentlyUnsubscribed: RecentlyUnsubscribedNote[];
 	isLowPriorityEnabled: boolean;
 	lowPriorityTitlePatterns: LowPriorityTitlePatterns;
+	lowPriorityWindowHours: number;
 	isGroupByRepoEnabled: boolean;
 	dismissedFeatureTips: FeatureTipId[];
 	lastFeatureTipDismissedAt: false | number;
@@ -113,6 +114,10 @@ export type ActionToggleLogging = {
 export type ActionSetLowPriorityEnabled = {
 	type: 'SET_LOW_PRIORITY_ENABLED';
 	isEnabled: boolean;
+};
+export type ActionSetLowPriorityWindowHours = {
+	type: 'SET_LOW_PRIORITY_WINDOW_HOURS';
+	hours: number;
 };
 export type ActionSetGroupByRepoEnabled = {
 	type: 'SET_GROUP_BY_REPO_ENABLED';
@@ -199,6 +204,7 @@ export type AppReduxAction =
 	| ActionToggleLogging
 	| ActionSetLowPriorityEnabled
 	| ActionSetLowPriorityTitlePatterns
+	| ActionSetLowPriorityWindowHours
 	| ActionSetGroupByRepoEnabled
 	| ActionDismissFeatureTip
 	| ActionResetFeatureTips;

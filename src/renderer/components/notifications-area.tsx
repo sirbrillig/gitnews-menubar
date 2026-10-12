@@ -192,9 +192,13 @@ export default function NotificationsArea({
 	const lowPriorityTitlePatterns = useSelector(
 		(state: AppReduxState) => state.lowPriorityTitlePatterns
 	);
+	const lowPriorityWindowHours = useSelector(
+		(state: AppReduxState) => state.lowPriorityWindowHours
+	);
 	const lowPriorityOptions = getLowPriorityOptions({
 		isLowPriorityEnabled,
 		lowPriorityTitlePatterns,
+		lowPriorityWindowHours,
 	});
 
 	const isGroupByRepoEnabled = useSelector(
@@ -232,6 +236,7 @@ export default function NotificationsArea({
 		{
 			isLowPriorityEnabled,
 			lowPriorityTitlePatterns,
+			lowPriorityWindowHours,
 			isGroupByRepoEnabled,
 			dismissedFeatureTips,
 			lastFeatureTipDismissedAt,

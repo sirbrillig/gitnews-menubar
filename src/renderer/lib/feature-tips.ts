@@ -33,6 +33,7 @@ type FeatureTipState = Pick<
 	AppReduxState,
 	| 'isLowPriorityEnabled'
 	| 'lowPriorityTitlePatterns'
+	| 'lowPriorityWindowHours'
 	| 'isGroupByRepoEnabled'
 	| 'dismissedFeatureTips'
 	| 'lastFeatureTipDismissedAt'
@@ -67,8 +68,13 @@ export function getFeatureTip(
 			!isCoolingDown);
 
 	if (canOffer('low-priority', state.isLowPriorityEnabled)) {
+		const { windowMs } = getLowPriorityOptions(state);
 		const note = unreadNotes.find((note) =>
-			wouldDismissalMakeNoteLowPriority(note, state.lowPriorityTitlePatterns)
+			wouldDismissalMakeNoteLowPriority(
+				note,
+				state.lowPriorityTitlePatterns,
+				windowMs
+			)
 		);
 		if (note) {
 			return { tipId: 'low-priority', note };
