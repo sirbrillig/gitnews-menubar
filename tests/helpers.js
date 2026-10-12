@@ -10,6 +10,7 @@ const {
 	groupNotesByRepo,
 	wouldDismissalMakeNoteLowPriority,
 	LOW_PRIORITY_WINDOW_MS,
+	getLowPriorityOptions,
 } = require('../src/renderer/lib/helpers');
 
 describe('getErrorMessage()', function () {
@@ -97,6 +98,37 @@ describe('isNoteLowPriority()', function () {
 			dismissedAt + LOW_PRIORITY_WINDOW_MS + 60_000
 		).toISOString();
 		expect(isNoteLowPriority(makeNote({ updatedAt }))).toBe(false);
+	});
+
+	it('returns true for an update over a weekend by default', function () {
+		const updatedAt = new Date(dismissedAt + 70 * 60 * 60 * 1000).toISOString();
+		expect(isNoteLowPriority(makeNote({ updatedAt }))).toBe(true);
+	});
+
+	it('uses a custom low priority window', function () {
+		const updatedAt = new Date(dismissedAt + 30 * 60 * 60 * 1000).toISOString();
+		const options = (hours) =>
+			getLowPriorityOptions({
+				isLowPriorityEnabled: true,
+				lowPriorityWindowHours: hours,
+			});
+		expect(isNoteLowPriority(makeNote({ updatedAt }), options(24))).toBe(false);
+		expect(isNoteLowPriority(makeNote({ updatedAt }), options(48))).toBe(true);
+	});
+
+	it('uses the default window if the setting is missing or invalid', function () {
+		const updatedAt = new Date(dismissedAt + 70 * 60 * 60 * 1000).toISOString();
+		[undefined, 0, -5, NaN, 'abc'].forEach((hours) => {
+			expect(
+				isNoteLowPriority(
+					makeNote({ updatedAt }),
+					getLowPriorityOptions({
+						isLowPriorityEnabled: true,
+						lowPriorityWindowHours: hours,
+					})
+				)
+			).toBe(true);
+		});
 	});
 
 	it('returns false if the update is a new mention', function () {

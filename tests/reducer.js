@@ -26,6 +26,27 @@ describe('reducer', function () {
 		});
 	});
 
+	describe('SET_LOW_PRIORITY_WINDOW_HOURS', function () {
+		it('is 72 hours by default', function () {
+			const result = reducer(undefined, { type: 'UNKNOWN' });
+			expect(result.lowPriorityWindowHours).toBe(72);
+		});
+
+		it('changes the setting', function () {
+			const action = { type: 'SET_LOW_PRIORITY_WINDOW_HOURS', hours: 120 };
+			const result = reducer({ lowPriorityWindowHours: 72 }, action);
+			expect(result.lowPriorityWindowHours).toBe(120);
+		});
+
+		it('ignores invalid values', function () {
+			[0, -1, NaN, Infinity].forEach((hours) => {
+				const action = { type: 'SET_LOW_PRIORITY_WINDOW_HOURS', hours };
+				const result = reducer({ lowPriorityWindowHours: 72 }, action);
+				expect(result.lowPriorityWindowHours).toBe(72);
+			});
+		});
+	});
+
 	describe('SET_GROUP_BY_REPO_ENABLED', function () {
 		it('is disabled by default', function () {
 			const result = reducer(undefined, { type: 'UNKNOWN' });

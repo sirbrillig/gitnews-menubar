@@ -74,6 +74,7 @@ interface AppConnectedProps {
 	showUnreadOnly: boolean;
 	isLowPriorityEnabled: boolean;
 	lowPriorityTitlePatterns: LowPriorityTitlePatterns;
+	lowPriorityWindowHours: number;
 	hasAccounts: boolean;
 }
 
@@ -319,7 +320,7 @@ class App extends React.Component<AppProps, AppState> {
 				</Header>
 				<ErrorsArea errors={errors} clearErrors={this.props.clearErrors} />
 				<div className="main-pane-scroll">
-						<MainPane
+					<MainPane
 						token={token ?? ''}
 						isTokenInvalid={isTokenInvalid}
 						currentPane={currentPane}
@@ -378,6 +379,7 @@ function mapStateToProps(state: AppReduxState): AppConnectedProps {
 		showUnreadOnly: state.showUnreadOnly,
 		isLowPriorityEnabled: state.isLowPriorityEnabled,
 		lowPriorityTitlePatterns: state.lowPriorityTitlePatterns,
+		lowPriorityWindowHours: state.lowPriorityWindowHours,
 		hasAccounts: state.accounts.length > 0 || Boolean(state.token),
 	};
 }

@@ -2,10 +2,23 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
 	setLowPriorityEnabled,
+	setLowPriorityWindowHours,
 	setGroupByRepoEnabled,
 	resetFeatureTips,
 } from '../lib/reducer';
+import {
+	DEFAULT_LOW_PRIORITY_WINDOW_HOURS,
+	LOW_PRIORITY_WINDOW_HOURS_CHOICES,
+} from '../lib/helpers';
 import { AppReduxState } from '../types';
+
+function formatWindowHours(hours: number): string {
+	if (hours % 24 === 0) {
+		const days = hours / 24;
+		return days === 7 ? '1 week' : `${days} ${days === 1 ? 'day' : 'days'}`;
+	}
+	return `${hours} hours`;
+}
 
 export default function ListSettingsPage({
 	showMutedReposList,
@@ -20,6 +33,18 @@ export default function ListSettingsPage({
 	);
 	const toggleLowPriority = (event: { target: { checked: boolean } }) =>
 		dispatch(setLowPriorityEnabled(event.target.checked));
+	const lowPriorityWindowHours =
+		useSelector((state: AppReduxState) => state.lowPriorityWindowHours) ??
+		DEFAULT_LOW_PRIORITY_WINDOW_HOURS;
+	const windowHoursChoices = LOW_PRIORITY_WINDOW_HOURS_CHOICES.includes(
+		lowPriorityWindowHours
+	)
+		? LOW_PRIORITY_WINDOW_HOURS_CHOICES
+		: [...LOW_PRIORITY_WINDOW_HOURS_CHOICES, lowPriorityWindowHours].sort(
+				(a, b) => a - b
+			);
+	const changeLowPriorityWindow = (event: { target: { value: string } }) =>
+		dispatch(setLowPriorityWindowHours(Number(event.target.value)));
 	const isGroupByRepoEnabled = useSelector(
 		(state: AppReduxState) => state.isGroupByRepoEnabled
 	);
@@ -57,9 +82,8 @@ export default function ListSettingsPage({
 								De-prioritize minor updates
 							</label>
 							<p className="config-row__hint">
-								New activity within 48 hours of marking a note read without
-								opening it is shown lower in the list, unless it is a new
-								mention
+								New activity soon after marking a note read without opening it
+								is shown lower in the list, unless it is a new mention
 							</p>
 						</div>
 						<input
@@ -68,6 +92,29 @@ export default function ListSettingsPage({
 							checked={isLowPriorityEnabled}
 							onChange={toggleLowPriority}
 						/>
+					</li>
+					<li className="config-row config-row--toggle">
+						<div>
+							<label htmlFor="low-priority-window-setting">
+								Minor update window
+							</label>
+							<p className="config-row__hint">
+								How long after marking a note read that new activity counts as
+								minor
+							</p>
+						</div>
+						<select
+							id="low-priority-window-setting"
+							value={lowPriorityWindowHours}
+							disabled={!isLowPriorityEnabled}
+							onChange={changeLowPriorityWindow}
+						>
+							{windowHoursChoices.map((hours) => (
+								<option key={hours} value={hours}>
+									{formatWindowHours(hours)}
+								</option>
+							))}
+						</select>
 					</li>
 					<li className="config-row config-row--nav">
 						<button

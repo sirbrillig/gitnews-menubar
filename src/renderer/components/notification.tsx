@@ -78,9 +78,16 @@ export default function Notification({
 	const lowPriorityTitlePatterns = useSelector(
 		(state: AppReduxState) => state.lowPriorityTitlePatterns
 	);
+	const lowPriorityWindowHours = useSelector(
+		(state: AppReduxState) => state.lowPriorityWindowHours
+	);
 	const lowPriorityReason = getLowPriorityReason(
 		note,
-		getLowPriorityOptions({ isLowPriorityEnabled, lowPriorityTitlePatterns })
+		getLowPriorityOptions({
+			isLowPriorityEnabled,
+			lowPriorityTitlePatterns,
+			lowPriorityWindowHours,
+		})
 	);
 	const isLowPriority = Boolean(lowPriorityReason);
 	const [isPreviewOpen, setPreviewOpen] = React.useState(false);

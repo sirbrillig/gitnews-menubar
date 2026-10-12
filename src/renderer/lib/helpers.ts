@@ -100,10 +100,27 @@ export function mergeNotifications(
 }
 
 /**
- * How long after a note is dismissed that new activity on it is considered
- * low priority.
+ * The default for how long after a note is dismissed that new activity on it
+ * is considered low priority. Long enough to cover a weekend.
  */
-export const LOW_PRIORITY_WINDOW_MS = 48 * 60 * 60 * 1000; // 48 hours
+export const DEFAULT_LOW_PRIORITY_WINDOW_HOURS = 72;
+
+export const LOW_PRIORITY_WINDOW_HOURS_CHOICES = [24, 48, 72, 96, 120, 168];
+
+export const LOW_PRIORITY_WINDOW_MS = hoursToMs(
+	DEFAULT_LOW_PRIORITY_WINDOW_HOURS
+);
+
+function hoursToMs(hours: number): number {
+	return hours * 60 * 60 * 1000;
+}
+
+/**
+ * Return true if the value can be used as the low priority window.
+ */
+export function isValidLowPriorityWindowHours(hours: unknown): hours is number {
+	return typeof hours === 'number' && Number.isFinite(hours) && hours > 0;
+}
 
 export type LowPriorityReason = 'dismissed' | 'title';
 
@@ -113,17 +130,28 @@ export interface LowPriorityOptions {
 	 */
 	isDismissalEnabled?: boolean;
 	titlePatterns?: LowPriorityTitlePatterns;
+	/**
+	 * How long after dismissal new activity is considered low priority.
+	 */
+	windowMs?: number;
 }
 
 export function getLowPriorityOptions(
 	state: Pick<
 		AppReduxState,
-		'isLowPriorityEnabled' | 'lowPriorityTitlePatterns'
+		| 'isLowPriorityEnabled'
+		| 'lowPriorityTitlePatterns'
+		| 'lowPriorityWindowHours'
 	>
 ): LowPriorityOptions {
 	return {
 		isDismissalEnabled: state.isLowPriorityEnabled,
 		titlePatterns: state.lowPriorityTitlePatterns ?? {},
+		windowMs: hoursToMs(
+			isValidLowPriorityWindowHours(state.lowPriorityWindowHours)
+				? state.lowPriorityWindowHours
+				: DEFAULT_LOW_PRIORITY_WINDOW_HOURS
+		),
 	};
 }
 
@@ -151,7 +179,11 @@ export function isNoteLowPriority(
  */
 export function getLowPriorityReason(
 	note: Note,
-	{ isDismissalEnabled = false, titlePatterns = {} }: LowPriorityOptions
+	{
+		isDismissalEnabled = false,
+		titlePatterns = {},
+		windowMs = LOW_PRIORITY_WINDOW_MS,
+	}: LowPriorityOptions
 ): LowPriorityReason | undefined {
 	if (!note.unread || note.gitnewsMarkedUnread) {
 		return undefined;
@@ -167,7 +199,11 @@ export function getLowPriorityReason(
 	if (
 		isDismissalEnabled &&
 		note.gitnewsDismissedAt &&
-		isUpdateWithinLowPriorityWindow(note.gitnewsDismissedAt, note.updatedAt)
+		isUpdateWithinLowPriorityWindow(
+			note.gitnewsDismissedAt,
+			note.updatedAt,
+			windowMs
+		)
 	) {
 		return 'dismissed';
 	}
@@ -180,11 +216,15 @@ export function getLowPriorityReason(
  */
 export function wouldDismissalMakeNoteLowPriority(
 	note: Note,
-	titlePatterns: LowPriorityTitlePatterns = {}
+	titlePatterns: LowPriorityTitlePatterns = {},
+	windowMs: number = LOW_PRIORITY_WINDOW_MS
 ): boolean {
 	return (
-		getLowPriorityReason(note, { isDismissalEnabled: true, titlePatterns }) ===
-		'dismissed'
+		getLowPriorityReason(note, {
+			isDismissalEnabled: true,
+			titlePatterns,
+			windowMs,
+		}) === 'dismissed'
 	);
 }
 
@@ -268,13 +308,14 @@ export function doesTitleMatchPatterns(
 
 function isUpdateWithinLowPriorityWindow(
 	dismissedAt: number,
-	updatedAtString: string
+	updatedAtString: string,
+	windowMs: number
 ): boolean {
 	const updatedAt = Date.parse(updatedAtString);
 	if (Number.isNaN(updatedAt)) {
 		return false;
 	}
-	return updatedAt - dismissedAt <= LOW_PRIORITY_WINDOW_MS;
+	return updatedAt - dismissedAt <= windowMs;
 }
 
 function hasReasonBecomeMention(
@@ -298,7 +339,11 @@ function hasReasonBecomeMention(
 export function getMentionsSinceForNote(
 	existingNote: Note | undefined,
 	basicNote: BasicNote,
-	{ isDismissalEnabled = false, titlePatterns = {} }: LowPriorityOptions = {}
+	{
+		isDismissalEnabled = false,
+		titlePatterns = {},
+		windowMs = LOW_PRIORITY_WINDOW_MS,
+	}: LowPriorityOptions = {}
 ): number | undefined {
 	const dismissedAt = existingNote?.gitnewsDismissedAt;
 	if (!dismissedAt || !basicNote.unread || existingNote.gitnewsMarkedUnread) {
@@ -323,7 +368,7 @@ export function getMentionsSinceForNote(
 	}
 	if (
 		isDismissalEnabled &&
-		isUpdateWithinLowPriorityWindow(dismissedAt, basicNote.updatedAt)
+		isUpdateWithinLowPriorityWindow(dismissedAt, basicNote.updatedAt, windowMs)
 	) {
 		return dismissedAt;
 	}
