@@ -164,6 +164,15 @@ export default function Notification({
 	const defaultAvatar = `https://avatars.io/twitter/${note.repositoryFullName}`;
 	const avatarSrc =
 		note.commentAvatar || note.repositoryOwnerAvatar || defaultAvatar;
+	// Show the issue or PR author alongside the latest commenter so that a bot
+	// comment does not hide who opened it.
+	const showAuthorAvatar = Boolean(
+		note.subjectAuthorLogin &&
+			note.subjectAuthorAvatar &&
+			note.commentUsername &&
+			note.subjectAuthorLogin.toLowerCase() !==
+				note.commentUsername.toLowerCase()
+	);
 	const isClosed =
 		note.api.subject &&
 		note.api.subject.state &&
@@ -270,7 +279,13 @@ export default function Notification({
 				<MultiMarkUnreadPendingNotice onClick={onClickMarkUnread} />
 			)}
 			<div className="notification__main-content" onClick={onClick}>
-				<div className="notification__image">
+				<div
+					className={
+						showAuthorAvatar
+							? 'notification__image notification__image--stacked'
+							: 'notification__image'
+					}
+				>
 					{isUnread && (
 						<span
 							className={
@@ -281,7 +296,35 @@ export default function Notification({
 						/>
 					)}
 					{isMuted && <MuteIcon className="mute-icon" />}
-					<ImageWithBackup src={avatarSrc} username={note.commentUsername} />
+					{showAuthorAvatar && note.subjectAuthorLogin ? (
+						<span className="notification__avatar-stack">
+							<ImageWithBackup
+								src={note.subjectAuthorAvatar ?? defaultAvatar}
+								username={note.subjectAuthorLogin}
+								title={`Author: ${note.subjectAuthorLogin}`}
+								showUsername={false}
+							/>
+							<ImageWithBackup
+								src={avatarSrc}
+								username={note.commentUsername}
+								title={`Latest activity: ${note.commentUsername}`}
+								showUsername={false}
+							/>
+							<span className="notification__avatar-stack__names">
+								<span
+									className="notification__avatar-stack__author"
+									title={`Author: ${note.subjectAuthorLogin}`}
+								>
+									{note.subjectAuthorLogin}
+								</span>
+								<span title={`Latest activity: ${note.commentUsername}`}>
+									{note.commentUsername}
+								</span>
+							</span>
+						</span>
+					) : (
+						<ImageWithBackup src={avatarSrc} username={note.commentUsername} />
+					)}
 					{isMention && (
 						<span
 							className={

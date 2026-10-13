@@ -91,6 +91,13 @@ export interface Note {
 	commentUsername: string;
 
 	/**
+	 * The user who created the issue or pull request, which may differ from
+	 * the author of the latest comment (often a bot).
+	 */
+	subjectAuthorLogin?: string;
+	subjectAuthorAvatar?: string;
+
+	/**
 	 * A short plain-text excerpt of the latest comment (or the issue/PR
 	 * description if there are no comments yet).
 	 */

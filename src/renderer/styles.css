@@ -40,6 +40,7 @@
 	--filter-button-active-color: #f57023;
 	--avatar-size: 32px;
 	--avatar-badge-offset: 4px;
+	--avatar-stack-overlap: 12px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -492,7 +493,7 @@ header svg {
 .mute-icon {
 	position: absolute;
 	z-index: 1;
-	left: calc(50% - var(--avatar-size) / 2 - var(--avatar-badge-offset));
+	left: calc(50% - var(--avatar-stack-width) / 2 - var(--avatar-badge-offset));
 	top: 20px;
 	background-color: rgba(255, 255, 255, 0.75);
 	border-radius: 20px;
@@ -611,7 +612,7 @@ header h1 {
 	position: absolute;
 	z-index: 1;
 	top: 24px;
-	left: calc(50% + var(--avatar-size) / 2 - 10px);
+	left: calc(50% + var(--avatar-stack-width) / 2 - 10px);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -687,7 +688,7 @@ header h1 {
 	position: absolute;
 	z-index: 1;
 	font-size: 2.5em;
-	left: calc(50% - var(--avatar-size) / 2 - var(--avatar-badge-offset));
+	left: calc(50% - var(--avatar-stack-width) / 2 - var(--avatar-badge-offset));
 	top: 3px;
 	border-radius: 20px;
 	border: 1.2px solid #fff;
@@ -764,10 +765,65 @@ header h1 {
 }
 
 .notification__image {
+	--avatar-stack-width: var(--avatar-size);
 	min-width: 64px;
 	padding-top: 5px;
 	position: relative;
 	text-align: center;
+}
+
+/* The issue or PR author, overlapping the latest commenter. */
+.notification__image--stacked {
+	--avatar-stack-width: calc(
+		var(--avatar-size) * 2 - var(--avatar-stack-overlap)
+	);
+}
+
+.notification__avatar-stack {
+	display: inline-flex;
+	position: relative;
+	vertical-align: top;
+	/* Keep the avatar z-index inside the stack so badges stay in front. */
+	isolation: isolate;
+}
+
+.notification__avatar-stack .image-with-backup__wrapper:first-child {
+	z-index: 1;
+}
+
+.notification__avatar-stack
+	.image-with-backup__wrapper
+	+ .image-with-backup__wrapper {
+	margin-left: calc(var(--avatar-stack-overlap) * -1);
+}
+
+.notification__avatar-stack__names {
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	transform: translateX(-50%);
+	margin-top: 3px;
+	width: 60px;
+	font-size: 9px;
+	line-height: 1.1;
+	text-align: center;
+	color: var(--notification-timestamp-color);
+}
+
+.notification__avatar-stack__names > span {
+	display: block;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* Weight rather than a lighter color, so both names stay readable. */
+.notification__avatar-stack__author {
+	font-weight: 600;
+}
+
+.notification__avatar-stack img {
+	box-shadow: 0 0 0 1.5px var(--main-bg-color);
 }
 
 .image-with-backup__wrapper {
