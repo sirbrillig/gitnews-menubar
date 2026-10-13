@@ -57,6 +57,13 @@ function createDemoNotification(initialDate: Date): Note {
 		subjectUrl: 'https://github.com/sirbrillig/gitnews-menubar/pull/65',
 		commentUrl: 'https://github.com/sirbrillig/gitnews-menubar/pull/65',
 		commentAvatar: 'https://avatars2.githubusercontent.com/u/2036909?v=4',
+		...(randomNumber(1, 2) === 1
+			? {
+					subjectAuthorLogin: getRandomWord(),
+					subjectAuthorAvatar:
+						'https://avatars1.githubusercontent.com/u/887802?v=4',
+				}
+			: {}),
 		authoredByYou: randomNumber(1, 3) === 1,
 		api: {
 			subject: {

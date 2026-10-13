@@ -370,6 +370,7 @@ interface SubjectData {
 	noteDraft: boolean;
 	subjectHtmlUrl: string;
 	subjectAuthorLogin?: string;
+	subjectAuthorAvatar?: string;
 	failed?: boolean;
 }
 
@@ -383,6 +384,7 @@ async function getSubjectDataForNotification(
 	let noteDraft: boolean = false;
 	let subjectHtmlUrl: string = '';
 	let subjectAuthorLogin: string | undefined;
+	let subjectAuthorAvatar: string | undefined;
 	if (!notification.subject.url) {
 		if (notification.subject.type === 'RepositoryInvitation') {
 			subjectHtmlUrl = `${getWebBaseUrl(account)}/${notification.repository.full_name}/invitations`;
@@ -400,6 +402,7 @@ async function getSubjectDataForNotification(
 		noteDraft = subject.data.draft ?? false;
 		subjectHtmlUrl = subject.data.html_url;
 		subjectAuthorLogin = subject.data.user?.login;
+		subjectAuthorAvatar = subject.data.user?.avatar_url;
 	} catch (error) {
 		logMessage(
 			`Failed to fetch subject for ${subjectPath} (${notification.subject.url})`,
@@ -413,6 +416,7 @@ async function getSubjectDataForNotification(
 		noteDraft,
 		subjectHtmlUrl,
 		subjectAuthorLogin,
+		subjectAuthorAvatar,
 	};
 }
 
@@ -448,6 +452,8 @@ function buildNoteFromData({
 		commentAvatar:
 			commentData.commentAvatar ?? notification.repository.owner.avatar_url,
 		repositoryOwnerAvatar: notification.repository.owner.avatar_url,
+		subjectAuthorLogin: subjectData.subjectAuthorLogin,
+		subjectAuthorAvatar: subjectData.subjectAuthorAvatar,
 		gitnewsIsInvalid: subjectData.failed === true,
 		latestCommentMentionsYou: commentData.commentMentionsViewer,
 		mentionFoundSince,

@@ -46,9 +46,13 @@ function generateAvatar(name: string) {
 export function ImageWithBackup({
 	src,
 	username,
+	title,
+	showUsername = true,
 }: {
 	src: string;
 	username: string;
+	title?: string;
+	showUsername?: boolean;
 }) {
 	const [didImageFail, setDidImageFail] = React.useState<boolean>(false);
 	const onError = () => {
@@ -60,11 +64,14 @@ export function ImageWithBackup({
 			<img
 				src={imgSrc}
 				alt={username}
+				title={title}
 				onError={didImageFail ? undefined : onError}
 			/>
-			<span className="image-with-backup__username" title={username}>
-				{username}
-			</span>
+			{showUsername && (
+				<span className="image-with-backup__username" title={username}>
+					{username}
+				</span>
+			)}
 		</span>
 	);
 }
