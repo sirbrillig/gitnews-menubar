@@ -148,3 +148,11 @@ export interface FetchErrorObject {
 	type?: string;
 	accountId: string;
 }
+
+/**
+ * An item in a native context menu shown by the main process. Choosing an item
+ * resolves the request with its `id`.
+ */
+export type ContextMenuItem =
+	| { type: 'separator' }
+	| { id: string; label: string; enabled?: boolean };

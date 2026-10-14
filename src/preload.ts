@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer } from 'electron';
 import {
 	AccountInfo,
 	BasicNote,
+	ContextMenuItem,
 	IconType,
 	MainBridge,
 	Note,
@@ -45,6 +46,8 @@ const bridge: MainBridge = {
 		ipcRenderer.invoke('app-state:set', key, value),
 	removeAppStateItem: (key: string) =>
 		ipcRenderer.invoke('app-state:remove', key),
+	showContextMenu: (items: ContextMenuItem[]) =>
+		ipcRenderer.invoke('context-menu:show', items),
 };
 
 contextBridge.exposeInMainWorld('electronApi', bridge);

@@ -14,9 +14,17 @@ import type {
 	AccountInfo,
 	BasicNote,
 	FetchErrorObject,
+	ContextMenuItem,
 } from '../shared-types';
 
-export type { NoteReason, Note, AccountInfo, BasicNote, FetchErrorObject };
+export type {
+	NoteReason,
+	Note,
+	AccountInfo,
+	BasicNote,
+	FetchErrorObject,
+	ContextMenuItem,
+};
 
 export type FilterType = NoteReason | 'all';
 
@@ -273,6 +281,11 @@ export interface MainBridge {
 	getAppStateItem: (key: string) => Promise<string | null>;
 	setAppStateItem: (key: string, value: string) => Promise<void>;
 	removeAppStateItem: (key: string) => Promise<void>;
+	/**
+	 * Show a native context menu and resolve with the `id` of the chosen item,
+	 * or null if the menu was closed without choosing one.
+	 */
+	showContextMenu: (items: ContextMenuItem[]) => Promise<string | null>;
 }
 
 export type UnknownFetchError = FetchErrorObject | string;

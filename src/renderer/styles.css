@@ -928,7 +928,6 @@ header h1 {
 	margin-right: 10px;
 }
 
-.notification__mute-repo,
 .notification__unsubscribe,
 .notification__preview-toggle,
 .notification__mark-unread,
@@ -941,6 +940,22 @@ header h1 {
 	text-decoration: underline;
 	cursor: pointer;
 	flex: 0 0 auto;
+}
+
+.notification__actions-menu {
+	display: inline-flex;
+	align-items: center;
+	font-size: 0.7em;
+	color: var(--notification-action-text-color);
+	background: none !important;
+	border: none;
+	padding: 0 !important;
+	cursor: pointer;
+	flex: 0 0 auto;
+}
+
+.notification__actions-menu svg {
+	fill: currentColor;
 }
 
 .notification__preview-toggle {
