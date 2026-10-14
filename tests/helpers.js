@@ -552,20 +552,23 @@ describe('groupNotesByRepo()', function () {
 		expect(groupNotesByRepo([])).toEqual([]);
 	});
 
-	it('orders groups by their first note and keeps note order', function () {
+	it('orders groups alphabetically by repo and keeps note order', function () {
 		const notes = [
-			makeNote('1', 'a/one'),
-			makeNote('2', 'b/two'),
+			makeNote('1', 'b/two'),
+			makeNote('2', 'A/three'),
 			makeNote('3', 'a/one'),
 			makeNote('4', 'b/two'),
+			makeNote('5', 'a/one'),
 		];
 		const groups = groupNotesByRepo(notes);
 		expect(groups.map((group) => group.repositoryFullName)).toEqual([
 			'a/one',
+			'A/three',
 			'b/two',
 		]);
-		expect(groups[0].notes.map((note) => note.id)).toEqual(['1', '3']);
-		expect(groups[1].notes.map((note) => note.id)).toEqual(['2', '4']);
+		expect(groups[0].notes.map((note) => note.id)).toEqual(['3', '5']);
+		expect(groups[1].notes.map((note) => note.id)).toEqual(['2']);
+		expect(groups[2].notes.map((note) => note.id)).toEqual(['1', '4']);
 	});
 
 	it('groups repos regardless of case', function () {
