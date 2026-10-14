@@ -18,6 +18,22 @@ export interface NoteApi {
 	notification?: { reason?: NoteReason };
 }
 
+export interface NotePriorityOverride {
+	priority: 'low' | 'normal';
+
+	/**
+	 * The notification reason at the time the override was set, so a new
+	 * mention can override a manual low priority.
+	 */
+	reason?: NoteReason;
+
+	/**
+	 * The `commentUrl` at the time the override was set, so we can tell if a
+	 * later comment mentions the user.
+	 */
+	commentUrl?: string;
+}
+
 export interface Note {
 	id: string;
 	url: string;
@@ -57,6 +73,13 @@ export interface Note {
 	 * later update added a new comment.
 	 */
 	gitnewsDismissedCommentUrl?: string;
+
+	/**
+	 * Set when the user manually marks the note as low priority or removes its
+	 * low priority. This overrides the automatic low priority rules and is kept
+	 * when the note gets new activity.
+	 */
+	gitnewsPriorityOverride?: NotePriorityOverride;
 
 	/**
 	 * True if the latest comment on the note mentions the account's user.

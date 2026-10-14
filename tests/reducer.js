@@ -155,6 +155,72 @@ describe('reducer', function () {
 		});
 	});
 
+	describe('SET_NOTE_PRIORITY', function () {
+		const notes = [
+			{
+				id: 'a1',
+				unread: true,
+				commentUrl: 'https://example.com/comment/1',
+				api: { notification: { reason: 'subscribed' } },
+			},
+			{ id: 'a2', unread: true },
+		];
+
+		it('records the priority with the current reason and comment', function () {
+			const action = {
+				type: 'SET_NOTE_PRIORITY',
+				note: notes[0],
+				priority: 'low',
+			};
+			const result = reducer({ notes }, action);
+			expect(result.notes[0].gitnewsPriorityOverride).toEqual({
+				priority: 'low',
+				reason: 'subscribed',
+				commentUrl: 'https://example.com/comment/1',
+			});
+			expect(result.notes[1].gitnewsPriorityOverride).toBeUndefined();
+		});
+
+		it('clears the priority if none is given', function () {
+			const prioritized = [
+				{ ...notes[0], gitnewsPriorityOverride: { priority: 'normal' } },
+			];
+			const action = { type: 'SET_NOTE_PRIORITY', note: prioritized[0] };
+			const result = reducer({ notes: prioritized }, action);
+			expect(result.notes[0].gitnewsPriorityOverride).toBeUndefined();
+		});
+	});
+
+	describe('MARK_NOTE_UNREAD', function () {
+		it('clears a manual low priority', function () {
+			const notes = [
+				{
+					id: 'a1',
+					unread: false,
+					gitnewsPriorityOverride: { priority: 'low' },
+				},
+			];
+			const action = { type: 'MARK_NOTE_UNREAD', note: notes[0] };
+			const result = reducer({ notes }, action);
+			expect(result.notes[0].gitnewsPriorityOverride).toBeUndefined();
+		});
+
+		it('keeps a manual normal priority', function () {
+			const notes = [
+				{
+					id: 'a1',
+					unread: false,
+					gitnewsPriorityOverride: { priority: 'normal' },
+				},
+			];
+			const action = { type: 'MARK_NOTE_UNREAD', note: notes[0] };
+			const result = reducer({ notes }, action);
+			expect(result.notes[0].gitnewsPriorityOverride).toEqual({
+				priority: 'normal',
+			});
+		});
+	});
+
 	describe('MARK_NOTE_READ', function () {
 		it('marks the note as read', function () {
 			const notes = [

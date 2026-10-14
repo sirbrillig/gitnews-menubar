@@ -236,6 +236,44 @@ describe('mergeNotifications()', function () {
 		expect(merged.gitnewsDismissedAt).toBe(1000);
 		expect(merged.gitnewsDismissedReason).toBe('subscribed');
 	});
+
+	it('preserves the manual priority when a note has been updated', function () {
+		const override = { priority: 'normal', reason: 'subscribed' };
+		const prevNotes = [
+			{
+				id: 'a1',
+				gitnewsAccountId: 'acc',
+				unread: true,
+				updatedAt: '2026-10-01T12:00:00Z',
+				gitnewsPriorityOverride: override,
+			},
+		];
+		const nextNotes = [
+			{
+				id: 'a1',
+				gitnewsAccountId: 'acc',
+				unread: true,
+				updatedAt: '2026-10-01T13:00:00Z',
+			},
+		];
+		const [merged] = mergeNotifications(prevNotes, nextNotes);
+		expect(merged.gitnewsPriorityOverride).toEqual(override);
+	});
+
+	it('preserves the manual priority when a note has not been updated', function () {
+		const override = { priority: 'low', reason: 'subscribed' };
+		const note = {
+			id: 'a1',
+			gitnewsAccountId: 'acc',
+			unread: true,
+			updatedAt: '2026-10-01T12:00:00Z',
+		};
+		const [merged] = mergeNotifications(
+			[{ ...note, gitnewsPriorityOverride: override }],
+			[note]
+		);
+		expect(merged.gitnewsPriorityOverride).toEqual(override);
+	});
 });
 
 describe('getMentionsSinceForNote()', function () {
@@ -485,6 +523,90 @@ describe('getLowPriorityReason()', function () {
 		expect(getLowPriorityReason(note, { isDismissalEnabled: false })).toBe(
 			undefined
 		);
+	});
+
+	it('returns "manual" if the user marked the note low priority', function () {
+		const note = makeNote({
+			title: 'Fix a bug',
+			gitnewsPriorityOverride: { priority: 'low', reason: 'subscribed' },
+		});
+		expect(getLowPriorityReason(note, { titlePatterns })).toBe('manual');
+	});
+
+	it('returns "manual" for a note marked unread then marked low priority', function () {
+		const note = makeNote({
+			title: 'Fix a bug',
+			unread: false,
+			gitnewsMarkedUnread: true,
+			gitnewsPriorityOverride: { priority: 'low', reason: 'subscribed' },
+		});
+		expect(getLowPriorityReason(note, { titlePatterns })).toBe('manual');
+	});
+
+	it('returns undefined for a manual low priority note that is read', function () {
+		const note = makeNote({
+			unread: false,
+			gitnewsPriorityOverride: { priority: 'low', reason: 'subscribed' },
+		});
+		expect(getLowPriorityReason(note, { titlePatterns })).toBeUndefined();
+	});
+
+	it('returns "manual" for a thread that was already a mention', function () {
+		const note = makeNote({
+			commentUrl: 'https://example.com/comment/1',
+			latestCommentMentionsYou: true,
+			api: { notification: { reason: 'mention' } },
+			gitnewsPriorityOverride: {
+				priority: 'low',
+				reason: 'mention',
+				commentUrl: 'https://example.com/comment/1',
+			},
+		});
+		expect(getLowPriorityReason(note, { titlePatterns })).toBe('manual');
+	});
+
+	it('returns undefined for a manual low priority note with a new mention', function () {
+		const override = {
+			priority: 'low',
+			reason: 'subscribed',
+			commentUrl: 'https://example.com/comment/1',
+		};
+		expect(
+			getLowPriorityReason(
+				makeNote({
+					api: { notification: { reason: 'mention' } },
+					gitnewsPriorityOverride: override,
+				}),
+				{ titlePatterns }
+			)
+		).toBeUndefined();
+		expect(
+			getLowPriorityReason(
+				makeNote({
+					commentUrl: 'https://example.com/comment/2',
+					latestCommentMentionsYou: true,
+					gitnewsPriorityOverride: override,
+				}),
+				{ titlePatterns }
+			)
+		).toBeUndefined();
+	});
+
+	it('returns undefined if the user removed low priority from a matching title', function () {
+		const note = makeNote({ gitnewsPriorityOverride: { priority: 'normal' } });
+		expect(getLowPriorityReason(note, { titlePatterns })).toBeUndefined();
+	});
+
+	it('returns undefined if the user removed low priority from a dismissed note', function () {
+		const note = makeNote({
+			title: 'Fix a bug',
+			gitnewsDismissedAt: Date.parse('2026-10-01T12:00:00Z'),
+			gitnewsDismissedReason: 'subscribed',
+			gitnewsPriorityOverride: { priority: 'normal' },
+		});
+		expect(
+			getLowPriorityReason(note, { isDismissalEnabled: true })
+		).toBeUndefined();
 	});
 });
 

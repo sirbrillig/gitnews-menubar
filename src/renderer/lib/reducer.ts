@@ -31,6 +31,8 @@ import {
 	ActionSelectAccount,
 	ActionInitSetAccounts,
 	ActionUnsubscribeNote,
+	ActionSetNotePriority,
+	NotePriorityOverride,
 	ActionUndoUnsubscribeNote,
 	ActionDismissUnsubscribedNotice,
 	MarkReadSource,
@@ -160,10 +162,40 @@ export function createReducer() {
 					...state,
 					notes: state.notes.map((note) =>
 						getNoteId(note) === noteId
-							? { ...note, gitnewsMarkedUnread: true }
+							? {
+									...note,
+									gitnewsMarkedUnread: true,
+									// Marking a note unread means it matters, so drop a manual
+									// low priority.
+									gitnewsPriorityOverride:
+										note.gitnewsPriorityOverride?.priority === 'low'
+											? undefined
+											: note.gitnewsPriorityOverride,
+								}
 							: note
 					),
 					locallyUnreadNotes: [...filtered, action.note],
+				};
+			}
+			case 'SET_NOTE_PRIORITY': {
+				const noteId = getNoteId(action.note);
+				const priority = action.priority;
+				return {
+					...state,
+					notes: state.notes.map((note) =>
+						getNoteId(note) === noteId
+							? {
+									...note,
+									gitnewsPriorityOverride: priority
+										? {
+												priority,
+												reason: note.api?.notification?.reason,
+												commentUrl: note.commentUrl,
+											}
+										: undefined,
+								}
+							: note
+					),
 				};
 			}
 			case 'MARK_NOTE_READ': {
@@ -405,6 +437,13 @@ export function markRead(
 
 export function markUnread(note: Note): ActionMarkUnread {
 	return { type: 'MARK_NOTE_UNREAD', note };
+}
+
+export function setNotePriority(
+	note: Note,
+	priority?: NotePriorityOverride['priority']
+): ActionSetNotePriority {
+	return { type: 'SET_NOTE_PRIORITY', note, priority };
 }
 
 export function unsubscribeNote(note: Note): ActionUnsubscribeNote {
