@@ -382,7 +382,9 @@ export interface RepoNoteGroup {
 
 /**
  * Group notes by repository, keeping their order within each group. Groups
- * are ordered by their first note, so the repo of the first note comes first.
+ * are sorted alphabetically by repo name so that they don't jump around when
+ * newer notes arrive (eg: from different accounts at slightly different
+ * times).
  */
 export function groupNotesByRepo(notes: Note[]): RepoNoteGroup[] {
 	const groups = new Map<string, RepoNoteGroup>();
@@ -398,7 +400,9 @@ export function groupNotesByRepo(notes: Note[]): RepoNoteGroup[] {
 			notes: [note],
 		});
 	});
-	return Array.from(groups.values());
+	return Array.from(groups.entries())
+		.sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+		.map(([, group]) => group);
 }
 
 export function msToSecs(ms: number): number {
