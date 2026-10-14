@@ -2,6 +2,7 @@ import {
 	BasicNote,
 	Note,
 	NoteReason,
+	NotePriorityOverride,
 	UnknownFetchError,
 	AppReduxAction,
 	LowPriorityTitlePatterns,
@@ -75,6 +76,7 @@ export function mergeNotifications(
 				gitnewsDismissedAt: previousNote.gitnewsDismissedAt,
 				gitnewsDismissedReason: previousNote.gitnewsDismissedReason,
 				gitnewsDismissedCommentUrl: previousNote.gitnewsDismissedCommentUrl,
+				gitnewsPriorityOverride: previousNote.gitnewsPriorityOverride,
 				// Preserve local "mark as read" action if the note hasn't been updated.
 				// This prevents a race condition where marking a note as read locally
 				// gets overwritten by a fetch that completes before the API call to
@@ -85,7 +87,8 @@ export function mergeNotifications(
 		// Always preserve gitnewsOpenedAt even when the note has new GitHub activity,
 		// since it tracks when the user last opened the note in Gitnews. The same
 		// goes for the dismissal data, which is used to decide if the new activity
-		// is low priority.
+		// is low priority, and for the user's manual priority, which would
+		// otherwise be replaced by the automatic rules on every update.
 		if (previousNote) {
 			return {
 				...note,
@@ -93,6 +96,7 @@ export function mergeNotifications(
 				gitnewsDismissedAt: previousNote.gitnewsDismissedAt,
 				gitnewsDismissedReason: previousNote.gitnewsDismissedReason,
 				gitnewsDismissedCommentUrl: previousNote.gitnewsDismissedCommentUrl,
+				gitnewsPriorityOverride: previousNote.gitnewsPriorityOverride,
 			};
 		}
 		return note;
@@ -122,7 +126,7 @@ export function isValidLowPriorityWindowHours(hours: unknown): hours is number {
 	return typeof hours === 'number' && Number.isFinite(hours) && hours > 0;
 }
 
-export type LowPriorityReason = 'dismissed' | 'title';
+export type LowPriorityReason = 'dismissed' | 'manual' | 'title';
 
 export interface LowPriorityOptions {
 	/**
@@ -176,6 +180,10 @@ export function isNoteLowPriority(
  * the user dismissed it (marked it read without opening it). That activity is
  * probably minor (a pushed commit, a rebase, an automated review). A new
  * mention overrides both.
+ *
+ * The user can also set the priority of a note manually, which overrides the
+ * rules above. A manual low priority is still overridden by a new mention, but
+ * a manual normal priority always wins.
  */
 export function getLowPriorityReason(
 	note: Note,
@@ -185,7 +193,17 @@ export function getLowPriorityReason(
 		windowMs = LOW_PRIORITY_WINDOW_MS,
 	}: LowPriorityOptions
 ): LowPriorityReason | undefined {
-	if (!note.unread || note.gitnewsMarkedUnread) {
+	if (!note.unread && !note.gitnewsMarkedUnread) {
+		return undefined;
+	}
+	const override = note.gitnewsPriorityOverride;
+	if (override?.priority === 'normal') {
+		return undefined;
+	}
+	if (override?.priority === 'low') {
+		return hasMentionSinceOverride(note, override) ? undefined : 'manual';
+	}
+	if (note.gitnewsMarkedUnread) {
 		return undefined;
 	}
 	if (hasNewMention(note)) {
@@ -252,6 +270,22 @@ function hasNewMention(note: Note): boolean {
 		return true;
 	}
 	return false;
+}
+
+/**
+ * Return true if the note mentions the user since its priority was set
+ * manually.
+ */
+function hasMentionSinceOverride(
+	note: Note,
+	override: NotePriorityOverride
+): boolean {
+	if (hasReasonBecomeMention(note.api?.notification?.reason, override.reason)) {
+		return true;
+	}
+	return Boolean(
+		note.latestCommentMentionsYou && note.commentUrl !== override.commentUrl
+	);
 }
 
 /**

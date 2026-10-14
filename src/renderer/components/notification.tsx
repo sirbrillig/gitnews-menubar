@@ -2,7 +2,7 @@ import React from 'react';
 import Gridicon from 'gridicons';
 import debugFactory from 'debug';
 import { formatDistanceToNow } from 'date-fns';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import MuteIcon from './mute-icon';
 import {
 	AppReduxState,
@@ -14,6 +14,7 @@ import {
 	UnmuteRepo,
 	UnsubscribeNote,
 	QueuedAction,
+	ContextMenuItem,
 } from '../types';
 import { ImageWithBackup } from './image-with-backup';
 import {
@@ -21,11 +22,13 @@ import {
 	getLowPriorityReason,
 	getLowPriorityOptions,
 	hasRecentMention,
+	LowPriorityReason,
 } from '../lib/helpers';
 import {
 	runWithViewTransition,
 	useVisibleViewTransitionName,
 } from '../lib/view-transitions';
+import { setNotePriority } from '../lib/reducer';
 
 const debug = debugFactory('gitnews-menubar');
 
@@ -81,15 +84,14 @@ export default function Notification({
 	const lowPriorityWindowHours = useSelector(
 		(state: AppReduxState) => state.lowPriorityWindowHours
 	);
-	const lowPriorityReason = getLowPriorityReason(
-		note,
-		getLowPriorityOptions({
-			isLowPriorityEnabled,
-			lowPriorityTitlePatterns,
-			lowPriorityWindowHours,
-		})
-	);
+	const lowPriorityOptions = getLowPriorityOptions({
+		isLowPriorityEnabled,
+		lowPriorityTitlePatterns,
+		lowPriorityWindowHours,
+	});
+	const lowPriorityReason = getLowPriorityReason(note, lowPriorityOptions);
 	const isLowPriority = Boolean(lowPriorityReason);
+	const dispatch = useDispatch();
 	const [isPreviewOpen, setPreviewOpen] = React.useState(false);
 
 	const onClick = () => {
@@ -222,6 +224,7 @@ export default function Notification({
 			return;
 		}
 		const choice = await window.electronApi.showContextMenu([
+			...(isUnread ? getPriorityMenuItems(lowPriorityReason) : []),
 			isMuted
 				? { id: 'unmute', label: `Unmute ${note.repositoryFullName}` }
 				: { id: 'mute', label: `Mute ${note.repositoryFullName}…` },
@@ -229,7 +232,20 @@ export default function Notification({
 			{ id: 'unsubscribe', label: 'Unsubscribe from thread…' },
 		]);
 		debug('chose note action', choice, note);
-		if (choice === 'mute') {
+		if (choice === 'mark-low-priority') {
+			runWithViewTransition(() => dispatch(setNotePriority(note, 'low')));
+		} else if (choice === 'remove-low-priority') {
+			// Clearing the override is enough unless the automatic rules would make
+			// the note low priority again, in which case mark it normal priority.
+			const isAutomaticallyLowPriority = Boolean(
+				getLowPriorityReason(
+					{ ...note, gitnewsPriorityOverride: undefined },
+					lowPriorityOptions
+				)
+			);
+			const priority = isAutomaticallyLowPriority ? 'normal' : undefined;
+			runWithViewTransition(() => dispatch(setNotePriority(note, priority)));
+		} else if (choice === 'mute') {
 			doMute();
 		} else if (choice === 'unmute') {
 			doUnmute();
@@ -409,13 +425,9 @@ export default function Notification({
 							{isLowPriority && (
 								<span
 									className="notification__low-priority-label"
-									title={
-										lowPriorityReason === 'title'
-											? 'The title matches a low priority pattern for this repo'
-											: 'You dismissed this recently without opening it, so this update is probably minor'
-									}
+									title={getLowPriorityLabelTitle(lowPriorityReason)}
 								>
-									{lowPriorityReason === 'title' ? '· low' : '· minor'}
+									{lowPriorityReason === 'dismissed' ? '· minor' : '· low'}
 								</span>
 							)}
 						</span>
@@ -460,6 +472,40 @@ export default function Notification({
 			</div>
 		</div>
 	);
+}
+
+function getPriorityMenuItems(
+	lowPriorityReason: LowPriorityReason | undefined
+): ContextMenuItem[] {
+	if (!lowPriorityReason) {
+		return [
+			{ id: 'mark-low-priority', label: 'Mark as low priority' },
+			{ type: 'separator' },
+		];
+	}
+	return [
+		{
+			id: 'remove-low-priority',
+			label:
+				lowPriorityReason === 'title'
+					? 'Remove low priority (ignore title pattern)'
+					: 'Remove low priority',
+		},
+		{ type: 'separator' },
+	];
+}
+
+function getLowPriorityLabelTitle(
+	lowPriorityReason: LowPriorityReason | undefined
+): string {
+	switch (lowPriorityReason) {
+		case 'manual':
+			return 'You marked this as low priority';
+		case 'title':
+			return 'The title matches a low priority pattern for this repo';
+		default:
+			return 'You dismissed this recently without opening it, so this update is probably minor';
+	}
 }
 
 function MuteRepoCancelButton({

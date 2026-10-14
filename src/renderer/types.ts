@@ -15,6 +15,7 @@ import type {
 	BasicNote,
 	FetchErrorObject,
 	ContextMenuItem,
+	NotePriorityOverride,
 } from '../shared-types';
 
 export type {
@@ -24,6 +25,7 @@ export type {
 	BasicNote,
 	FetchErrorObject,
 	ContextMenuItem,
+	NotePriorityOverride,
 };
 
 export type FilterType = NoteReason | 'all';
@@ -86,6 +88,15 @@ export type ActionMarkRead = {
 	source?: MarkReadSource;
 };
 export type ActionMarkUnread = { type: 'MARK_NOTE_UNREAD'; note: Note };
+export type ActionSetNotePriority = {
+	type: 'SET_NOTE_PRIORITY';
+	note: Note;
+	/**
+	 * The priority chosen by the user, or undefined to go back to the
+	 * automatic low priority rules.
+	 */
+	priority?: NotePriorityOverride['priority'];
+};
 export type ActionUnsubscribeNote = { type: 'UNSUBSCRIBE_NOTE'; note: Note };
 export type ActionUndoUnsubscribeNote = {
 	type: 'UNDO_UNSUBSCRIBE_NOTE';
@@ -213,6 +224,7 @@ export type AppReduxAction =
 	| ActionSetLowPriorityEnabled
 	| ActionSetLowPriorityTitlePatterns
 	| ActionSetLowPriorityWindowHours
+	| ActionSetNotePriority
 	| ActionSetGroupByRepoEnabled
 	| ActionDismissFeatureTip
 	| ActionResetFeatureTips;
@@ -231,6 +243,11 @@ export type MarkRead = (
 export type MarkUnread = (note: Note) => void;
 
 export type UnsubscribeNote = (note: Note) => void;
+
+export type SetNotePriority = (
+	note: Note,
+	priority?: NotePriorityOverride['priority']
+) => void;
 
 export type ChangeAutoload = (isEnabled: boolean) => void;
 
