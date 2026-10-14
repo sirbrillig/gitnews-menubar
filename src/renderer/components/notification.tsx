@@ -192,16 +192,12 @@ export default function Notification({
 		...(isDraft ? ['notification__type--draft'] : []),
 	];
 
-	const doMute = (event: React.MouseEvent<HTMLButtonElement>) => {
-		event.preventDefault();
-		event.stopPropagation();
+	const doMute = () => {
 		setUnsubscribeRequested(false);
 		setPreviewOpen(false);
 		setMuteRequested(note);
 	};
-	const doUnmute = (event: React.MouseEvent<HTMLButtonElement>) => {
-		event.preventDefault();
-		event.stopPropagation();
+	const doUnmute = () => {
 		setPreviewOpen(false);
 		unmuteRepo(note.repositoryFullName);
 	};
@@ -217,12 +213,39 @@ export default function Notification({
 		setPreviewOpen(false);
 		setUnsubscribeRequested(note);
 	};
+	// Less frequent actions live in a native menu, opened by the actions button
+	// or by right-clicking the note, so they don't crowd the footer.
+	const doShowActionsMenu = async (event: React.MouseEvent<HTMLElement>) => {
+		event.preventDefault();
+		event.stopPropagation();
+		if (isMultiOpenMode) {
+			return;
+		}
+		const choice = await window.electronApi.showContextMenu([
+			isMuted
+				? { id: 'unmute', label: `Unmute ${note.repositoryFullName}` }
+				: { id: 'mute', label: `Mute ${note.repositoryFullName}…` },
+			{ type: 'separator' },
+			{ id: 'unsubscribe', label: 'Unsubscribe from thread…' },
+		]);
+		debug('chose note action', choice, note);
+		if (choice === 'mute') {
+			doMute();
+		} else if (choice === 'unmute') {
+			doUnmute();
+		} else if (choice === 'unsubscribe') {
+			setMuteRequested(false);
+			setPreviewOpen(false);
+			setUnsubscribeRequested(note);
+		}
+	};
 
 	return (
 		<div
 			ref={noteRef}
 			className={noteClasses.join(' ')}
 			style={{ viewTransitionName: viewTransitionName }}
+			onContextMenu={doShowActionsMenu}
 		>
 			{isMuteRequested && (
 				<div className="notification__mute-confirm">
@@ -403,20 +426,13 @@ export default function Notification({
 									onClick={doTogglePreview}
 								/>
 							)}
-							{isMuted ? (
-								<UnmuteRepoButton
-									disabled={isMultiOpenMode}
-									onClick={doUnmute}
-								/>
-							) : (
-								<MuteRepoRequestButton
-									disabled={isMultiOpenMode}
-									onClick={doMute}
-								/>
-							)}
 							<UnsubscribeRequestButton
 								disabled={isMultiOpenMode}
 								onClick={doRequestUnsubscribe}
+							/>
+							<NoteActionsMenuButton
+								disabled={isMultiOpenMode}
+								onClick={doShowActionsMenu}
 							/>
 						</span>
 					</div>
@@ -484,7 +500,7 @@ function MuteRepoButton({
 	);
 }
 
-function MuteRepoRequestButton({
+function NoteActionsMenuButton({
 	onClick,
 	disabled,
 }: {
@@ -496,34 +512,13 @@ function MuteRepoRequestButton({
 	}
 	return (
 		<button
-			className="notification__mute-repo"
-			aria-label="Mute notifications from this repo"
+			className="notification__actions-menu"
+			aria-label="More actions"
+			aria-haspopup="menu"
+			title="More actions"
 			onClick={onClick}
-			disabled={disabled}
 		>
-			mute repo
-		</button>
-	);
-}
-
-function UnmuteRepoButton({
-	onClick,
-	disabled,
-}: {
-	onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
-	disabled?: boolean;
-}) {
-	if (disabled) {
-		return null;
-	}
-	return (
-		<button
-			className="notification__mute-repo"
-			aria-label="Unmute notifications from this repo"
-			onClick={onClick}
-			disabled={disabled}
-		>
-			unmute repo
+			<Gridicon icon="ellipsis" size={12} />
 		</button>
 	);
 }

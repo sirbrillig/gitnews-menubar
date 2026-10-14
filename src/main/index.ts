@@ -35,6 +35,7 @@ import { logMessage } from './lib/logging';
 import type {
 	AccountInfo,
 	BasicNote,
+	ContextMenuItem,
 	FetchErrorObject,
 	Note,
 } from '../shared-types';
@@ -147,6 +148,32 @@ ipcMain.handle('app-state:remove', async (_event, key: unknown) => {
 		return;
 	}
 	removeAppStateItem(key);
+});
+
+ipcMain.handle('context-menu:show', async (_event, items: unknown) => {
+	if (!Array.isArray(items)) {
+		logMessage('Failed to show context menu: items are invalid', 'error');
+		return null;
+	}
+	return new Promise<string | null>((resolve) => {
+		const template: Electron.MenuItemConstructorOptions[] = (
+			items as ContextMenuItem[]
+		).map((item) =>
+			'type' in item
+				? { type: 'separator' }
+				: {
+						label: item.label,
+						enabled: item.enabled ?? true,
+						click: () => resolve(item.id),
+					}
+		);
+		Menu.buildFromTemplate(template).popup({
+			window: bar.window,
+			// On macOS the menu can close before an item's click handler runs, so
+			// wait a moment before deciding that nothing was chosen.
+			callback: () => setTimeout(() => resolve(null), 100),
+		});
+	});
 });
 
 ipcMain.on('set-icon', (_event, arg: unknown) => {
