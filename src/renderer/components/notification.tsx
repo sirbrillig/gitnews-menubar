@@ -223,8 +223,15 @@ export default function Notification({
 		if (isMultiOpenMode) {
 			return;
 		}
+		// Read notes are never low priority, so offer the priority actions based
+		// on how the note would be shown once it is unread again.
+		const noteAsUnread = isUnread ? note : { ...note, unread: true };
+		const menuLowPriorityReason = getLowPriorityReason(
+			noteAsUnread,
+			lowPriorityOptions
+		);
 		const choice = await window.electronApi.showContextMenu([
-			...(isUnread ? getPriorityMenuItems(lowPriorityReason) : []),
+			...getPriorityMenuItems(menuLowPriorityReason),
 			isMuted
 				? { id: 'unmute', label: `Unmute ${note.repositoryFullName}` }
 				: { id: 'mute', label: `Mute ${note.repositoryFullName}…` },
@@ -239,7 +246,7 @@ export default function Notification({
 			// the note low priority again, in which case mark it normal priority.
 			const isAutomaticallyLowPriority = Boolean(
 				getLowPriorityReason(
-					{ ...note, gitnewsPriorityOverride: undefined },
+					{ ...noteAsUnread, gitnewsPriorityOverride: undefined },
 					lowPriorityOptions
 				)
 			);
