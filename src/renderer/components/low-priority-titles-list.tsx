@@ -1,77 +1,111 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setLowPriorityTitlePatterns } from '../lib/reducer';
+import {
+	setLowPriorityCommentPatterns,
+	setLowPriorityTitlePatterns,
+} from '../lib/reducer';
 import { compileTitlePattern } from '../lib/helpers';
 import { AppReduxState } from '../types';
+
+type PatternKind = 'title' | 'comment';
+
+const patternKindLabels: Record<PatternKind, string> = {
+	title: 'Title',
+	comment: 'Comment',
+};
 
 export default function LowPriorityTitlesList() {
 	const dispatch = useDispatch();
 	const titlePatterns = useSelector(
 		(state: AppReduxState) => state.lowPriorityTitlePatterns ?? {}
 	);
+	const commentPatterns = useSelector(
+		(state: AppReduxState) => state.lowPriorityCommentPatterns ?? {}
+	);
+	const patternsByKind: Record<PatternKind, Record<string, string[]>> = {
+		title: titlePatterns,
+		comment: commentPatterns,
+	};
 	const notes = useSelector((state: AppReduxState) => state.notes);
 	const knownRepos = React.useMemo(
 		() =>
 			Array.from(new Set(notes.map((note) => note.repositoryFullName))).sort(),
 		[notes]
 	);
-	const repos = Object.keys(titlePatterns).sort();
+	const repos = Array.from(
+		new Set([...Object.keys(titlePatterns), ...Object.keys(commentPatterns)])
+	).sort();
 
-	const setPatterns = (repo: string, patterns: string[]) =>
-		dispatch(setLowPriorityTitlePatterns(repo, patterns));
-	const addPattern = (repo: string, pattern: string) => {
-		const existing = titlePatterns[repo.trim().toLowerCase()] ?? [];
+	const setPatterns = (kind: PatternKind, repo: string, patterns: string[]) =>
+		dispatch(
+			kind === 'title'
+				? setLowPriorityTitlePatterns(repo, patterns)
+				: setLowPriorityCommentPatterns(repo, patterns)
+		);
+	const addPattern = (kind: PatternKind, repo: string, pattern: string) => {
+		const existing = patternsByKind[kind][repo.trim().toLowerCase()] ?? [];
 		if (existing.includes(pattern)) {
 			return;
 		}
-		setPatterns(repo, [...existing, pattern]);
+		setPatterns(kind, repo, [...existing, pattern]);
 	};
 
 	return (
 		<div className="config-page">
 			<div className="config-section">
-				<div className="config-section__label">Low Priority Titles</div>
+				<div className="config-section__label">Low Priority Patterns</div>
 				<p className="muted-repos-list__description">
-					Unread notes whose title matches one of a repo&apos;s regular
-					expressions are shown lower in the list and do not trigger the unseen
-					icon, unless they mention you. Matching ignores case.
+					Unread notes whose title or latest comment matches one of a
+					repo&apos;s regular expressions are shown lower in the list and do not
+					trigger the unseen icon, unless they mention you. Comment patterns
+					match the plain text of the latest comment or review, so a note stops
+					being low priority when a comment that does not match is added.
+					Matching ignores case.
 				</p>
 				<AddPatternForm knownRepos={knownRepos} addPattern={addPattern} />
 				{repos.length === 0 ? (
-					<div className="muted-repos-list__empty">No title patterns.</div>
+					<div className="muted-repos-list__empty">No patterns.</div>
 				) : (
 					<ul className="muted-repos-list__repos">
 						{repos.map((repo) => (
 							<li key={repo} className="low-priority-titles__repo">
 								<span className="muted-repos-list__repo-name">{repo}</span>
 								<ul className="low-priority-titles__patterns">
-									{titlePatterns[repo].map((pattern) => (
-										<li key={pattern}>
-											<code
-												className={
-													compileTitlePattern(pattern)
-														? 'low-priority-titles__pattern'
-														: 'low-priority-titles__pattern low-priority-titles__pattern--invalid'
-												}
-											>
-												{pattern}
-											</code>
-											<button
-												className="muted-repos-list__unmute-button"
-												aria-label={`Remove pattern ${pattern} for ${repo}`}
-												onClick={() =>
-													setPatterns(
-														repo,
-														titlePatterns[repo].filter(
-															(item) => item !== pattern
+									{(['title', 'comment'] as const).flatMap((kind) =>
+										(patternsByKind[kind][repo] ?? []).map((pattern) => (
+											<li key={`${kind}:${pattern}`}>
+												<span className="low-priority-titles__pattern-row">
+													<span className="low-priority-titles__kind">
+														{patternKindLabels[kind]}
+													</span>
+													<code
+														className={
+															compileTitlePattern(pattern)
+																? 'low-priority-titles__pattern'
+																: 'low-priority-titles__pattern low-priority-titles__pattern--invalid'
+														}
+													>
+														{pattern}
+													</code>
+												</span>
+												<button
+													className="muted-repos-list__unmute-button"
+													aria-label={`Remove ${kind} pattern ${pattern} for ${repo}`}
+													onClick={() =>
+														setPatterns(
+															kind,
+															repo,
+															(patternsByKind[kind][repo] ?? []).filter(
+																(item) => item !== pattern
+															)
 														)
-													)
-												}
-											>
-												Remove
-											</button>
-										</li>
-									))}
+													}
+												>
+													Remove
+												</button>
+											</li>
+										))
+									)}
 								</ul>
 							</li>
 						))}
@@ -87,8 +121,9 @@ function AddPatternForm({
 	addPattern,
 }: {
 	knownRepos: string[];
-	addPattern: (repo: string, pattern: string) => void;
+	addPattern: (kind: PatternKind, repo: string, pattern: string) => void;
 }) {
+	const [kind, setKind] = React.useState<PatternKind>('title');
 	const [repo, setRepo] = React.useState('');
 	const [pattern, setPattern] = React.useState('');
 	const isRepoValid = /^[^/\s]+\/[^/\s]+$/.test(repo.trim());
@@ -106,7 +141,7 @@ function AddPatternForm({
 		if (!isRepoValid || !isPatternValid) {
 			return;
 		}
-		addPattern(repo.trim(), pattern);
+		addPattern(kind, repo.trim(), pattern);
 		setPattern('');
 	};
 
@@ -127,12 +162,27 @@ function AddPatternForm({
 					<option key={knownRepo} value={knownRepo} />
 				))}
 			</datalist>
-			<label htmlFor="low-priority-titles__pattern">Title pattern</label>
+			<label htmlFor="low-priority-titles__kind">Match</label>
+			<select
+				id="low-priority-titles__kind"
+				value={kind}
+				onChange={(event) => setKind(event.target.value as PatternKind)}
+			>
+				<option value="title">Title</option>
+				<option value="comment">Latest comment</option>
+			</select>
+			<label htmlFor="low-priority-titles__pattern">
+				{kind === 'title' ? 'Title pattern' : 'Comment pattern'}
+			</label>
 			<input
 				type="text"
 				className="add-token-form__input"
 				id="low-priority-titles__pattern"
-				placeholder="^(chore|build)\(deps\)"
+				placeholder={
+					kind === 'title'
+						? '^(chore|build)\\(deps\\)'
+						: '^Code coverage report'
+				}
 				value={pattern}
 				onChange={(event) => setPattern(event.target.value)}
 			/>

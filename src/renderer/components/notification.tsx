@@ -82,12 +82,16 @@ export default function Notification({
 	const lowPriorityTitlePatterns = useSelector(
 		(state: AppReduxState) => state.lowPriorityTitlePatterns
 	);
+	const lowPriorityCommentPatterns = useSelector(
+		(state: AppReduxState) => state.lowPriorityCommentPatterns
+	);
 	const lowPriorityWindowHours = useSelector(
 		(state: AppReduxState) => state.lowPriorityWindowHours
 	);
 	const lowPriorityOptions = getLowPriorityOptions({
 		isLowPriorityEnabled,
 		lowPriorityTitlePatterns,
+		lowPriorityCommentPatterns,
 		lowPriorityWindowHours,
 	});
 	const lowPriorityReason = getLowPriorityReason(note, lowPriorityOptions);
@@ -534,13 +538,23 @@ function getPriorityMenuItems(
 	return [
 		{
 			id: 'remove-low-priority',
-			label:
-				lowPriorityReason === 'title'
-					? 'Remove low priority (ignore title pattern)'
-					: 'Remove low priority',
+			label: getRemoveLowPriorityLabel(lowPriorityReason),
 		},
 		{ type: 'separator' },
 	];
+}
+
+function getRemoveLowPriorityLabel(
+	lowPriorityReason: LowPriorityReason
+): string {
+	switch (lowPriorityReason) {
+		case 'title':
+			return 'Remove low priority (ignore title pattern)';
+		case 'comment':
+			return 'Remove low priority (ignore comment pattern)';
+		default:
+			return 'Remove low priority';
+	}
 }
 
 function getLowPriorityLabelTitle(
@@ -551,6 +565,8 @@ function getLowPriorityLabelTitle(
 			return 'You marked this as low priority';
 		case 'title':
 			return 'The title matches a low priority pattern for this repo';
+		case 'comment':
+			return 'The latest comment matches a low priority pattern for this repo';
 		default:
 			return 'You dismissed this recently without opening it, so this update is probably minor';
 	}

@@ -36,6 +36,13 @@ export type FilterType = NoteReason | 'all';
  */
 export type LowPriorityTitlePatterns = Record<string, string[]>;
 
+/**
+ * Regular expressions, keyed by lowercase repository full name, which mark a
+ * note in that repository as low priority if they match the plain text of its
+ * latest comment (or review).
+ */
+export type LowPriorityCommentPatterns = Record<string, string[]>;
+
 export interface AppReduxState {
 	token: undefined | string;
 	notes: Note[];
@@ -62,6 +69,7 @@ export interface AppReduxState {
 	recentlyUnsubscribed: RecentlyUnsubscribedNote[];
 	isLowPriorityEnabled: boolean;
 	lowPriorityTitlePatterns: LowPriorityTitlePatterns;
+	lowPriorityCommentPatterns: LowPriorityCommentPatterns;
 	lowPriorityWindowHours: number;
 	isGroupByRepoEnabled: boolean;
 	dismissedFeatureTips: FeatureTipId[];
@@ -147,6 +155,11 @@ export type ActionSetLowPriorityTitlePatterns = {
 	repo: string;
 	patterns: string[];
 };
+export type ActionSetLowPriorityCommentPatterns = {
+	type: 'SET_LOW_PRIORITY_COMMENT_PATTERNS';
+	repo: string;
+	patterns: string[];
+};
 export type ActionDismissFeatureTip = {
 	type: 'DISMISS_FEATURE_TIP';
 	tipId: FeatureTipId;
@@ -223,6 +236,7 @@ export type AppReduxAction =
 	| ActionToggleLogging
 	| ActionSetLowPriorityEnabled
 	| ActionSetLowPriorityTitlePatterns
+	| ActionSetLowPriorityCommentPatterns
 	| ActionSetLowPriorityWindowHours
 	| ActionSetNotePriority
 	| ActionSetGroupByRepoEnabled

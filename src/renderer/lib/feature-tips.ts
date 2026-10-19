@@ -33,6 +33,7 @@ type FeatureTipState = Pick<
 	AppReduxState,
 	| 'isLowPriorityEnabled'
 	| 'lowPriorityTitlePatterns'
+	| 'lowPriorityCommentPatterns'
 	| 'lowPriorityWindowHours'
 	| 'isGroupByRepoEnabled'
 	| 'dismissedFeatureTips'
@@ -73,7 +74,8 @@ export function getFeatureTip(
 			wouldDismissalMakeNoteLowPriority(
 				note,
 				state.lowPriorityTitlePatterns,
-				windowMs
+				windowMs,
+				state.lowPriorityCommentPatterns
 			)
 		);
 		if (note) {

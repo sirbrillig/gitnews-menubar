@@ -1480,6 +1480,19 @@ main {
 	word-break: break-all;
 }
 
+.low-priority-titles__pattern-row {
+	display: flex;
+	align-items: baseline;
+	gap: 6px;
+	min-width: 0;
+}
+
+.low-priority-titles__kind {
+	flex-shrink: 0;
+	font-size: 0.75em;
+	opacity: 0.7;
+}
+
 .low-priority-titles__pattern--invalid {
 	color: #c0392b;
 	text-decoration: line-through;

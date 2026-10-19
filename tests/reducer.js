@@ -155,6 +155,47 @@ describe('reducer', function () {
 		});
 	});
 
+	describe('SET_LOW_PRIORITY_COMMENT_PATTERNS', function () {
+		it('has no patterns by default', function () {
+			const result = reducer(undefined, { type: 'UNKNOWN' });
+			expect(result.lowPriorityCommentPatterns).toEqual({});
+		});
+
+		it('sets the patterns for a repo using a lowercase name', function () {
+			const action = {
+				type: 'SET_LOW_PRIORITY_COMMENT_PATTERNS',
+				repo: ' Owner/Repo ',
+				patterns: ['^Coverage ', ''],
+			};
+			const result = reducer(
+				{
+					lowPriorityTitlePatterns: { 'owner/repo': ['a'] },
+					lowPriorityCommentPatterns: {},
+				},
+				action
+			);
+			expect(result.lowPriorityCommentPatterns).toEqual({
+				'owner/repo': ['^Coverage '],
+			});
+			expect(result.lowPriorityTitlePatterns).toEqual({
+				'owner/repo': ['a'],
+			});
+		});
+
+		it('removes a repo with no patterns', function () {
+			const action = {
+				type: 'SET_LOW_PRIORITY_COMMENT_PATTERNS',
+				repo: 'owner/repo',
+				patterns: [],
+			};
+			const result = reducer(
+				{ lowPriorityCommentPatterns: { 'owner/repo': ['a'] } },
+				action
+			);
+			expect(result.lowPriorityCommentPatterns).toEqual({});
+		});
+	});
+
 	describe('SET_NOTE_PRIORITY', function () {
 		const notes = [
 			{
