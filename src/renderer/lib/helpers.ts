@@ -610,6 +610,10 @@ export function getTimelineActivityLabel(note: Note): string | undefined {
 			return 'Closed the pull request';
 		case 'reopened':
 			return 'Reopened the pull request';
+		case 'review_requested':
+			return activity.requestedTeam
+				? `Requested a review from ${activity.requestedTeam}`
+				: 'Requested your review';
 	}
 	return undefined;
 }

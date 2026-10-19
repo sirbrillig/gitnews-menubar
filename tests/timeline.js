@@ -177,6 +177,149 @@ describe('findTimelineActivityForUpdate()', function () {
 	});
 });
 
+describe('findTimelineActivityForUpdate() with comments and review requests', function () {
+	const author = {
+		login: 'author',
+		avatar_url: 'https://example.com/author.png',
+	};
+
+	function makeComment(overrides = {}) {
+		return makeEvent('commented', {
+			html_url: 'https://github.com/owner/repo/pull/1#issuecomment-1',
+			body: '@viewer, could you take another look?',
+			user: author,
+			created_at: '2026-10-19T14:17:30Z',
+			...overrides,
+		});
+	}
+
+	function makeReviewRequest(overrides = {}) {
+		return makeEvent('review_requested', {
+			requested_reviewer: { login: 'viewer' },
+			...overrides,
+		});
+	}
+
+	it('returns a comment followed by a request for your review', function () {
+		const comment = makeComment();
+		const request = makeReviewRequest();
+		const olderCommit = makeCommit({
+			committer: { date: '2026-10-19T14:10:00Z' },
+		});
+		expect(
+			findTimelineActivityForUpdate(
+				[olderCommit, comment, request],
+				updatedAt,
+				'viewer'
+			)
+		).toEqual({ type: 'review_requested', actor: author, comment });
+	});
+
+	it('returns a request for your review followed by a comment', function () {
+		const request = makeReviewRequest({ created_at: '2026-10-19T14:17:00Z' });
+		const comment = makeComment({ created_at: '2026-10-19T14:18:00Z' });
+		expect(
+			findTimelineActivityForUpdate([request, comment], updatedAt, 'viewer')
+		).toEqual({ type: 'review_requested', actor: author, comment });
+	});
+
+	it('returns a request for your review without a comment', function () {
+		expect(
+			findTimelineActivityForUpdate([makeReviewRequest()], updatedAt, 'viewer')
+		).toEqual({ type: 'review_requested', actor: author });
+	});
+
+	it('returns a request for a review from a team', function () {
+		const request = makeReviewRequest({
+			requested_reviewer: undefined,
+			requested_team: { name: 'Team Name', slug: 'team-name' },
+		});
+		expect(
+			findTimelineActivityForUpdate([request], updatedAt, 'viewer')
+		).toEqual({
+			type: 'review_requested',
+			actor: author,
+			requestedTeam: 'Team Name',
+		});
+	});
+
+	it('ignores requests for reviews from other people', function () {
+		const request = makeReviewRequest({
+			requested_reviewer: { login: 'someone-else' },
+		});
+		expect(
+			findTimelineActivityForUpdate([request], updatedAt, 'viewer')
+		).toBeUndefined();
+	});
+
+	it('returns a comment on its own', function () {
+		const comment = makeComment();
+		expect(
+			findTimelineActivityForUpdate([comment], updatedAt, 'viewer')
+		).toEqual({ type: 'commented', actor: author, comment });
+	});
+
+	it('ignores comments by the viewer', function () {
+		const comment = makeComment({
+			user: { login: 'Viewer', avatar_url: 'https://example.com/v.png' },
+		});
+		expect(
+			findTimelineActivityForUpdate([comment], updatedAt, 'viewer')
+		).toBeUndefined();
+	});
+
+	it('does not combine a comment and an event by different users', function () {
+		const comment = makeComment({
+			user: {
+				login: 'commenter',
+				avatar_url: 'https://example.com/commenter.png',
+			},
+			created_at: '2026-10-19T14:17:00Z',
+		});
+		const request = makeReviewRequest();
+		expect(
+			findTimelineActivityForUpdate([comment, request], updatedAt, 'viewer')
+		).toEqual({ type: 'review_requested', actor: author });
+	});
+
+	it('shows a comment instead of the head of a force push', function () {
+		const forcePush = makeEvent('head_ref_force_pushed', {
+			commit_id: 'def456',
+			created_at: '2026-10-19T14:17:00Z',
+		});
+		const comment = makeComment({ body: 'Rebased on trunk' });
+		expect(
+			findTimelineActivityForUpdate([forcePush, comment], updatedAt, 'viewer')
+		).toEqual({
+			type: 'force_pushed',
+			actor: author,
+			headSha: 'def456',
+			comment,
+		});
+	});
+
+	it('returns a push made after a comment', function () {
+		const comment = makeComment({ created_at: '2026-10-19T14:10:00Z' });
+		const commit = makeCommit();
+		expect(
+			findTimelineActivityForUpdate([comment, commit], updatedAt, 'viewer')
+				?.type
+		).toEqual('pushed');
+	});
+
+	it('ignores comments made before `newerThan`', function () {
+		const comment = makeComment();
+		expect(
+			findTimelineActivityForUpdate(
+				[comment],
+				updatedAt,
+				'viewer',
+				comment.created_at
+			)
+		).toBeUndefined();
+	});
+});
+
 describe('getLastPageFromLinkHeader()', function () {
 	it('returns the last page', function () {
 		expect(
