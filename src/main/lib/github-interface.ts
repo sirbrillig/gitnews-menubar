@@ -4,7 +4,11 @@ import { socksDispatcher } from 'fetch-socks';
 import { logMessage } from './logging';
 import { doesTextMentionUser } from './mentions';
 import { getPlainTextExcerpt } from './excerpt';
-import { findReviewForUpdate, type RawReview } from './reviews';
+import {
+	doesActivityExplainUpdate,
+	findReviewForUpdate,
+	type RawReview,
+} from './reviews';
 import {
 	NOTE_HYDRATION_VERSION,
 	type AccountInfo,
@@ -246,13 +250,11 @@ async function getCommentDataForNotification(
 			commentExcerpt,
 		};
 	}
+	const isPullRequest = notification.subject.type === 'PullRequest';
 	// GitHub does not set `latest_comment_url` for pull request reviews (like
 	// approvals), so without this the PR's own description would be shown as
 	// the latest comment.
-	if (
-		notification.subject.type === 'PullRequest' &&
-		commentUrl === notification.subject.url
-	) {
+	if (isPullRequest && commentUrl === notification.subject.url) {
 		const reviewData = await getReviewDataForNotification(
 			octokit,
 			account,
@@ -275,6 +277,30 @@ async function getCommentDataForNotification(
 		commentUsername = commentData.user.login;
 		commentMentionsViewer = doesTextMentionUser(commentData.body, viewerLogin);
 		commentExcerpt = getPlainTextExcerpt(commentData.body);
+		// A review submitted after a comment also leaves `latest_comment_url`
+		// pointing at that comment, so if the comment is too old to have caused
+		// this update, look for a newer review. Otherwise a review would be
+		// hidden behind an older comment (and would be low priority if that
+		// comment matches a low priority pattern).
+		const commentActivityAt = getLaterTime(
+			commentData.created_at,
+			commentData.updated_at
+		);
+		if (
+			isPullRequest &&
+			!doesActivityExplainUpdate(commentActivityAt, notification.updated_at)
+		) {
+			const reviewData = await getReviewDataForNotification(
+				octokit,
+				account,
+				notification,
+				viewerLogin,
+				commentActivityAt
+			);
+			if (reviewData) {
+				return reviewData;
+			}
+		}
 	} catch (error) {
 		logMessage(
 			`Failed to fetch comment for ${commentPath} (${notification.subject.latest_comment_url ?? notification.subject.url})`,
@@ -307,7 +333,8 @@ async function getReviewDataForNotification(
 	octokit: Octokit,
 	account: AccountInfo,
 	notification: RawNotification,
-	viewerLogin: string | undefined
+	viewerLogin: string | undefined,
+	newerThan?: string
 ): Promise<CommentData | undefined> {
 	const pullPath = getThreadPathsForSubject(
 		account,
@@ -329,7 +356,8 @@ async function getReviewDataForNotification(
 	const review = findReviewForUpdate(
 		reviews,
 		notification.updated_at,
-		viewerLogin
+		viewerLogin,
+		newerThan
 	);
 	if (!review?.html_url || !review.user?.login || !review.user.avatar_url) {
 		return undefined;
@@ -548,10 +576,31 @@ function buildNoteFromData({
 	};
 }
 
+/**
+ * Return whichever of two ISO 8601 times is later, or undefined if neither
+ * can be parsed.
+ */
+function getLaterTime(
+	first: string | undefined,
+	second: string | undefined
+): string | undefined {
+	const firstMs = Date.parse(first ?? '');
+	const secondMs = Date.parse(second ?? '');
+	if (Number.isNaN(secondMs)) {
+		return Number.isNaN(firstMs) ? undefined : first;
+	}
+	if (Number.isNaN(firstMs)) {
+		return second;
+	}
+	return secondMs > firstMs ? second : first;
+}
+
 interface RawCommentResponse {
 	data: {
 		html_url: string;
 		body?: string | null;
+		created_at?: string;
+		updated_at?: string;
 		user: {
 			login: string;
 			avatar_url: string;

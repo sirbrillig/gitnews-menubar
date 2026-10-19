@@ -26,6 +26,25 @@ function isReviewState(state: string | undefined): state is ReviewState {
 }
 
 /**
+ * Return true if activity (like a comment) at `activityAt` could have caused
+ * a notification to be updated at `updatedAt`.
+ *
+ * Returns true if either time cannot be parsed, so that a missing time does
+ * not cause extra requests.
+ */
+export function doesActivityExplainUpdate(
+	activityAt: string | undefined,
+	updatedAt: string
+): boolean {
+	const activityAtMs = Date.parse(activityAt ?? '');
+	const updatedAtMs = Date.parse(updatedAt);
+	if (Number.isNaN(activityAtMs) || Number.isNaN(updatedAtMs)) {
+		return true;
+	}
+	return activityAtMs >= updatedAtMs - REVIEW_MATCH_LEEWAY_MS;
+}
+
+/**
  * Return the review that most likely caused a pull request notification to
  * be updated at `updatedAt`, or undefined if there is none.
  *
@@ -33,16 +52,21 @@ function isReviewState(state: string | undefined): state is ReviewState {
  * the only way to tell that a notification is about a review like an
  * approval. Reviews by the viewer are ignored since GitHub does not notify
  * people about their own activity.
+ *
+ * If `newerThan` is set, reviews submitted at or before that time are
+ * ignored. Use it to find a review submitted after the latest comment.
  */
 export function findReviewForUpdate(
 	reviews: RawReview[],
 	updatedAt: string,
-	viewerLogin: string | undefined
+	viewerLogin: string | undefined,
+	newerThan?: string
 ): (RawReview & { state: ReviewState }) | undefined {
 	const updatedAtMs = Date.parse(updatedAt);
 	if (Number.isNaN(updatedAtMs)) {
 		return undefined;
 	}
+	const newerThanMs = newerThan ? Date.parse(newerThan) : NaN;
 	let match: (RawReview & { state: ReviewState }) | undefined;
 	let matchTime = -Infinity;
 	for (const review of reviews) {
@@ -63,6 +87,9 @@ export function findReviewForUpdate(
 			submittedAtMs > updatedAtMs + REVIEW_MATCH_LEEWAY_MS ||
 			submittedAtMs < updatedAtMs - REVIEW_MATCH_WINDOW_MS
 		) {
+			continue;
+		}
+		if (!Number.isNaN(newerThanMs) && submittedAtMs <= newerThanMs) {
 			continue;
 		}
 		if (submittedAtMs >= matchTime) {
