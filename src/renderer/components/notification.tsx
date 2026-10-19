@@ -22,7 +22,6 @@ import {
 	getNoteId,
 	getLowPriorityReason,
 	getLowPriorityOptions,
-	getReviewCommentsLabel,
 	hasRecentMention,
 	LowPriorityReason,
 } from '../lib/helpers';
@@ -154,7 +153,6 @@ export default function Notification({
 		? 'You were mentioned recently'
 		: 'You were mentioned earlier in this thread';
 	const isInvalid = note.gitnewsIsInvalid === true;
-	const reviewCommentsLabel = getReviewCommentsLabel(note);
 	const noteClasses = [
 		'notification',
 		...(isMultiOpenMode && !queuedAction ? ['notification--multi-open'] : []),
@@ -415,16 +413,6 @@ export default function Notification({
 								reviewer={note.commentUsername}
 							/>
 						)}
-						{reviewCommentsLabel && (
-							<span
-								className="notification__review-state notification__review-state--comments"
-								title={`${note.commentUsername}: ${reviewCommentsLabel}`}
-								aria-label={`${note.commentUsername}: ${reviewCommentsLabel}`}
-								role="img"
-							>
-								<Gridicon icon="reply" />
-							</span>
-						)}
 						<span
 							className="notification__repo-name"
 							title={note.repositoryFullName}
@@ -480,14 +468,6 @@ export default function Notification({
 					</div>
 					{isPreviewOpen && note.commentExcerpt && (
 						<div className="notification__preview">
-							{reviewCommentsLabel && (
-								<div className="notification__preview-context">
-									{reviewCommentsLabel}
-									{note.reviewComments && note.reviewComments.count > 1
-										? ' (showing the latest)'
-										: ''}
-								</div>
-							)}
 							{note.commentUsername && (
 								<span className="notification__preview-author">
 									@{note.commentUsername}:{' '}

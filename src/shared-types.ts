@@ -22,29 +22,7 @@ export type ReviewState = 'APPROVED' | 'CHANGES_REQUESTED' | 'COMMENTED';
  * Increase this when hydrated notes get new data so that notes cached by an
  * older version are hydrated again.
  */
-export const NOTE_HYDRATION_VERSION = 3;
-
-/**
- * Describes the comments of a pull request review that has no body, so it is
- * clear what caused the notification.
- */
-export interface ReviewCommentsInfo {
-	/**
-	 * The number of comments in the review.
-	 */
-	count: number;
-
-	/**
-	 * True if the previewed comment is a reply in a review comment thread.
-	 */
-	isReply: boolean;
-
-	/**
-	 * True if the previewed comment is a reply in a review comment thread
-	 * started by the account's user.
-	 */
-	isReplyToYou: boolean;
-}
+export const NOTE_HYDRATION_VERSION = 2;
 
 export interface NoteApi {
 	subject?: { state?: string; merged?: boolean; draft?: boolean };
@@ -164,12 +142,6 @@ export interface Note {
 	 * comment, in which case the comment data describes the review.
 	 */
 	reviewState?: ReviewState;
-
-	/**
-	 * Set if the latest activity is a review with no body, in which case the
-	 * comment data describes the latest of the review's comments.
-	 */
-	reviewComments?: ReviewCommentsInfo;
 
 	/**
 	 * The `NOTE_HYDRATION_VERSION` at the time the note was hydrated.

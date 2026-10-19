@@ -2,7 +2,6 @@
 const {
 	doesActivityExplainUpdate,
 	findReviewForUpdate,
-	getLatestReviewComment,
 } = require('../src/main/lib/reviews');
 
 function makeReview(overrides = {}) {
@@ -120,49 +119,5 @@ describe('doesActivityExplainUpdate()', function () {
 		expect(doesActivityExplainUpdate(undefined, '2026-10-19T14:18:17Z')).toBe(
 			true
 		);
-	});
-});
-
-describe('getLatestReviewComment()', function () {
-	function makeComment(overrides = {}) {
-		return {
-			id: 1,
-			html_url: 'https://github.com/owner/repo/pull/1#discussion_r1',
-			body: 'Good point, fixed',
-			created_at: '2026-10-19T14:17:56Z',
-			in_reply_to_id: 5,
-			user: {
-				login: 'reviewer',
-				avatar_url: 'https://example.com/reviewer.png',
-			},
-			...overrides,
-		};
-	}
-
-	it('returns undefined if there are no comments', function () {
-		expect(getLatestReviewComment([])).toBeUndefined();
-	});
-
-	it('returns the only comment', function () {
-		const comment = makeComment();
-		expect(getLatestReviewComment([comment])).toEqual(comment);
-	});
-
-	it('returns the most recently created comment', function () {
-		const older = makeComment({ id: 1, created_at: '2026-10-19T14:15:00Z' });
-		const newer = makeComment({ id: 2, created_at: '2026-10-19T14:17:00Z' });
-		expect(getLatestReviewComment([newer, older])).toEqual(newer);
-		expect(getLatestReviewComment([older, newer])).toEqual(newer);
-	});
-
-	it('ignores comments without a URL', function () {
-		const comment = makeComment({ created_at: '2026-10-19T14:15:00Z' });
-		const invalid = makeComment({ html_url: undefined });
-		expect(getLatestReviewComment([comment, invalid])).toEqual(comment);
-	});
-
-	it('returns a comment with an unknown creation time', function () {
-		const comment = makeComment({ created_at: undefined });
-		expect(getLatestReviewComment([comment])).toEqual(comment);
 	});
 });

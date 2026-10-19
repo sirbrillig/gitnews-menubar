@@ -11,7 +11,6 @@ const {
 	wouldDismissalMakeNoteLowPriority,
 	LOW_PRIORITY_WINDOW_MS,
 	getLowPriorityOptions,
-	getReviewCommentsLabel,
 } = require('../src/renderer/lib/helpers');
 
 describe('getErrorMessage()', function () {
@@ -784,48 +783,5 @@ describe('groupNotesByRepo()', function () {
 		]);
 		expect(groups).toHaveLength(1);
 		expect(groups[0].repositoryFullName).toBe('Owner/Repo');
-	});
-});
-
-describe('getReviewCommentsLabel()', function () {
-	function makeReviewComments(overrides = {}) {
-		return { count: 1, isReply: false, isReplyToYou: false, ...overrides };
-	}
-
-	it('returns undefined for a note without review comments', function () {
-		expect(getReviewCommentsLabel({})).toBeUndefined();
-	});
-
-	it('describes a reply to your review comment', function () {
-		expect(
-			getReviewCommentsLabel({
-				reviewComments: makeReviewComments({
-					isReply: true,
-					isReplyToYou: true,
-				}),
-			})
-		).toEqual('Replied to your review comment');
-	});
-
-	it('describes a reply to someone else', function () {
-		expect(
-			getReviewCommentsLabel({
-				reviewComments: makeReviewComments({ isReply: true }),
-			})
-		).toEqual('Replied to a review comment');
-	});
-
-	it('describes a single new review comment', function () {
-		expect(
-			getReviewCommentsLabel({ reviewComments: makeReviewComments() })
-		).toEqual('Left a review comment');
-	});
-
-	it('describes several review comments', function () {
-		expect(
-			getReviewCommentsLabel({
-				reviewComments: makeReviewComments({ count: 3, isReply: true }),
-			})
-		).toEqual('Left 3 review comments');
 	});
 });

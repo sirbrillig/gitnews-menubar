@@ -565,25 +565,3 @@ export function isDispatch(dispatch: unknown): dispatch is AppDispatch {
 	}
 	return false;
 }
-
-/**
- * Return a short description of the review comments that caused a note, like
- * "Replied to your review comment", or undefined if it was not caused by
- * review comments.
- */
-export function getReviewCommentsLabel(note: Note): string | undefined {
-	const reviewComments = note.reviewComments;
-	if (!reviewComments) {
-		return undefined;
-	}
-	if (reviewComments.count > 1) {
-		return `Left ${reviewComments.count} review comments`;
-	}
-	if (reviewComments.isReplyToYou) {
-		return 'Replied to your review comment';
-	}
-	if (reviewComments.isReply) {
-		return 'Replied to a review comment';
-	}
-	return 'Left a review comment';
-}

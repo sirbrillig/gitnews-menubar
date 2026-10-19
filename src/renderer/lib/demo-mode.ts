@@ -65,15 +65,6 @@ function createDemoNotification(initialDate: Date): Note {
 				}
 			: {}),
 		authoredByYou: randomNumber(1, 3) === 1,
-		...(isPR && randomNumber(1, 3) === 1
-			? {
-					reviewComments: {
-						count: randomNumber(1, 3),
-						isReply: true,
-						isReplyToYou: randomNumber(1, 2) === 1,
-					},
-				}
-			: {}),
 		api: {
 			subject: {
 				state: isOpen ? 'open' : 'closed',

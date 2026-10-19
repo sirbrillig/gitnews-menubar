@@ -1,20 +1,10 @@
 import type { ReviewState } from '../../shared-types';
 
 export interface RawReview {
-	id?: number;
 	html_url?: string;
 	body?: string | null;
 	state?: string;
 	submitted_at?: string | null;
-	user?: { login?: string; avatar_url?: string } | null;
-}
-
-export interface RawReviewComment {
-	id?: number;
-	html_url?: string;
-	body?: string | null;
-	created_at?: string;
-	in_reply_to_id?: number | null;
 	user?: { login?: string; avatar_url?: string } | null;
 }
 
@@ -108,30 +98,4 @@ export function findReviewForUpdate(
 		}
 	}
 	return match;
-}
-
-/**
- * Return the most recently created of a review's comments, or undefined if
- * there are none.
- *
- * A review with no body (like a reply in a review comment thread) only has
- * its comments to show, so use this to find one to preview.
- */
-export function getLatestReviewComment(
-	comments: RawReviewComment[]
-): RawReviewComment | undefined {
-	let latest: RawReviewComment | undefined;
-	let latestTime = -Infinity;
-	for (const comment of comments) {
-		if (!comment.html_url) {
-			continue;
-		}
-		const createdAtMs = Date.parse(comment.created_at ?? '');
-		const time = Number.isNaN(createdAtMs) ? -Infinity : createdAtMs;
-		if (!latest || time >= latestTime) {
-			latest = comment;
-			latestTime = time;
-		}
-	}
-	return latest;
 }

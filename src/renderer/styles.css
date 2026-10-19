@@ -660,11 +660,6 @@ header h1 {
 	font-weight: 600;
 }
 
-.notification__preview-context {
-	font-style: italic;
-	color: var(--notification-timestamp-color);
-}
-
 .notification__invalid-notice {
 	font-size: 0.75em;
 	color: #d97706;
@@ -781,10 +776,6 @@ header h1 {
 
 .notification__review-state--changes-requested {
 	color: var(--notification-status-closed-color);
-}
-
-.notification__review-state--comments {
-	color: var(--notification-timestamp-color);
 }
 
 .notification__review-state svg {
