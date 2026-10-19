@@ -13,6 +13,7 @@ const {
 	getLowPriorityOptions,
 	getReviewCommentsLabel,
 	getTimelineActivityLabel,
+	shouldShowMentionBadge,
 } = require('../src/renderer/lib/helpers');
 
 describe('getErrorMessage()', function () {
@@ -881,5 +882,40 @@ describe('getTimelineActivityLabel()', function () {
 		expect(
 			getTimelineActivityLabel({ timelineActivity: { type: 'merged' } })
 		).toEqual('Merged the pull request');
+	});
+});
+
+describe('shouldShowMentionBadge()', function () {
+	function makeNote(overrides = {}) {
+		return {
+			api: { notification: { reason: 'subscribed' } },
+			...overrides,
+		};
+	}
+
+	it('returns true for a note with the mention reason', function () {
+		expect(
+			shouldShowMentionBadge(
+				makeNote({ api: { notification: { reason: 'mention' } } })
+			)
+		).toBe(true);
+	});
+
+	it('returns true if the latest comment mentions the user behind another reason', function () {
+		expect(
+			shouldShowMentionBadge(
+				makeNote({
+					api: { notification: { reason: 'review_requested' } },
+					latestCommentMentionsYou: true,
+				})
+			)
+		).toBe(true);
+	});
+
+	it('returns false for a note without a mention', function () {
+		expect(shouldShowMentionBadge(makeNote())).toBe(false);
+		expect(
+			shouldShowMentionBadge(makeNote({ latestCommentMentionsYou: false }))
+		).toBe(false);
 	});
 });

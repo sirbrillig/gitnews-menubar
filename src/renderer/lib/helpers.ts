@@ -324,6 +324,20 @@ export function hasRecentMention(note: Note): boolean {
 	return hasNewMention(note);
 }
 
+/**
+ * Return true if the note should show a badge for mentioning the user.
+ *
+ * GitHub gives a notification only one reason, so a mention can be hidden
+ * behind another reason (like a review request), which is why the latest
+ * comment is checked too.
+ */
+export function shouldShowMentionBadge(note: Note): boolean {
+	return (
+		note.api?.notification?.reason === 'mention' ||
+		note.latestCommentMentionsYou === true
+	);
+}
+
 function isMentionReason(reason: NoteReason | undefined): boolean {
 	return reason === 'mention' || reason === 'team_mention';
 }
