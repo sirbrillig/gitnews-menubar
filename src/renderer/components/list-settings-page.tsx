@@ -121,7 +121,7 @@ export default function ListSettingsPage({
 							className="edit-low-priority-titles-button"
 							onClick={showLowPriorityTitles}
 						>
-							Low priority titles
+							Low priority patterns
 						</button>
 					</li>
 					<li className="config-row config-row--nav">

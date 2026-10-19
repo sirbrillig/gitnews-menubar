@@ -41,6 +41,7 @@ import {
 	Note,
 	AppReduxState,
 	LowPriorityTitlePatterns,
+	LowPriorityCommentPatterns,
 	AppPane,
 	OpenUrl,
 	MarkRead,
@@ -74,6 +75,7 @@ interface AppConnectedProps {
 	showUnreadOnly: boolean;
 	isLowPriorityEnabled: boolean;
 	lowPriorityTitlePatterns: LowPriorityTitlePatterns;
+	lowPriorityCommentPatterns: LowPriorityCommentPatterns;
 	lowPriorityWindowHours: number;
 	hasAccounts: boolean;
 }
@@ -379,6 +381,7 @@ function mapStateToProps(state: AppReduxState): AppConnectedProps {
 		showUnreadOnly: state.showUnreadOnly,
 		isLowPriorityEnabled: state.isLowPriorityEnabled,
 		lowPriorityTitlePatterns: state.lowPriorityTitlePatterns,
+		lowPriorityCommentPatterns: state.lowPriorityCommentPatterns,
 		lowPriorityWindowHours: state.lowPriorityWindowHours,
 		hasAccounts: state.accounts.length > 0 || Boolean(state.token),
 	};

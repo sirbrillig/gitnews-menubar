@@ -610,6 +610,89 @@ describe('getLowPriorityReason()', function () {
 	});
 });
 
+describe('getLowPriorityReason() with comment patterns', function () {
+	const commentPatterns = { 'owner/repo': ['^coverage report', '[invalid'] };
+	const makeNote = (overrides = {}) => ({
+		id: 'a1',
+		unread: true,
+		repositoryFullName: 'Owner/Repo',
+		title: 'Fix a bug',
+		updatedAt: '2026-10-01T15:00:00Z',
+		commentUrl: 'https://example.com/comment/1',
+		commentExcerpt: 'Coverage report: 92% of lines covered',
+		api: { notification: { reason: 'subscribed' } },
+		...overrides,
+	});
+
+	it('returns "comment" if the latest comment matches a pattern for the repo', function () {
+		expect(getLowPriorityReason(makeNote(), { commentPatterns })).toBe(
+			'comment'
+		);
+	});
+
+	it('returns undefined once a later comment does not match', function () {
+		expect(
+			getLowPriorityReason(
+				makeNote({
+					commentUrl: 'https://example.com/comment/2',
+					commentExcerpt: 'Can you take another look?',
+				}),
+				{ commentPatterns }
+			)
+		).toBeUndefined();
+	});
+
+	it('returns undefined if the note has no comment text', function () {
+		expect(
+			getLowPriorityReason(makeNote({ commentExcerpt: undefined }), {
+				commentPatterns,
+			})
+		).toBeUndefined();
+	});
+
+	it('returns undefined for a different repo', function () {
+		expect(
+			getLowPriorityReason(makeNote({ repositoryFullName: 'other/repo' }), {
+				commentPatterns,
+			})
+		).toBeUndefined();
+	});
+
+	it('ignores invalid patterns', function () {
+		expect(
+			getLowPriorityReason(makeNote({ commentExcerpt: '[invalid' }), {
+				commentPatterns,
+			})
+		).toBeUndefined();
+	});
+
+	it('does not match the title against comment patterns', function () {
+		expect(
+			getLowPriorityReason(
+				makeNote({ title: 'Coverage report', commentExcerpt: 'Looks good' }),
+				{ commentPatterns }
+			)
+		).toBeUndefined();
+	});
+
+	it('returns undefined if the latest comment mentions the user', function () {
+		expect(
+			getLowPriorityReason(makeNote({ latestCommentMentionsYou: true }), {
+				commentPatterns,
+			})
+		).toBeUndefined();
+	});
+
+	it('returns undefined if the user removed low priority from the note', function () {
+		expect(
+			getLowPriorityReason(
+				makeNote({ gitnewsPriorityOverride: { priority: 'normal' } }),
+				{ commentPatterns }
+			)
+		).toBeUndefined();
+	});
+});
+
 describe('hasRecentMention()', function () {
 	const dismissedAt = Date.parse('2026-09-01T12:00:00Z');
 	const makeNote = (overrides = {}) => ({

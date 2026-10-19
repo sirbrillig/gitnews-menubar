@@ -22,7 +22,7 @@ export type ReviewState = 'APPROVED' | 'CHANGES_REQUESTED' | 'COMMENTED';
  * Increase this when hydrated notes get new data so that notes cached by an
  * older version are hydrated again.
  */
-export const NOTE_HYDRATION_VERSION = 1;
+export const NOTE_HYDRATION_VERSION = 2;
 
 export interface NoteApi {
 	subject?: { state?: string; merged?: boolean; draft?: boolean };

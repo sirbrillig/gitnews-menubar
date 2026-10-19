@@ -1,5 +1,8 @@
 /* globals describe, it */
-const { findReviewForUpdate } = require('../src/main/lib/reviews');
+const {
+	doesActivityExplainUpdate,
+	findReviewForUpdate,
+} = require('../src/main/lib/reviews');
 
 function makeReview(overrides = {}) {
 	return {
@@ -72,5 +75,49 @@ describe('findReviewForUpdate()', function () {
 		expect(
 			findReviewForUpdate([review], '2026-10-19T14:18:17Z', 'viewer')
 		).toEqual(review);
+	});
+
+	it('ignores reviews submitted before the newerThan time', function () {
+		const review = makeReview({ submitted_at: '2026-10-19T14:15:00Z' });
+		expect(
+			findReviewForUpdate(
+				[review],
+				'2026-10-19T14:18:17Z',
+				'viewer',
+				'2026-10-19T14:16:00Z'
+			)
+		).toBeUndefined();
+	});
+
+	it('returns reviews submitted after the newerThan time', function () {
+		const review = makeReview();
+		expect(
+			findReviewForUpdate(
+				[review],
+				'2026-10-19T14:18:17Z',
+				'viewer',
+				'2026-10-19T14:16:00Z'
+			)
+		).toEqual(review);
+	});
+});
+
+describe('doesActivityExplainUpdate()', function () {
+	it('returns true for activity at the time of the update', function () {
+		expect(
+			doesActivityExplainUpdate('2026-10-19T14:18:00Z', '2026-10-19T14:18:17Z')
+		).toBe(true);
+	});
+
+	it('returns false for activity well before the update', function () {
+		expect(
+			doesActivityExplainUpdate('2026-10-19T14:10:00Z', '2026-10-19T14:18:17Z')
+		).toBe(false);
+	});
+
+	it('returns true if the activity time is unknown', function () {
+		expect(doesActivityExplainUpdate(undefined, '2026-10-19T14:18:17Z')).toBe(
+			true
+		);
 	});
 });

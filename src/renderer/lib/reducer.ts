@@ -39,6 +39,7 @@ import {
 	ActionSetLowPriorityEnabled,
 	ActionSetGroupByRepoEnabled,
 	ActionSetLowPriorityTitlePatterns,
+	ActionSetLowPriorityCommentPatterns,
 	ActionSetLowPriorityWindowHours,
 	ActionDismissFeatureTip,
 	ActionResetFeatureTips,
@@ -73,6 +74,7 @@ const initialState: AppReduxState = {
 	recentlyUnsubscribed: [],
 	isLowPriorityEnabled: false,
 	lowPriorityTitlePatterns: {},
+	lowPriorityCommentPatterns: {},
 	lowPriorityWindowHours: DEFAULT_LOW_PRIORITY_WINDOW_HOURS,
 	isGroupByRepoEnabled: false,
 	dismissedFeatureTips: [],
@@ -395,24 +397,38 @@ export function createReducer() {
 					dismissedFeatureTips: [],
 					lastFeatureTipDismissedAt: false,
 				};
-			case 'SET_LOW_PRIORITY_TITLE_PATTERNS': {
-				const repo = action.repo.trim().toLowerCase();
-				const patterns = action.patterns.filter(
-					(pattern) => pattern.trim() !== ''
-				);
-				const { [repo]: _removed, ...otherRepos } =
-					state.lowPriorityTitlePatterns ?? {};
+			case 'SET_LOW_PRIORITY_TITLE_PATTERNS':
 				return {
 					...state,
-					lowPriorityTitlePatterns:
-						patterns.length > 0
-							? { ...otherRepos, [repo]: patterns }
-							: otherRepos,
+					lowPriorityTitlePatterns: setPatternsForRepo(
+						state.lowPriorityTitlePatterns ?? {},
+						action.repo,
+						action.patterns
+					),
 				};
-			}
+			case 'SET_LOW_PRIORITY_COMMENT_PATTERNS':
+				return {
+					...state,
+					lowPriorityCommentPatterns: setPatternsForRepo(
+						state.lowPriorityCommentPatterns ?? {},
+						action.repo,
+						action.patterns
+					),
+				};
 		}
 		return state;
 	};
+}
+
+function setPatternsForRepo(
+	patternsByRepo: Record<string, string[]>,
+	repoName: string,
+	nextPatterns: string[]
+): Record<string, string[]> {
+	const repo = repoName.trim().toLowerCase();
+	const patterns = nextPatterns.filter((pattern) => pattern.trim() !== '');
+	const { [repo]: _removed, ...otherRepos } = patternsByRepo;
+	return patterns.length > 0 ? { ...otherRepos, [repo]: patterns } : otherRepos;
 }
 
 export function muteRepo(repo: string): ActionMuteRepo {
@@ -593,6 +609,17 @@ export function setLowPriorityTitlePatterns(
 	patterns: string[]
 ): ActionSetLowPriorityTitlePatterns {
 	return { type: 'SET_LOW_PRIORITY_TITLE_PATTERNS', repo, patterns };
+}
+
+/**
+ * Replace the comment patterns for a repo. Empty patterns are dropped, and a
+ * repo with no patterns is removed.
+ */
+export function setLowPriorityCommentPatterns(
+	repo: string,
+	patterns: string[]
+): ActionSetLowPriorityCommentPatterns {
+	return { type: 'SET_LOW_PRIORITY_COMMENT_PATTERNS', repo, patterns };
 }
 
 export function toggleLogging(isLogging: boolean) {

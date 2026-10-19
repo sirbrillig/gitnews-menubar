@@ -24,6 +24,7 @@ const persistedKeys: Array<keyof AppReduxState> = [
 	'isLogging',
 	'isLowPriorityEnabled',
 	'lowPriorityTitlePatterns',
+	'lowPriorityCommentPatterns',
 	'lowPriorityWindowHours',
 	'isGroupByRepoEnabled',
 	'dismissedFeatureTips',

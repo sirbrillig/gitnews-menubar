@@ -6,6 +6,7 @@ import {
 	UnknownFetchError,
 	AppReduxAction,
 	LowPriorityTitlePatterns,
+	LowPriorityCommentPatterns,
 	AppReduxState,
 } from '../types';
 import { AppDispatch } from './store';
@@ -126,7 +127,7 @@ export function isValidLowPriorityWindowHours(hours: unknown): hours is number {
 	return typeof hours === 'number' && Number.isFinite(hours) && hours > 0;
 }
 
-export type LowPriorityReason = 'dismissed' | 'manual' | 'title';
+export type LowPriorityReason = 'comment' | 'dismissed' | 'manual' | 'title';
 
 export interface LowPriorityOptions {
 	/**
@@ -134,6 +135,7 @@ export interface LowPriorityOptions {
 	 */
 	isDismissalEnabled?: boolean;
 	titlePatterns?: LowPriorityTitlePatterns;
+	commentPatterns?: LowPriorityCommentPatterns;
 	/**
 	 * How long after dismissal new activity is considered low priority.
 	 */
@@ -145,12 +147,14 @@ export function getLowPriorityOptions(
 		AppReduxState,
 		| 'isLowPriorityEnabled'
 		| 'lowPriorityTitlePatterns'
+		| 'lowPriorityCommentPatterns'
 		| 'lowPriorityWindowHours'
 	>
 ): LowPriorityOptions {
 	return {
 		isDismissalEnabled: state.isLowPriorityEnabled,
 		titlePatterns: state.lowPriorityTitlePatterns ?? {},
+		commentPatterns: state.lowPriorityCommentPatterns ?? {},
 		windowMs: hoursToMs(
 			isValidLowPriorityWindowHours(state.lowPriorityWindowHours)
 				? state.lowPriorityWindowHours
@@ -176,10 +180,15 @@ export function isNoteLowPriority(
  * undefined if it should not be.
  *
  * A note is low priority if its title matches one of its repository's title
+ * patterns, if its latest comment matches one of its repository's comment
  * patterns, or if it is unread again only because of activity shortly after
  * the user dismissed it (marked it read without opening it). That activity is
  * probably minor (a pushed commit, a rebase, an automated review). A new
- * mention overrides both.
+ * mention overrides all of these.
+ *
+ * Since comment patterns only look at the latest comment, a note that is low
+ * priority because of a matching comment (like one from a bot) becomes normal
+ * priority again when a comment that does not match is added.
  *
  * The user can also set the priority of a note manually, which overrides the
  * rules above. A manual low priority is still overridden by a new mention, but
@@ -190,6 +199,7 @@ export function getLowPriorityReason(
 	{
 		isDismissalEnabled = false,
 		titlePatterns = {},
+		commentPatterns = {},
 		windowMs = LOW_PRIORITY_WINDOW_MS,
 	}: LowPriorityOptions
 ): LowPriorityReason | undefined {
@@ -215,6 +225,15 @@ export function getLowPriorityReason(
 		return 'title';
 	}
 	if (
+		doesTextMatchPatterns(
+			note.repositoryFullName,
+			note.commentExcerpt,
+			commentPatterns
+		)
+	) {
+		return 'comment';
+	}
+	if (
 		isDismissalEnabled &&
 		note.gitnewsDismissedAt &&
 		isUpdateWithinLowPriorityWindow(
@@ -235,12 +254,14 @@ export function getLowPriorityReason(
 export function wouldDismissalMakeNoteLowPriority(
 	note: Note,
 	titlePatterns: LowPriorityTitlePatterns = {},
-	windowMs: number = LOW_PRIORITY_WINDOW_MS
+	windowMs: number = LOW_PRIORITY_WINDOW_MS,
+	commentPatterns: LowPriorityCommentPatterns = {}
 ): boolean {
 	return (
 		getLowPriorityReason(note, {
 			isDismissalEnabled: true,
 			titlePatterns,
+			commentPatterns,
 			windowMs,
 		}) === 'dismissed'
 	);
@@ -310,8 +331,8 @@ function isMentionReason(reason: NoteReason | undefined): boolean {
 const compiledPatterns = new Map<string, RegExp | null>();
 
 /**
- * Compile a title pattern into a case-insensitive regular expression, or
- * return null if it is not valid.
+ * Compile a title or comment pattern into a case-insensitive regular
+ * expression, or return null if it is not valid.
  */
 export function compileTitlePattern(pattern: string): RegExp | null {
 	if (!compiledPatterns.has(pattern)) {
@@ -331,12 +352,20 @@ export function doesTitleMatchPatterns(
 	title: string | undefined,
 	titlePatterns: LowPriorityTitlePatterns
 ): boolean {
-	if (!repositoryFullName || !title) {
+	return doesTextMatchPatterns(repositoryFullName, title, titlePatterns);
+}
+
+function doesTextMatchPatterns(
+	repositoryFullName: string | undefined,
+	text: string | undefined,
+	patternsByRepo: Record<string, string[]>
+): boolean {
+	if (!repositoryFullName || !text) {
 		return false;
 	}
-	const patterns = titlePatterns[repositoryFullName.toLowerCase()] ?? [];
+	const patterns = patternsByRepo[repositoryFullName.toLowerCase()] ?? [];
 	return patterns.some((pattern) =>
-		Boolean(compileTitlePattern(pattern)?.test(title))
+		Boolean(compileTitlePattern(pattern)?.test(text))
 	);
 }
 
