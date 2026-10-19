@@ -25,6 +25,7 @@ import {
 	getReviewCommentsLabel,
 	getTimelineActivityLabel,
 	hasRecentMention,
+	shouldShowMentionBadge,
 	LowPriorityReason,
 } from '../lib/helpers';
 import {
@@ -149,7 +150,7 @@ export default function Notification({
 		Date.now() - note.gitnewsOpenedAt < RECENTLY_OPENED_MS
 			? note.gitnewsOpenedAt
 			: null;
-	const isMention = note.api.notification?.reason === 'mention';
+	const isMention = shouldShowMentionBadge(note);
 	const isRecentMention = isMention && hasRecentMention(note);
 	const mentionLabel = isRecentMention
 		? 'You were mentioned recently'
