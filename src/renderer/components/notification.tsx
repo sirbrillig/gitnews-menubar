@@ -16,6 +16,7 @@ import {
 	QueuedAction,
 	ContextMenuItem,
 } from '../types';
+import type { ReviewState } from '../../shared-types';
 import { ImageWithBackup } from './image-with-backup';
 import {
 	getNoteId,
@@ -402,6 +403,12 @@ export default function Notification({
 								<Gridicon icon="user" />
 							</span>
 						)}
+						{note.reviewState && (
+							<ReviewStateBadge
+								reviewState={note.reviewState}
+								reviewer={note.commentUsername}
+							/>
+						)}
 						<span
 							className="notification__repo-name"
 							title={note.repositoryFullName}
@@ -479,6 +486,40 @@ export default function Notification({
 			</div>
 		</div>
 	);
+}
+
+function ReviewStateBadge({
+	reviewState,
+	reviewer,
+}: {
+	reviewState: ReviewState;
+	reviewer: string;
+}) {
+	if (reviewState === 'APPROVED') {
+		return (
+			<span
+				className="notification__review-state notification__review-state--approved"
+				title={`Approved by ${reviewer}`}
+				aria-label={`Approved by ${reviewer}`}
+				role="img"
+			>
+				<Gridicon icon="checkmark" />
+			</span>
+		);
+	}
+	if (reviewState === 'CHANGES_REQUESTED') {
+		return (
+			<span
+				className="notification__review-state notification__review-state--changes-requested"
+				title={`Changes requested by ${reviewer}`}
+				aria-label={`Changes requested by ${reviewer}`}
+				role="img"
+			>
+				<Gridicon icon="cross" />
+			</span>
+		);
+	}
+	return null;
 }
 
 function getPriorityMenuItems(

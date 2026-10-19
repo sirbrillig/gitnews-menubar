@@ -1,5 +1,6 @@
 /* globals describe, it, beforeEach */
 const { createFetcher } = require('../src/renderer/lib/gitnews-fetcher');
+const { NOTE_HYDRATION_VERSION } = require('../src/shared-types');
 
 // Flush all pending microtasks and macrotasks so async middleware completes
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -70,6 +71,7 @@ function makeHydratedNote(basicNote, overrides = {}) {
 		commentUsername: 'hydrateduser',
 		commentAvatar: 'https://example.com/avatar.png',
 		commentExcerpt: 'A hydrated comment',
+		gitnewsHydrationVersion: NOTE_HYDRATION_VERSION,
 		api: {
 			subject: { state: 'open', merged: false, draft: false },
 			notification: { reason: basicNote.reason },
@@ -381,10 +383,10 @@ describe('createFetcher() — two-phase fetch', function () {
 			).toHaveBeenCalledWith(TEST_ACCOUNT, [basicNote]);
 		});
 
-		it('re-enriches a cached note that has no comment excerpt', async function () {
+		it('re-enriches a cached note hydrated by an older version', async function () {
 			const basicNote = makeBasicNote({ updatedAt: '2024-01-01T00:00:00Z' });
 			const existingNote = makeHydratedNote(basicNote, {
-				commentExcerpt: undefined,
+				gitnewsHydrationVersion: undefined,
 			});
 			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([
 				basicNote,
