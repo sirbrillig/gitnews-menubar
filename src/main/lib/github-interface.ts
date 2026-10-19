@@ -528,16 +528,10 @@ async function getTimelineDataForNotification(
 	// Commits only have git identities, so use the GitHub user of the newest
 	// commit as the pusher.
 	const user = activity.actor ?? commit?.author;
-	const pullNumber = paths.pullPath.match(/(\d+)$/)?.[1];
-	// Show a pushed commit in the context of the pull request. Other activity
-	// (like a force push) has no page of its own, so open the pull request.
-	const commentHtmlUrl =
-		activity.type === 'pushed' && activity.headSha && pullNumber
-			? `${getWebBaseUrl(account)}/${notification.repository.full_name}/pull/${pullNumber}/commits/${activity.headSha}`
-			: '';
 	return {
 		commentAvatar: user?.avatar_url ?? '',
-		commentHtmlUrl,
+		// Timeline activity has no page of its own, so open the pull request.
+		commentHtmlUrl: '',
 		commentUsername: user?.login ?? '',
 		commentMentionsViewer: false,
 		commentExcerpt: getPlainTextExcerpt(
