@@ -23,6 +23,7 @@ import {
 	getLowPriorityReason,
 	getLowPriorityOptions,
 	getReviewCommentsLabel,
+	getTimelineActivityLabel,
 	hasRecentMention,
 	LowPriorityReason,
 } from '../lib/helpers';
@@ -155,6 +156,11 @@ export default function Notification({
 		: 'You were mentioned earlier in this thread';
 	const isInvalid = note.gitnewsIsInvalid === true;
 	const reviewCommentsLabel = getReviewCommentsLabel(note);
+	const timelineActivityLabel = getTimelineActivityLabel(note);
+	const isPushActivity =
+		note.timelineActivity?.type === 'pushed' ||
+		note.timelineActivity?.type === 'force_pushed';
+	const hasPreview = Boolean(note.commentExcerpt || timelineActivityLabel);
 	const noteClasses = [
 		'notification',
 		...(isMultiOpenMode && !queuedAction ? ['notification--multi-open'] : []),
@@ -425,6 +431,24 @@ export default function Notification({
 								<Gridicon icon="reply" />
 							</span>
 						)}
+						{timelineActivityLabel && isPushActivity && (
+							<span
+								className="notification__review-state notification__review-state--comments"
+								title={
+									note.commentUsername
+										? `${note.commentUsername}: ${timelineActivityLabel}`
+										: timelineActivityLabel
+								}
+								aria-label={
+									note.commentUsername
+										? `${note.commentUsername}: ${timelineActivityLabel}`
+										: timelineActivityLabel
+								}
+								role="img"
+							>
+								<Gridicon icon="sync" />
+							</span>
+						)}
 						<span
 							className="notification__repo-name"
 							title={note.repositoryFullName}
@@ -462,7 +486,7 @@ export default function Notification({
 							)}
 						</span>
 						<span className="notification__actions">
-							{note.commentExcerpt && (
+							{hasPreview && (
 								<PreviewToggleButton
 									isOpen={isPreviewOpen}
 									onClick={doTogglePreview}
@@ -478,7 +502,7 @@ export default function Notification({
 							/>
 						</span>
 					</div>
-					{isPreviewOpen && note.commentExcerpt && (
+					{isPreviewOpen && hasPreview && (
 						<div className="notification__preview">
 							{reviewCommentsLabel && (
 								<div className="notification__preview-context">
@@ -488,7 +512,19 @@ export default function Notification({
 										: ''}
 								</div>
 							)}
-							{note.commentUsername && (
+							{timelineActivityLabel && (
+								<div className="notification__preview-context">
+									{note.commentUsername ? `@${note.commentUsername}: ` : ''}
+									{timelineActivityLabel}
+									{note.timelineActivity?.type === 'pushed' &&
+									note.commentExcerpt &&
+									(note.timelineActivity.commitCount ?? 0) > 1
+										? ' (showing the latest)'
+										: ''}
+								</div>
+							)}
+							{/* The context already names who pushed. */}
+							{note.commentUsername && !timelineActivityLabel && (
 								<span className="notification__preview-author">
 									@{note.commentUsername}:{' '}
 								</span>

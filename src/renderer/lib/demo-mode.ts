@@ -74,6 +74,14 @@ function createDemoNotification(initialDate: Date): Note {
 					},
 				}
 			: {}),
+		...(isPR && randomNumber(1, 4) === 1
+			? {
+					timelineActivity:
+						randomNumber(1, 2) === 1
+							? { type: 'pushed' as const, commitCount: randomNumber(1, 3) }
+							: { type: 'force_pushed' as const },
+				}
+			: {}),
 		api: {
 			subject: {
 				state: isOpen ? 'open' : 'closed',

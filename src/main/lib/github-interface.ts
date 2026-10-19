@@ -12,6 +12,11 @@ import {
 	type RawReviewComment,
 } from './reviews';
 import {
+	findTimelineActivityForUpdate,
+	getLastPageFromLinkHeader,
+	type RawTimelineItem,
+} from './timeline';
+import {
 	NOTE_HYDRATION_VERSION,
 	type AccountInfo,
 	type BasicNote,
@@ -19,6 +24,7 @@ import {
 	type NoteReason,
 	type ReviewCommentsInfo,
 	type ReviewState,
+	type TimelineActivityInfo,
 } from '../../shared-types';
 import type { RequestInit } from 'undici';
 
@@ -194,6 +200,7 @@ interface CommentData {
 	commentExcerpt: string;
 	reviewState?: ReviewState;
 	reviewComments?: ReviewCommentsInfo;
+	timelineActivity?: TimelineActivityInfo;
 }
 
 // The login of the user who owns each account's token, keyed by account.
@@ -268,6 +275,15 @@ async function getCommentDataForNotification(
 		if (reviewData) {
 			return reviewData;
 		}
+		const timelineData = await getTimelineDataForNotification(
+			octokit,
+			account,
+			notification,
+			viewerLogin
+		);
+		if (timelineData) {
+			return timelineData;
+		}
 	}
 	const commentPath = getOctokitRequestPathFromUrl(account, commentUrl);
 	try {
@@ -303,6 +319,16 @@ async function getCommentDataForNotification(
 			);
 			if (reviewData) {
 				return reviewData;
+			}
+			const timelineData = await getTimelineDataForNotification(
+				octokit,
+				account,
+				notification,
+				viewerLogin,
+				commentActivityAt
+			);
+			if (timelineData) {
+				return timelineData;
 			}
 		}
 	} catch (error) {
@@ -392,6 +418,135 @@ async function getReviewDataForNotification(
 		commentMentionsViewer: doesTextMentionUser(review.body, viewerLogin),
 		commentExcerpt: reviewExcerpt,
 		reviewState: review.state,
+	};
+}
+
+// If the last page of a timeline has fewer items than this, also fetch the
+// page before it so that earlier activity can tell which commits are new.
+const MIN_TIMELINE_ITEMS = 20;
+
+/**
+ * Return the most recent items on the timeline of an issue or pull request.
+ *
+ * The timeline is sorted oldest first and cannot be reversed, so this fetches
+ * the last page (and the one before it if the last page is short).
+ */
+async function getRecentTimelineItems(
+	octokit: Octokit,
+	issuePath: string
+): Promise<RawTimelineItem[]> {
+	const perPage = 100;
+	const firstPage = await octokit.request(`GET ${issuePath}/timeline`, {
+		per_page: perPage,
+	});
+	const lastPage = getLastPageFromLinkHeader(firstPage.headers.link);
+	if (!lastPage || lastPage <= 1) {
+		return firstPage.data as RawTimelineItem[];
+	}
+	const getPage = async (page: number) =>
+		page === 1
+			? (firstPage.data as RawTimelineItem[])
+			: ((
+					await octokit.request(`GET ${issuePath}/timeline`, {
+						per_page: perPage,
+						page,
+					})
+				).data as RawTimelineItem[]);
+	const lastItems = await getPage(lastPage);
+	if (lastItems.length >= MIN_TIMELINE_ITEMS) {
+		return lastItems;
+	}
+	return [...(await getPage(lastPage - 1)), ...lastItems];
+}
+
+/**
+ * Return the commit for a SHA in the repo of a pull request, or undefined if
+ * it cannot be fetched.
+ */
+async function getCommitForPull(
+	octokit: Octokit,
+	pullPath: string,
+	sha: string
+): Promise<
+	| {
+			commit?: { message?: string };
+			author?: { login?: string; avatar_url?: string } | null;
+	  }
+	| undefined
+> {
+	const commitPath = pullPath.replace(/\/pulls\/\d+$/, `/commits/${sha}`);
+	try {
+		const response = await octokit.request(`GET ${commitPath}`, {});
+		return response.data;
+	} catch (error) {
+		logMessage(`Failed to fetch commit ${commitPath}`, 'error');
+		return undefined;
+	}
+}
+
+/**
+ * Return comment data for timeline activity (like a push) that caused the
+ * notification, or undefined if none is found.
+ *
+ * For a push, the comment data describes the newest commit pushed. For a
+ * force push, it describes the new head of the branch.
+ */
+async function getTimelineDataForNotification(
+	octokit: Octokit,
+	account: AccountInfo,
+	notification: RawNotification,
+	viewerLogin: string | undefined,
+	newerThan?: string
+): Promise<CommentData | undefined> {
+	const paths = getThreadPathsForSubject(account, notification.subject.url);
+	if (!paths?.pullPath) {
+		return undefined;
+	}
+	let items: RawTimelineItem[];
+	try {
+		items = await getRecentTimelineItems(octokit, paths.issuePath);
+	} catch (error) {
+		logMessage(
+			`Failed to fetch timeline for ${paths.issuePath} (${notification.subject.url})`,
+			'error'
+		);
+		return undefined;
+	}
+	const activity = findTimelineActivityForUpdate(
+		items,
+		notification.updated_at,
+		viewerLogin,
+		newerThan
+	);
+	if (!activity) {
+		return undefined;
+	}
+	const commit = activity.headSha
+		? await getCommitForPull(octokit, paths.pullPath, activity.headSha)
+		: undefined;
+	const latestPushed = activity.commits?.at(-1);
+	// Commits only have git identities, so use the GitHub user of the newest
+	// commit as the pusher.
+	const user = activity.actor ?? commit?.author;
+	const pullNumber = paths.pullPath.match(/(\d+)$/)?.[1];
+	// Show a pushed commit in the context of the pull request. Other activity
+	// (like a force push) has no page of its own, so open the pull request.
+	const commentHtmlUrl =
+		activity.type === 'pushed' && activity.headSha && pullNumber
+			? `${getWebBaseUrl(account)}/${notification.repository.full_name}/pull/${pullNumber}/commits/${activity.headSha}`
+			: '';
+	return {
+		commentAvatar: user?.avatar_url ?? '',
+		commentHtmlUrl,
+		commentUsername: user?.login ?? '',
+		commentMentionsViewer: false,
+		commentExcerpt: getPlainTextExcerpt(
+			commit?.commit?.message ?? latestPushed?.message
+		),
+		timelineActivity: {
+			type: activity.type,
+			...(activity.commits ? { commitCount: activity.commits.length } : {}),
+		},
 	};
 }
 
@@ -651,6 +806,7 @@ function buildNoteFromData({
 		commentExcerpt: commentData.commentExcerpt,
 		reviewState: commentData.reviewState,
 		reviewComments: commentData.reviewComments,
+		timelineActivity: commentData.timelineActivity,
 		gitnewsHydrationVersion: NOTE_HYDRATION_VERSION,
 		commentAvatar:
 			commentData.commentAvatar ?? notification.repository.owner.avatar_url,

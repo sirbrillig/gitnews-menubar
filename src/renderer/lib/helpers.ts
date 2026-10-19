@@ -587,3 +587,29 @@ export function getReviewCommentsLabel(note: Note): string | undefined {
 	}
 	return 'Left a review comment';
 }
+
+/**
+ * Return a short description of the timeline activity that caused a note, like
+ * "Pushed 2 commits", or undefined if it was not caused by timeline activity.
+ */
+export function getTimelineActivityLabel(note: Note): string | undefined {
+	const activity = note.timelineActivity;
+	if (!activity) {
+		return undefined;
+	}
+	switch (activity.type) {
+		case 'pushed':
+			return activity.commitCount && activity.commitCount > 1
+				? `Pushed ${activity.commitCount} commits`
+				: 'Pushed a commit';
+		case 'force_pushed':
+			return 'Force-pushed the branch';
+		case 'merged':
+			return 'Merged the pull request';
+		case 'closed':
+			return 'Closed the pull request';
+		case 'reopened':
+			return 'Reopened the pull request';
+	}
+	return undefined;
+}

@@ -22,7 +22,31 @@ export type ReviewState = 'APPROVED' | 'CHANGES_REQUESTED' | 'COMMENTED';
  * Increase this when hydrated notes get new data so that notes cached by an
  * older version are hydrated again.
  */
-export const NOTE_HYDRATION_VERSION = 3;
+export const NOTE_HYDRATION_VERSION = 4;
+
+/**
+ * Activity on a pull request's timeline that caused a notification but is not
+ * a comment or a review.
+ */
+export type TimelineActivityType =
+	| 'pushed'
+	| 'force_pushed'
+	| 'merged'
+	| 'closed'
+	| 'reopened';
+
+/**
+ * Describes the timeline activity (like a push) that caused a notification,
+ * so it is clear what caused the notification.
+ */
+export interface TimelineActivityInfo {
+	type: TimelineActivityType;
+
+	/**
+	 * The number of commits that were pushed. Only set for pushes.
+	 */
+	commitCount?: number;
+}
 
 /**
  * Describes the comments of a pull request review that has no body, so it is
@@ -170,6 +194,13 @@ export interface Note {
 	 * comment data describes the latest of the review's comments.
 	 */
 	reviewComments?: ReviewCommentsInfo;
+
+	/**
+	 * Set if the latest activity on a pull request is something like a push
+	 * rather than a comment or a review. For a push, the comment data
+	 * describes the newest commit pushed.
+	 */
+	timelineActivity?: TimelineActivityInfo;
 
 	/**
 	 * The `NOTE_HYDRATION_VERSION` at the time the note was hydrated.
