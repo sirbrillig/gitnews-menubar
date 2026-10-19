@@ -12,6 +12,7 @@ const {
 	LOW_PRIORITY_WINDOW_MS,
 	getLowPriorityOptions,
 	getReviewCommentsLabel,
+	getTimelineActivityLabel,
 } = require('../src/renderer/lib/helpers');
 
 describe('getErrorMessage()', function () {
@@ -827,5 +828,39 @@ describe('getReviewCommentsLabel()', function () {
 				reviewComments: makeReviewComments({ count: 3, isReply: true }),
 			})
 		).toEqual('Left 3 review comments');
+	});
+});
+
+describe('getTimelineActivityLabel()', function () {
+	it('returns undefined for a note without timeline activity', function () {
+		expect(getTimelineActivityLabel({})).toBeUndefined();
+	});
+
+	it('describes a push of one commit', function () {
+		expect(
+			getTimelineActivityLabel({
+				timelineActivity: { type: 'pushed', commitCount: 1 },
+			})
+		).toEqual('Pushed a commit');
+	});
+
+	it('describes a push of several commits', function () {
+		expect(
+			getTimelineActivityLabel({
+				timelineActivity: { type: 'pushed', commitCount: 3 },
+			})
+		).toEqual('Pushed 3 commits');
+	});
+
+	it('describes a force push', function () {
+		expect(
+			getTimelineActivityLabel({ timelineActivity: { type: 'force_pushed' } })
+		).toEqual('Force-pushed the branch');
+	});
+
+	it('describes a merge', function () {
+		expect(
+			getTimelineActivityLabel({ timelineActivity: { type: 'merged' } })
+		).toEqual('Merged the pull request');
 	});
 });
