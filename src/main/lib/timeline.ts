@@ -14,10 +14,22 @@ export interface RawTimelineItem {
 
 	// Only set for `head_ref_force_pushed` items.
 	commit_id?: string | null;
+
+	// Only set for `commented` items (which also have `html_url`).
+	body?: string | null;
+	user?: { login?: string; avatar_url?: string } | null;
+
+	// Only set for `review_requested` items.
+	requested_reviewer?: { login?: string } | null;
+	requested_team?: { name?: string; slug?: string } | null;
 }
 
 export interface TimelineActivity {
-	type: TimelineActivityType;
+	/**
+	 * `commented` means the activity is only a comment, which GitHub left out
+	 * of the notification's `latest_comment_url`.
+	 */
+	type: TimelineActivityType | 'commented';
 
 	/**
 	 * The user who caused the activity. Not set for pushes since commits only
@@ -34,6 +46,18 @@ export interface TimelineActivity {
 	 * The commits that were pushed, oldest first. Only set for pushes.
 	 */
 	commits?: RawTimelineItem[];
+
+	/**
+	 * A comment the actor left along with the activity (or the comment itself
+	 * if the type is `commented`).
+	 */
+	comment?: RawTimelineItem;
+
+	/**
+	 * The team whose review was requested, if the type is `review_requested`
+	 * and the review was not requested from the viewer.
+	 */
+	requestedTeam?: string;
 }
 
 // How long before a notification's update time an event may have happened
@@ -50,6 +74,7 @@ const actorEventTypes: Record<string, TimelineActivityType> = {
 	merged: 'merged',
 	closed: 'closed',
 	reopened: 'reopened',
+	review_requested: 'review_requested',
 };
 
 // Events that would have notified about any commits pushed before them, so
@@ -74,12 +99,65 @@ function getItemTime(item: RawTimelineItem): number {
 }
 
 /**
+ * Return the user who caused a timeline item, or undefined if it has none.
+ */
+function getItemUser(
+	item: RawTimelineItem
+): { login: string; avatar_url: string } | undefined {
+	const user =
+		item.event === 'commented' ? (item.user ?? item.actor) : item.actor;
+	if (!user?.login || !user.avatar_url) {
+		return undefined;
+	}
+	return { login: user.login, avatar_url: user.avatar_url };
+}
+
+function isSameLogin(first: string | undefined, second: string | undefined) {
+	return Boolean(
+		first && second && first.toLowerCase() === second.toLowerCase()
+	);
+}
+
+/**
+ * Return true if the item is activity that can be shown as the cause of a
+ * notification for the viewer: a comment or one of `actorEventTypes`.
+ */
+function isShownActivity(
+	item: RawTimelineItem,
+	viewerLogin: string | undefined
+): boolean {
+	if (item.event === 'commented') {
+		return Boolean(item.html_url);
+	}
+	if (item.event === 'review_requested') {
+		// Requests for other people's reviews do not notify the viewer.
+		return (
+			Boolean(item.requested_team) ||
+			isSameLogin(item.requested_reviewer?.login, viewerLogin)
+		);
+	}
+	return Boolean(item.event && actorEventTypes[item.event]);
+}
+
+function getLatestItem(items: RawTimelineItem[]): RawTimelineItem | undefined {
+	return items.reduce<RawTimelineItem | undefined>(
+		(latest, item) =>
+			!latest || getItemTime(item) >= getItemTime(latest) ? item : latest,
+		undefined
+	);
+}
+
+/**
  * Return the activity on a pull request's timeline (like a push or a force
  * push) that most likely caused its notification to be updated at
  * `updatedAt`, or undefined if there is none.
  *
  * GitHub does not say why a notification was updated, so without this a push
- * would show the pull request's description as the latest activity.
+ * would show the pull request's description as the latest activity. GitHub
+ * also sometimes leaves a comment out of the notification (like a comment
+ * followed by a review request), so comments are found here too. A comment
+ * made by the same user as an event (like asking for a review when
+ * requesting it) is returned along with the event.
  *
  * Commits only have the time they were committed, which may be well before
  * they were pushed, so commits count as pushed if they are newer than the
@@ -124,16 +202,11 @@ export function findTimelineActivityForUpdate(
 		if (item.event && boundaryEventTypes.includes(item.event)) {
 			boundaryTime = Math.max(boundaryTime, time);
 		}
-		if (!item.event || !actorEventTypes[item.event]) {
+		if (!isShownActivity(item, viewerLogin)) {
 			continue;
 		}
-		if (!item.actor?.login || !item.actor.avatar_url) {
-			continue;
-		}
-		if (
-			viewerLogin &&
-			item.actor.login.toLowerCase() === viewerLogin.toLowerCase()
-		) {
+		const user = getItemUser(item);
+		if (!user || isSameLogin(user.login, viewerLogin)) {
 			continue;
 		}
 		if (time < updatedAtMs - EVENT_MATCH_WINDOW_MS || time <= newerThanMs) {
@@ -142,20 +215,29 @@ export function findTimelineActivityForUpdate(
 		events.push(item);
 	}
 
-	let event = events.reduce<RawTimelineItem | undefined>(
-		(latest, item) =>
-			!latest || getItemTime(item) >= getItemTime(latest) ? item : latest,
-		undefined
+	const latest = getLatestItem(events);
+	const eventTime = latest ? getItemTime(latest) : -Infinity;
+	// A user often does several things at once (like commenting and then
+	// requesting a review), so show their event along with their comment.
+	const latestUser = latest ? getItemUser(latest) : undefined;
+	const byLatestUser = events.filter((item) =>
+		isSameLogin(getItemUser(item)?.login, latestUser?.login)
 	);
-	const eventTime = event ? getItemTime(event) : -Infinity;
+	const comment = getLatestItem(
+		byLatestUser.filter((item) => item.event === 'commented')
+	);
+	let event = getLatestItem(
+		byLatestUser.filter((item) => item.event !== 'commented')
+	);
 	// Merging also closes a pull request at the same time, so prefer the
 	// merge.
 	if (event?.event === 'closed') {
+		const closedTime = getItemTime(event);
 		event =
-			events.find(
+			byLatestUser.find(
 				(item) =>
 					item.event === 'merged' &&
-					eventTime - getItemTime(item) <= EVENT_MATCH_LEEWAY_MS
+					closedTime - getItemTime(item) <= EVENT_MATCH_LEEWAY_MS
 			) ?? event;
 	}
 
@@ -182,18 +264,28 @@ export function findTimelineActivityForUpdate(
 		};
 	}
 
-	if (!event?.event || !event.actor?.login || !event.actor.avatar_url) {
+	if (!latestUser) {
 		return undefined;
 	}
+	if (!event?.event) {
+		return { type: 'commented', actor: latestUser, comment };
+	}
 	const type = actorEventTypes[event.event];
+	const requestedTeam =
+		type === 'review_requested' &&
+		!isSameLogin(event.requested_reviewer?.login, viewerLogin)
+			? (event.requested_team?.name ?? event.requested_team?.slug)
+			: undefined;
 	return {
 		type,
-		actor: { login: event.actor.login, avatar_url: event.actor.avatar_url },
+		actor: latestUser,
 		// Other events (like a merge) also have a `commit_id`, but it is not the
 		// head of the branch.
 		...(type === 'force_pushed' && event.commit_id
 			? { headSha: event.commit_id }
 			: {}),
+		...(comment ? { comment } : {}),
+		...(requestedTeam ? { requestedTeam } : {}),
 	};
 }
 

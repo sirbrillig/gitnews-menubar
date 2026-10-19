@@ -22,7 +22,7 @@ export type ReviewState = 'APPROVED' | 'CHANGES_REQUESTED' | 'COMMENTED';
  * Increase this when hydrated notes get new data so that notes cached by an
  * older version are hydrated again.
  */
-export const NOTE_HYDRATION_VERSION = 4;
+export const NOTE_HYDRATION_VERSION = 5;
 
 /**
  * Activity on a pull request's timeline that caused a notification but is not
@@ -33,7 +33,8 @@ export type TimelineActivityType =
 	| 'force_pushed'
 	| 'merged'
 	| 'closed'
-	| 'reopened';
+	| 'reopened'
+	| 'review_requested';
 
 /**
  * Describes the timeline activity (like a push) that caused a notification,
@@ -46,6 +47,12 @@ export interface TimelineActivityInfo {
 	 * The number of commits that were pushed. Only set for pushes.
 	 */
 	commitCount?: number;
+
+	/**
+	 * The team whose review was requested, if the review was not requested
+	 * from the account's user. Only set for review requests.
+	 */
+	requestedTeam?: string;
 }
 
 /**

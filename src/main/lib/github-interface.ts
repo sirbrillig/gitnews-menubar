@@ -488,8 +488,9 @@ async function getCommitForPull(
  * Return comment data for timeline activity (like a push) that caused the
  * notification, or undefined if none is found.
  *
- * For a push, the comment data describes the newest commit pushed. For a
- * force push, it describes the new head of the branch.
+ * If the user behind the activity also commented, the comment data describes
+ * that comment. Otherwise, for a push it describes the newest commit pushed,
+ * and for a force push it describes the new head of the branch.
  */
 async function getTimelineDataForNotification(
 	octokit: Octokit,
@@ -521,26 +522,41 @@ async function getTimelineDataForNotification(
 	if (!activity) {
 		return undefined;
 	}
-	const commit = activity.headSha
-		? await getCommitForPull(octokit, paths.pullPath, activity.headSha)
-		: undefined;
+	const comment = activity.comment;
+	const commit =
+		activity.headSha && !comment
+			? await getCommitForPull(octokit, paths.pullPath, activity.headSha)
+			: undefined;
 	const latestPushed = activity.commits?.at(-1);
 	// Commits only have git identities, so use the GitHub user of the newest
 	// commit as the pusher.
 	const user = activity.actor ?? commit?.author;
 	return {
 		commentAvatar: user?.avatar_url ?? '',
-		// Timeline activity has no page of its own, so open the pull request.
-		commentHtmlUrl: '',
+		// Other timeline activity has no page of its own, so open the pull
+		// request.
+		commentHtmlUrl: comment?.html_url ?? '',
 		commentUsername: user?.login ?? '',
-		commentMentionsViewer: false,
+		commentMentionsViewer: doesTextMentionUser(comment?.body, viewerLogin),
 		commentExcerpt: getPlainTextExcerpt(
-			commit?.commit?.message ?? latestPushed?.message
+			comment
+				? comment.body
+				: (commit?.commit?.message ?? latestPushed?.message)
 		),
-		timelineActivity: {
-			type: activity.type,
-			...(activity.commits ? { commitCount: activity.commits.length } : {}),
-		},
+		// A comment on its own is shown like any other comment.
+		...(activity.type !== 'commented'
+			? {
+					timelineActivity: {
+						type: activity.type,
+						...(activity.commits
+							? { commitCount: activity.commits.length }
+							: {}),
+						...(activity.requestedTeam
+							? { requestedTeam: activity.requestedTeam }
+							: {}),
+					},
+				}
+			: {}),
 	};
 }
 

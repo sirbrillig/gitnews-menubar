@@ -858,6 +858,25 @@ describe('getTimelineActivityLabel()', function () {
 		).toEqual('Force-pushed the branch');
 	});
 
+	it('describes a request for your review', function () {
+		expect(
+			getTimelineActivityLabel({
+				timelineActivity: { type: 'review_requested' },
+			})
+		).toEqual('Requested your review');
+	});
+
+	it('describes a request for a review from a team', function () {
+		expect(
+			getTimelineActivityLabel({
+				timelineActivity: {
+					type: 'review_requested',
+					requestedTeam: 'Team Name',
+				},
+			})
+		).toEqual('Requested a review from Team Name');
+	});
+
 	it('describes a merge', function () {
 		expect(
 			getTimelineActivityLabel({ timelineActivity: { type: 'merged' } })
