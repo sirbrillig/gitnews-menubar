@@ -33,6 +33,7 @@ import {
 	Note,
 	UnknownFetchError,
 } from '../types';
+import { NOTE_HYDRATION_VERSION } from '../../shared-types';
 import { AppDispatch } from './store';
 import { createDemoNotifications, bumpDemoNotifications } from './demo-mode';
 
@@ -244,8 +245,8 @@ export function createFetcher(): Middleware<unknown, AppReduxState> {
 						existing.updatedAt === basicNote.updatedAt &&
 						!existing.gitnewsIsInvalid &&
 						(existing.subjectUrl || existing.commentUrl) &&
-						// Notes cached before excerpts existed need one re-hydration.
-						existing.commentExcerpt !== undefined
+						// Notes cached by an older version need one re-hydration.
+						existing.gitnewsHydrationVersion === NOTE_HYDRATION_VERSION
 					) {
 						debug(
 							`Reusing cached hydration for note ${basicNote.id} (updatedAt: ${basicNote.updatedAt})`

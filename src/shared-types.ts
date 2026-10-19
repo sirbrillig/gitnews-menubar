@@ -13,6 +13,17 @@ export type NoteReason =
 	| 'team_mention'
 	| 'your_activity';
 
+/**
+ * The state of a pull request review that caused a notification.
+ */
+export type ReviewState = 'APPROVED' | 'CHANGES_REQUESTED' | 'COMMENTED';
+
+/**
+ * Increase this when hydrated notes get new data so that notes cached by an
+ * older version are hydrated again.
+ */
+export const NOTE_HYDRATION_VERSION = 1;
+
 export interface NoteApi {
 	subject?: { state?: string; merged?: boolean; draft?: boolean };
 	notification?: { reason?: NoteReason };
@@ -125,6 +136,17 @@ export interface Note {
 	 * description if there are no comments yet).
 	 */
 	commentExcerpt?: string;
+
+	/**
+	 * Set if the latest activity on a pull request is a review rather than a
+	 * comment, in which case the comment data describes the review.
+	 */
+	reviewState?: ReviewState;
+
+	/**
+	 * The `NOTE_HYDRATION_VERSION` at the time the note was hydrated.
+	 */
+	gitnewsHydrationVersion?: number;
 
 	gitnewsAccountId: AccountInfo['id'];
 }

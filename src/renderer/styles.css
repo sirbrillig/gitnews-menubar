@@ -758,6 +758,33 @@ header h1 {
 	pointer-events: none;
 }
 
+/* Outlined like the author icon so it reads as secondary to the status pill. */
+.notification__review-state {
+	display: inline-flex;
+	flex: 0 0 auto;
+	align-items: center;
+	margin-right: 6px;
+	padding: 0 5px;
+	border: 1px solid currentColor;
+	border-radius: 999px;
+	fill: currentColor;
+}
+
+.notification__review-state--approved {
+	color: var(--notification-status-open-color);
+}
+
+.notification__review-state--changes-requested {
+	color: var(--notification-status-closed-color);
+}
+
+.notification__review-state svg {
+	width: 12px;
+	height: 12px;
+	/* Let hovers land on the span so its title tooltip shows. */
+	pointer-events: none;
+}
+
 .notification__image img {
 	width: var(--avatar-size);
 	border-radius: 50%;

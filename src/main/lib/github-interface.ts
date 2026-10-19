@@ -4,11 +4,14 @@ import { socksDispatcher } from 'fetch-socks';
 import { logMessage } from './logging';
 import { doesTextMentionUser } from './mentions';
 import { getPlainTextExcerpt } from './excerpt';
-import type {
-	AccountInfo,
-	BasicNote,
-	Note,
-	NoteReason,
+import { findReviewForUpdate, type RawReview } from './reviews';
+import {
+	NOTE_HYDRATION_VERSION,
+	type AccountInfo,
+	type BasicNote,
+	type Note,
+	type NoteReason,
+	type ReviewState,
 } from '../../shared-types';
 import type { RequestInit } from 'undici';
 
@@ -182,6 +185,7 @@ interface CommentData {
 	commentUsername: string;
 	commentMentionsViewer: boolean;
 	commentExcerpt: string;
+	reviewState?: ReviewState;
 }
 
 // The login of the user who owns each account's token, keyed by account.
@@ -242,6 +246,23 @@ async function getCommentDataForNotification(
 			commentExcerpt,
 		};
 	}
+	// GitHub does not set `latest_comment_url` for pull request reviews (like
+	// approvals), so without this the PR's own description would be shown as
+	// the latest comment.
+	if (
+		notification.subject.type === 'PullRequest' &&
+		commentUrl === notification.subject.url
+	) {
+		const reviewData = await getReviewDataForNotification(
+			octokit,
+			account,
+			notification,
+			viewerLogin
+		);
+		if (reviewData) {
+			return reviewData;
+		}
+	}
 	const commentPath = getOctokitRequestPathFromUrl(account, commentUrl);
 	try {
 		const comment = await octokit.request(`GET ${commentPath}`, {});
@@ -266,6 +287,60 @@ async function getCommentDataForNotification(
 		commentUsername,
 		commentMentionsViewer,
 		commentExcerpt,
+	};
+}
+
+async function getReviewsForPull(
+	octokit: Octokit,
+	pullPath: string
+): Promise<RawReview[]> {
+	return (await octokit.paginate(`GET ${pullPath}/reviews`, {
+		per_page: 100,
+	})) as RawReview[];
+}
+
+/**
+ * Return comment data for the review that caused the notification, or
+ * undefined if the notification was not caused by a review.
+ */
+async function getReviewDataForNotification(
+	octokit: Octokit,
+	account: AccountInfo,
+	notification: RawNotification,
+	viewerLogin: string | undefined
+): Promise<CommentData | undefined> {
+	const pullPath = getThreadPathsForSubject(
+		account,
+		notification.subject.url
+	)?.pullPath;
+	if (!pullPath) {
+		return undefined;
+	}
+	let reviews: RawReview[];
+	try {
+		reviews = await getReviewsForPull(octokit, pullPath);
+	} catch (error) {
+		logMessage(
+			`Failed to fetch reviews for ${pullPath} (${notification.subject.url})`,
+			'error'
+		);
+		return undefined;
+	}
+	const review = findReviewForUpdate(
+		reviews,
+		notification.updated_at,
+		viewerLogin
+	);
+	if (!review?.html_url || !review.user?.login || !review.user.avatar_url) {
+		return undefined;
+	}
+	return {
+		commentAvatar: review.user.avatar_url,
+		commentHtmlUrl: review.html_url,
+		commentUsername: review.user.login,
+		commentMentionsViewer: doesTextMentionUser(review.body, viewerLogin),
+		commentExcerpt: getPlainTextExcerpt(review.body),
+		reviewState: review.state,
 	};
 }
 
@@ -337,14 +412,12 @@ async function hasMentionSince(
 		);
 		// Reviews cannot be filtered by date in the request.
 		requests.push(
-			octokit
-				.request(`GET ${paths.pullPath}/reviews`, { per_page: 100 })
-				.then((response) =>
-					(response.data as RawMentionCandidate[]).filter(
-						(review) =>
-							review.submitted_at && Date.parse(review.submitted_at) >= since
-					)
+			getReviewsForPull(octokit, paths.pullPath).then((reviews) =>
+				reviews.filter(
+					(review) =>
+						review.submitted_at && Date.parse(review.submitted_at) >= since
 				)
+			)
 		);
 	}
 	// If one request fails, still check the results of the others.
@@ -449,6 +522,8 @@ function buildNoteFromData({
 		subjectUrl: subjectData.subjectHtmlUrl,
 		commentUsername: commentData.commentUsername,
 		commentExcerpt: commentData.commentExcerpt,
+		reviewState: commentData.reviewState,
+		gitnewsHydrationVersion: NOTE_HYDRATION_VERSION,
 		commentAvatar:
 			commentData.commentAvatar ?? notification.repository.owner.avatar_url,
 		repositoryOwnerAvatar: notification.repository.owner.avatar_url,
