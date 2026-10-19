@@ -7,7 +7,9 @@ import { getPlainTextExcerpt } from './excerpt';
 import {
 	doesActivityExplainUpdate,
 	findReviewForUpdate,
+	getLatestReviewComment,
 	type RawReview,
+	type RawReviewComment,
 } from './reviews';
 import {
 	NOTE_HYDRATION_VERSION,
@@ -15,6 +17,7 @@ import {
 	type BasicNote,
 	type Note,
 	type NoteReason,
+	type ReviewCommentsInfo,
 	type ReviewState,
 } from '../../shared-types';
 import type { RequestInit } from 'undici';
@@ -190,6 +193,7 @@ interface CommentData {
 	commentMentionsViewer: boolean;
 	commentExcerpt: string;
 	reviewState?: ReviewState;
+	reviewComments?: ReviewCommentsInfo;
 }
 
 // The login of the user who owns each account's token, keyed by account.
@@ -362,14 +366,109 @@ async function getReviewDataForNotification(
 	if (!review?.html_url || !review.user?.login || !review.user.avatar_url) {
 		return undefined;
 	}
+	const reviewExcerpt = getPlainTextExcerpt(review.body);
+	// A reply in a review comment thread is a review with no body, so show the
+	// review's comments instead of nothing.
+	if (!reviewExcerpt && review.id) {
+		const reviewCommentData = await getReviewCommentData(
+			octokit,
+			pullPath,
+			review.id,
+			viewerLogin
+		);
+		if (reviewCommentData) {
+			return {
+				...reviewCommentData,
+				commentAvatar: review.user.avatar_url,
+				commentUsername: review.user.login,
+				reviewState: review.state,
+			};
+		}
+	}
 	return {
 		commentAvatar: review.user.avatar_url,
 		commentHtmlUrl: review.html_url,
 		commentUsername: review.user.login,
 		commentMentionsViewer: doesTextMentionUser(review.body, viewerLogin),
-		commentExcerpt: getPlainTextExcerpt(review.body),
+		commentExcerpt: reviewExcerpt,
 		reviewState: review.state,
 	};
+}
+
+/**
+ * Return comment data for the latest comment of a review, or undefined if it
+ * cannot be fetched.
+ */
+async function getReviewCommentData(
+	octokit: Octokit,
+	pullPath: string,
+	reviewId: number,
+	viewerLogin: string | undefined
+): Promise<
+	| Pick<
+			CommentData,
+			| 'commentHtmlUrl'
+			| 'commentMentionsViewer'
+			| 'commentExcerpt'
+			| 'reviewComments'
+	  >
+	| undefined
+> {
+	let comments: RawReviewComment[];
+	try {
+		comments = (await octokit.paginate(
+			`GET ${pullPath}/reviews/${reviewId}/comments`,
+			{ per_page: 100 }
+		)) as RawReviewComment[];
+	} catch (error) {
+		logMessage(
+			`Failed to fetch comments for review ${reviewId} in ${pullPath}`,
+			'error'
+		);
+		return undefined;
+	}
+	const comment = getLatestReviewComment(comments);
+	if (!comment?.html_url) {
+		return undefined;
+	}
+	const isReply = Boolean(comment.in_reply_to_id);
+	const isReplyToYou =
+		isReply && viewerLogin
+			? await isReviewCommentByUser(
+					octokit,
+					pullPath,
+					comment.in_reply_to_id as number,
+					viewerLogin
+				)
+			: false;
+	return {
+		commentHtmlUrl: comment.html_url,
+		commentMentionsViewer: doesTextMentionUser(comment.body, viewerLogin),
+		commentExcerpt: getPlainTextExcerpt(comment.body),
+		reviewComments: { count: comments.length, isReply, isReplyToYou },
+	};
+}
+
+/**
+ * Return true if the review comment with the given ID was written by the
+ * user, or false if it was not or cannot be fetched.
+ */
+async function isReviewCommentByUser(
+	octokit: Octokit,
+	pullPath: string,
+	commentId: number,
+	login: string
+): Promise<boolean> {
+	// Review comments are fetched by ID from the repo, not the pull request.
+	const commentPath = pullPath.replace(/\/\d+$/, `/comments/${commentId}`);
+	try {
+		const response = await octokit.request(`GET ${commentPath}`, {});
+		const commentLogin = (response.data as RawReviewComment)?.user?.login;
+		return commentLogin?.toLowerCase() === login.toLowerCase();
+	} catch (error) {
+		logMessage(`Failed to fetch review comment ${commentPath}`, 'error');
+		return false;
+	}
 }
 
 interface RawMentionCandidate {
@@ -551,6 +650,7 @@ function buildNoteFromData({
 		commentUsername: commentData.commentUsername,
 		commentExcerpt: commentData.commentExcerpt,
 		reviewState: commentData.reviewState,
+		reviewComments: commentData.reviewComments,
 		gitnewsHydrationVersion: NOTE_HYDRATION_VERSION,
 		commentAvatar:
 			commentData.commentAvatar ?? notification.repository.owner.avatar_url,
