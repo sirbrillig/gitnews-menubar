@@ -102,6 +102,49 @@ describe('reducer', function () {
 		});
 	});
 
+	describe('IMPORT_LOW_PRIORITY_PATTERNS', function () {
+		it('adds imported patterns to existing ones without duplicates', function () {
+			const action = {
+				type: 'IMPORT_LOW_PRIORITY_PATTERNS',
+				patterns: {
+					titlePatterns: { 'owner/repo': ['a', 'b'], 'new/repo': ['c'] },
+					commentPatterns: { 'owner/repo': ['d'] },
+				},
+			};
+			const result = reducer(
+				{
+					lowPriorityTitlePatterns: {
+						'owner/repo': ['a'],
+						'other/repo': ['e'],
+					},
+					lowPriorityCommentPatterns: {},
+				},
+				action
+			);
+			expect(result.lowPriorityTitlePatterns).toEqual({
+				'owner/repo': ['a', 'b'],
+				'other/repo': ['e'],
+				'new/repo': ['c'],
+			});
+			expect(result.lowPriorityCommentPatterns).toEqual({
+				'owner/repo': ['d'],
+			});
+		});
+
+		it('handles state with no patterns', function () {
+			const action = {
+				type: 'IMPORT_LOW_PRIORITY_PATTERNS',
+				patterns: {
+					titlePatterns: { 'owner/repo': ['a'] },
+					commentPatterns: {},
+				},
+			};
+			const result = reducer({}, action);
+			expect(result.lowPriorityTitlePatterns).toEqual({ 'owner/repo': ['a'] });
+			expect(result.lowPriorityCommentPatterns).toEqual({});
+		});
+	});
+
 	describe('SET_LOW_PRIORITY_TITLE_PATTERNS', function () {
 		it('has no patterns by default', function () {
 			const result = reducer(undefined, { type: 'UNKNOWN' });

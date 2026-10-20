@@ -43,6 +43,14 @@ export type LowPriorityTitlePatterns = Record<string, string[]>;
  */
 export type LowPriorityCommentPatterns = Record<string, string[]>;
 
+/**
+ * The low priority patterns as they are exported to or imported from a file.
+ */
+export interface LowPriorityPatterns {
+	titlePatterns: LowPriorityTitlePatterns;
+	commentPatterns: LowPriorityCommentPatterns;
+}
+
 export interface AppReduxState {
 	token: undefined | string;
 	notes: Note[];
@@ -160,6 +168,10 @@ export type ActionSetLowPriorityCommentPatterns = {
 	repo: string;
 	patterns: string[];
 };
+export type ActionImportLowPriorityPatterns = {
+	type: 'IMPORT_LOW_PRIORITY_PATTERNS';
+	patterns: LowPriorityPatterns;
+};
 export type ActionDismissFeatureTip = {
 	type: 'DISMISS_FEATURE_TIP';
 	tipId: FeatureTipId;
@@ -237,6 +249,7 @@ export type AppReduxAction =
 	| ActionSetLowPriorityEnabled
 	| ActionSetLowPriorityTitlePatterns
 	| ActionSetLowPriorityCommentPatterns
+	| ActionImportLowPriorityPatterns
 	| ActionSetLowPriorityWindowHours
 	| ActionSetNotePriority
 	| ActionSetGroupByRepoEnabled
@@ -317,6 +330,16 @@ export interface MainBridge {
 	 * or null if the menu was closed without choosing one.
 	 */
 	showContextMenu: (items: ContextMenuItem[]) => Promise<string | null>;
+	/**
+	 * Ask the user where to save the exported low priority patterns and write
+	 * them there. Resolves with false if the user cancels.
+	 */
+	exportLowPriorityPatterns: (contents: string) => Promise<boolean>;
+	/**
+	 * Ask the user for a file of low priority patterns and resolve with its
+	 * contents, or null if the user cancels.
+	 */
+	importLowPriorityPatterns: () => Promise<string | null>;
 }
 
 export type UnknownFetchError = FetchErrorObject | string;

@@ -14,6 +14,8 @@ const {
 	getReviewCommentsLabel,
 	getTimelineActivityLabel,
 	shouldShowMentionBadge,
+	serializeLowPriorityPatterns,
+	parseLowPriorityPatterns,
 } = require('../src/renderer/lib/helpers');
 
 describe('getErrorMessage()', function () {
@@ -917,5 +919,73 @@ describe('shouldShowMentionBadge()', function () {
 		expect(
 			shouldShowMentionBadge(makeNote({ latestCommentMentionsYou: false }))
 		).toBe(false);
+	});
+});
+
+describe('parseLowPriorityPatterns()', function () {
+	it('reads the patterns written by serializeLowPriorityPatterns()', function () {
+		const patterns = {
+			titlePatterns: { 'owner/repo': ['^Bump ', 'chore'] },
+			commentPatterns: { 'other/repo': ['^Code coverage'] },
+		};
+		expect(
+			parseLowPriorityPatterns(serializeLowPriorityPatterns(patterns))
+		).toEqual(patterns);
+	});
+
+	it('accepts a file with only one kind of pattern', function () {
+		const text = JSON.stringify({ titlePatterns: { 'owner/repo': ['a'] } });
+		expect(parseLowPriorityPatterns(text)).toEqual({
+			titlePatterns: { 'owner/repo': ['a'] },
+			commentPatterns: {},
+		});
+	});
+
+	it('normalizes repo names and combines repos that differ by case', function () {
+		const text = JSON.stringify({
+			titlePatterns: { ' Owner/Repo ': ['a'], 'owner/repo': ['a', 'b'] },
+		});
+		expect(parseLowPriorityPatterns(text).titlePatterns).toEqual({
+			'owner/repo': ['a', 'b'],
+		});
+	});
+
+	it('skips invalid repos and patterns', function () {
+		const text = JSON.stringify({
+			titlePatterns: {
+				'not-a-repo': ['a'],
+				'owner/repo': ['(', '', 5, 'ok'],
+				'owner/empty': ['('],
+				'owner/not-a-list': 'a',
+			},
+		});
+		expect(parseLowPriorityPatterns(text).titlePatterns).toEqual({
+			'owner/repo': ['ok'],
+		});
+	});
+
+	it('throws if the text is not JSON', function () {
+		expect(() => parseLowPriorityPatterns('nope')).toThrow(
+			'The file is not valid JSON.'
+		);
+	});
+
+	it('throws if the file does not contain patterns', function () {
+		expect(() => parseLowPriorityPatterns('{"foo": 1}')).toThrow(
+			'The file does not contain low priority patterns.'
+		);
+		expect(() => parseLowPriorityPatterns('["a"]')).toThrow(
+			'The file does not contain low priority patterns.'
+		);
+		expect(() => parseLowPriorityPatterns('{"titlePatterns": ["a"]}')).toThrow(
+			'The file does not contain low priority patterns.'
+		);
+	});
+
+	it('throws for an unknown version', function () {
+		const text = JSON.stringify({ version: 2, titlePatterns: {} });
+		expect(() => parseLowPriorityPatterns(text)).toThrow(
+			'The file does not contain low priority patterns.'
+		);
 	});
 });

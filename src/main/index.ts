@@ -2,10 +2,12 @@ import {
 	ipcMain,
 	nativeTheme,
 	app,
+	dialog,
 	Menu,
 	shell,
 	systemPreferences,
 } from 'electron';
+import { readFile, writeFile } from 'fs/promises';
 import { menubar } from 'menubar';
 import isDev from 'electron-is-dev';
 import electronDebug from 'electron-debug';
@@ -58,6 +60,9 @@ electronDebug();
 
 let lastIconState = 'loading';
 
+// A file dialog takes focus from the window, which would otherwise hide it.
+let isFileDialogOpen = false;
+
 const bar = menubar({
 	preloadWindow: true,
 	index: MAIN_WINDOW_WEBPACK_ENTRY,
@@ -94,8 +99,21 @@ bar.on('show', () => {
 });
 
 bar.on('focus-lost', () => {
+	if (isFileDialogOpen) {
+		return;
+	}
 	bar.hideWindow();
 });
+
+async function withFileDialog<T>(showDialog: () => Promise<T>): Promise<T> {
+	isFileDialogOpen = true;
+	try {
+		return await showDialog();
+	} finally {
+		isFileDialogOpen = false;
+		bar.window?.focus();
+	}
+}
 
 systemPreferences.subscribeNotification(
 	'AppleInterfaceThemeChangedNotification',
@@ -174,6 +192,50 @@ ipcMain.handle('context-menu:show', async (_event, items: unknown) => {
 			callback: () => setTimeout(() => resolve(null), 100),
 		});
 	});
+});
+
+ipcMain.handle(
+	'low-priority-patterns:export',
+	async (_event, contents: unknown) => {
+		if (typeof contents !== 'string' || !bar.window) {
+			logMessage('Failed to export patterns: contents are invalid', 'error');
+			return false;
+		}
+		const window = bar.window;
+		const result = await withFileDialog(() =>
+			dialog.showSaveDialog(window, {
+				title: 'Export Low Priority Patterns',
+				defaultPath: 'gitnews-low-priority-patterns.json',
+				filters: [{ name: 'JSON', extensions: ['json'] }],
+			})
+		);
+		if (result.canceled || !result.filePath) {
+			return false;
+		}
+		await writeFile(result.filePath, contents, 'utf8');
+		logMessage(`Exported low priority patterns to ${result.filePath}`, 'info');
+		return true;
+	}
+);
+
+ipcMain.handle('low-priority-patterns:import', async () => {
+	if (!bar.window) {
+		return null;
+	}
+	const window = bar.window;
+	const result = await withFileDialog(() =>
+		dialog.showOpenDialog(window, {
+			title: 'Import Low Priority Patterns',
+			filters: [{ name: 'JSON', extensions: ['json'] }],
+			properties: ['openFile'],
+		})
+	);
+	const [filePath] = result.filePaths;
+	if (result.canceled || !filePath) {
+		return null;
+	}
+	logMessage(`Importing low priority patterns from ${filePath}`, 'info');
+	return readFile(filePath, 'utf8');
 });
 
 ipcMain.on('set-icon', (_event, arg: unknown) => {
