@@ -40,6 +40,8 @@ import {
 	ActionSetGroupByRepoEnabled,
 	ActionSetLowPriorityTitlePatterns,
 	ActionSetLowPriorityCommentPatterns,
+	ActionImportLowPriorityPatterns,
+	LowPriorityPatterns,
 	ActionSetLowPriorityWindowHours,
 	ActionDismissFeatureTip,
 	ActionResetFeatureTips,
@@ -415,6 +417,18 @@ export function createReducer() {
 						action.patterns
 					),
 				};
+			case 'IMPORT_LOW_PRIORITY_PATTERNS':
+				return {
+					...state,
+					lowPriorityTitlePatterns: mergePatternsByRepo(
+						state.lowPriorityTitlePatterns ?? {},
+						action.patterns.titlePatterns
+					),
+					lowPriorityCommentPatterns: mergePatternsByRepo(
+						state.lowPriorityCommentPatterns ?? {},
+						action.patterns.commentPatterns
+					),
+				};
 		}
 		return state;
 	};
@@ -429,6 +443,23 @@ function setPatternsForRepo(
 	const patterns = nextPatterns.filter((pattern) => pattern.trim() !== '');
 	const { [repo]: _removed, ...otherRepos } = patternsByRepo;
 	return patterns.length > 0 ? { ...otherRepos, [repo]: patterns } : otherRepos;
+}
+
+function mergePatternsByRepo(
+	patternsByRepo: Record<string, string[]>,
+	importedPatternsByRepo: Record<string, string[]>
+): Record<string, string[]> {
+	return Object.entries(importedPatternsByRepo).reduce(
+		(merged, [repoName, patterns]) => {
+			const repo = repoName.trim().toLowerCase();
+			return setPatternsForRepo(
+				merged,
+				repo,
+				Array.from(new Set([...(merged[repo] ?? []), ...patterns]))
+			);
+		},
+		patternsByRepo
+	);
 }
 
 export function muteRepo(repo: string): ActionMuteRepo {
@@ -620,6 +651,16 @@ export function setLowPriorityCommentPatterns(
 	patterns: string[]
 ): ActionSetLowPriorityCommentPatterns {
 	return { type: 'SET_LOW_PRIORITY_COMMENT_PATTERNS', repo, patterns };
+}
+
+/**
+ * Add imported title and comment patterns to the existing ones. Patterns that
+ * already exist are not duplicated.
+ */
+export function importLowPriorityPatterns(
+	patterns: LowPriorityPatterns
+): ActionImportLowPriorityPatterns {
+	return { type: 'IMPORT_LOW_PRIORITY_PATTERNS', patterns };
 }
 
 export function toggleLogging(isLogging: boolean) {

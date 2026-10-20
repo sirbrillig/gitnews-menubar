@@ -48,6 +48,10 @@ const bridge: MainBridge = {
 		ipcRenderer.invoke('app-state:remove', key),
 	showContextMenu: (items: ContextMenuItem[]) =>
 		ipcRenderer.invoke('context-menu:show', items),
+	exportLowPriorityPatterns: (contents: string) =>
+		ipcRenderer.invoke('low-priority-patterns:export', contents),
+	importLowPriorityPatterns: () =>
+		ipcRenderer.invoke('low-priority-patterns:import'),
 };
 
 contextBridge.exposeInMainWorld('electronApi', bridge);

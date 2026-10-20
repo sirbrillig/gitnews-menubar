@@ -7,6 +7,7 @@ import {
 	AppReduxAction,
 	LowPriorityTitlePatterns,
 	LowPriorityCommentPatterns,
+	LowPriorityPatterns,
 	AppReduxState,
 } from '../types';
 import { AppDispatch } from './store';
@@ -359,6 +360,93 @@ export function compileTitlePattern(pattern: string): RegExp | null {
 		compiledPatterns.set(pattern, regexp);
 	}
 	return compiledPatterns.get(pattern) ?? null;
+}
+
+const LOW_PRIORITY_PATTERNS_EXPORT_VERSION = 1;
+
+/**
+ * Convert the low priority patterns into the JSON text of an export file.
+ */
+export function serializeLowPriorityPatterns({
+	titlePatterns,
+	commentPatterns,
+}: LowPriorityPatterns): string {
+	return (
+		JSON.stringify(
+			{
+				version: LOW_PRIORITY_PATTERNS_EXPORT_VERSION,
+				titlePatterns,
+				commentPatterns,
+			},
+			null,
+			2
+		) + '\n'
+	);
+}
+
+/**
+ * Read the low priority patterns from the JSON text of an export file.
+ *
+ * Repo names are normalized to lowercase. Repos that are not in the form
+ * `owner/name`, and patterns that are not valid regular expressions, are
+ * skipped. Throws an Error if the text is not an export file.
+ */
+export function parseLowPriorityPatterns(text: string): LowPriorityPatterns {
+	let data: unknown;
+	try {
+		data = JSON.parse(text);
+	} catch {
+		throw new Error('The file is not valid JSON.');
+	}
+	if (
+		!isPlainObject(data) ||
+		(data.version !== undefined &&
+			data.version !== LOW_PRIORITY_PATTERNS_EXPORT_VERSION) ||
+		(data.titlePatterns === undefined && data.commentPatterns === undefined)
+	) {
+		throw new Error('The file does not contain low priority patterns.');
+	}
+	return {
+		titlePatterns: parsePatternsByRepo(data.titlePatterns),
+		commentPatterns: parsePatternsByRepo(data.commentPatterns),
+	};
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+	return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function parsePatternsByRepo(value: unknown): Record<string, string[]> {
+	if (value === undefined) {
+		return {};
+	}
+	if (!isPlainObject(value)) {
+		throw new Error('The file does not contain low priority patterns.');
+	}
+	return Object.entries(value).reduce<Record<string, string[]>>(
+		(patternsByRepo, [repoName, patterns]) => {
+			const repo = repoName.trim().toLowerCase();
+			if (!/^[^/\s]+\/[^/\s]+$/.test(repo) || !Array.isArray(patterns)) {
+				return patternsByRepo;
+			}
+			const validPatterns = patterns.filter(
+				(pattern): pattern is string =>
+					typeof pattern === 'string' &&
+					pattern.trim() !== '' &&
+					compileTitlePattern(pattern) !== null
+			);
+			if (validPatterns.length === 0) {
+				return patternsByRepo;
+			}
+			return {
+				...patternsByRepo,
+				[repo]: Array.from(
+					new Set([...(patternsByRepo[repo] ?? []), ...validPatterns])
+				),
+			};
+		},
+		{}
+	);
 }
 
 export function doesTitleMatchPatterns(

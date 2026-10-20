@@ -1,10 +1,15 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
+	importLowPriorityPatterns,
 	setLowPriorityCommentPatterns,
 	setLowPriorityTitlePatterns,
 } from '../lib/reducer';
-import { compileTitlePattern } from '../lib/helpers';
+import {
+	compileTitlePattern,
+	parseLowPriorityPatterns,
+	serializeLowPriorityPatterns,
+} from '../lib/helpers';
 import { AppReduxState } from '../types';
 
 type PatternKind = 'title' | 'comment';
@@ -111,7 +116,98 @@ export default function LowPriorityTitlesList() {
 						))}
 					</ul>
 				)}
+				<ImportExportButtons hasPatterns={repos.length > 0} />
 			</div>
+		</div>
+	);
+}
+
+function countPatterns(patternsByRepo: Record<string, string[]>): number {
+	return Object.values(patternsByRepo).reduce(
+		(count, patterns) => count + patterns.length,
+		0
+	);
+}
+
+function ImportExportButtons({ hasPatterns }: { hasPatterns: boolean }) {
+	const dispatch = useDispatch();
+	const titlePatterns = useSelector(
+		(state: AppReduxState) => state.lowPriorityTitlePatterns ?? {}
+	);
+	const commentPatterns = useSelector(
+		(state: AppReduxState) => state.lowPriorityCommentPatterns ?? {}
+	);
+	const [message, setMessage] = React.useState<{
+		text: string;
+		isError: boolean;
+	}>();
+
+	const exportPatterns = async () => {
+		setMessage(undefined);
+		try {
+			const didExport = await window.electronApi.exportLowPriorityPatterns(
+				serializeLowPriorityPatterns({ titlePatterns, commentPatterns })
+			);
+			if (didExport) {
+				setMessage({ text: 'Patterns exported.', isError: false });
+			}
+		} catch (error) {
+			setMessage({ text: `Export failed: ${error}`, isError: true });
+		}
+	};
+
+	const importPatterns = async () => {
+		setMessage(undefined);
+		try {
+			const contents = await window.electronApi.importLowPriorityPatterns();
+			if (contents === null) {
+				return;
+			}
+			const patterns = parseLowPriorityPatterns(contents);
+			const count =
+				countPatterns(patterns.titlePatterns) +
+				countPatterns(patterns.commentPatterns);
+			dispatch(importLowPriorityPatterns(patterns));
+			setMessage({
+				text: `Imported ${count} ${count === 1 ? 'pattern' : 'patterns'}.`,
+				isError: false,
+			});
+		} catch (error) {
+			setMessage({
+				text: `Import failed: ${error instanceof Error ? error.message : error}`,
+				isError: true,
+			});
+		}
+	};
+
+	return (
+		<div className="low-priority-titles__import-export">
+			<div className="low-priority-titles__import-export-buttons">
+				<button
+					className="low-priority-titles__import-export-link"
+					onClick={importPatterns}
+				>
+					Import patterns…
+				</button>
+				<button
+					className="low-priority-titles__import-export-link"
+					disabled={!hasPatterns}
+					onClick={exportPatterns}
+				>
+					Export patterns…
+				</button>
+			</div>
+			{message && (
+				<p
+					className={
+						message.isError
+							? 'low-priority-titles__error'
+							: 'low-priority-titles__import-export-message'
+					}
+				>
+					{message.text}
+				</p>
+			)}
 		</div>
 	);
 }
