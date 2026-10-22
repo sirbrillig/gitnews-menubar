@@ -19,6 +19,8 @@ import {
 	getAppStateItem,
 	setAppStateItem,
 	removeAppStateItem,
+	isBetaUpdatesEnabled,
+	setBetaUpdatesEnabled,
 } from './lib/main-store';
 import { getIconForState } from './lib/icon-path';
 import { version } from '../../package.json';
@@ -34,6 +36,11 @@ import {
 	resubscribeToNotification,
 } from './lib/github-interface';
 import { logMessage } from './lib/logging';
+import {
+	checkForAppUpdate,
+	downloadAppUpdate,
+	installAppUpdate,
+} from './lib/auto-update';
 import type {
 	AccountInfo,
 	BasicNote,
@@ -293,6 +300,40 @@ ipcMain.handle('version:get', async () => {
 
 ipcMain.handle('is-demo-mode:get', async () => {
 	return Boolean(process.env.GITNEWS_DEMO_MODE);
+});
+
+ipcMain.handle('beta-updates:get', async () => {
+	return isBetaUpdatesEnabled();
+});
+
+ipcMain.handle('beta-updates:set', async (_event, isEnabled: unknown) => {
+	logMessage(`Beta updates changed to ${isEnabled}`, 'info');
+	setBetaUpdatesEnabled(Boolean(isEnabled));
+});
+
+ipcMain.handle('app-update:check', async () => {
+	try {
+		return await checkForAppUpdate(isBetaUpdatesEnabled());
+	} catch (error) {
+		logMessage(
+			`Failed to check for updates: ${(error as Error).message}`,
+			'error'
+		);
+		return null;
+	}
+});
+
+ipcMain.handle('app-update:download', async () => {
+	try {
+		await downloadAppUpdate();
+		return;
+	} catch (error) {
+		return { error: (error as Error).message };
+	}
+});
+
+ipcMain.on('app-update:install', () => {
+	installAppUpdate();
 });
 
 ipcMain.handle(

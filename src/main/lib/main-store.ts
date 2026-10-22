@@ -10,6 +10,7 @@ interface StoreSchema {
 	accounts: AccountInfo[];
 	'gitnews-token': string;
 	'is-logging-enabled': boolean;
+	'is-beta-updates-enabled': boolean;
 }
 
 const store = new Store<StoreSchema>({
@@ -17,6 +18,7 @@ const store = new Store<StoreSchema>({
 		accounts: [],
 		'gitnews-token': '',
 		'is-logging-enabled': false,
+		'is-beta-updates-enabled': false,
 	},
 });
 
@@ -30,6 +32,14 @@ export function isLoggingEnabled(): boolean {
 
 export function toggleLogging(isEnabled: boolean): void {
 	store.set('is-logging-enabled', isEnabled);
+}
+
+export function isBetaUpdatesEnabled(): boolean {
+	return store.get('is-beta-updates-enabled');
+}
+
+export function setBetaUpdatesEnabled(isEnabled: boolean): void {
+	store.set('is-beta-updates-enabled', isEnabled);
 }
 
 export function getAccounts(): AccountInfo[] {
