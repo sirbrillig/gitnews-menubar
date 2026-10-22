@@ -18,10 +18,11 @@ import {
 } from '../lib/reducer';
 import { getFeatureTip } from '../lib/feature-tips';
 import { runWithViewTransition } from '../lib/view-transitions';
-import { useGetGitnewsUpdate } from '../lib/updates';
+import { useGetGitnewsUpdate, UpdateStatus } from '../lib/updates';
 import doesNoteMatchFilter from '../lib/does-note-match-filter';
 import {
 	AppReduxState,
+	AppUpdate,
 	FeatureTipId,
 	FilterType,
 	MarkRead,
@@ -92,8 +93,7 @@ export default function NotificationsArea({
 	setMultiOpenMode: (isActive: boolean) => void;
 	showListSettings: () => void;
 }) {
-	const { isUpdateAvailable, updateUrl, updatedVersion } =
-		useGetGitnewsUpdate();
+	const gitnewsUpdate = useGetGitnewsUpdate();
 
 	type QueuedNote = { note: Note; action: QueuedAction };
 	const [queuedNotes, setQueuedNotes] = React.useState<Map<string, QueuedNote>>(
@@ -378,10 +378,12 @@ export default function NotificationsArea({
 			{noteRows}
 			{isMultiOpenMode && <MultiOpenNotice />}
 			<UnsubscribedNotices openUrl={openUrl} />
-			{isUpdateAvailable && !hasUnsubscribedNotices && (
+			{gitnewsUpdate.update && !hasUnsubscribedNotices && (
 				<UpdateAvailableNotice
-					url={updateUrl}
-					newVersion={updatedVersion}
+					update={gitnewsUpdate.update}
+					status={gitnewsUpdate.status}
+					downloadUpdate={gitnewsUpdate.downloadUpdate}
+					installUpdate={gitnewsUpdate.installUpdate}
 					openUrl={openUrl}
 				/>
 			)}
@@ -473,20 +475,38 @@ function MultiOpenNotice() {
 }
 
 function UpdateAvailableNotice({
-	url,
-	newVersion,
+	update,
+	status,
+	downloadUpdate,
+	installUpdate,
 	openUrl,
 }: {
-	url: string;
-	newVersion: string;
+	update: AppUpdate;
+	status: UpdateStatus;
+	downloadUpdate: () => void;
+	installUpdate: () => void;
 	openUrl: OpenUrl;
 }) {
+	const { version, releaseUrl } = update;
 	return (
 		<div className="update-available-notice">
 			<span>
-				<button
-					onClick={() => openUrl(url)}
-				>{`A new version (${newVersion}) of Gitnews is available.`}</button>
+				{status === 'available' && (
+					<button
+						onClick={downloadUpdate}
+					>{`A new version (${version}) of Gitnews is available. Update now`}</button>
+				)}
+				{status === 'downloading' && `Downloading Gitnews ${version}…`}
+				{status === 'ready' && (
+					<button
+						onClick={installUpdate}
+					>{`Gitnews ${version} is ready. Restart to update`}</button>
+				)}
+				{status === 'failed' && (
+					<button
+						onClick={() => openUrl(releaseUrl)}
+					>{`Gitnews ${version} could not be installed automatically. Download it`}</button>
+				)}
 			</span>
 		</div>
 	);

@@ -52,6 +52,12 @@ const bridge: MainBridge = {
 		ipcRenderer.invoke('low-priority-patterns:export', contents),
 	importLowPriorityPatterns: () =>
 		ipcRenderer.invoke('low-priority-patterns:import'),
+	checkForAppUpdate: () => ipcRenderer.invoke('app-update:check'),
+	downloadAppUpdate: () => ipcRenderer.invoke('app-update:download'),
+	installAppUpdate: () => ipcRenderer.send('app-update:install'),
+	isBetaUpdatesEnabled: () => ipcRenderer.invoke('beta-updates:get'),
+	setBetaUpdatesEnabled: (isEnabled: boolean) =>
+		ipcRenderer.invoke('beta-updates:set', isEnabled),
 };
 
 contextBridge.exposeInMainWorld('electronApi', bridge);

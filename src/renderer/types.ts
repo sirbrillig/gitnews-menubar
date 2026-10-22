@@ -16,6 +16,7 @@ import type {
 	FetchErrorObject,
 	ContextMenuItem,
 	NotePriorityOverride,
+	AppUpdate,
 } from '../shared-types';
 
 export type {
@@ -26,6 +27,7 @@ export type {
 	FetchErrorObject,
 	ContextMenuItem,
 	NotePriorityOverride,
+	AppUpdate,
 };
 
 export type FilterType = NoteReason | 'all';
@@ -340,6 +342,19 @@ export interface MainBridge {
 	 * contents, or null if the user cancels.
 	 */
 	importLowPriorityPatterns: () => Promise<string | null>;
+	/**
+	 * Resolve with the newest release this app can update to, or null if it is
+	 * already up to date.
+	 */
+	checkForAppUpdate: () => Promise<AppUpdate | null>;
+	/**
+	 * Download the update found by `checkForAppUpdate()` and resolve when it is
+	 * ready to install.
+	 */
+	downloadAppUpdate: () => Promise<{ error: string } | undefined>;
+	installAppUpdate: () => void;
+	isBetaUpdatesEnabled: () => Promise<boolean>;
+	setBetaUpdatesEnabled: (isEnabled: boolean) => Promise<void>;
 }
 
 export type UnknownFetchError = FetchErrorObject | string;

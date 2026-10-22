@@ -24,6 +24,7 @@ export default function ConfigPage({
 		changeAutoLoad(event.target.checked);
 	const toggleIsLogging = (event: { target: { checked: boolean } }) =>
 		toggleLogging(event.target.checked);
+	const [isBetaUpdatesEnabled, toggleBetaUpdates] = useBetaUpdatesSetting();
 
 	return (
 		<div className="config-page">
@@ -63,6 +64,20 @@ export default function ConfigPage({
 							onChange={toggleIsLogging}
 						/>
 					</li>
+					<li className="config-row config-row--toggle">
+						<div>
+							<label htmlFor="beta-updates-setting">Include beta updates</label>
+							<p className="config-row__hint">
+								Offer prerelease versions when checking for updates
+							</p>
+						</div>
+						<input
+							type="checkbox"
+							id="beta-updates-setting"
+							checked={isBetaUpdatesEnabled}
+							onChange={(event) => toggleBetaUpdates(event.target.checked)}
+						/>
+					</li>
 					<li className="config-row config-row--nav">
 						<button className="about-button" onClick={showAbout}>
 							About
@@ -77,4 +92,16 @@ export default function ConfigPage({
 			</div>
 		</div>
 	);
+}
+
+function useBetaUpdatesSetting(): [boolean, (isEnabled: boolean) => void] {
+	const [isEnabled, setIsEnabled] = React.useState(false);
+	React.useEffect(() => {
+		window.electronApi.isBetaUpdatesEnabled().then(setIsEnabled);
+	}, []);
+	const toggle = React.useCallback((newValue: boolean) => {
+		setIsEnabled(newValue);
+		window.electronApi.setBetaUpdatesEnabled(newValue);
+	}, []);
+	return [isEnabled, toggle];
 }

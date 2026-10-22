@@ -267,3 +267,11 @@ export interface FetchErrorObject {
 export type ContextMenuItem =
 	| { type: 'separator' }
 	| { id: string; label: string; enabled?: boolean };
+
+/**
+ * A newer release of Gitnews that the app can update itself to.
+ */
+export interface AppUpdate {
+	version: string;
+	releaseUrl: string;
+}
