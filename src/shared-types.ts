@@ -55,6 +55,31 @@ export interface TimelineActivityInfo {
 	requestedTeam?: string;
 }
 
+export type WorkflowRunConclusion =
+	| 'success'
+	| 'failure'
+	| 'cancelled'
+	| 'skipped'
+	| 'other';
+
+/**
+ * Describes the GitHub Actions run behind a CheckSuite notification.
+ */
+export interface WorkflowRunInfo {
+	conclusion: WorkflowRunConclusion;
+
+	/**
+	 * The name of the workflow, like `CI`. Only set if the run was found and
+	 * the name differs from the one in the note's title.
+	 */
+	workflowName?: string;
+
+	/**
+	 * Only set if the run was found.
+	 */
+	runNumber?: number;
+}
+
 /**
  * Describes the comments of a pull request review that has no body, so it is
  * clear what caused the notification.
@@ -208,6 +233,12 @@ export interface Note {
 	 * describes the newest commit pushed.
 	 */
 	timelineActivity?: TimelineActivityInfo;
+
+	/**
+	 * Set if the note is a CheckSuite notification for a GitHub Actions run.
+	 * The comment data describes the user who triggered the run.
+	 */
+	workflowRun?: WorkflowRunInfo;
 
 	/**
 	 * The `NOTE_HYDRATION_VERSION` at the time the note was hydrated.

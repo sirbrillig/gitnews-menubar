@@ -16,7 +16,7 @@ import {
 	QueuedAction,
 	ContextMenuItem,
 } from '../types';
-import type { ReviewState } from '../../shared-types';
+import type { ReviewState, WorkflowRunConclusion } from '../../shared-types';
 import { ImageWithBackup } from './image-with-backup';
 import {
 	getNoteId,
@@ -24,6 +24,7 @@ import {
 	getLowPriorityOptions,
 	getReviewCommentsLabel,
 	getTimelineActivityLabel,
+	getWorkflowRunLabel,
 	hasRecentMention,
 	shouldShowMentionBadge,
 	LowPriorityReason,
@@ -161,7 +162,10 @@ export default function Notification({
 	const isPushActivity =
 		note.timelineActivity?.type === 'pushed' ||
 		note.timelineActivity?.type === 'force_pushed';
-	const hasPreview = Boolean(note.commentExcerpt || timelineActivityLabel);
+	const workflowRunLabel = getWorkflowRunLabel(note);
+	const hasPreview = Boolean(
+		note.commentExcerpt || timelineActivityLabel || workflowRunLabel
+	);
 	const noteClasses = [
 		'notification',
 		...(isMultiOpenMode && !queuedAction ? ['notification--multi-open'] : []),
@@ -199,14 +203,18 @@ export default function Notification({
 		!isMerged &&
 		!isClosed &&
 		note.api.subject?.draft === true;
-	const iconType = isMerged || isClosed ? 'checkmark-circle' : 'chat';
-	const iconText = isMerged || isClosed ? 'closed' : isDraft ? 'draft' : 'open';
-	const iconClasses = [
-		'notification__type',
-		...(isClosed && !isMerged ? ['notification__type--closed'] : []),
-		...(isMerged ? ['notification__type--merged'] : []),
-		...(isDraft ? ['notification__type--draft'] : []),
-	];
+	const { iconType, iconText, iconClasses } = note.workflowRun
+		? getWorkflowRunBadge(note.workflowRun.conclusion)
+		: {
+				iconType: isMerged || isClosed ? 'checkmark-circle' : 'chat',
+				iconText: isMerged || isClosed ? 'closed' : isDraft ? 'draft' : 'open',
+				iconClasses: [
+					'notification__type',
+					...(isClosed && !isMerged ? ['notification__type--closed'] : []),
+					...(isMerged ? ['notification__type--merged'] : []),
+					...(isDraft ? ['notification__type--draft'] : []),
+				],
+			};
 
 	const doMute = () => {
 		setUnsubscribeRequested(false);
@@ -513,6 +521,14 @@ export default function Notification({
 										: ''}
 								</div>
 							)}
+							{workflowRunLabel && (
+								<div className="notification__preview-context">
+									{workflowRunLabel}
+									{note.commentUsername
+										? ` (triggered by @${note.commentUsername})`
+										: ''}
+								</div>
+							)}
 							{timelineActivityLabel && (
 								<div className="notification__preview-context">
 									{note.commentUsername ? `@${note.commentUsername}: ` : ''}
@@ -525,11 +541,13 @@ export default function Notification({
 								</div>
 							)}
 							{/* The context already names who pushed. */}
-							{note.commentUsername && !timelineActivityLabel && (
-								<span className="notification__preview-author">
-									@{note.commentUsername}:{' '}
-								</span>
-							)}
+							{note.commentUsername &&
+								!timelineActivityLabel &&
+								!workflowRunLabel && (
+									<span className="notification__preview-author">
+										@{note.commentUsername}:{' '}
+									</span>
+								)}
 							{note.commentExcerpt}
 						</div>
 					)}
@@ -547,6 +565,44 @@ export default function Notification({
 			</div>
 		</div>
 	);
+}
+
+function getWorkflowRunBadge(conclusion: WorkflowRunConclusion): {
+	iconType: string;
+	iconText: string;
+	iconClasses: string[];
+} {
+	switch (conclusion) {
+		case 'success':
+			return {
+				iconType: 'checkmark-circle',
+				iconText: 'passed',
+				iconClasses: ['notification__type'],
+			};
+		case 'failure':
+			return {
+				iconType: 'cross-circle',
+				iconText: 'failed',
+				iconClasses: ['notification__type', 'notification__type--closed'],
+			};
+		case 'cancelled':
+			return {
+				iconType: 'block',
+				iconText: 'cancelled',
+				iconClasses: ['notification__type', 'notification__type--draft'],
+			};
+		case 'skipped':
+			return {
+				iconType: 'block',
+				iconText: 'skipped',
+				iconClasses: ['notification__type', 'notification__type--draft'],
+			};
+	}
+	return {
+		iconType: 'status',
+		iconText: 'ci',
+		iconClasses: ['notification__type', 'notification__type--draft'],
+	};
 }
 
 function ReviewStateBadge({
