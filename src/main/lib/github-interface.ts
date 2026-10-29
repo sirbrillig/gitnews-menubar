@@ -17,6 +17,12 @@ import {
 	type RawTimelineItem,
 } from './timeline';
 import {
+	findWorkflowRunForUpdate,
+	normalizeConclusion,
+	parseWorkflowRunTitle,
+	type RawWorkflowRun,
+} from './workflow-runs';
+import {
 	NOTE_HYDRATION_VERSION,
 	type AccountInfo,
 	type BasicNote,
@@ -25,6 +31,7 @@ import {
 	type ReviewCommentsInfo,
 	type ReviewState,
 	type TimelineActivityInfo,
+	type WorkflowRunInfo,
 } from '../../shared-types';
 import type { RequestInit } from 'undici';
 
@@ -785,11 +792,96 @@ async function getSubjectDataForNotification(
 	};
 }
 
+interface WorkflowRunData {
+	commentData: CommentData;
+	subjectData: SubjectData;
+	workflowRun?: WorkflowRunInfo;
+}
+
+/**
+ * Return data for a CheckSuite notification, which has no subject or comment
+ * URLs, by finding the GitHub Actions run named in its title.
+ *
+ * If the run cannot be found, the subject URL is the repo's Actions page
+ * (filtered by the title's branch if possible) so the note can still be
+ * opened.
+ */
+async function getWorkflowRunDataForNotification(
+	octokit: Octokit,
+	account: AccountInfo,
+	notification: RawNotification
+): Promise<WorkflowRunData> {
+	const actionsUrl = `${getWebBaseUrl(account)}/${notification.repository.full_name}/actions`;
+	const commentData: CommentData = {
+		commentAvatar: '',
+		commentHtmlUrl: '',
+		commentUsername: '',
+		commentMentionsViewer: false,
+		commentExcerpt: '',
+	};
+	const subjectData: SubjectData = {
+		noteState: '',
+		noteMerged: false,
+		noteDraft: false,
+		subjectHtmlUrl: actionsUrl,
+	};
+	const title = parseWorkflowRunTitle(notification.subject.title);
+	if (!title) {
+		return { commentData, subjectData };
+	}
+	const [owner, repo] = notification.repository.full_name.split('/');
+	let runs: RawWorkflowRun[] = [];
+	try {
+		const response = await octokit.request(
+			'GET /repos/{owner}/{repo}/actions/runs',
+			{ owner, repo, branch: title.branch, per_page: 50 }
+		);
+		runs = (response.data.workflow_runs ?? []) as RawWorkflowRun[];
+	} catch (error) {
+		logMessage(
+			`Failed to fetch workflow runs for ${notification.repository.full_name} branch ${title.branch}`,
+			'error'
+		);
+	}
+	const run = findWorkflowRunForUpdate(runs, title, notification.updated_at);
+	if (!run?.html_url) {
+		return {
+			commentData,
+			subjectData: {
+				...subjectData,
+				subjectHtmlUrl: `${actionsUrl}?query=${encodeURIComponent(`branch:${title.branch}`)}`,
+			},
+			workflowRun: { conclusion: title.conclusion },
+		};
+	}
+	const actor = run.triggering_actor ?? run.actor;
+	return {
+		commentData: {
+			...commentData,
+			commentAvatar: actor?.avatar_url ?? '',
+			commentHtmlUrl: run.html_url,
+			commentUsername: actor?.login ?? '',
+		},
+		subjectData: { ...subjectData, subjectHtmlUrl: run.html_url },
+		workflowRun: {
+			// A run that was re-run since may not have finished yet.
+			conclusion: run.conclusion
+				? normalizeConclusion(run.conclusion)
+				: title.conclusion,
+			// The title already shows the name, and some servers use the run's
+			// name in place of the workflow's.
+			workflowName: run.name && run.name !== title.name ? run.name : undefined,
+			runNumber: run.run_number,
+		},
+	};
+}
+
 function buildNoteFromData({
 	account,
 	notification,
 	commentData,
 	subjectData,
+	workflowRun,
 	mentionFoundSince,
 	viewerLogin,
 }: {
@@ -797,6 +889,7 @@ function buildNoteFromData({
 	notification: RawNotification;
 	commentData: CommentData;
 	subjectData: SubjectData;
+	workflowRun?: WorkflowRunInfo;
 	mentionFoundSince?: number;
 	viewerLogin?: string;
 }): Note {
@@ -817,6 +910,7 @@ function buildNoteFromData({
 		reviewState: commentData.reviewState,
 		reviewComments: commentData.reviewComments,
 		timelineActivity: commentData.timelineActivity,
+		workflowRun,
 		gitnewsHydrationVersion: NOTE_HYDRATION_VERSION,
 		commentAvatar:
 			commentData.commentAvatar ?? notification.repository.owner.avatar_url,
@@ -1017,6 +1111,26 @@ export async function enrichNotificationsForAccount(
 			`Fetching additional details for notification ${basicNote.id} in account ${account.name} (${account.id})`,
 			'info'
 		);
+		if (basicNote.type === 'CheckSuite') {
+			const promise = getWorkflowRunDataForNotification(
+				octokit,
+				account,
+				notification
+			).then(({ commentData, subjectData, workflowRun }) => {
+				notes.push(
+					buildNoteFromData({
+						account,
+						notification,
+						commentData,
+						subjectData,
+						workflowRun,
+						viewerLogin,
+					})
+				);
+			});
+			promises.push(promise);
+			continue;
+		}
 		const commentPromise = getCommentDataForNotification(
 			octokit,
 			account,

@@ -719,3 +719,31 @@ export function getTimelineActivityLabel(note: Note): string | undefined {
 	}
 	return undefined;
 }
+
+/**
+ * Return a description of the GitHub Actions run behind a CheckSuite note,
+ * like `CI #12 failed`, or undefined if the note is not for a run.
+ */
+export function getWorkflowRunLabel(note: Note): string | undefined {
+	const run = note.workflowRun;
+	if (!run) {
+		return undefined;
+	}
+	const number = run.runNumber ? ` #${run.runNumber}` : '';
+	const name = run.workflowName
+		? `${run.workflowName}${number}`
+		: number
+			? `Run${number}`
+			: 'Workflow run';
+	switch (run.conclusion) {
+		case 'success':
+			return `${name} succeeded`;
+		case 'failure':
+			return `${name} failed`;
+		case 'cancelled':
+			return `${name} was cancelled`;
+		case 'skipped':
+			return `${name} was skipped`;
+	}
+	return `${name} finished`;
+}
