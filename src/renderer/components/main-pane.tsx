@@ -61,6 +61,7 @@ export default function MainPane({
 	unmuteRepo,
 	mutedRepos,
 	searchValue,
+	clearSearch,
 	filterType,
 	appVisible,
 	isLogging,
@@ -92,6 +93,7 @@ export default function MainPane({
 	unmuteRepo: UnmuteRepo;
 	mutedRepos: string[];
 	searchValue: string;
+	clearSearch: () => void;
 	filterType: FilterType;
 	appVisible: boolean;
 	isLogging: boolean;
@@ -188,6 +190,7 @@ export default function MainPane({
 			openUrl={openUrl}
 			token={token}
 			searchValue={searchValue}
+			clearSearch={clearSearch}
 			filterType={filterType}
 			appVisible={appVisible}
 			isMultiOpenMode={isMultiOpenMode}

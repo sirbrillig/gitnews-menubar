@@ -70,6 +70,7 @@ export default function NotificationsArea({
 	openUrl,
 	token,
 	searchValue,
+	clearSearch,
 	filterType,
 	appVisible,
 	isMultiOpenMode,
@@ -87,6 +88,7 @@ export default function NotificationsArea({
 	openUrl: OpenUrl;
 	token: string;
 	searchValue: string;
+	clearSearch: () => void;
 	filterType: FilterType;
 	appVisible: boolean;
 	isMultiOpenMode: boolean;
@@ -227,6 +229,12 @@ export default function NotificationsArea({
 		doesNoteMatchFilter(note, filterType);
 	const visibleUnreadNotes = newNotes.filter(isNoteVisible);
 	const visibleReadNotes = readNotes.filter(isNoteVisible);
+	// Notes that would be shown if the search were cleared.
+	const hiddenBySearchCount = [...newNotes, ...readNotes].filter(
+		(note) =>
+			doesNoteMatchFilter(note, filterType) &&
+			!doesNoteMatchSearch(note, searchValue)
+	).length;
 	const markNotesRead = (notes: Note[]) => {
 		runWithViewTransition(() =>
 			notes.forEach((note) => markRead(token, note, 'dismiss'))
@@ -374,6 +382,13 @@ export default function NotificationsArea({
 
 	return (
 		<div className="notifications-area">
+			{searchValue && (
+				<SearchActiveNotice
+					searchValue={searchValue}
+					hiddenCount={hiddenBySearchCount}
+					clearSearch={clearSearch}
+				/>
+			)}
 			{newNotes.length === 0 && readNotes.length === 0 && <NoNotifications />}
 			{noteRows}
 			{isMultiOpenMode && <MultiOpenNotice />}
@@ -459,6 +474,30 @@ function NotesDivider({
 						Mark all read
 					</button>
 				))}
+		</div>
+	);
+}
+
+function SearchActiveNotice({
+	searchValue,
+	hiddenCount,
+	clearSearch,
+}: {
+	searchValue: string;
+	hiddenCount: number;
+	clearSearch: () => void;
+}) {
+	return (
+		<div className="search-active-notice">
+			<span className="search-active-notice__label">
+				{hiddenCount === 1
+					? '1 notification hidden'
+					: `${hiddenCount} notifications hidden`}{' '}
+				by search &ldquo;{searchValue}&rdquo;
+			</span>
+			<button className="search-active-notice__clear" onClick={clearSearch}>
+				Clear search
+			</button>
 		</div>
 	);
 }
