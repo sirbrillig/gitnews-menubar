@@ -348,6 +348,7 @@ class App extends React.Component<AppProps, AppState> {
 						showListSettings={showListSettings}
 						showAbout={showAbout}
 						searchValue={this.state.searchValue}
+						clearSearch={() => setSearchTo('')}
 						filterType={this.props.filterType}
 						appVisible={this.props.appVisible}
 						isLogging={this.props.isLogging}
