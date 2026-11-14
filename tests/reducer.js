@@ -60,6 +60,22 @@ describe('reducer', function () {
 		});
 	});
 
+	describe('SET_DETECTED_MENTIONS_FILTER_ENABLED', function () {
+		it('is enabled by default', function () {
+			const result = reducer(undefined, { type: 'UNKNOWN' });
+			expect(result.isDetectedMentionsFilterEnabled).toBe(true);
+		});
+
+		it('changes the setting', function () {
+			const action = {
+				type: 'SET_DETECTED_MENTIONS_FILTER_ENABLED',
+				isEnabled: false,
+			};
+			const result = reducer({ isDetectedMentionsFilterEnabled: true }, action);
+			expect(result.isDetectedMentionsFilterEnabled).toBe(false);
+		});
+	});
+
 	describe('DISMISS_FEATURE_TIP', function () {
 		it('has no dismissed tips by default', function () {
 			const result = reducer(undefined, { type: 'UNKNOWN' });

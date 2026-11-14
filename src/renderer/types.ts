@@ -82,6 +82,7 @@ export interface AppReduxState {
 	lowPriorityCommentPatterns: LowPriorityCommentPatterns;
 	lowPriorityWindowHours: number;
 	isGroupByRepoEnabled: boolean;
+	isDetectedMentionsFilterEnabled: boolean;
 	dismissedFeatureTips: FeatureTipId[];
 	lastFeatureTipDismissedAt: false | number;
 }
@@ -158,6 +159,10 @@ export type ActionSetLowPriorityWindowHours = {
 };
 export type ActionSetGroupByRepoEnabled = {
 	type: 'SET_GROUP_BY_REPO_ENABLED';
+	isEnabled: boolean;
+};
+export type ActionSetDetectedMentionsFilterEnabled = {
+	type: 'SET_DETECTED_MENTIONS_FILTER_ENABLED';
 	isEnabled: boolean;
 };
 export type ActionSetLowPriorityTitlePatterns = {
@@ -255,6 +260,7 @@ export type AppReduxAction =
 	| ActionSetLowPriorityWindowHours
 	| ActionSetNotePriority
 	| ActionSetGroupByRepoEnabled
+	| ActionSetDetectedMentionsFilterEnabled
 	| ActionDismissFeatureTip
 	| ActionResetFeatureTips;
 

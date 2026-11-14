@@ -43,9 +43,13 @@ let currentDemoNotifications = createDemoNotifications();
 
 function doesBasicNoteMatchFilter(
 	note: BasicNote,
-	filterType: FilterType
+	filterType: FilterType,
+	includeDetectedMentions: boolean
 ): boolean {
 	if (filterType === 'all') return true;
+	// Mentions in comments are only found while enriching, so every note must be
+	// enriched and the filter applied when the list is shown.
+	if (filterType === 'mention' && includeDetectedMentions) return true;
 	return note.reason === filterType;
 }
 
@@ -117,8 +121,11 @@ export function createFetcher(): Middleware<unknown, AppReduxState> {
 				return;
 			}
 
-			if (action.type === 'SET_FILTER_TYPE') {
-				next(action); // update state.filterType FIRST so performFetch reads the new value
+			if (
+				action.type === 'SET_FILTER_TYPE' ||
+				action.type === 'SET_DETECTED_MENTIONS_FILTER_ENABLED'
+			) {
+				next(action); // update state FIRST so performFetch reads the new value
 				try {
 					performFetch(store.getState(), next);
 				} catch (err) {
@@ -226,7 +233,11 @@ export function createFetcher(): Middleware<unknown, AppReduxState> {
 					if (locallyUnreadIds.has(note.gitnewsAccountId + note.id))
 						return true;
 					if (state.mutedRepos.includes(note.repositoryFullName)) return false;
-					return doesBasicNoteMatchFilter(note, state.filterType);
+					return doesBasicNoteMatchFilter(
+						note,
+						state.filterType,
+						state.isDetectedMentionsFilterEnabled
+					);
 				});
 
 				// Phase 2.5 — Skip re-hydration for notes whose updatedAt hasn't changed

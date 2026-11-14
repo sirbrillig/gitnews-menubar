@@ -4,6 +4,7 @@ import {
 	setLowPriorityEnabled,
 	setLowPriorityWindowHours,
 	setGroupByRepoEnabled,
+	setDetectedMentionsFilterEnabled,
 	resetFeatureTips,
 } from '../lib/reducer';
 import {
@@ -50,6 +51,12 @@ export default function ListSettingsPage({
 	);
 	const toggleGroupByRepo = (event: { target: { checked: boolean } }) =>
 		dispatch(setGroupByRepoEnabled(event.target.checked));
+	const isDetectedMentionsFilterEnabled = useSelector(
+		(state: AppReduxState) => state.isDetectedMentionsFilterEnabled
+	);
+	const toggleDetectedMentionsFilter = (event: {
+		target: { checked: boolean };
+	}) => dispatch(setDetectedMentionsFilterEnabled(event.target.checked));
 	const hasDismissedTips = useSelector(
 		(state: AppReduxState) => (state.dismissedFeatureTips ?? []).length > 0
 	);
@@ -74,6 +81,24 @@ export default function ListSettingsPage({
 							id="group-by-repo-setting"
 							checked={isGroupByRepoEnabled}
 							onChange={toggleGroupByRepo}
+						/>
+					</li>
+					<li className="config-row config-row--toggle">
+						<div>
+							<label htmlFor="detected-mentions-filter-setting">
+								Find all mentions for the Mentioned filter
+							</label>
+							<p className="config-row__hint">
+								Also show notes where a comment mentions you, even when GitHub
+								lists another reason like a review request. Every note must be
+								loaded to check, so the filter no longer speeds up fetching.
+							</p>
+						</div>
+						<input
+							type="checkbox"
+							id="detected-mentions-filter-setting"
+							checked={isDetectedMentionsFilterEnabled}
+							onChange={toggleDetectedMentionsFilter}
 						/>
 					</li>
 					<li className="config-row config-row--toggle">

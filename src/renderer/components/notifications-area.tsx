@@ -210,6 +210,9 @@ export default function NotificationsArea({
 	const isGroupByRepoEnabled = useSelector(
 		(state: AppReduxState) => state.isGroupByRepoEnabled
 	);
+	const isDetectedMentionsFilterEnabled = useSelector(
+		(state: AppReduxState) => state.isDetectedMentionsFilterEnabled
+	);
 
 	const dispatch = useDispatch();
 	const dismissedFeatureTips = useSelector(
@@ -226,13 +229,13 @@ export default function NotificationsArea({
 
 	const isNoteVisible = (note: Note) =>
 		doesNoteMatchSearch(note, searchValue) &&
-		doesNoteMatchFilter(note, filterType);
+		doesNoteMatchFilter(note, filterType, isDetectedMentionsFilterEnabled);
 	const visibleUnreadNotes = newNotes.filter(isNoteVisible);
 	const visibleReadNotes = readNotes.filter(isNoteVisible);
 	// Notes that would be shown if the search were cleared.
 	const hiddenBySearchCount = [...newNotes, ...readNotes].filter(
 		(note) =>
-			doesNoteMatchFilter(note, filterType) &&
+			doesNoteMatchFilter(note, filterType, isDetectedMentionsFilterEnabled) &&
 			!doesNoteMatchSearch(note, searchValue)
 	).length;
 	const markNotesRead = (notes: Note[]) => {
