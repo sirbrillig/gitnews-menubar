@@ -57,7 +57,7 @@ When you run Gitnews, you will need to generate an API key from your GitHub acco
 
 ## Development
 
-To run the development version from the source, first install all dependencies by running `yarn` (you must have [yarn](https://yarnpkg.com/en/) installed for this to work). Next run the command `yarn start`.
+To run the development version from the source, first install all dependencies by running `npm install`. Next run the command `npm start`.
 
 Rather than use real data, you can use mock data by enabling demo mode. This also disables network side effects (like marking a notification as read). To do this, create a `.env` file in the source directory and include the following:
 
@@ -71,8 +71,8 @@ The app logs its activity to a file on the local machine using the library [elec
 
 ### Building a package
 
-To create a packaged Mac OS App, first install dependencies by running `yarn` (you must have [yarn](https://yarnpkg.com/en/) installed for this to work).
+To create a packaged Mac OS App, first install dependencies by running `npm install`.
 
-Next run the following command: `yarn run build`.
+Next run the following command: `npm run build`.
 
 You will then find an executable application in the `out` directory.
