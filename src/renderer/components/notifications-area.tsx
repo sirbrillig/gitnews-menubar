@@ -213,6 +213,9 @@ export default function NotificationsArea({
 	const isDetectedMentionsFilterEnabled = useSelector(
 		(state: AppReduxState) => state.isDetectedMentionsFilterEnabled
 	);
+	const hideClosed = useSelector(
+		(state: AppReduxState) => state.hideClosed ?? false
+	);
 
 	const dispatch = useDispatch();
 	const dismissedFeatureTips = useSelector(
@@ -229,14 +232,23 @@ export default function NotificationsArea({
 
 	const isNoteVisible = (note: Note) =>
 		doesNoteMatchSearch(note, searchValue) &&
-		doesNoteMatchFilter(note, filterType, isDetectedMentionsFilterEnabled);
+		doesNoteMatchFilter(
+			note,
+			filterType,
+			isDetectedMentionsFilterEnabled,
+			hideClosed
+		);
 	const visibleUnreadNotes = newNotes.filter(isNoteVisible);
 	const visibleReadNotes = readNotes.filter(isNoteVisible);
 	// Notes that would be shown if the search were cleared.
 	const hiddenBySearchCount = [...newNotes, ...readNotes].filter(
 		(note) =>
-			doesNoteMatchFilter(note, filterType, isDetectedMentionsFilterEnabled) &&
-			!doesNoteMatchSearch(note, searchValue)
+			doesNoteMatchFilter(
+				note,
+				filterType,
+				isDetectedMentionsFilterEnabled,
+				hideClosed
+			) && !doesNoteMatchSearch(note, searchValue)
 	).length;
 	const markNotesRead = (notes: Note[]) => {
 		runWithViewTransition(() =>

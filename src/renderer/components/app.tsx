@@ -70,6 +70,7 @@ interface AppConnectedProps {
 	isAutoLoadEnabled: boolean;
 	filterType: FilterType;
 	isDetectedMentionsFilterEnabled: boolean;
+	hideClosed: boolean;
 	appVisible: boolean;
 	isLogging: boolean;
 	isTokenInvalid: boolean;
@@ -198,6 +199,7 @@ class App extends React.Component<AppProps, AppState> {
 		unreadNotes,
 		filterType,
 		isDetectedMentionsFilterEnabled,
+		hideClosed,
 	}: {
 		offline: boolean;
 		errors: string[];
@@ -206,18 +208,29 @@ class App extends React.Component<AppProps, AppState> {
 		unreadNotes: Note[];
 		filterType: FilterType;
 		isDetectedMentionsFilterEnabled: boolean;
+		hideClosed: boolean;
 	}) {
 		if (errors.length || accountsWithFetchErrors.length) {
 			return 'error';
 		}
 		const unseenNotesFiltered = unseenNotes.filter((note) =>
-			doesNoteMatchFilter(note, filterType, isDetectedMentionsFilterEnabled)
+			doesNoteMatchFilter(
+				note,
+				filterType,
+				isDetectedMentionsFilterEnabled,
+				hideClosed
+			)
 		);
 		if (unseenNotesFiltered.length) {
 			return 'unseen';
 		}
 		const unreadNotesFiltered = unreadNotes.filter((note) =>
-			doesNoteMatchFilter(note, filterType, isDetectedMentionsFilterEnabled)
+			doesNoteMatchFilter(
+				note,
+				filterType,
+				isDetectedMentionsFilterEnabled,
+				hideClosed
+			)
 		);
 		if (unreadNotesFiltered.length) {
 			return 'unread';
@@ -258,6 +271,7 @@ class App extends React.Component<AppProps, AppState> {
 			filterType: this.props.filterType,
 			isDetectedMentionsFilterEnabled:
 				this.props.isDetectedMentionsFilterEnabled,
+			hideClosed: this.props.hideClosed,
 		});
 
 		debug('sending set-icon', nextIcon);
@@ -382,6 +396,7 @@ function mapStateToProps(state: AppReduxState): AppConnectedProps {
 		isAutoLoadEnabled: state.isAutoLoadEnabled,
 		filterType: state.filterType,
 		isDetectedMentionsFilterEnabled: state.isDetectedMentionsFilterEnabled,
+		hideClosed: state.hideClosed ?? false,
 		appVisible: state.appVisible,
 		isLogging: state.isLogging,
 		isTokenInvalid: state.isTokenInvalid,

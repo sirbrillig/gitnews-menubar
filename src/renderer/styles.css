@@ -389,6 +389,11 @@ header svg {
 	flex: 1;
 }
 
+.filter-menu .filter-menu__toggles {
+	border-top: 1px solid #444;
+	padding-top: 5px;
+}
+
 .filter-menu__icon {
 	padding: 4px;
 	margin-right: 4px;

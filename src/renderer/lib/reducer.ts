@@ -40,6 +40,7 @@ import {
 	ActionSetLowPriorityEnabled,
 	ActionSetGroupByRepoEnabled,
 	ActionSetDetectedMentionsFilterEnabled,
+	ActionSetHideClosed,
 	ActionSetLowPriorityTitlePatterns,
 	ActionSetLowPriorityCommentPatterns,
 	ActionImportLowPriorityPatterns,
@@ -81,6 +82,7 @@ const initialState: AppReduxState = {
 	selectedAccount: undefined,
 	locallyUnreadNotes: [],
 	showUnreadOnly: false,
+	hideClosed: false,
 	recentlyUnsubscribed: [],
 	isLowPriorityEnabled: false,
 	lowPriorityTitlePatterns: {},
@@ -401,6 +403,8 @@ export function createReducer() {
 				return { ...state, filterType: action.filterType };
 			case 'SET_SHOW_UNREAD_ONLY':
 				return { ...state, showUnreadOnly: action.showUnreadOnly };
+			case 'SET_HIDE_CLOSED':
+				return { ...state, hideClosed: action.hideClosed };
 			case 'SET_LOW_PRIORITY_ENABLED':
 				return { ...state, isLowPriorityEnabled: action.isEnabled };
 			case 'SET_LOW_PRIORITY_WINDOW_HOURS':
@@ -623,6 +627,10 @@ export function setFilterType(filterType: FilterType) {
 
 export function setShowUnreadOnly(showUnreadOnly: boolean) {
 	return { type: 'SET_SHOW_UNREAD_ONLY', showUnreadOnly };
+}
+
+export function setHideClosed(hideClosed: boolean): ActionSetHideClosed {
+	return { type: 'SET_HIDE_CLOSED', hideClosed };
 }
 
 export function markAppHidden() {

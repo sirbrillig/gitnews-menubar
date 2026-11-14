@@ -60,6 +60,19 @@ describe('reducer', function () {
 		});
 	});
 
+	describe('SET_HIDE_CLOSED', function () {
+		it('is disabled by default', function () {
+			const result = reducer(undefined, { type: 'UNKNOWN' });
+			expect(result.hideClosed).toBe(false);
+		});
+
+		it('changes the setting', function () {
+			const action = { type: 'SET_HIDE_CLOSED', hideClosed: true };
+			const result = reducer({ hideClosed: false }, action);
+			expect(result.hideClosed).toBe(true);
+		});
+	});
+
 	describe('SET_DETECTED_MENTIONS_FILTER_ENABLED', function () {
 		it('is enabled by default', function () {
 			const result = reducer(undefined, { type: 'UNKNOWN' });

@@ -1,6 +1,8 @@
 import React from 'react';
 import Gridicon from 'gridicons';
-import { FilterType } from '../types';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppReduxState, FilterType } from '../types';
+import { setHideClosed } from '../lib/reducer';
 
 function getReadableFilterType(filterType: FilterType): string {
 	switch (filterType) {
@@ -24,6 +26,17 @@ function getReadableFilterType(filterType: FilterType): string {
 	return filterType;
 }
 
+function getFilterLabel(filterType: FilterType, hideClosed: boolean): string {
+	const parts = [];
+	if (filterType !== 'all') {
+		parts.push(getReadableFilterType(filterType));
+	}
+	if (hideClosed) {
+		parts.push('Open only');
+	}
+	return parts.join(' · ');
+}
+
 export default function FilterButton({
 	filterType,
 	setFilterType,
@@ -37,15 +50,26 @@ export default function FilterButton({
 		setFilterType(type);
 		setFiltersVisible(false);
 	};
+	const hideClosed = useSelector(
+		(state: AppReduxState) => state.hideClosed ?? false
+	);
+	const dispatch = useDispatch();
+	const toggleHideClosed = () => {
+		dispatch(setHideClosed(!hideClosed));
+		setFiltersVisible(false);
+	};
+	const isActive = filterType !== 'all' || hideClosed;
 	return (
-		<div className={`filter-button__area${filterType !== 'all' ? ' filter-button__area--active' : ''}`}>
-			{filterType !== 'all' && (
+		<div
+			className={`filter-button__area${isActive ? ' filter-button__area--active' : ''}`}
+		>
+			{isActive && (
 				<label
 					className="filter-label"
 					htmlFor="filter-menu"
 					onClick={toggleFiltersVisible}
 				>
-					{getReadableFilterType(filterType)}
+					{getFilterLabel(filterType, hideClosed)}
 				</label>
 			)}
 			<button
@@ -56,7 +80,12 @@ export default function FilterButton({
 				<Gridicon icon="filter" />
 			</button>
 			{isFiltersVisible && (
-				<FilterMenu filterType={filterType} setFilterType={setFilter} />
+				<FilterMenu
+					filterType={filterType}
+					setFilterType={setFilter}
+					hideClosed={hideClosed}
+					toggleHideClosed={toggleHideClosed}
+				/>
 			)}
 		</div>
 	);
@@ -65,9 +94,13 @@ export default function FilterButton({
 function FilterMenu({
 	filterType,
 	setFilterType,
+	hideClosed,
+	toggleHideClosed,
 }: {
 	filterType: FilterType;
 	setFilterType: (type: FilterType) => void;
+	hideClosed: boolean;
+	toggleHideClosed: () => void;
 }) {
 	return (
 		<div className="filter-menu" id="filter-menu">
@@ -114,6 +147,11 @@ function FilterMenu({
 					onClick={() => setFilterType('team_mention')}
 				>
 					{getReadableFilterType('team_mention')}
+				</FilterMenuItem>
+			</ul>
+			<ul className="filter-menu__toggles">
+				<FilterMenuItem selected={hideClosed} onClick={toggleHideClosed}>
+					Hide closed
 				</FilterMenuItem>
 			</ul>
 		</div>

@@ -2,11 +2,11 @@
 const doesNoteMatchFilter =
 	require('../src/renderer/lib/does-note-match-filter').default;
 
-function makeNote({ reason, latestCommentMentionsYou } = {}) {
+function makeNote({ reason, latestCommentMentionsYou, state, merged } = {}) {
 	return {
 		id: 'note1',
 		latestCommentMentionsYou,
-		api: { notification: { reason } },
+		api: { subject: { state, merged }, notification: { reason } },
 	};
 }
 
@@ -56,5 +56,26 @@ describe('doesNoteMatchFilter()', function () {
 			latestCommentMentionsYou: false,
 		});
 		expect(doesNoteMatchFilter(note, 'mention', true)).toBe(false);
+	});
+
+	it('matches closed notes when hideClosed is not set', function () {
+		const note = makeNote({ reason: 'author', state: 'closed' });
+		expect(doesNoteMatchFilter(note, 'all', false)).toBe(true);
+		expect(doesNoteMatchFilter(note, 'all', false, false)).toBe(true);
+	});
+
+	it('does not match closed or merged notes when hideClosed is set', function () {
+		const closed = makeNote({ reason: 'author', state: 'closed' });
+		const merged = makeNote({ reason: 'author', state: 'open', merged: true });
+		expect(doesNoteMatchFilter(closed, 'all', false, true)).toBe(false);
+		expect(doesNoteMatchFilter(closed, 'author', false, true)).toBe(false);
+		expect(doesNoteMatchFilter(merged, 'all', false, true)).toBe(false);
+	});
+
+	it('matches open notes and notes without a state when hideClosed is set', function () {
+		const open = makeNote({ reason: 'author', state: 'open' });
+		const noState = makeNote({ reason: 'ci_activity', state: '' });
+		expect(doesNoteMatchFilter(open, 'all', false, true)).toBe(true);
+		expect(doesNoteMatchFilter(noState, 'all', false, true)).toBe(true);
 	});
 });

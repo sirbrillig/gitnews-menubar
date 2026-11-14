@@ -76,6 +76,7 @@ export interface AppReduxState {
 	selectedAccount: AccountInfo | undefined;
 	locallyUnreadNotes: Note[];
 	showUnreadOnly: boolean;
+	hideClosed: boolean;
 	recentlyUnsubscribed: RecentlyUnsubscribedNote[];
 	isLowPriorityEnabled: boolean;
 	lowPriorityTitlePatterns: LowPriorityTitlePatterns;
@@ -217,6 +218,10 @@ export type ActionSetShowUnreadOnly = {
 	type: 'SET_SHOW_UNREAD_ONLY';
 	showUnreadOnly: boolean;
 };
+export type ActionSetHideClosed = {
+	type: 'SET_HIDE_CLOSED';
+	hideClosed: boolean;
+};
 export type MarkAppHidden = { type: 'NOTE_APP_VISIBLE'; visible: false };
 export type MarkAppShown = { type: 'NOTE_APP_VISIBLE'; visible: true };
 export type ActionSetDemoMode = { type: 'SET_DEMO_MODE'; isDemoMode: boolean };
@@ -248,6 +253,7 @@ export type AppReduxAction =
 	| ActionScrollToTop
 	| ActionSetFilterType
 	| ActionSetShowUnreadOnly
+	| ActionSetHideClosed
 	| MarkAppHidden
 	| MarkAppShown
 	| ActionSetDemoMode
