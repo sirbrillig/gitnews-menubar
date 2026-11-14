@@ -69,6 +69,7 @@ interface AppConnectedProps {
 	fetchInterval: number;
 	isAutoLoadEnabled: boolean;
 	filterType: FilterType;
+	isDetectedMentionsFilterEnabled: boolean;
 	appVisible: boolean;
 	isLogging: boolean;
 	isTokenInvalid: boolean;
@@ -196,6 +197,7 @@ class App extends React.Component<AppProps, AppState> {
 		unseenNotes,
 		unreadNotes,
 		filterType,
+		isDetectedMentionsFilterEnabled,
 	}: {
 		offline: boolean;
 		errors: string[];
@@ -203,18 +205,19 @@ class App extends React.Component<AppProps, AppState> {
 		unseenNotes: Note[];
 		unreadNotes: Note[];
 		filterType: FilterType;
+		isDetectedMentionsFilterEnabled: boolean;
 	}) {
 		if (errors.length || accountsWithFetchErrors.length) {
 			return 'error';
 		}
 		const unseenNotesFiltered = unseenNotes.filter((note) =>
-			doesNoteMatchFilter(note, filterType)
+			doesNoteMatchFilter(note, filterType, isDetectedMentionsFilterEnabled)
 		);
 		if (unseenNotesFiltered.length) {
 			return 'unseen';
 		}
 		const unreadNotesFiltered = unreadNotes.filter((note) =>
-			doesNoteMatchFilter(note, filterType)
+			doesNoteMatchFilter(note, filterType, isDetectedMentionsFilterEnabled)
 		);
 		if (unreadNotesFiltered.length) {
 			return 'unread';
@@ -253,6 +256,8 @@ class App extends React.Component<AppProps, AppState> {
 			unseenNotes,
 			unreadNotes: newNotes,
 			filterType: this.props.filterType,
+			isDetectedMentionsFilterEnabled:
+				this.props.isDetectedMentionsFilterEnabled,
 		});
 
 		debug('sending set-icon', nextIcon);
@@ -376,6 +381,7 @@ function mapStateToProps(state: AppReduxState): AppConnectedProps {
 		fetchInterval: state.fetchInterval,
 		isAutoLoadEnabled: state.isAutoLoadEnabled,
 		filterType: state.filterType,
+		isDetectedMentionsFilterEnabled: state.isDetectedMentionsFilterEnabled,
 		appVisible: state.appVisible,
 		isLogging: state.isLogging,
 		isTokenInvalid: state.isTokenInvalid,

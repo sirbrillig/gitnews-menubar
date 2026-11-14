@@ -39,6 +39,7 @@ import {
 	MarkReadSource,
 	ActionSetLowPriorityEnabled,
 	ActionSetGroupByRepoEnabled,
+	ActionSetDetectedMentionsFilterEnabled,
 	ActionSetLowPriorityTitlePatterns,
 	ActionSetLowPriorityCommentPatterns,
 	ActionImportLowPriorityPatterns,
@@ -86,6 +87,7 @@ const initialState: AppReduxState = {
 	lowPriorityCommentPatterns: {},
 	lowPriorityWindowHours: DEFAULT_LOW_PRIORITY_WINDOW_HOURS,
 	isGroupByRepoEnabled: false,
+	isDetectedMentionsFilterEnabled: true,
 	dismissedFeatureTips: [],
 	lastFeatureTipDismissedAt: false,
 };
@@ -408,6 +410,8 @@ export function createReducer() {
 				return { ...state, lowPriorityWindowHours: action.hours };
 			case 'SET_GROUP_BY_REPO_ENABLED':
 				return { ...state, isGroupByRepoEnabled: action.isEnabled };
+			case 'SET_DETECTED_MENTIONS_FILTER_ENABLED':
+				return { ...state, isDetectedMentionsFilterEnabled: action.isEnabled };
 			case 'DISMISS_FEATURE_TIP': {
 				const dismissedFeatureTips = state.dismissedFeatureTips ?? [];
 				if (dismissedFeatureTips.includes(action.tipId)) {
@@ -645,6 +649,12 @@ export function setGroupByRepoEnabled(
 	isEnabled: boolean
 ): ActionSetGroupByRepoEnabled {
 	return { type: 'SET_GROUP_BY_REPO_ENABLED', isEnabled };
+}
+
+export function setDetectedMentionsFilterEnabled(
+	isEnabled: boolean
+): ActionSetDetectedMentionsFilterEnabled {
+	return { type: 'SET_DETECTED_MENTIONS_FILTER_ENABLED', isEnabled };
 }
 
 export function dismissFeatureTip(

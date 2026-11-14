@@ -183,6 +183,50 @@ describe('createFetcher() — two-phase fetch', function () {
 			).toHaveBeenCalledWith(TEST_ACCOUNT, [mentionNote]);
 		});
 
+		it('enriches all notes for the mention filter when detected mentions are enabled', async function () {
+			const mentionNote = makeBasicNote({ id: 'n1', reason: 'mention' });
+			const reviewNote = makeBasicNote({
+				id: 'n2',
+				reason: 'review_requested',
+			});
+			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([
+				mentionNote,
+				reviewNote,
+			]);
+			const state = makeState({
+				filterType: 'mention',
+				isDetectedMentionsFilterEnabled: true,
+			});
+			const { dispatch } = makeMiddleware(state);
+			dispatch({ type: 'GITNEWS_FETCH_NOTIFICATIONS' });
+			await flushPromises();
+			expect(
+				window.electronApi.enrichNotificationsForAccount
+			).toHaveBeenCalledWith(
+				TEST_ACCOUNT,
+				expect.arrayContaining([mentionNote, reviewNote])
+			);
+		});
+
+		it('still excludes other reasons for other filters when detected mentions are enabled', async function () {
+			const mentionNote = makeBasicNote({ id: 'n1', reason: 'mention' });
+			const authorNote = makeBasicNote({ id: 'n2', reason: 'author' });
+			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([
+				mentionNote,
+				authorNote,
+			]);
+			const state = makeState({
+				filterType: 'author',
+				isDetectedMentionsFilterEnabled: true,
+			});
+			const { dispatch } = makeMiddleware(state);
+			dispatch({ type: 'GITNEWS_FETCH_NOTIFICATIONS' });
+			await flushPromises();
+			expect(
+				window.electronApi.enrichNotificationsForAccount
+			).toHaveBeenCalledWith(TEST_ACCOUNT, [authorNote]);
+		});
+
 		it('passes all notes when filterType is "all"', async function () {
 			const mentionNote = makeBasicNote({ id: 'n1', reason: 'mention' });
 			const subscribedNote = makeBasicNote({ id: 'n2', reason: 'subscribed' });
@@ -604,6 +648,22 @@ describe('createFetcher() — two-phase fetch', function () {
 			expect(
 				window.electronApi.enrichNotificationsForAccount
 			).toHaveBeenCalledWith(TEST_ACCOUNT, [mentionNote]);
+		});
+	});
+
+	describe('SET_DETECTED_MENTIONS_FILTER_ENABLED action', function () {
+		it('forwards the action to next and triggers a fetch', async function () {
+			const { dispatch, next } = makeMiddleware(makeState());
+			const action = {
+				type: 'SET_DETECTED_MENTIONS_FILTER_ENABLED',
+				isEnabled: true,
+			};
+			dispatch(action);
+			await flushPromises();
+			expect(next).toHaveBeenCalledWith(action);
+			expect(
+				window.electronApi.listBasicNotificationsForAccount
+			).toHaveBeenCalled();
 		});
 	});
 
