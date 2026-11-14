@@ -117,7 +117,7 @@ export const LOW_PRIORITY_WINDOW_MS = hoursToMs(
 	DEFAULT_LOW_PRIORITY_WINDOW_HOURS
 );
 
-function hoursToMs(hours: number): number {
+export function hoursToMs(hours: number): number {
 	return hours * 60 * 60 * 1000;
 }
 

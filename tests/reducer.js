@@ -522,6 +522,90 @@ describe('reducer', function () {
 			);
 			expect(result.notes.filter((note) => note.gitnewsSeen)).toHaveLength(0);
 		});
+
+		describe('recently opened notes missing from new data', function () {
+			const accounts = [{ id: 'acc1' }];
+			const hourMs = 60 * 60 * 1000;
+
+			function makeOpenedNote(overrides = {}) {
+				return {
+					id: 'o1',
+					gitnewsAccountId: 'acc1',
+					unread: false,
+					gitnewsMarkedUnread: false,
+					gitnewsOpenedAt: Date.now() - hourMs,
+					...overrides,
+				};
+			}
+
+			function getIds(state) {
+				return reducer(state, { type: 'NOTES_RETRIEVED', notes }).notes.map(
+					(note) => note.id
+				);
+			}
+
+			it('keeps a read note opened recently', function () {
+				const ids = getIds({ accounts, notes: [makeOpenedNote()] });
+				expect(ids).toContain('o1');
+			});
+
+			it('keeps a note that was marked unread locally and then opened', function () {
+				const note = makeOpenedNote();
+				const state = reducer(
+					{
+						accounts,
+						notes: [{ ...note, gitnewsMarkedUnread: true }],
+						locallyUnreadNotes: [{ ...note, gitnewsMarkedUnread: true }],
+					},
+					{ type: 'MARK_NOTE_READ', note }
+				);
+				expect(getIds(state)).toContain('o1');
+			});
+
+			it('drops a read note opened long ago', function () {
+				const ids = getIds({
+					accounts,
+					notes: [
+						makeOpenedNote({ gitnewsOpenedAt: Date.now() - 25 * hourMs }),
+					],
+				});
+				expect(ids).not.toContain('o1');
+			});
+
+			it('drops a read note that was never opened', function () {
+				const ids = getIds({
+					accounts,
+					notes: [makeOpenedNote({ gitnewsOpenedAt: undefined })],
+				});
+				expect(ids).not.toContain('o1');
+			});
+
+			it('drops a recently opened note that is unread again', function () {
+				const ids = getIds({
+					accounts,
+					notes: [makeOpenedNote({ unread: true })],
+				});
+				expect(ids).not.toContain('o1');
+			});
+
+			it('drops a recently opened note from a removed account', function () {
+				const ids = getIds({
+					accounts,
+					notes: [makeOpenedNote({ gitnewsAccountId: 'acc2' })],
+				});
+				expect(ids).not.toContain('o1');
+			});
+
+			it('does not duplicate a recently opened note returned by GitHub', function () {
+				const note = makeOpenedNote({ updatedAt: now });
+				const result = reducer(
+					{ accounts, notes: [note] },
+					{ type: 'NOTES_RETRIEVED', notes: [{ ...note, title: 'fresh' }] }
+				);
+				expect(result.notes).toHaveLength(1);
+				expect(result.notes[0].title).toBe('fresh');
+			});
+		});
 	});
 
 	describe('OFFLINE', function () {

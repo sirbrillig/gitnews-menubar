@@ -3,6 +3,7 @@ import {
 	getNoteId,
 	mergeNotifications,
 	getFetchInterval,
+	hoursToMs,
 	isValidLowPriorityWindowHours,
 	DEFAULT_LOW_PRIORITY_WINDOW_HOURS,
 } from '../lib/helpers';
@@ -49,6 +50,12 @@ import {
 } from '../types';
 
 const defaultFetchInterval = secsToMs(120);
+
+/**
+ * How long a note opened in Gitnews stays in the read list after GitHub stops
+ * returning it (eg: an old note that was marked unread locally).
+ */
+const RECENTLY_OPENED_RETENTION_MS = hoursToMs(24);
 
 const initialState: AppReduxState = {
 	token: undefined,
@@ -324,7 +331,26 @@ export function createReducer() {
 				const notesToReinsert = existingLocallyUnread
 					.filter((note) => !mergedIds.has(getNoteId(note)))
 					.map((note) => ({ ...note, gitnewsMarkedUnread: true }));
-				const allNotes = [...newNotes, ...notesToReinsert];
+				const reinsertedIds = new Set(notesToReinsert.map(getNoteId));
+
+				// Keep notes the user recently opened even if GitHub no longer returns
+				// them so they still appear in the read list.
+				const accountIds = new Set((state.accounts ?? []).map((acc) => acc.id));
+				const recentlyOpenedToKeep = state.notes.filter(
+					(note) =>
+						!mergedIds.has(getNoteId(note)) &&
+						!reinsertedIds.has(getNoteId(note)) &&
+						!note.unread &&
+						!note.gitnewsMarkedUnread &&
+						accountIds.has(note.gitnewsAccountId) &&
+						Date.now() - (note.gitnewsOpenedAt ?? 0) <
+							RECENTLY_OPENED_RETENTION_MS
+				);
+				const allNotes = [
+					...newNotes,
+					...notesToReinsert,
+					...recentlyOpenedToKeep,
+				];
 
 				// Update stored copies with latest data from fetch (keeps backup fresh)
 				const freshById = new Map(newNotes.map((n) => [getNoteId(n), n]));
