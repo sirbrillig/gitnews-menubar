@@ -2,7 +2,8 @@ import React from 'react';
 import Gridicon from 'gridicons';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppReduxState, FilterType } from '../types';
-import { setHideClosed } from '../lib/reducer';
+import { setHideClosed, setHideLowPriority } from '../lib/reducer';
+import { getLowPriorityOptions, isNoteLowPriority } from '../lib/helpers';
 
 function getReadableFilterType(filterType: FilterType): string {
 	switch (filterType) {
@@ -26,13 +27,20 @@ function getReadableFilterType(filterType: FilterType): string {
 	return filterType;
 }
 
-function getFilterLabel(filterType: FilterType, hideClosed: boolean): string {
+function getFilterLabel(
+	filterType: FilterType,
+	hideClosed: boolean,
+	hideLowPriority: boolean
+): string {
 	const parts = [];
 	if (filterType !== 'all') {
 		parts.push(getReadableFilterType(filterType));
 	}
 	if (hideClosed) {
 		parts.push('Open only');
+	}
+	if (hideLowPriority) {
+		parts.push('No low priority');
 	}
 	return parts.join(' · ');
 }
@@ -58,7 +66,24 @@ export default function FilterButton({
 		dispatch(setHideClosed(!hideClosed));
 		setFiltersVisible(false);
 	};
-	const isActive = filterType !== 'all' || hideClosed;
+	const hideLowPriority = useSelector(
+		(state: AppReduxState) => state.hideLowPriority ?? false
+	);
+	// Only offer to hide low priority notes when there are some to hide, or
+	// when they are already hidden so that they can be shown again.
+	const hasLowPriorityNotes = useSelector((state: AppReduxState) => {
+		const lowPriorityOptions = getLowPriorityOptions(state);
+		return state.notes.some(
+			(note) =>
+				!state.mutedRepos.includes(note.repositoryFullName) &&
+				isNoteLowPriority(note, lowPriorityOptions)
+		);
+	});
+	const toggleHideLowPriority = () => {
+		dispatch(setHideLowPriority(!hideLowPriority));
+		setFiltersVisible(false);
+	};
+	const isActive = filterType !== 'all' || hideClosed || hideLowPriority;
 	return (
 		<div
 			className={`filter-button__area${isActive ? ' filter-button__area--active' : ''}`}
@@ -69,7 +94,7 @@ export default function FilterButton({
 					htmlFor="filter-menu"
 					onClick={toggleFiltersVisible}
 				>
-					{getFilterLabel(filterType, hideClosed)}
+					{getFilterLabel(filterType, hideClosed, hideLowPriority)}
 				</label>
 			)}
 			<button
@@ -85,6 +110,12 @@ export default function FilterButton({
 					setFilterType={setFilter}
 					hideClosed={hideClosed}
 					toggleHideClosed={toggleHideClosed}
+					hideLowPriority={hideLowPriority}
+					toggleHideLowPriority={
+						hideLowPriority || hasLowPriorityNotes
+							? toggleHideLowPriority
+							: undefined
+					}
 				/>
 			)}
 		</div>
@@ -96,11 +127,15 @@ function FilterMenu({
 	setFilterType,
 	hideClosed,
 	toggleHideClosed,
+	hideLowPriority,
+	toggleHideLowPriority,
 }: {
 	filterType: FilterType;
 	setFilterType: (type: FilterType) => void;
 	hideClosed: boolean;
 	toggleHideClosed: () => void;
+	hideLowPriority: boolean;
+	toggleHideLowPriority?: () => void;
 }) {
 	return (
 		<div className="filter-menu" id="filter-menu">
@@ -153,6 +188,14 @@ function FilterMenu({
 				<FilterMenuItem selected={hideClosed} onClick={toggleHideClosed}>
 					Hide closed
 				</FilterMenuItem>
+				{toggleHideLowPriority && (
+					<FilterMenuItem
+						selected={hideLowPriority}
+						onClick={toggleHideLowPriority}
+					>
+						Hide low priority
+					</FilterMenuItem>
+				)}
 			</ul>
 		</div>
 	);

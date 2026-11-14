@@ -19,7 +19,7 @@ import {
 import { getFeatureTip } from '../lib/feature-tips';
 import { runWithViewTransition } from '../lib/view-transitions';
 import { useGetGitnewsUpdate, UpdateStatus } from '../lib/updates';
-import doesNoteMatchFilter from '../lib/does-note-match-filter';
+import doesNoteMatchFilter, { NoteFilter } from '../lib/does-note-match-filter';
 import {
 	AppReduxState,
 	AppUpdate,
@@ -216,6 +216,16 @@ export default function NotificationsArea({
 	const hideClosed = useSelector(
 		(state: AppReduxState) => state.hideClosed ?? false
 	);
+	const hideLowPriority = useSelector(
+		(state: AppReduxState) => state.hideLowPriority ?? false
+	);
+	const noteFilter: NoteFilter = {
+		filterType,
+		includeDetectedMentions: isDetectedMentionsFilterEnabled,
+		hideClosed,
+		hideLowPriority,
+		lowPriorityOptions,
+	};
 
 	const dispatch = useDispatch();
 	const dismissedFeatureTips = useSelector(
@@ -232,23 +242,14 @@ export default function NotificationsArea({
 
 	const isNoteVisible = (note: Note) =>
 		doesNoteMatchSearch(note, searchValue) &&
-		doesNoteMatchFilter(
-			note,
-			filterType,
-			isDetectedMentionsFilterEnabled,
-			hideClosed
-		);
+		doesNoteMatchFilter(note, noteFilter);
 	const visibleUnreadNotes = newNotes.filter(isNoteVisible);
 	const visibleReadNotes = readNotes.filter(isNoteVisible);
 	// Notes that would be shown if the search were cleared.
 	const hiddenBySearchCount = [...newNotes, ...readNotes].filter(
 		(note) =>
-			doesNoteMatchFilter(
-				note,
-				filterType,
-				isDetectedMentionsFilterEnabled,
-				hideClosed
-			) && !doesNoteMatchSearch(note, searchValue)
+			doesNoteMatchFilter(note, noteFilter) &&
+			!doesNoteMatchSearch(note, searchValue)
 	).length;
 	const markNotesRead = (notes: Note[]) => {
 		runWithViewTransition(() =>

@@ -73,6 +73,19 @@ describe('reducer', function () {
 		});
 	});
 
+	describe('SET_HIDE_LOW_PRIORITY', function () {
+		it('is disabled by default', function () {
+			const result = reducer(undefined, { type: 'UNKNOWN' });
+			expect(result.hideLowPriority).toBe(false);
+		});
+
+		it('changes the setting', function () {
+			const action = { type: 'SET_HIDE_LOW_PRIORITY', hideLowPriority: true };
+			const result = reducer({ hideLowPriority: false }, action);
+			expect(result.hideLowPriority).toBe(true);
+		});
+	});
+
 	describe('SET_DETECTED_MENTIONS_FILTER_ENABLED', function () {
 		it('is enabled by default', function () {
 			const result = reducer(undefined, { type: 'UNKNOWN' });

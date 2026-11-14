@@ -21,6 +21,7 @@ const persistedKeys: Array<keyof AppReduxState> = [
 	'filterType',
 	'showUnreadOnly',
 	'hideClosed',
+	'hideLowPriority',
 	'isAutoLoadEnabled',
 	'isLogging',
 	'isLowPriorityEnabled',
