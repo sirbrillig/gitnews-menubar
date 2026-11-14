@@ -4,46 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppReduxState, FilterType } from '../types';
 import { setHideClosed, setHideLowPriority } from '../lib/reducer';
 import { getLowPriorityOptions, isNoteLowPriority } from '../lib/helpers';
-
-function getReadableFilterType(filterType: FilterType): string {
-	switch (filterType) {
-		case 'all':
-			return 'All';
-		case 'assign':
-			return 'Assigned';
-		case 'author':
-			return 'Author';
-		case 'ci_activity':
-			return 'CI';
-		case 'comment':
-			return 'Commented';
-		case 'mention':
-			return 'Mentioned';
-		case 'review_requested':
-			return 'Review requested';
-		case 'team_mention':
-			return 'Team mentioned';
-	}
-	return filterType;
-}
-
-function getFilterLabel(
-	filterType: FilterType,
-	hideClosed: boolean,
-	hideLowPriority: boolean
-): string {
-	const parts = [];
-	if (filterType !== 'all') {
-		parts.push(getReadableFilterType(filterType));
-	}
-	if (hideClosed) {
-		parts.push('Open only');
-	}
-	if (hideLowPriority) {
-		parts.push('No low priority');
-	}
-	return parts.join(' · ');
-}
+import { getActiveFilters, getReadableFilterType } from '../lib/active-filters';
 
 export default function FilterButton({
 	filterType,
@@ -83,26 +44,31 @@ export default function FilterButton({
 		dispatch(setHideLowPriority(!hideLowPriority));
 		setFiltersVisible(false);
 	};
-	const isActive = filterType !== 'all' || hideClosed || hideLowPriority;
+	const activeFilterCount = getActiveFilters({
+		filterType,
+		hideClosed,
+		hideLowPriority,
+	}).length;
+	const isActive = activeFilterCount > 0;
 	return (
 		<div
 			className={`filter-button__area${isActive ? ' filter-button__area--active' : ''}`}
 		>
-			{isActive && (
-				<label
-					className="filter-label"
-					htmlFor="filter-menu"
-					onClick={toggleFiltersVisible}
-				>
-					{getFilterLabel(filterType, hideClosed, hideLowPriority)}
-				</label>
-			)}
 			<button
 				className="filter-button"
-				aria-label="Select notification filter"
+				aria-label={
+					isActive
+						? `Select notification filter (${activeFilterCount} active)`
+						: 'Select notification filter'
+				}
 				onClick={toggleFiltersVisible}
 			>
 				<Gridicon icon="filter" />
+				{isActive && (
+					<span className="filter-button__count" aria-hidden="true">
+						{activeFilterCount}
+					</span>
+				)}
 			</button>
 			{isFiltersVisible && (
 				<FilterMenu
@@ -185,16 +151,16 @@ function FilterMenu({
 				</FilterMenuItem>
 			</ul>
 			<ul className="filter-menu__toggles">
-				<FilterMenuItem selected={hideClosed} onClick={toggleHideClosed}>
+				<FilterMenuToggle checked={hideClosed} onClick={toggleHideClosed}>
 					Hide closed
-				</FilterMenuItem>
+				</FilterMenuToggle>
 				{toggleHideLowPriority && (
-					<FilterMenuItem
-						selected={hideLowPriority}
+					<FilterMenuToggle
+						checked={hideLowPriority}
 						onClick={toggleHideLowPriority}
 					>
 						Hide low priority
-					</FilterMenuItem>
+					</FilterMenuToggle>
 				)}
 			</ul>
 		</div>
@@ -214,6 +180,30 @@ function FilterMenuItem({
 		<li onClick={onClick} className={selected ? 'filter-menu__selected' : ''}>
 			<span className="filter-menu__text">{children}</span>
 			<Gridicon className="filter-menu__icon" icon="checkmark" size={24} />
+		</li>
+	);
+}
+
+function FilterMenuToggle({
+	children,
+	checked,
+	onClick,
+}: {
+	children: React.ReactNode;
+	checked: boolean;
+	onClick: () => void;
+}) {
+	return (
+		<li
+			role="menuitemcheckbox"
+			aria-checked={checked}
+			onClick={onClick}
+			className={`filter-menu__toggle${checked ? ' filter-menu__toggle--checked' : ''}`}
+		>
+			<span className="filter-menu__checkbox">
+				{checked && <Gridicon icon="checkmark" size={12} />}
+			</span>
+			<span className="filter-menu__text">{children}</span>
 		</li>
 	);
 }

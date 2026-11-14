@@ -298,13 +298,30 @@ header svg {
 	gap: 8px;
 }
 
-.filter-label {
-	color: #fff;
-	cursor: pointer;
-}
-
 .filter-button__area--active .filter-button svg {
 	fill: var(--filter-button-active-color);
+}
+
+.filter-button {
+	position: relative;
+}
+
+.filter-button__count {
+	position: absolute;
+	top: -4px;
+	right: -6px;
+	min-width: 14px;
+	height: 14px;
+	padding: 0 3px;
+	box-sizing: border-box;
+	border-radius: 7px;
+	background-color: var(--filter-button-active-color);
+	color: #fff;
+	font-size: 9px;
+	font-weight: bold;
+	line-height: 14px;
+	text-align: center;
+	text-decoration: none;
 }
 
 .header__primary a,
@@ -404,6 +421,36 @@ header svg {
 	border-color: #fff;
 	background-color: var(--dropdown-selected-background-color);
 	color: var(--dropdown-selected-text-color);
+}
+
+/*
+ * Toggles can be on together, so they use checkboxes rather than the
+ * highlight used for the single selected filter type.
+ */
+.filter-menu .filter-menu__toggle {
+	justify-content: flex-start;
+	gap: 10px;
+}
+
+.filter-menu__checkbox {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	width: 16px;
+	height: 16px;
+	box-sizing: border-box;
+	border: 1.5px solid currentColor;
+	border-radius: 4px;
+}
+
+.filter-menu__toggle--checked .filter-menu__checkbox {
+	border-color: var(--filter-button-active-color);
+	background-color: var(--filter-button-active-color);
+}
+
+.filter-menu__checkbox svg {
+	fill: #fff;
 }
 
 .filter-menu__selected .filter-menu__icon {
@@ -613,10 +660,80 @@ header h1 {
 	fill: var(--filter-button-active-color);
 }
 
-.search-active-notice {
+/*
+ * Notices about what is hiding notifications stay at the top of the list.
+ * They must stay below the header so that the filter menu covers them.
+ */
+.list-notices {
 	position: sticky;
 	top: 0;
-	z-index: 300;
+	z-index: 50;
+}
+
+.list-notices:empty {
+	display: none;
+}
+
+.active-filters-bar {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 8px;
+	padding: 6px 16px 6px 12px;
+	background-color: var(--main-bg-color);
+	border-bottom: 1px solid var(--notification-border-color);
+	font-size: 0.8em;
+}
+
+.active-filters-bar__chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	min-width: 0;
+}
+
+.active-filters-bar__chip {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	padding: 1px 2px 1px 8px;
+	border: 1px solid var(--filter-button-active-color);
+	border-radius: 999px;
+	white-space: nowrap;
+}
+
+.active-filters-bar__remove {
+	display: flex;
+	padding: 0;
+	border: none;
+	background: none;
+	color: inherit;
+	cursor: pointer;
+}
+
+.active-filters-bar__remove svg {
+	fill: currentColor;
+}
+
+.active-filters-bar__remove:hover svg {
+	fill: var(--filter-button-active-color);
+}
+
+.active-filters-bar__clear {
+	flex-shrink: 0;
+	padding: 2px 0;
+	border: none;
+	background: none;
+	color: inherit;
+	font-size: inherit;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.search-active-notice {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;

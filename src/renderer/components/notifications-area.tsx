@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Notification from '../components/notification';
 import UnsubscribedNotices from '../components/unsubscribed-notice';
 import FeatureTip from '../components/feature-tip';
+import ActiveFiltersBar from '../components/active-filters-bar';
 import {
 	getNoteId,
 	getLowPriorityOptions,
@@ -398,13 +399,16 @@ export default function NotificationsArea({
 
 	return (
 		<div className="notifications-area">
-			{searchValue && (
-				<SearchActiveNotice
-					searchValue={searchValue}
-					hiddenCount={hiddenBySearchCount}
-					clearSearch={clearSearch}
-				/>
-			)}
+			<div className="list-notices">
+				<ActiveFiltersBar />
+				{searchValue && (
+					<SearchActiveNotice
+						searchValue={searchValue}
+						hiddenCount={hiddenBySearchCount}
+						clearSearch={clearSearch}
+					/>
+				)}
+			</div>
 			{newNotes.length === 0 && readNotes.length === 0 && <NoNotifications />}
 			{noteRows}
 			{isMultiOpenMode && <MultiOpenNotice />}
