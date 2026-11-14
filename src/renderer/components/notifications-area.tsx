@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Notification from '../components/notification';
 import UnsubscribedNotices from '../components/unsubscribed-notice';
 import FeatureTip from '../components/feature-tip';
+import ActiveFiltersBar from '../components/active-filters-bar';
 import {
 	getNoteId,
 	getLowPriorityOptions,
@@ -19,7 +20,7 @@ import {
 import { getFeatureTip } from '../lib/feature-tips';
 import { runWithViewTransition } from '../lib/view-transitions';
 import { useGetGitnewsUpdate, UpdateStatus } from '../lib/updates';
-import doesNoteMatchFilter from '../lib/does-note-match-filter';
+import doesNoteMatchFilter, { NoteFilter } from '../lib/does-note-match-filter';
 import {
 	AppReduxState,
 	AppUpdate,
@@ -213,6 +214,19 @@ export default function NotificationsArea({
 	const isDetectedMentionsFilterEnabled = useSelector(
 		(state: AppReduxState) => state.isDetectedMentionsFilterEnabled
 	);
+	const hideClosed = useSelector(
+		(state: AppReduxState) => state.hideClosed ?? false
+	);
+	const hideLowPriority = useSelector(
+		(state: AppReduxState) => state.hideLowPriority ?? false
+	);
+	const noteFilter: NoteFilter = {
+		filterType,
+		includeDetectedMentions: isDetectedMentionsFilterEnabled,
+		hideClosed,
+		hideLowPriority,
+		lowPriorityOptions,
+	};
 
 	const dispatch = useDispatch();
 	const dismissedFeatureTips = useSelector(
@@ -229,13 +243,13 @@ export default function NotificationsArea({
 
 	const isNoteVisible = (note: Note) =>
 		doesNoteMatchSearch(note, searchValue) &&
-		doesNoteMatchFilter(note, filterType, isDetectedMentionsFilterEnabled);
+		doesNoteMatchFilter(note, noteFilter);
 	const visibleUnreadNotes = newNotes.filter(isNoteVisible);
 	const visibleReadNotes = readNotes.filter(isNoteVisible);
 	// Notes that would be shown if the search were cleared.
 	const hiddenBySearchCount = [...newNotes, ...readNotes].filter(
 		(note) =>
-			doesNoteMatchFilter(note, filterType, isDetectedMentionsFilterEnabled) &&
+			doesNoteMatchFilter(note, noteFilter) &&
 			!doesNoteMatchSearch(note, searchValue)
 	).length;
 	const markNotesRead = (notes: Note[]) => {
@@ -385,13 +399,16 @@ export default function NotificationsArea({
 
 	return (
 		<div className="notifications-area">
-			{searchValue && (
-				<SearchActiveNotice
-					searchValue={searchValue}
-					hiddenCount={hiddenBySearchCount}
-					clearSearch={clearSearch}
-				/>
-			)}
+			<div className="list-notices">
+				<ActiveFiltersBar />
+				{searchValue && (
+					<SearchActiveNotice
+						searchValue={searchValue}
+						hiddenCount={hiddenBySearchCount}
+						clearSearch={clearSearch}
+					/>
+				)}
+			</div>
 			{newNotes.length === 0 && readNotes.length === 0 && <NoNotifications />}
 			{noteRows}
 			{isMultiOpenMode && <MultiOpenNotice />}

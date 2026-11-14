@@ -20,6 +20,8 @@ const persistedKeys: Array<keyof AppReduxState> = [
 	'locallyUnreadNotes',
 	'filterType',
 	'showUnreadOnly',
+	'hideClosed',
+	'hideLowPriority',
 	'isAutoLoadEnabled',
 	'isLogging',
 	'isLowPriorityEnabled',

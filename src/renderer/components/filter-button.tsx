@@ -1,28 +1,10 @@
 import React from 'react';
 import Gridicon from 'gridicons';
-import { FilterType } from '../types';
-
-function getReadableFilterType(filterType: FilterType): string {
-	switch (filterType) {
-		case 'all':
-			return 'All';
-		case 'assign':
-			return 'Assigned';
-		case 'author':
-			return 'Author';
-		case 'ci_activity':
-			return 'CI';
-		case 'comment':
-			return 'Commented';
-		case 'mention':
-			return 'Mentioned';
-		case 'review_requested':
-			return 'Review requested';
-		case 'team_mention':
-			return 'Team mentioned';
-	}
-	return filterType;
-}
+import { useDispatch, useSelector } from 'react-redux';
+import { AppReduxState, FilterType } from '../types';
+import { setHideClosed, setHideLowPriority } from '../lib/reducer';
+import { getLowPriorityOptions, isNoteLowPriority } from '../lib/helpers';
+import { getActiveFilters, getReadableFilterType } from '../lib/active-filters';
 
 export default function FilterButton({
 	filterType,
@@ -37,26 +19,70 @@ export default function FilterButton({
 		setFilterType(type);
 		setFiltersVisible(false);
 	};
+	const hideClosed = useSelector(
+		(state: AppReduxState) => state.hideClosed ?? false
+	);
+	const dispatch = useDispatch();
+	const toggleHideClosed = () => {
+		dispatch(setHideClosed(!hideClosed));
+		setFiltersVisible(false);
+	};
+	const hideLowPriority = useSelector(
+		(state: AppReduxState) => state.hideLowPriority ?? false
+	);
+	// Only offer to hide low priority notes when there are some to hide, or
+	// when they are already hidden so that they can be shown again.
+	const hasLowPriorityNotes = useSelector((state: AppReduxState) => {
+		const lowPriorityOptions = getLowPriorityOptions(state);
+		return state.notes.some(
+			(note) =>
+				!state.mutedRepos.includes(note.repositoryFullName) &&
+				isNoteLowPriority(note, lowPriorityOptions)
+		);
+	});
+	const toggleHideLowPriority = () => {
+		dispatch(setHideLowPriority(!hideLowPriority));
+		setFiltersVisible(false);
+	};
+	const activeFilterCount = getActiveFilters({
+		filterType,
+		hideClosed,
+		hideLowPriority,
+	}).length;
+	const isActive = activeFilterCount > 0;
 	return (
-		<div className={`filter-button__area${filterType !== 'all' ? ' filter-button__area--active' : ''}`}>
-			{filterType !== 'all' && (
-				<label
-					className="filter-label"
-					htmlFor="filter-menu"
-					onClick={toggleFiltersVisible}
-				>
-					{getReadableFilterType(filterType)}
-				</label>
-			)}
+		<div
+			className={`filter-button__area${isActive ? ' filter-button__area--active' : ''}`}
+		>
 			<button
 				className="filter-button"
-				aria-label="Select notification filter"
+				aria-label={
+					isActive
+						? `Select notification filter (${activeFilterCount} active)`
+						: 'Select notification filter'
+				}
 				onClick={toggleFiltersVisible}
 			>
 				<Gridicon icon="filter" />
+				{isActive && (
+					<span className="filter-button__count" aria-hidden="true">
+						{activeFilterCount}
+					</span>
+				)}
 			</button>
 			{isFiltersVisible && (
-				<FilterMenu filterType={filterType} setFilterType={setFilter} />
+				<FilterMenu
+					filterType={filterType}
+					setFilterType={setFilter}
+					hideClosed={hideClosed}
+					toggleHideClosed={toggleHideClosed}
+					hideLowPriority={hideLowPriority}
+					toggleHideLowPriority={
+						hideLowPriority || hasLowPriorityNotes
+							? toggleHideLowPriority
+							: undefined
+					}
+				/>
 			)}
 		</div>
 	);
@@ -65,9 +91,17 @@ export default function FilterButton({
 function FilterMenu({
 	filterType,
 	setFilterType,
+	hideClosed,
+	toggleHideClosed,
+	hideLowPriority,
+	toggleHideLowPriority,
 }: {
 	filterType: FilterType;
 	setFilterType: (type: FilterType) => void;
+	hideClosed: boolean;
+	toggleHideClosed: () => void;
+	hideLowPriority: boolean;
+	toggleHideLowPriority?: () => void;
 }) {
 	return (
 		<div className="filter-menu" id="filter-menu">
@@ -116,6 +150,19 @@ function FilterMenu({
 					{getReadableFilterType('team_mention')}
 				</FilterMenuItem>
 			</ul>
+			<ul className="filter-menu__toggles">
+				<FilterMenuToggle checked={hideClosed} onClick={toggleHideClosed}>
+					Hide closed
+				</FilterMenuToggle>
+				{toggleHideLowPriority && (
+					<FilterMenuToggle
+						checked={hideLowPriority}
+						onClick={toggleHideLowPriority}
+					>
+						Hide low priority
+					</FilterMenuToggle>
+				)}
+			</ul>
 		</div>
 	);
 }
@@ -133,6 +180,30 @@ function FilterMenuItem({
 		<li onClick={onClick} className={selected ? 'filter-menu__selected' : ''}>
 			<span className="filter-menu__text">{children}</span>
 			<Gridicon className="filter-menu__icon" icon="checkmark" size={24} />
+		</li>
+	);
+}
+
+function FilterMenuToggle({
+	children,
+	checked,
+	onClick,
+}: {
+	children: React.ReactNode;
+	checked: boolean;
+	onClick: () => void;
+}) {
+	return (
+		<li
+			role="menuitemcheckbox"
+			aria-checked={checked}
+			onClick={onClick}
+			className={`filter-menu__toggle${checked ? ' filter-menu__toggle--checked' : ''}`}
+		>
+			<span className="filter-menu__checkbox">
+				{checked && <Gridicon icon="checkmark" size={12} />}
+			</span>
+			<span className="filter-menu__text">{children}</span>
 		</li>
 	);
 }

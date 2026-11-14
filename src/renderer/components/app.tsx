@@ -36,7 +36,7 @@ import {
 	setShowUnreadOnly,
 } from '../lib/reducer';
 import SearchNotifications from './search-notifications';
-import doesNoteMatchFilter from '../lib/does-note-match-filter';
+import doesNoteMatchFilter, { NoteFilter } from '../lib/does-note-match-filter';
 import {
 	Note,
 	AppReduxState,
@@ -70,6 +70,8 @@ interface AppConnectedProps {
 	isAutoLoadEnabled: boolean;
 	filterType: FilterType;
 	isDetectedMentionsFilterEnabled: boolean;
+	hideClosed: boolean;
+	hideLowPriority: boolean;
 	appVisible: boolean;
 	isLogging: boolean;
 	isTokenInvalid: boolean;
@@ -196,28 +198,26 @@ class App extends React.Component<AppProps, AppState> {
 		accountsWithFetchErrors,
 		unseenNotes,
 		unreadNotes,
-		filterType,
-		isDetectedMentionsFilterEnabled,
+		noteFilter,
 	}: {
 		offline: boolean;
 		errors: string[];
 		accountsWithFetchErrors: string[];
 		unseenNotes: Note[];
 		unreadNotes: Note[];
-		filterType: FilterType;
-		isDetectedMentionsFilterEnabled: boolean;
+		noteFilter: NoteFilter;
 	}) {
 		if (errors.length || accountsWithFetchErrors.length) {
 			return 'error';
 		}
 		const unseenNotesFiltered = unseenNotes.filter((note) =>
-			doesNoteMatchFilter(note, filterType, isDetectedMentionsFilterEnabled)
+			doesNoteMatchFilter(note, noteFilter)
 		);
 		if (unseenNotesFiltered.length) {
 			return 'unseen';
 		}
 		const unreadNotesFiltered = unreadNotes.filter((note) =>
-			doesNoteMatchFilter(note, filterType, isDetectedMentionsFilterEnabled)
+			doesNoteMatchFilter(note, noteFilter)
 		);
 		if (unreadNotesFiltered.length) {
 			return 'unread';
@@ -255,9 +255,13 @@ class App extends React.Component<AppProps, AppState> {
 			accountsWithFetchErrors,
 			unseenNotes,
 			unreadNotes: newNotes,
-			filterType: this.props.filterType,
-			isDetectedMentionsFilterEnabled:
-				this.props.isDetectedMentionsFilterEnabled,
+			noteFilter: {
+				filterType: this.props.filterType,
+				includeDetectedMentions: this.props.isDetectedMentionsFilterEnabled,
+				hideClosed: this.props.hideClosed,
+				hideLowPriority: this.props.hideLowPriority,
+				lowPriorityOptions: getLowPriorityOptions(this.props),
+			},
 		});
 
 		debug('sending set-icon', nextIcon);
@@ -382,6 +386,8 @@ function mapStateToProps(state: AppReduxState): AppConnectedProps {
 		isAutoLoadEnabled: state.isAutoLoadEnabled,
 		filterType: state.filterType,
 		isDetectedMentionsFilterEnabled: state.isDetectedMentionsFilterEnabled,
+		hideClosed: state.hideClosed ?? false,
+		hideLowPriority: state.hideLowPriority ?? false,
 		appVisible: state.appVisible,
 		isLogging: state.isLogging,
 		isTokenInvalid: state.isTokenInvalid,
