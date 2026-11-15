@@ -25,7 +25,6 @@ import {
 	setPublicAvatarMatchEnabled,
 } from './lib/main-store';
 import { getIconForState } from './lib/icon-path';
-import { version } from '../../package.json';
 import unhandled from 'electron-unhandled';
 import debugFactory from 'debug';
 import AutoLaunch from 'easy-auto-launch';
@@ -60,7 +59,7 @@ dotEnv.config();
 
 const debug = debugFactory('gitnews-menubar');
 
-debug('initializing version', version);
+debug('initializing version', app.getVersion());
 
 // Catch unhandled Promise rejections
 unhandled();
@@ -298,7 +297,7 @@ ipcMain.handle('is-auto-launch:get', async () => {
 });
 
 ipcMain.handle('version:get', async () => {
-	return version;
+	return app.getVersion();
 });
 
 ipcMain.handle('is-demo-mode:get', async () => {
