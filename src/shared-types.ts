@@ -22,7 +22,7 @@ export type ReviewState = 'APPROVED' | 'CHANGES_REQUESTED' | 'COMMENTED';
  * Increase this when hydrated notes get new data so that notes cached by an
  * older version are hydrated again.
  */
-export const NOTE_HYDRATION_VERSION = 6;
+export const NOTE_HYDRATION_VERSION = 7;
 
 /**
  * Activity on a pull request's timeline that caused a notification but is not
@@ -132,6 +132,12 @@ export interface Note {
 	gitnewsMarkedUnread?: boolean;
 	gitnewsSeen?: boolean;
 	gitnewsIsInvalid?: boolean;
+
+	/**
+	 * Set if some of the note's details could not be fetched so that it is
+	 * hydrated again on the next fetch rather than reused from the cache.
+	 */
+	gitnewsHydrationFailed?: boolean;
 
 	/**
 	 * Number of milliseconds since the epoc (what Date.now() returns).

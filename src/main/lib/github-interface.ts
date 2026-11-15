@@ -209,6 +209,7 @@ interface CommentData {
 	reviewState?: ReviewState;
 	reviewComments?: ReviewCommentsInfo;
 	timelineActivity?: TimelineActivityInfo;
+	failed?: boolean;
 }
 
 // The login of the user who owns each account's token, keyed by account.
@@ -416,6 +417,14 @@ async function getCommentDataForNotification(
 			`Failed to fetch comment for ${commentPath} (${notification.subject.latest_comment_url ?? notification.subject.url})`,
 			'error'
 		);
+		return {
+			commentAvatar,
+			commentHtmlUrl,
+			commentUsername,
+			commentMentionsViewer,
+			commentExcerpt,
+			failed: true,
+		};
 	}
 	return {
 		commentAvatar,
@@ -991,6 +1000,7 @@ function buildNoteFromData({
 		subjectAuthorLogin: subjectData.subjectAuthorLogin,
 		subjectAuthorAvatar: subjectData.subjectAuthorAvatar,
 		gitnewsIsInvalid: subjectData.failed === true,
+		gitnewsHydrationFailed: commentData.failed === true || undefined,
 		latestCommentMentionsYou: commentData.commentMentionsViewer,
 		mentionFoundSince,
 		authoredByYou: Boolean(

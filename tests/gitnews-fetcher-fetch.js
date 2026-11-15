@@ -427,6 +427,22 @@ describe('createFetcher() — two-phase fetch', function () {
 			).toHaveBeenCalledWith(TEST_ACCOUNT, [basicNote]);
 		});
 
+		it('re-enriches a note whose details could not all be fetched', async function () {
+			const basicNote = makeBasicNote({ updatedAt: '2024-01-01T00:00:00Z' });
+			const existingNote = makeHydratedNote(basicNote, {
+				gitnewsHydrationFailed: true,
+			});
+			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue([
+				basicNote,
+			]);
+			const { dispatch } = makeMiddleware(makeState({ notes: [existingNote] }));
+			dispatch({ type: 'GITNEWS_FETCH_NOTIFICATIONS' });
+			await flushPromises();
+			expect(
+				window.electronApi.enrichNotificationsForAccount
+			).toHaveBeenCalledWith(TEST_ACCOUNT, [basicNote]);
+		});
+
 		it('re-enriches a cached note hydrated by an older version', async function () {
 			const basicNote = makeBasicNote({ updatedAt: '2024-01-01T00:00:00Z' });
 			const existingNote = makeHydratedNote(basicNote, {
