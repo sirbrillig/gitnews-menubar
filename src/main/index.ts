@@ -61,6 +61,18 @@ const debug = debugFactory('gitnews-menubar');
 
 debug('initializing version', app.getVersion());
 
+// When the parent process (e.g. `electron-forge start`) exits, writes to
+// stdout/stderr fail with EPIPE. Quit instead of looping on error dialogs.
+function handleBrokenPipe(err: NodeJS.ErrnoException) {
+	if (err.code === 'EPIPE') {
+		app.exit(0);
+		return;
+	}
+	throw err;
+}
+process.stdout.on('error', handleBrokenPipe);
+process.stderr.on('error', handleBrokenPipe);
+
 // Catch unhandled Promise rejections
 unhandled();
 
