@@ -58,6 +58,10 @@ const bridge: MainBridge = {
 	isBetaUpdatesEnabled: () => ipcRenderer.invoke('beta-updates:get'),
 	setBetaUpdatesEnabled: (isEnabled: boolean) =>
 		ipcRenderer.invoke('beta-updates:set', isEnabled),
+	isPublicAvatarMatchEnabled: () =>
+		ipcRenderer.invoke('public-avatar-match:get'),
+	setPublicAvatarMatchEnabled: (isEnabled: boolean) =>
+		ipcRenderer.invoke('public-avatar-match:set', isEnabled),
 };
 
 contextBridge.exposeInMainWorld('electronApi', bridge);

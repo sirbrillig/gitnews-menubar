@@ -368,14 +368,14 @@ export default function Notification({
 						<span className="notification__avatar-stack">
 							<ImageWithBackup
 								src={note.subjectAuthorAvatar ?? defaultAvatar}
-								fallbackSrc={note.subjectAuthorAvatarFallback}
+								fallbackSrcs={note.subjectAuthorAvatarFallbacks}
 								username={note.subjectAuthorLogin}
 								title={`Author: ${note.subjectAuthorLogin}`}
 								showUsername={false}
 							/>
 							<ImageWithBackup
 								src={avatarSrc}
-								fallbackSrc={note.commentAvatarFallback}
+								fallbackSrcs={note.commentAvatarFallbacks}
 								username={note.commentUsername}
 								title={`Latest activity: ${note.commentUsername}`}
 								showUsername={false}
@@ -395,7 +395,7 @@ export default function Notification({
 					) : (
 						<ImageWithBackup
 							src={avatarSrc}
-							fallbackSrc={note.commentAvatarFallback}
+							fallbackSrcs={note.commentAvatarFallbacks}
 							username={note.commentUsername}
 						/>
 					)}

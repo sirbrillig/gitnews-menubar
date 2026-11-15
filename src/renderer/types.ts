@@ -373,6 +373,8 @@ export interface MainBridge {
 	installAppUpdate: () => void;
 	isBetaUpdatesEnabled: () => Promise<boolean>;
 	setBetaUpdatesEnabled: (isEnabled: boolean) => Promise<void>;
+	isPublicAvatarMatchEnabled: () => Promise<boolean>;
+	setPublicAvatarMatchEnabled: (isEnabled: boolean) => Promise<void>;
 }
 
 export type UnknownFetchError = FetchErrorObject | string;

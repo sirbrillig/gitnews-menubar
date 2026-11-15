@@ -5,6 +5,7 @@ import { logMessage } from './logging';
 import { doesTextMentionUser } from './mentions';
 import { getPlainTextExcerpt } from './excerpt';
 import { getGravatarUrl } from './gravatar';
+import { doDisplayNamesMatch } from './public-avatar';
 import {
 	doesActivityExplainUpdate,
 	findReviewForUpdate,
@@ -94,6 +95,14 @@ function createOctokit(account: AccountInfo) {
 		});
 	}
 	return new Octokit(options);
+}
+
+/**
+ * Return true if the account is for github.com rather than a GitHub Enterprise
+ * Server.
+ */
+export function isPublicGithubAccount(account: AccountInfo): boolean {
+	return getBaseUrlForServer(account) === undefined;
 }
 
 function getBaseUrlForServer(account: AccountInfo): string | undefined {
@@ -248,38 +257,48 @@ async function getViewerLogin(
 	return undefined;
 }
 
-// The Gravatar URL for each user on an account, or null if the user has no
-// public email, keyed by account and login.
-const gravatarUrls = new Map<string, string | null>();
+interface UserProfile {
+	name?: string;
+	email?: string;
+	avatarUrl?: string;
+}
+
+// Each user's profile on an account, or null if the user does not exist, keyed
+// by account and login.
+const userProfiles = new Map<string, UserProfile | null>();
 
 /**
- * Return a Gravatar URL for a user based on their public email, or undefined
- * if they have none or it cannot be fetched.
- *
- * Avatars on GitHub Enterprise Servers may require a browser session to load
- * (see https://github.com/sirbrillig/gitnews-menubar/issues/191), so this
- * offers an alternative image that does not.
+ * Return a user's profile, null if the user does not exist, or undefined if it
+ * cannot be fetched.
  */
-async function getGravatarUrlForUser(
+async function getUserProfile(
 	octokit: Octokit,
 	account: AccountInfo,
 	login: string
-): Promise<string | undefined> {
+): Promise<UserProfile | null | undefined> {
 	const cacheKey = [getViewerLoginCacheKey(account), login].join('|');
-	const cached = gravatarUrls.get(cacheKey);
+	const cached = userProfiles.get(cacheKey);
 	if (cached !== undefined) {
-		return cached ?? undefined;
+		return cached;
 	}
 	try {
 		const response = await octokit.request('GET /users/{username}', {
 			username: login,
 		});
-		const url = getGravatarUrl(response.data?.email);
-		gravatarUrls.set(cacheKey, url ?? null);
-		return url;
+		const profile: UserProfile = {
+			name: response.data?.name ?? undefined,
+			email: response.data?.email ?? undefined,
+			avatarUrl: response.data?.avatar_url ?? undefined,
+		};
+		userProfiles.set(cacheKey, profile);
+		return profile;
 	} catch (error) {
+		if ((error as { status?: number }).status === 404) {
+			userProfiles.set(cacheKey, null);
+			return null;
+		}
 		logMessage(
-			`Failed to fetch email for user ${login} in account ${account.name} (${account.id})`,
+			`Failed to fetch profile for user ${login} in account ${account.name} (${account.id})`,
 			'warn'
 		);
 	}
@@ -287,12 +306,51 @@ async function getGravatarUrlForUser(
 }
 
 /**
- * Add Gravatar fallback avatars to notes from GitHub Enterprise Servers.
+ * Return alternative avatar URLs to try for a GitHub Enterprise Server user, in
+ * order of preference.
+ *
+ * Avatars on GitHub Enterprise Servers may require a browser session to load
+ * (see https://github.com/sirbrillig/gitnews-menubar/issues/191), so these
+ * offer images that do not: the user's Gravatar, then the avatar of the
+ * github.com user with the same login and display name, if a github.com
+ * account is available to look them up.
  */
-async function addGravatarFallbacks(
+async function getAvatarFallbacksForUser(
 	octokit: Octokit,
 	account: AccountInfo,
-	notes: Note[]
+	login: string,
+	publicAccount: AccountInfo | undefined
+): Promise<string[]> {
+	const fallbacks: string[] = [];
+	const profile = await getUserProfile(octokit, account, login);
+	const gravatarUrl = getGravatarUrl(profile?.email);
+	if (gravatarUrl) {
+		fallbacks.push(gravatarUrl);
+	}
+	if (publicAccount && profile?.name) {
+		const publicProfile = await getUserProfile(
+			createOctokit(publicAccount),
+			publicAccount,
+			login
+		);
+		if (
+			publicProfile?.avatarUrl &&
+			doDisplayNamesMatch(profile.name, publicProfile.name)
+		) {
+			fallbacks.push(publicProfile.avatarUrl);
+		}
+	}
+	return fallbacks;
+}
+
+/**
+ * Add fallback avatars to notes from GitHub Enterprise Servers.
+ */
+async function addAvatarFallbacks(
+	octokit: Octokit,
+	account: AccountInfo,
+	notes: Note[],
+	publicAccount: AccountInfo | undefined
 ): Promise<void> {
 	if (!getBaseUrlForServer(account)) {
 		return;
@@ -306,16 +364,21 @@ async function addGravatarFallbacks(
 			logins.add(note.subjectAuthorLogin);
 		}
 	}
-	const urls = new Map<string, string | undefined>();
+	const fallbacksByLogin = new Map<string, string[]>();
 	await Promise.all(
 		[...logins].map(async (login) => {
-			urls.set(login, await getGravatarUrlForUser(octokit, account, login));
+			fallbacksByLogin.set(
+				login,
+				await getAvatarFallbacksForUser(octokit, account, login, publicAccount)
+			);
 		})
 	);
 	for (const note of notes) {
-		note.commentAvatarFallback = urls.get(note.commentUsername);
+		note.commentAvatarFallbacks = fallbacksByLogin.get(note.commentUsername);
 		if (note.subjectAuthorLogin) {
-			note.subjectAuthorAvatarFallback = urls.get(note.subjectAuthorLogin);
+			note.subjectAuthorAvatarFallbacks = fallbacksByLogin.get(
+				note.subjectAuthorLogin
+			);
 		}
 	}
 }
@@ -1159,9 +1222,16 @@ export async function listBasicNotificationsForAccount(
 	return combined.map((n) => buildBasicNoteFromRaw(account, n));
 }
 
+/**
+ * Fetch the details for each notification.
+ *
+ * If `publicAccount` is a github.com account, it is used to find github.com
+ * avatars for users of a GitHub Enterprise Server.
+ */
 export async function enrichNotificationsForAccount(
 	account: AccountInfo,
-	basicNotes: BasicNote[]
+	basicNotes: BasicNote[],
+	publicAccount?: AccountInfo
 ): Promise<Note[]> {
 	const octokit = createOctokit(account);
 	const notes: Note[] = [];
@@ -1265,6 +1335,6 @@ export async function enrichNotificationsForAccount(
 	await Promise.all(promises).catch((err) => {
 		throw err;
 	});
-	await addGravatarFallbacks(octokit, account, notes);
+	await addAvatarFallbacks(octokit, account, notes, publicAccount);
 	return notes;
 }

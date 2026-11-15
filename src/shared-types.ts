@@ -22,7 +22,7 @@ export type ReviewState = 'APPROVED' | 'CHANGES_REQUESTED' | 'COMMENTED';
  * Increase this when hydrated notes get new data so that notes cached by an
  * older version are hydrated again.
  */
-export const NOTE_HYDRATION_VERSION = 7;
+export const NOTE_HYDRATION_VERSION = 8;
 
 /**
  * Activity on a pull request's timeline that caused a notification but is not
@@ -207,10 +207,10 @@ export interface Note {
 	repositoryOwnerAvatar?: string;
 
 	/**
-	 * A Gravatar URL to try if `commentAvatar` fails to load, which can happen
-	 * on GitHub Enterprise Servers.
+	 * Avatar URLs to try in order if `commentAvatar` fails to load, which can
+	 * happen on GitHub Enterprise Servers.
 	 */
-	commentAvatarFallback?: string;
+	commentAvatarFallbacks?: string[];
 
 	commentUsername: string;
 
@@ -220,7 +220,7 @@ export interface Note {
 	 */
 	subjectAuthorLogin?: string;
 	subjectAuthorAvatar?: string;
-	subjectAuthorAvatarFallback?: string;
+	subjectAuthorAvatarFallbacks?: string[];
 
 	/**
 	 * A short plain-text excerpt of the latest comment (or the issue/PR

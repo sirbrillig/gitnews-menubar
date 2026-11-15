@@ -21,6 +21,8 @@ import {
 	removeAppStateItem,
 	isBetaUpdatesEnabled,
 	setBetaUpdatesEnabled,
+	isPublicAvatarMatchEnabled,
+	setPublicAvatarMatchEnabled,
 } from './lib/main-store';
 import { getIconForState } from './lib/icon-path';
 import { version } from '../../package.json';
@@ -34,6 +36,7 @@ import {
 	markNotficationAsRead,
 	unsubscribeFromNotification,
 	resubscribeToNotification,
+	isPublicGithubAccount,
 } from './lib/github-interface';
 import { logMessage } from './lib/logging';
 import {
@@ -311,6 +314,18 @@ ipcMain.handle('beta-updates:set', async (_event, isEnabled: unknown) => {
 	setBetaUpdatesEnabled(Boolean(isEnabled));
 });
 
+ipcMain.handle('public-avatar-match:get', async () => {
+	return isPublicAvatarMatchEnabled();
+});
+
+ipcMain.handle(
+	'public-avatar-match:set',
+	async (_event, isEnabled: unknown) => {
+		logMessage(`Public avatar matching changed to ${isEnabled}`, 'info');
+		setPublicAvatarMatchEnabled(Boolean(isEnabled));
+	}
+);
+
 ipcMain.handle('app-update:check', async () => {
 	try {
 		return await checkForAppUpdate(isBetaUpdatesEnabled());
@@ -359,7 +374,14 @@ ipcMain.handle(
 	'notifications-for-account:enrich',
 	async (_event, account: AccountInfo, basicNotes: BasicNote[]) => {
 		try {
-			return await enrichNotificationsForAccount(account, basicNotes);
+			const publicAccount = isPublicAvatarMatchEnabled()
+				? getAccounts().find(isPublicGithubAccount)
+				: undefined;
+			return await enrichNotificationsForAccount(
+				account,
+				basicNotes,
+				publicAccount
+			);
 		} catch (error) {
 			logMessage(
 				`Failure while enriching notifications for account ${account.name} (${account.serverUrl})`,
