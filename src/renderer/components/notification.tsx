@@ -368,12 +368,14 @@ export default function Notification({
 						<span className="notification__avatar-stack">
 							<ImageWithBackup
 								src={note.subjectAuthorAvatar ?? defaultAvatar}
+								fallbackSrcs={note.subjectAuthorAvatarFallbacks}
 								username={note.subjectAuthorLogin}
 								title={`Author: ${note.subjectAuthorLogin}`}
 								showUsername={false}
 							/>
 							<ImageWithBackup
 								src={avatarSrc}
+								fallbackSrcs={note.commentAvatarFallbacks}
 								username={note.commentUsername}
 								title={`Latest activity: ${note.commentUsername}`}
 								showUsername={false}
@@ -391,7 +393,11 @@ export default function Notification({
 							</span>
 						</span>
 					) : (
-						<ImageWithBackup src={avatarSrc} username={note.commentUsername} />
+						<ImageWithBackup
+							src={avatarSrc}
+							fallbackSrcs={note.commentAvatarFallbacks}
+							username={note.commentUsername}
+						/>
 					)}
 					{isMention && (
 						<span

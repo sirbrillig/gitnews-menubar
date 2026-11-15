@@ -45,20 +45,25 @@ function generateAvatar(name: string) {
 
 export function ImageWithBackup({
 	src,
+	fallbackSrcs = [],
 	username,
 	title,
 	showUsername = true,
 }: {
 	src: string;
+	fallbackSrcs?: string[];
 	username: string;
 	title?: string;
 	showUsername?: boolean;
 }) {
-	const [didImageFail, setDidImageFail] = React.useState<boolean>(false);
+	// Try `src`, then each of `fallbackSrcs`, then a generated avatar.
+	const sources = [src, ...fallbackSrcs];
+	const [failedCount, setFailedCount] = React.useState<number>(0);
+	const didImageFail = failedCount >= sources.length;
 	const onError = () => {
-		setDidImageFail(true);
+		setFailedCount((count) => count + 1);
 	};
-	const imgSrc = didImageFail ? generateAvatar(username) : src;
+	const imgSrc = didImageFail ? generateAvatar(username) : sources[failedCount];
 	return (
 		<span className="image-with-backup__wrapper">
 			<img

@@ -22,7 +22,7 @@ export type ReviewState = 'APPROVED' | 'CHANGES_REQUESTED' | 'COMMENTED';
  * Increase this when hydrated notes get new data so that notes cached by an
  * older version are hydrated again.
  */
-export const NOTE_HYDRATION_VERSION = 5;
+export const NOTE_HYDRATION_VERSION = 8;
 
 /**
  * Activity on a pull request's timeline that caused a notification but is not
@@ -134,6 +134,12 @@ export interface Note {
 	gitnewsIsInvalid?: boolean;
 
 	/**
+	 * Set if some of the note's details could not be fetched so that it is
+	 * hydrated again on the next fetch rather than reused from the cache.
+	 */
+	gitnewsHydrationFailed?: boolean;
+
+	/**
 	 * Number of milliseconds since the epoc (what Date.now() returns).
 	 */
 	gitnewsSeenAt?: number;
@@ -200,6 +206,12 @@ export interface Note {
 	commentAvatar?: string;
 	repositoryOwnerAvatar?: string;
 
+	/**
+	 * Avatar URLs to try in order if `commentAvatar` fails to load, which can
+	 * happen on GitHub Enterprise Servers.
+	 */
+	commentAvatarFallbacks?: string[];
+
 	commentUsername: string;
 
 	/**
@@ -208,6 +220,7 @@ export interface Note {
 	 */
 	subjectAuthorLogin?: string;
 	subjectAuthorAvatar?: string;
+	subjectAuthorAvatarFallbacks?: string[];
 
 	/**
 	 * A short plain-text excerpt of the latest comment (or the issue/PR

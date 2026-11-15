@@ -57,6 +57,8 @@ export default function ListSettingsPage({
 	const toggleDetectedMentionsFilter = (event: {
 		target: { checked: boolean };
 	}) => dispatch(setDetectedMentionsFilterEnabled(event.target.checked));
+	const [isPublicAvatarMatchEnabled, togglePublicAvatarMatch] =
+		usePublicAvatarMatchSetting();
 	const hasDismissedTips = useSelector(
 		(state: AppReduxState) => (state.dismissedFeatureTips ?? []).length > 0
 	);
@@ -141,6 +143,26 @@ export default function ListSettingsPage({
 							))}
 						</select>
 					</li>
+					<li className="config-row config-row--toggle">
+						<div>
+							<label htmlFor="public-avatar-match-setting">
+								Use github.com avatars for Enterprise users
+							</label>
+							<p className="config-row__hint">
+								If an Enterprise avatar cannot load, show the avatar of the
+								github.com user with the same username and display name. Needs a
+								github.com account.
+							</p>
+						</div>
+						<input
+							type="checkbox"
+							id="public-avatar-match-setting"
+							checked={isPublicAvatarMatchEnabled}
+							onChange={(event) =>
+								togglePublicAvatarMatch(event.target.checked)
+							}
+						/>
+					</li>
 					<li className="config-row config-row--nav">
 						<button
 							className="edit-low-priority-titles-button"
@@ -177,4 +199,19 @@ export default function ListSettingsPage({
 			</div>
 		</div>
 	);
+}
+
+function usePublicAvatarMatchSetting(): [
+	boolean,
+	(isEnabled: boolean) => void,
+] {
+	const [isEnabled, setIsEnabled] = React.useState(true);
+	React.useEffect(() => {
+		window.electronApi.isPublicAvatarMatchEnabled().then(setIsEnabled);
+	}, []);
+	const toggle = React.useCallback((newValue: boolean) => {
+		setIsEnabled(newValue);
+		window.electronApi.setPublicAvatarMatchEnabled(newValue);
+	}, []);
+	return [isEnabled, toggle];
 }

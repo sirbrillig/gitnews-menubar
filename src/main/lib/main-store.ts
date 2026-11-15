@@ -11,6 +11,7 @@ interface StoreSchema {
 	'gitnews-token': string;
 	'is-logging-enabled': boolean;
 	'is-beta-updates-enabled': boolean;
+	'is-public-avatar-match-enabled': boolean;
 }
 
 const store = new Store<StoreSchema>({
@@ -19,6 +20,7 @@ const store = new Store<StoreSchema>({
 		'gitnews-token': '',
 		'is-logging-enabled': false,
 		'is-beta-updates-enabled': false,
+		'is-public-avatar-match-enabled': true,
 	},
 });
 
@@ -40,6 +42,14 @@ export function isBetaUpdatesEnabled(): boolean {
 
 export function setBetaUpdatesEnabled(isEnabled: boolean): void {
 	store.set('is-beta-updates-enabled', isEnabled);
+}
+
+export function isPublicAvatarMatchEnabled(): boolean {
+	return store.get('is-public-avatar-match-enabled');
+}
+
+export function setPublicAvatarMatchEnabled(isEnabled: boolean): void {
+	store.set('is-public-avatar-match-enabled', isEnabled);
 }
 
 export function getAccounts(): AccountInfo[] {

@@ -255,6 +255,7 @@ export function createFetcher(): Middleware<unknown, AppReduxState> {
 						existing &&
 						existing.updatedAt === basicNote.updatedAt &&
 						!existing.gitnewsIsInvalid &&
+						!existing.gitnewsHydrationFailed &&
 						(existing.subjectUrl || existing.commentUrl) &&
 						// Notes cached by an older version need one re-hydration.
 						existing.gitnewsHydrationVersion === NOTE_HYDRATION_VERSION

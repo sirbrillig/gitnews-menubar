@@ -219,6 +219,7 @@ button {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	gap: 10px;
 	padding: 8px 10px;
 	font-size: inherit;
 }
@@ -229,10 +230,11 @@ button {
 
 .config-row--toggle input[type='checkbox'] {
 	margin: 0;
+	flex-shrink: 0;
 }
 
 .config-row--toggle select {
-	margin: 0 0 0 10px;
+	margin: 0;
 	flex-shrink: 0;
 }
 

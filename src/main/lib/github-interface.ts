@@ -4,6 +4,8 @@ import { socksDispatcher } from 'fetch-socks';
 import { logMessage } from './logging';
 import { doesTextMentionUser } from './mentions';
 import { getPlainTextExcerpt } from './excerpt';
+import { getGravatarUrl } from './gravatar';
+import { doDisplayNamesMatch } from './public-avatar';
 import {
 	doesActivityExplainUpdate,
 	findReviewForUpdate,
@@ -93,6 +95,14 @@ function createOctokit(account: AccountInfo) {
 		});
 	}
 	return new Octokit(options);
+}
+
+/**
+ * Return true if the account is for github.com rather than a GitHub Enterprise
+ * Server.
+ */
+export function isPublicGithubAccount(account: AccountInfo): boolean {
+	return getBaseUrlForServer(account) === undefined;
 }
 
 function getBaseUrlForServer(account: AccountInfo): string | undefined {
@@ -208,6 +218,7 @@ interface CommentData {
 	reviewState?: ReviewState;
 	reviewComments?: ReviewCommentsInfo;
 	timelineActivity?: TimelineActivityInfo;
+	failed?: boolean;
 }
 
 // The login of the user who owns each account's token, keyed by account.
@@ -244,6 +255,132 @@ async function getViewerLogin(
 		);
 	}
 	return undefined;
+}
+
+interface UserProfile {
+	name?: string;
+	email?: string;
+	avatarUrl?: string;
+}
+
+// Each user's profile on an account, or null if the user does not exist, keyed
+// by account and login.
+const userProfiles = new Map<string, UserProfile | null>();
+
+/**
+ * Return a user's profile, null if the user does not exist, or undefined if it
+ * cannot be fetched.
+ */
+async function getUserProfile(
+	octokit: Octokit,
+	account: AccountInfo,
+	login: string
+): Promise<UserProfile | null | undefined> {
+	const cacheKey = [getViewerLoginCacheKey(account), login].join('|');
+	const cached = userProfiles.get(cacheKey);
+	if (cached !== undefined) {
+		return cached;
+	}
+	try {
+		const response = await octokit.request('GET /users/{username}', {
+			username: login,
+		});
+		const profile: UserProfile = {
+			name: response.data?.name ?? undefined,
+			email: response.data?.email ?? undefined,
+			avatarUrl: response.data?.avatar_url ?? undefined,
+		};
+		userProfiles.set(cacheKey, profile);
+		return profile;
+	} catch (error) {
+		if ((error as { status?: number }).status === 404) {
+			userProfiles.set(cacheKey, null);
+			return null;
+		}
+		logMessage(
+			`Failed to fetch profile for user ${login} in account ${account.name} (${account.id})`,
+			'warn'
+		);
+	}
+	return undefined;
+}
+
+/**
+ * Return alternative avatar URLs to try for a GitHub Enterprise Server user, in
+ * order of preference.
+ *
+ * Avatars on GitHub Enterprise Servers may require a browser session to load
+ * (see https://github.com/sirbrillig/gitnews-menubar/issues/191), so these
+ * offer images that do not: the user's Gravatar, then the avatar of the
+ * github.com user with the same login and display name, if a github.com
+ * account is available to look them up.
+ */
+async function getAvatarFallbacksForUser(
+	octokit: Octokit,
+	account: AccountInfo,
+	login: string,
+	publicAccount: AccountInfo | undefined
+): Promise<string[]> {
+	const fallbacks: string[] = [];
+	const profile = await getUserProfile(octokit, account, login);
+	const gravatarUrl = getGravatarUrl(profile?.email);
+	if (gravatarUrl) {
+		fallbacks.push(gravatarUrl);
+	}
+	if (publicAccount && profile?.name) {
+		const publicProfile = await getUserProfile(
+			createOctokit(publicAccount),
+			publicAccount,
+			login
+		);
+		if (
+			publicProfile?.avatarUrl &&
+			doDisplayNamesMatch(profile.name, publicProfile.name)
+		) {
+			fallbacks.push(publicProfile.avatarUrl);
+		}
+	}
+	return fallbacks;
+}
+
+/**
+ * Add fallback avatars to notes from GitHub Enterprise Servers.
+ */
+async function addAvatarFallbacks(
+	octokit: Octokit,
+	account: AccountInfo,
+	notes: Note[],
+	publicAccount: AccountInfo | undefined
+): Promise<void> {
+	if (!getBaseUrlForServer(account)) {
+		return;
+	}
+	const logins = new Set<string>();
+	for (const note of notes) {
+		if (note.commentUsername) {
+			logins.add(note.commentUsername);
+		}
+		if (note.subjectAuthorLogin) {
+			logins.add(note.subjectAuthorLogin);
+		}
+	}
+	const fallbacksByLogin = new Map<string, string[]>();
+	await Promise.all(
+		[...logins].map(async (login) => {
+			fallbacksByLogin.set(
+				login,
+				await getAvatarFallbacksForUser(octokit, account, login, publicAccount)
+			);
+		})
+	);
+	for (const note of notes) {
+		note.commentAvatarFallbacks = fallbacksByLogin.get(note.commentUsername);
+		if (note.subjectAuthorLogin) {
+			note.subjectAuthorAvatarFallbacks = fallbacksByLogin.get(
+				note.subjectAuthorLogin
+			);
+		}
+	}
 }
 
 async function getCommentDataForNotification(
@@ -343,6 +480,14 @@ async function getCommentDataForNotification(
 			`Failed to fetch comment for ${commentPath} (${notification.subject.latest_comment_url ?? notification.subject.url})`,
 			'error'
 		);
+		return {
+			commentAvatar,
+			commentHtmlUrl,
+			commentUsername,
+			commentMentionsViewer,
+			commentExcerpt,
+			failed: true,
+		};
 	}
 	return {
 		commentAvatar,
@@ -918,6 +1063,7 @@ function buildNoteFromData({
 		subjectAuthorLogin: subjectData.subjectAuthorLogin,
 		subjectAuthorAvatar: subjectData.subjectAuthorAvatar,
 		gitnewsIsInvalid: subjectData.failed === true,
+		gitnewsHydrationFailed: commentData.failed === true || undefined,
 		latestCommentMentionsYou: commentData.commentMentionsViewer,
 		mentionFoundSince,
 		authoredByYou: Boolean(
@@ -1076,9 +1222,16 @@ export async function listBasicNotificationsForAccount(
 	return combined.map((n) => buildBasicNoteFromRaw(account, n));
 }
 
+/**
+ * Fetch the details for each notification.
+ *
+ * If `publicAccount` is a github.com account, it is used to find github.com
+ * avatars for users of a GitHub Enterprise Server.
+ */
 export async function enrichNotificationsForAccount(
 	account: AccountInfo,
-	basicNotes: BasicNote[]
+	basicNotes: BasicNote[],
+	publicAccount?: AccountInfo
 ): Promise<Note[]> {
 	const octokit = createOctokit(account);
 	const notes: Note[] = [];
@@ -1182,5 +1335,6 @@ export async function enrichNotificationsForAccount(
 	await Promise.all(promises).catch((err) => {
 		throw err;
 	});
+	await addAvatarFallbacks(octokit, account, notes, publicAccount);
 	return notes;
 }
