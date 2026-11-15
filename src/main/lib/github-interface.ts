@@ -4,6 +4,7 @@ import { socksDispatcher } from 'fetch-socks';
 import { logMessage } from './logging';
 import { doesTextMentionUser } from './mentions';
 import { getPlainTextExcerpt } from './excerpt';
+import { getGravatarUrl } from './gravatar';
 import {
 	doesActivityExplainUpdate,
 	findReviewForUpdate,
@@ -244,6 +245,78 @@ async function getViewerLogin(
 		);
 	}
 	return undefined;
+}
+
+// The Gravatar URL for each user on an account, or null if the user has no
+// public email, keyed by account and login.
+const gravatarUrls = new Map<string, string | null>();
+
+/**
+ * Return a Gravatar URL for a user based on their public email, or undefined
+ * if they have none or it cannot be fetched.
+ *
+ * Avatars on GitHub Enterprise Servers may require a browser session to load
+ * (see https://github.com/sirbrillig/gitnews-menubar/issues/191), so this
+ * offers an alternative image that does not.
+ */
+async function getGravatarUrlForUser(
+	octokit: Octokit,
+	account: AccountInfo,
+	login: string
+): Promise<string | undefined> {
+	const cacheKey = [getViewerLoginCacheKey(account), login].join('|');
+	const cached = gravatarUrls.get(cacheKey);
+	if (cached !== undefined) {
+		return cached ?? undefined;
+	}
+	try {
+		const response = await octokit.request('GET /users/{username}', {
+			username: login,
+		});
+		const url = getGravatarUrl(response.data?.email);
+		gravatarUrls.set(cacheKey, url ?? null);
+		return url;
+	} catch (error) {
+		logMessage(
+			`Failed to fetch email for user ${login} in account ${account.name} (${account.id})`,
+			'warn'
+		);
+	}
+	return undefined;
+}
+
+/**
+ * Add Gravatar fallback avatars to notes from GitHub Enterprise Servers.
+ */
+async function addGravatarFallbacks(
+	octokit: Octokit,
+	account: AccountInfo,
+	notes: Note[]
+): Promise<void> {
+	if (!getBaseUrlForServer(account)) {
+		return;
+	}
+	const logins = new Set<string>();
+	for (const note of notes) {
+		if (note.commentUsername) {
+			logins.add(note.commentUsername);
+		}
+		if (note.subjectAuthorLogin) {
+			logins.add(note.subjectAuthorLogin);
+		}
+	}
+	const urls = new Map<string, string | undefined>();
+	await Promise.all(
+		[...logins].map(async (login) => {
+			urls.set(login, await getGravatarUrlForUser(octokit, account, login));
+		})
+	);
+	for (const note of notes) {
+		note.commentAvatarFallback = urls.get(note.commentUsername);
+		if (note.subjectAuthorLogin) {
+			note.subjectAuthorAvatarFallback = urls.get(note.subjectAuthorLogin);
+		}
+	}
 }
 
 async function getCommentDataForNotification(
@@ -1182,5 +1255,6 @@ export async function enrichNotificationsForAccount(
 	await Promise.all(promises).catch((err) => {
 		throw err;
 	});
+	await addGravatarFallbacks(octokit, account, notes);
 	return notes;
 }
