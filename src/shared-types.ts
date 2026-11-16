@@ -291,6 +291,11 @@ export interface AccountInfo {
 	serverUrl: string;
 	proxyUrl?: string;
 	isInvalid?: boolean;
+	/**
+	 * True if the saved token could not be decrypted (eg: access to the
+	 * keychain was denied). In that case `apiKey` will be empty.
+	 */
+	isTokenUnreadable?: boolean;
 }
 
 export interface FetchErrorObject {

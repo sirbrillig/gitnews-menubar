@@ -476,6 +476,21 @@ header svg {
 	justify-content: space-between;
 }
 
+.account-page-actions .btn,
+.account-page-actions .btn--cancel {
+	margin-right: 0;
+}
+
+.account-page-actions__group {
+	display: flex;
+	gap: 6px;
+}
+
+.btn:disabled {
+	opacity: 0.5;
+	cursor: default;
+}
+
 .config-button,
 .filter-button,
 .back-button {
@@ -1293,6 +1308,16 @@ header h1 {
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
+}
+
+.edit-account-form__notice {
+	padding: 8px;
+	border: 1px solid var(--notification-border-color);
+}
+
+.edit-account-form__token {
+	display: flex;
+	gap: 5px;
 }
 
 .no-notifications {
