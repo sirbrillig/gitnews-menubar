@@ -225,8 +225,11 @@ class App extends React.Component<AppProps, AppState> {
 		const unreadNotesFiltered = unreadNotes.filter((note) =>
 			doesNoteMatchFilter(note, noteFilter)
 		);
-		if (unreadNotesFiltered.length) {
+		if (unreadNotesFiltered.some((note) => !this.isLowPriority(note))) {
 			return 'unread';
+		}
+		if (unreadNotesFiltered.length) {
+			return 'unread-low';
 		}
 		if (offline) {
 			return 'offline';

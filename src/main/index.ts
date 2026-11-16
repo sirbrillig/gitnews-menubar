@@ -472,6 +472,8 @@ function getIcon(type: string) {
 			return getIconForState('unseen');
 		case 'unread':
 			return getIconForState('unread');
+		case 'unread-low':
+			return getIconForState('unread-low');
 		case 'offline':
 			return getIconForState('offline');
 		case 'loading':

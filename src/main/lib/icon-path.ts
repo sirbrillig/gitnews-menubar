@@ -6,6 +6,7 @@ export type IconType =
 	| 'normal'
 	| 'unseen'
 	| 'unread'
+	| 'unread-low'
 	| 'offline'
 	| 'error'
 	| 'loading';
@@ -26,6 +27,8 @@ export function getIconPathBuilder(appDir: string) {
 				return getIconPathForFilename('BellSoundTemplate.png');
 			case 'unread':
 				return getIconPathForFilename('BellOpenDotTemplate.png');
+			case 'unread-low':
+				return getIconPathForFilename('BellDownTriangleTemplate.png');
 			case 'offline':
 				return getIconPathForFilename('BellOfflineTemplate.png');
 		}

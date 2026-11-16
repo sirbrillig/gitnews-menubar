@@ -302,7 +302,13 @@ export type MuteRepo = (repo: string) => void;
 
 export type UnmuteRepo = (repo: string) => void;
 
-export type IconType = 'normal' | 'unseen' | 'unread' | 'offline' | 'error';
+export type IconType =
+	| 'normal'
+	| 'unseen'
+	| 'unread'
+	| 'unread-low'
+	| 'offline'
+	| 'error';
 
 export type QueuedAction = 'open' | 'markRead' | 'markUnread';
 
