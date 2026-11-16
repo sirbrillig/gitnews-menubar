@@ -52,6 +52,7 @@ import {
 	UnsubscribeNote,
 	FilterType,
 	IconType,
+	LeaveGuard,
 } from '../types';
 
 const debug = debugFactory('gitnews-menubar');
@@ -114,6 +115,11 @@ interface AppState {
 
 class App extends React.Component<AppProps, AppState> {
 	fetcher: Poller;
+	leaveGuard: LeaveGuard | null = null;
+
+	setLeaveGuard = (guard: LeaveGuard | null) => {
+		this.leaveGuard = guard;
+	};
 
 	constructor(props: AppProps) {
 		super(props);
@@ -286,6 +292,7 @@ class App extends React.Component<AppProps, AppState> {
 		const parentPanes: Partial<Record<AppPane, AppPane>> = {
 			[PANE_CONFIG]: PANE_NOTIFICATIONS,
 			[PANE_ACCOUNTS]: PANE_CONFIG,
+			[PANE_ACCOUNT_EDIT]: PANE_ACCOUNTS,
 			[PANE_LIST_SETTINGS]: PANE_CONFIG,
 			[PANE_ABOUT]: PANE_CONFIG,
 			[PANE_MUTED_REPOS]: PANE_LIST_SETTINGS,
@@ -294,6 +301,9 @@ class App extends React.Component<AppProps, AppState> {
 		const parentPane = parentPanes[currentPane];
 		const showBackButton = hasAccounts && Boolean(parentPane);
 		const onBack = () => {
+			if (this.leaveGuard && !this.leaveGuard()) {
+				return;
+			}
 			this.setState({ currentPane: parentPane ?? PANE_NOTIFICATIONS });
 		};
 
@@ -364,6 +374,7 @@ class App extends React.Component<AppProps, AppState> {
 						toggleLogging={this.props.toggleLogging}
 						isMultiOpenMode={this.state.isMultiOpenMode}
 						setMultiOpenMode={this.setMultiOpenMode}
+						setLeaveGuard={this.setLeaveGuard}
 					/>
 				</div>
 			</main>

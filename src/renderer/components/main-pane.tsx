@@ -20,6 +20,7 @@ import {
 	AppReduxState,
 	ChangeAutoload,
 	FilterType,
+	LeaveGuard,
 	MarkRead,
 	MarkUnread,
 	MuteRepo,
@@ -68,6 +69,7 @@ export default function MainPane({
 	toggleLogging,
 	isMultiOpenMode,
 	setMultiOpenMode,
+	setLeaveGuard,
 }: {
 	token: string;
 	currentPane: AppPane;
@@ -98,6 +100,7 @@ export default function MainPane({
 	appVisible: boolean;
 	isLogging: boolean;
 	toggleLogging: (newValue: boolean) => void;
+	setLeaveGuard: (guard: LeaveGuard | null) => void;
 	isTokenInvalid: boolean;
 	isMultiOpenMode: boolean;
 	setMultiOpenMode: (isActive: boolean) => void;
@@ -125,7 +128,11 @@ export default function MainPane({
 
 	if (accounts.length === 0) {
 		return (
-			<AccountEdit account={defaultAccountInfo} showAccounts={showAccounts} />
+			<AccountEdit
+				account={defaultAccountInfo}
+				showAccounts={showAccounts}
+				setLeaveGuard={setLeaveGuard}
+			/>
 		);
 	}
 	if (currentPane === PANE_MUTED_REPOS) {
@@ -147,7 +154,11 @@ export default function MainPane({
 	}
 	if (currentPane === PANE_ACCOUNT_EDIT && selectedAccount) {
 		return (
-			<AccountEdit account={selectedAccount} showAccounts={showAccounts} />
+			<AccountEdit
+				account={selectedAccount}
+				showAccounts={showAccounts}
+				setLeaveGuard={setLeaveGuard}
+			/>
 		);
 	}
 	if (currentPane === PANE_ACCOUNTS || isTokenInvalid) {

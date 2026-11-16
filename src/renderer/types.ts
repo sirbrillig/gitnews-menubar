@@ -384,3 +384,9 @@ declare global {
 		electronApi: MainBridge;
 	}
 }
+
+/**
+ * Called before leaving a pane with the back button. Returns false to stay on
+ * the pane (eg: to confirm discarding unsaved changes first).
+ */
+export type LeaveGuard = () => boolean;

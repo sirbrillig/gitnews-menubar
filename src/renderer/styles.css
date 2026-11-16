@@ -476,6 +476,21 @@ header svg {
 	justify-content: space-between;
 }
 
+.account-page-actions .btn,
+.account-page-actions .btn--cancel {
+	margin-right: 0;
+}
+
+.account-page-actions__group {
+	display: flex;
+	gap: 6px;
+}
+
+.btn:disabled {
+	opacity: 0.5;
+	cursor: default;
+}
+
 .config-button,
 .filter-button,
 .back-button {
