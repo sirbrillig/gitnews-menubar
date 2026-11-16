@@ -1295,6 +1295,11 @@ header h1 {
 	gap: 10px;
 }
 
+.edit-account-form__token {
+	display: flex;
+	gap: 5px;
+}
+
 .no-notifications {
 	padding: 12px;
 	border-top: 1px solid #eee;

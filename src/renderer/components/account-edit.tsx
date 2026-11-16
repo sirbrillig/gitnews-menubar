@@ -12,6 +12,7 @@ export default function AccountEdit({
 	showAccounts: () => void;
 }) {
 	const [tempAccount, setTempAccount] = React.useState<AccountInfo>(account);
+	const [isTokenVisible, setIsTokenVisible] = React.useState(false);
 	const accounts = useSelector((state: AppReduxState) => state.accounts);
 	const otherAccounts = accounts.filter((acc) => acc.id !== account.id);
 	const dispatch = useDispatch();
@@ -86,19 +87,30 @@ export default function AccountEdit({
 						tokens (classic)") so this app can see your notifications. It will
 						need the `notifications` and `repo` scopes.
 					</p>
-					<label htmlFor="add-token-form__input">GitHub Token:</label>
-					<input
-						type="text"
-						className="add-token-form__input"
-						id="add-token-form__input"
-						value={tempAccount.apiKey}
-						onChange={(event) => {
-							setTempAccount({
-								...tempAccount,
-								apiKey: event.target.value,
-							});
-						}}
-					/>
+					<label htmlFor="edit-account-form__token">GitHub Token:</label>
+					<div className="edit-account-form__token">
+						<input
+							type={isTokenVisible ? 'text' : 'password'}
+							className="add-token-form__input"
+							id="edit-account-form__token"
+							autoComplete="off"
+							spellCheck={false}
+							value={tempAccount.apiKey}
+							onChange={(event) => {
+								setTempAccount({
+									...tempAccount,
+									apiKey: event.target.value,
+								});
+							}}
+						/>
+						<button
+							className="btn"
+							type="button"
+							onClick={() => setIsTokenVisible(!isTokenVisible)}
+						>
+							{isTokenVisible ? 'Hide' : 'Show'}
+						</button>
+					</div>
 				</div>
 				<div>
 					<label htmlFor="add-token-form__input">(Optional) Proxy:</label>
