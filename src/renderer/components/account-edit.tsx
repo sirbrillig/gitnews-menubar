@@ -52,11 +52,11 @@ export default function AccountEdit({
 			</div>
 			<div className="edit-account-form">
 				<div>
-					<label htmlFor="add-token-form__input">Name:</label>
+					<label htmlFor="edit-account-form__name">Name:</label>
 					<input
 						type="text"
 						className="add-token-form__input"
-						id="add-token-form__input"
+						id="edit-account-form__name"
 						value={tempAccount.name}
 						onChange={(event) => {
 							setTempAccount({
@@ -67,11 +67,11 @@ export default function AccountEdit({
 					/>
 				</div>
 				<div>
-					<label htmlFor="add-token-form__input">Server URL:</label>
+					<label htmlFor="edit-account-form__server-url">Server URL:</label>
 					<input
 						type="text"
 						className="add-token-form__input"
-						id="add-token-form__input"
+						id="edit-account-form__server-url"
 						value={tempAccount.serverUrl}
 						onChange={(event) => {
 							setTempAccount({
@@ -113,11 +113,11 @@ export default function AccountEdit({
 					</div>
 				</div>
 				<div>
-					<label htmlFor="add-token-form__input">(Optional) Proxy:</label>
+					<label htmlFor="edit-account-form__proxy">(Optional) Proxy:</label>
 					<input
 						type="text"
 						className="add-token-form__input"
-						id="add-token-form__input"
+						id="edit-account-form__proxy"
 						value={tempAccount.proxyUrl}
 						onChange={(event) => {
 							setTempAccount({
