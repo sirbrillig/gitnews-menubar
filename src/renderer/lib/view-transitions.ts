@@ -7,10 +7,18 @@ const nearViewportMargin = '300px';
 
 export function runWithViewTransition(update: () => void) {
 	const doc = document as Document & {
-		startViewTransition?: (cb: () => void) => unknown;
+		startViewTransition?: (
+			cb: () => void
+		) => { ready?: Promise<void>; finished?: Promise<void> } | undefined;
 	};
-	if (typeof doc.startViewTransition === 'function') {
-		doc.startViewTransition(() => flushSync(update));
+	// A hidden document (e.g. the menubar window is closed during a background
+	// fetch) can't animate, and the browser would skip the transition anyway.
+	if (typeof doc.startViewTransition === 'function' && !doc.hidden) {
+		const transition = doc.startViewTransition(() => flushSync(update));
+		// A skipped or aborted transition rejects these promises with an
+		// InvalidStateError, but the update still runs, so ignore them.
+		transition?.ready?.catch(() => {});
+		transition?.finished?.catch(() => {});
 		return;
 	}
 	update();
