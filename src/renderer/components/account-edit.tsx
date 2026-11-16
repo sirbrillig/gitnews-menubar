@@ -87,6 +87,14 @@ export default function AccountEdit({
 						tokens (classic)") so this app can see your notifications. It will
 						need the `notifications` and `repo` scopes.
 					</p>
+					{tempAccount.isTokenUnreadable && (
+						<p className="edit-account-form__notice">
+							The saved token could not be read from your macOS Keychain. This
+							can happen if Gitnews was denied access to it. Quit and reopen
+							Gitnews and choose &ldquo;Always Allow&rdquo; when asked, or enter
+							your token again below.
+						</p>
+					)}
 					<label htmlFor="edit-account-form__token">GitHub Token:</label>
 					<div className="edit-account-form__token">
 						<input
@@ -100,6 +108,7 @@ export default function AccountEdit({
 								setTempAccount({
 									...tempAccount,
 									apiKey: event.target.value,
+									isTokenUnreadable: false,
 								});
 							}}
 						/>

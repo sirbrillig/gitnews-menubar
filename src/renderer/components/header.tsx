@@ -78,6 +78,9 @@ export default function Header({
 	showUnreadOnly: boolean;
 	setShowUnreadOnly: (value: boolean) => void;
 }) {
+	const hasUnreadableToken = useSelector((state: AppReduxState) =>
+		state.accounts.some((account) => account.isTokenUnreadable)
+	);
 	return (
 		<header>
 			<div className="header__primary">
@@ -95,7 +98,10 @@ export default function Header({
 				showUnreadOnly={showUnreadOnly}
 				setShowUnreadOnly={setShowUnreadOnly}
 			/>
-			{isTokenInvalid && !fetchingInProgress && <InvalidTokenNotice />}
+			{hasUnreadableToken && <UnreadableTokenNotice />}
+			{!hasUnreadableToken && isTokenInvalid && !fetchingInProgress && (
+				<InvalidTokenNotice />
+			)}
 			{!isTokenInvalid && offline && (
 				<UpdatingOfflineNotice
 					fetchNotifications={fetchNotifications}
@@ -158,6 +164,23 @@ function ReadStatusToggle({
 			>
 				Unread
 			</button>
+		</div>
+	);
+}
+
+function UnreadableTokenNotice() {
+	const accounts = useSelector((state: AppReduxState) => state.accounts);
+	const accountNames = accounts
+		.filter((account) => account.isTokenUnreadable)
+		.map((account) => account.name)
+		.join(', ');
+	return (
+		<div className="offline-notice">
+			<span>
+				Could not read the saved token for &apos;{accountNames}&apos; from your
+				Keychain. Quit and reopen Gitnews and choose &ldquo;Always Allow&rdquo;
+				when asked, or re-enter the token in your account settings.
+			</span>
 		</div>
 	);
 }

@@ -1,5 +1,13 @@
+import { safeStorage } from 'electron';
 import Store from 'electron-store';
 import type { AccountInfo } from '../../shared-types';
+import {
+	decodeAccounts,
+	encodeAccounts,
+	type Encryptor,
+	type StoredAccount,
+} from './account-encryption';
+import { logMessage } from './logging';
 
 /**
  * The data here will be saved in the OS so it will be available after an
@@ -7,7 +15,7 @@ import type { AccountInfo } from '../../shared-types';
  * where the in-app settings are saved) is lost.
  */
 interface StoreSchema {
-	accounts: AccountInfo[];
+	accounts: StoredAccount[];
 	'gitnews-token': string;
 	'is-logging-enabled': boolean;
 	'is-beta-updates-enabled': boolean;
@@ -52,12 +60,50 @@ export function setPublicAvatarMatchEnabled(isEnabled: boolean): void {
 	store.set('is-public-avatar-match-enabled', isEnabled);
 }
 
+// Tokens are encrypted with a key kept in the OS keychain. This must only be
+// used after the app's `ready` event.
+const encryptor: Encryptor = {
+	isAvailable: () => safeStorage.isEncryptionAvailable(),
+	encrypt: (plainText) =>
+		safeStorage.encryptString(plainText).toString('base64'),
+	decrypt: (encrypted) =>
+		safeStorage.decryptString(Buffer.from(encrypted, 'base64')),
+};
+
 export function getAccounts(): AccountInfo[] {
-	return store.get('accounts');
+	const { accounts, hasPlainTextTokens } = decodeAccounts(
+		store.get('accounts'),
+		encryptor,
+		(account, error) => {
+			logMessage(
+				`Failed to decrypt token for account ${account.name} (${account.serverUrl}): ${error}`,
+				'error'
+			);
+		}
+	);
+	if (hasPlainTextTokens) {
+		logMessage('Encrypting plain-text account tokens', 'info');
+		setAccounts(accounts);
+	}
+	return accounts;
 }
 
 export function setAccounts(accounts: AccountInfo[]): void {
-	store.set('accounts', accounts);
+	if (!encryptor.isAvailable()) {
+		logMessage(
+			'Encryption is unavailable; saving tokens as plain text',
+			'warn'
+		);
+	}
+	store.set(
+		'accounts',
+		encodeAccounts(accounts, store.get('accounts'), encryptor)
+	);
+	// The legacy single token is migrated into an account by the renderer, so
+	// once accounts exist there's no reason to keep it around in plain text.
+	if (accounts.length > 0) {
+		store.delete('gitnews-token');
+	}
 }
 
 /**
