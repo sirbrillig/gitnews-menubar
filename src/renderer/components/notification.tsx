@@ -129,6 +129,24 @@ export default function Notification({
 		runWithViewTransition(() => markRead(token, note, 'dismiss'));
 	};
 
+	// Without the 'dismiss' source this is treated like opening the note, so
+	// the next update is not shown as a minor follow-up.
+	const doMarkReadKeepPriority = () => {
+		setMuteRequested(false);
+		setUnsubscribeRequested(false);
+		setPreviewOpen(false);
+		runWithViewTransition(() => markRead(token, note));
+	};
+
+	const onClickMarkReadKeepPriority = (
+		event: React.MouseEvent<HTMLSpanElement>
+	) => {
+		event.preventDefault();
+		event.stopPropagation();
+		debug('clicked mark-as-read keep priority button', note);
+		doMarkReadKeepPriority();
+	};
+
 	const onClickMarkUnread = (event: React.MouseEvent<HTMLDivElement>) => {
 		event.preventDefault();
 		event.stopPropagation();
@@ -253,6 +271,15 @@ export default function Notification({
 			lowPriorityOptions
 		);
 		const choice = await window.electronApi.showContextMenu([
+			...(isUnread && isLowPriorityEnabled
+				? [
+						{
+							id: 'mark-read-keep-priority',
+							label: 'Mark as read without de-prioritizing updates',
+						},
+						{ type: 'separator' as const },
+					]
+				: []),
 			...getPriorityMenuItems(menuLowPriorityReason),
 			isMuted
 				? { id: 'unmute', label: `Unmute ${note.repositoryFullName}` }
@@ -261,7 +288,9 @@ export default function Notification({
 			{ id: 'unsubscribe', label: 'Unsubscribe from thread…' },
 		]);
 		debug('chose note action', choice, note);
-		if (choice === 'mark-low-priority') {
+		if (choice === 'mark-read-keep-priority') {
+			doMarkReadKeepPriority();
+		} else if (choice === 'mark-low-priority') {
 			runWithViewTransition(() => dispatch(setNotePriority(note, 'low')));
 		} else if (choice === 'remove-low-priority') {
 			// Clearing the override is enough unless the automatic rules would make
@@ -563,9 +592,26 @@ export default function Notification({
 			<div
 				className="notification__mark-read-target"
 				onClick={isUnread ? onClickMarkRead : onClickMarkUnread}
-				title={isUnread ? 'Mark as read' : 'Mark as unread'}
 			>
-				<span className="notification__mark-read-button">
+				{isUnread && isLowPriorityEnabled && !isMultiOpenMode && (
+					<span
+						className="notification__mark-read-keep-priority-button"
+						role="button"
+						aria-label="Mark as read without de-prioritizing updates"
+						data-tooltip="Mark as read without de-prioritizing updates"
+						onClick={onClickMarkReadKeepPriority}
+					>
+						<Gridicon icon="bell" size={12} />
+					</span>
+				)}
+				{/* These buttons use a CSS tooltip because the native title tooltip
+				only appears the first time when every note has the same text. */}
+				<span
+					className="notification__mark-read-button"
+					role="button"
+					aria-label={isUnread ? 'Mark as read' : 'Mark as unread'}
+					data-tooltip={isUnread ? 'Mark as read' : 'Mark as unread'}
+				>
 					<Gridicon icon={isUnread ? 'checkmark' : 'mail'} size={18} />
 				</span>
 			</div>

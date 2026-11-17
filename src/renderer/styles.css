@@ -1343,6 +1343,7 @@ header h1 {
 }
 
 .notification__mark-read-target {
+	position: relative;
 	width: 40px;
 	min-width: 40px;
 	display: flex;
@@ -1353,6 +1354,7 @@ header h1 {
 }
 
 .notification__mark-read-button {
+	position: relative;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -1365,12 +1367,90 @@ header h1 {
 		transform 0.1s ease;
 }
 
+.notification__mark-read-button svg,
+.notification__mark-read-keep-priority-button svg {
+	/* Let hovers land on the buttons so their tooltips show. */
+	pointer-events: none;
+}
+
+/* A tooltip to the left of the button, shown after a short hover. */
+.notification__mark-read-button::after,
+.notification__mark-read-keep-priority-button::after {
+	content: attr(data-tooltip);
+	position: absolute;
+	z-index: 100;
+	top: 50%;
+	right: calc(100% + 6px);
+	transform: translateY(-50%);
+	padding: 3px 6px;
+	border-radius: 4px;
+	background-color: var(--bottom-bar-background-color);
+	color: var(--bottom-bar-text-color);
+	font-size: 11px;
+	white-space: nowrap;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.1s ease;
+}
+
+.notification__mark-read-button:hover::after,
+.notification__mark-read-keep-priority-button:hover::after {
+	opacity: 1;
+	transition-delay: 0.5s;
+}
+
 .notification__mark-read-target:hover .notification__mark-read-button {
 	background-color: rgba(79, 180, 119, 0.25);
 }
 
 .notification__mark-read-target:active .notification__mark-read-button {
 	transform: scale(0.88);
+}
+
+/* A smaller button above the check, revealed on hover, that marks the note
+ * read without treating the next update as minor. */
+.notification__mark-read-keep-priority-button {
+	position: absolute;
+	left: 50%;
+	bottom: calc(50% + 14px + 4px);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	margin-left: -10px;
+	border-radius: 50%;
+	background-color: rgba(79, 180, 119, 0.12);
+	opacity: 0;
+	pointer-events: none;
+	transition:
+		opacity 0.15s ease,
+		background-color 0.15s ease,
+		transform 0.1s ease;
+}
+
+.notification__mark-read-target:hover
+	.notification__mark-read-keep-priority-button {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+.notification__mark-read-keep-priority-button:hover {
+	background-color: rgba(79, 180, 119, 0.25);
+}
+
+.notification__mark-read-target:active
+	.notification__mark-read-keep-priority-button:active {
+	transform: scale(0.88);
+}
+
+/* Only highlight and press the button that will actually be clicked. */
+.notification__mark-read-target:has(
+		.notification__mark-read-keep-priority-button:hover
+	)
+	.notification__mark-read-button {
+	background-color: rgba(79, 180, 119, 0.12);
+	transform: none;
 }
 
 .multi-open-pending-notice {
