@@ -76,3 +76,25 @@ To create a packaged Mac OS App, first install dependencies by running `npm inst
 Next run the following command: `npm run build`.
 
 You will then find an executable application in the `out` directory.
+
+#### Signing and notarizing
+
+To sign the app, add your Developer ID name to the `.env` file. The certificate must be in your Keychain.
+
+```
+APPLE_IDENTITY=Your Name (YOURTEAMID)
+```
+
+To notarize the app, store your Apple ID credentials in the Keychain as a `notarytool` profile so the app-specific password doesn't need to live in `.env`. Leave off `--password` to be prompted for it.
+
+```
+xcrun notarytool store-credentials "gitnews-notarize" --apple-id "you@example.com" --team-id "YOURTEAMID"
+```
+
+Then add the profile name to the `.env` file:
+
+```
+APPLE_KEYCHAIN_PROFILE=gitnews-notarize
+```
+
+Alternatively, you can set `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, and `APPLE_TEAM_ID` in `.env` directly, but this stores the password in plaintext.
