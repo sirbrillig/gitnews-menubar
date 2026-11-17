@@ -299,3 +299,32 @@ export function getLastPageFromLinkHeader(
 	const match = link?.match(/<[^>]*[?&]page=(\d+)[^>]*>;\s*rel="last"/);
 	return match ? parseInt(match[1], 10) : undefined;
 }
+
+/**
+ * Return the data for a push with the pull request's author as the pusher if
+ * the pushed commits have no GitHub user.
+ *
+ * Commits whose git email is not linked to an account have no GitHub user, so
+ * without this the push would be shown without anyone behind it. The author
+ * of a pull request is almost always the one pushing to it.
+ */
+export function withPullAuthorAsPusher<
+	T extends {
+		commentUsername: string;
+		commentAvatar: string;
+		timelineActivity?: { type: string };
+	},
+>(data: T, authorLogin?: string, authorAvatar?: string): T {
+	if (
+		data.timelineActivity?.type !== 'pushed' ||
+		data.commentUsername ||
+		!authorLogin
+	) {
+		return data;
+	}
+	return {
+		...data,
+		commentUsername: authorLogin,
+		commentAvatar: authorAvatar ?? '',
+	};
+}
