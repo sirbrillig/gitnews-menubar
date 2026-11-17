@@ -2,6 +2,7 @@
 const {
 	findTimelineActivityForUpdate,
 	getLastPageFromLinkHeader,
+	withPullAuthorAsPusher,
 } = require('../src/main/lib/timeline');
 
 const updatedAt = '2026-10-19T14:18:17Z';
@@ -336,5 +337,50 @@ describe('getLastPageFromLinkHeader()', function () {
 				'<https://api.github.com/repositories/1/issues/2/timeline?page=1>; rel="prev"'
 			)
 		).toBeUndefined();
+	});
+});
+
+describe('withPullAuthorAsPusher()', function () {
+	const authorLogin = 'author';
+	const authorAvatar = 'https://example.com/author.png';
+
+	function makeData(overrides = {}) {
+		return {
+			commentAvatar: '',
+			commentUsername: '',
+			commentExcerpt: 'Fix the bug',
+			timelineActivity: { type: 'pushed', commitCount: 1 },
+			...overrides,
+		};
+	}
+
+	it('uses the author for a push whose commits have no user', function () {
+		expect(
+			withPullAuthorAsPusher(makeData(), authorLogin, authorAvatar)
+		).toEqual(
+			makeData({ commentUsername: authorLogin, commentAvatar: authorAvatar })
+		);
+	});
+
+	it('keeps the user of the pushed commits', function () {
+		const data = makeData({
+			commentUsername: 'pusher',
+			commentAvatar: 'https://example.com/pusher.png',
+		});
+		expect(withPullAuthorAsPusher(data, authorLogin, authorAvatar)).toBe(data);
+	});
+
+	it('does not change activity other than a push', function () {
+		const data = makeData({ timelineActivity: { type: 'force_pushed' } });
+		expect(withPullAuthorAsPusher(data, authorLogin, authorAvatar)).toBe(data);
+		const comment = makeData({ timelineActivity: undefined });
+		expect(withPullAuthorAsPusher(comment, authorLogin, authorAvatar)).toBe(
+			comment
+		);
+	});
+
+	it('does not change a push if the author is unknown', function () {
+		const data = makeData();
+		expect(withPullAuthorAsPusher(data, undefined, undefined)).toBe(data);
 	});
 });

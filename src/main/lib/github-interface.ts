@@ -17,6 +17,7 @@ import {
 	findTimelineActivityForUpdate,
 	getLastPageFromLinkHeader,
 	type RawTimelineItem,
+	withPullAuthorAsPusher,
 } from './timeline';
 import {
 	findWorkflowRunForUpdate,
@@ -1038,6 +1039,11 @@ function buildNoteFromData({
 	mentionFoundSince?: number;
 	viewerLogin?: string;
 }): Note {
+	commentData = withPullAuthorAsPusher(
+		commentData,
+		subjectData.subjectAuthorLogin,
+		subjectData.subjectAuthorAvatar
+	);
 	return {
 		gitnewsAccountId: account.id,
 		id: notification.id,

@@ -22,7 +22,7 @@ export type ReviewState = 'APPROVED' | 'CHANGES_REQUESTED' | 'COMMENTED';
  * Increase this when hydrated notes get new data so that notes cached by an
  * older version are hydrated again.
  */
-export const NOTE_HYDRATION_VERSION = 8;
+export const NOTE_HYDRATION_VERSION = 9;
 
 /**
  * Activity on a pull request's timeline that caused a notification but is not
