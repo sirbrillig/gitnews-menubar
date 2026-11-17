@@ -253,6 +253,15 @@ export default function Notification({
 			lowPriorityOptions
 		);
 		const choice = await window.electronApi.showContextMenu([
+			...(isUnread && isLowPriorityEnabled
+				? [
+						{
+							id: 'mark-read-keep-priority',
+							label: 'Mark as read without de-prioritizing updates',
+						},
+						{ type: 'separator' as const },
+					]
+				: []),
 			...getPriorityMenuItems(menuLowPriorityReason),
 			isMuted
 				? { id: 'unmute', label: `Unmute ${note.repositoryFullName}` }
@@ -261,7 +270,14 @@ export default function Notification({
 			{ id: 'unsubscribe', label: 'Unsubscribe from thread…' },
 		]);
 		debug('chose note action', choice, note);
-		if (choice === 'mark-low-priority') {
+		if (choice === 'mark-read-keep-priority') {
+			// Without the 'dismiss' source this is treated like opening the note,
+			// so the next update is not shown as a minor follow-up.
+			setMuteRequested(false);
+			setUnsubscribeRequested(false);
+			setPreviewOpen(false);
+			runWithViewTransition(() => markRead(token, note));
+		} else if (choice === 'mark-low-priority') {
 			runWithViewTransition(() => dispatch(setNotePriority(note, 'low')));
 		} else if (choice === 'remove-low-priority') {
 			// Clearing the override is enough unless the automatic rules would make
