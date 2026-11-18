@@ -24,6 +24,7 @@ export default function ConfigPage({
 		changeAutoLoad(event.target.checked);
 	const toggleIsLogging = (event: { target: { checked: boolean } }) =>
 		toggleLogging(event.target.checked);
+	const [isUpdateCheckEnabled, toggleUpdateCheck] = useUpdateCheckSetting();
 	const [isBetaUpdatesEnabled, toggleBetaUpdates] = useBetaUpdatesSetting();
 
 	return (
@@ -66,6 +67,20 @@ export default function ConfigPage({
 					</li>
 					<li className="config-row config-row--toggle">
 						<div>
+							<label htmlFor="update-check-setting">Check for updates</label>
+							<p className="config-row__hint">
+								Show a notice when a new version of Gitnews is available
+							</p>
+						</div>
+						<input
+							type="checkbox"
+							id="update-check-setting"
+							checked={isUpdateCheckEnabled}
+							onChange={(event) => toggleUpdateCheck(event.target.checked)}
+						/>
+					</li>
+					<li className="config-row config-row--toggle">
+						<div>
 							<label htmlFor="beta-updates-setting">Include beta updates</label>
 							<p className="config-row__hint">
 								Offer prerelease versions when checking for updates
@@ -75,6 +90,7 @@ export default function ConfigPage({
 							type="checkbox"
 							id="beta-updates-setting"
 							checked={isBetaUpdatesEnabled}
+							disabled={!isUpdateCheckEnabled}
 							onChange={(event) => toggleBetaUpdates(event.target.checked)}
 						/>
 					</li>
@@ -92,6 +108,18 @@ export default function ConfigPage({
 			</div>
 		</div>
 	);
+}
+
+function useUpdateCheckSetting(): [boolean, (isEnabled: boolean) => void] {
+	const [isEnabled, setIsEnabled] = React.useState(true);
+	React.useEffect(() => {
+		window.electronApi.isUpdateCheckEnabled().then(setIsEnabled);
+	}, []);
+	const toggle = React.useCallback((newValue: boolean) => {
+		setIsEnabled(newValue);
+		window.electronApi.setUpdateCheckEnabled(newValue);
+	}, []);
+	return [isEnabled, toggle];
 }
 
 function useBetaUpdatesSetting(): [boolean, (isEnabled: boolean) => void] {

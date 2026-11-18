@@ -547,26 +547,40 @@ function UpdateAvailableNotice({
 	openUrl: OpenUrl;
 }) {
 	const { version, releaseUrl } = update;
+	const { message, actionLabel, action } = {
+		available: {
+			message: `Gitnews ${version} is available`,
+			actionLabel: 'Update',
+			action: downloadUpdate,
+		},
+		downloading: {
+			message: `Downloading Gitnews ${version}…`,
+			actionLabel: null,
+			action: null,
+		},
+		ready: {
+			message: `Gitnews ${version} is ready`,
+			actionLabel: 'Restart',
+			action: installUpdate,
+		},
+		failed: {
+			message: `Couldn't install Gitnews ${version}`,
+			actionLabel: 'Download',
+			action: () => openUrl(releaseUrl),
+		},
+	}[status];
 	return (
-		<div className="update-available-notice">
-			<span>
-				{status === 'available' && (
-					<button
-						onClick={downloadUpdate}
-					>{`A new version (${version}) of Gitnews is available. Update now`}</button>
+		<div className="update-available-notice" role="status">
+			<div className="update-available-notice__body">
+				<span className="update-available-notice__message" title={message}>
+					{message}
+				</span>
+				{action && (
+					<button className="update-available-notice__action" onClick={action}>
+						{actionLabel}
+					</button>
 				)}
-				{status === 'downloading' && `Downloading Gitnews ${version}…`}
-				{status === 'ready' && (
-					<button
-						onClick={installUpdate}
-					>{`Gitnews ${version} is ready. Restart to update`}</button>
-				)}
-				{status === 'failed' && (
-					<button
-						onClick={() => openUrl(releaseUrl)}
-					>{`Gitnews ${version} could not be installed automatically. Download it`}</button>
-				)}
-			</span>
+			</div>
 		</div>
 	);
 }

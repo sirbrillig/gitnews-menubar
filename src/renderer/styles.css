@@ -1608,26 +1608,42 @@ header h1 {
 	bottom: 0;
 	display: flex;
 	justify-content: center;
-	text-align: center;
 	z-index: 350;
 }
 
-.update-available-notice span {
-	padding: 5px 20px;
+.update-available-notice__body {
+	max-width: 100%;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 5px 16px;
 	background-color: var(--bottom-bar-background-color);
 	color: var(--bottom-bar-text-color);
 	font-size: 0.9em;
 	border-radius: 20px;
-	display: flex;
+	white-space: nowrap;
 }
 
-.update-available-notice button {
+.update-available-notice__message {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.update-available-notice__action {
+	flex-shrink: 0;
 	color: var(--bottom-bar-action-text-color);
-	background: none !important;
+	background-color: rgba(255, 255, 255, 0.15) !important;
 	border: none;
-	padding: 0 !important;
-	text-decoration: underline;
+	border-radius: 10px;
+	padding: 1px 10px !important;
+	font-size: inherit;
+	font-weight: bold;
 	cursor: pointer;
+}
+
+.update-available-notice__action:hover {
+	background-color: rgba(255, 255, 255, 0.25) !important;
 }
 
 .account-list {
