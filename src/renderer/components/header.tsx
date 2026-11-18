@@ -110,6 +110,7 @@ export default function Header({
 				/>
 			)}
 			{!isTokenInvalid && !offline && <FetchErrorNotice />}
+			<MissingTokenScopesNotice />
 			{children}
 		</header>
 	);
@@ -191,11 +192,39 @@ function InvalidTokenNotice() {
 		.filter((account) => account.isInvalid)
 		.map((account) => account.name)
 		.join(', ');
+	if (!accountNames) {
+		return null;
+	}
 	return (
 		<div className="offline-notice">
 			<span>
 				Some of your accounts are not working: '{accountNames}'. Please
 				double-check your info!
+			</span>
+		</div>
+	);
+}
+
+function MissingTokenScopesNotice() {
+	const accounts = useSelector((state: AppReduxState) => state.accounts);
+	const accountsMissingTokenScopes = useSelector(
+		(state: AppReduxState) => state.accountsMissingTokenScopes
+	);
+	const messages = accounts
+		.filter((account) => accountsMissingTokenScopes[account.id]?.length)
+		.map(
+			(account) =>
+				`'${account.name}' (missing ${accountsMissingTokenScopes[account.id].map((scope) => `'${scope}'`).join(', ')})`
+		);
+	if (messages.length === 0) {
+		return null;
+	}
+	return (
+		<div className="offline-notice">
+			<span>
+				The token for {messages.join(', ')} is missing required scopes, so
+				notification details and links will not work. Please use a token with
+				the 'notifications' and 'repo' scopes.
 			</span>
 		</div>
 	);

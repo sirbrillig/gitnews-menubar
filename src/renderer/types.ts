@@ -58,6 +58,11 @@ export interface AppReduxState {
 	notes: Note[];
 	errors: string[];
 	accountsWithFetchErrors: string[];
+
+	/**
+	 * The token scopes that each account is missing, keyed by account ID.
+	 */
+	accountsMissingTokenScopes: Record<string, string[]>;
 	mutedRepos: string[];
 	fetchingInProgress: boolean;
 	lastChecked: false | number;
@@ -196,6 +201,11 @@ export type ActionAddAccountFetchError = {
 	type: 'ADD_ACCOUNT_FETCH_ERROR';
 	accountId: string;
 };
+export type ActionSetAccountMissingTokenScopes = {
+	type: 'SET_ACCOUNT_MISSING_TOKEN_SCOPES';
+	accountId: string;
+	missingScopes: string[];
+};
 export type ActionFetchBegin = { type: 'FETCH_BEGIN' };
 export type ActionFetchEnd = { type: 'FETCH_END' };
 export type ActionFetchNotifications = { type: 'GITNEWS_FETCH_NOTIFICATIONS' };
@@ -249,6 +259,7 @@ export type AppReduxAction =
 	| ActionGotNotes
 	| ActionAddConnectionError
 	| ActionAddAccountFetchError
+	| ActionSetAccountMissingTokenScopes
 	| ActionFetchBegin
 	| ActionFetchEnd
 	| ActionFetchNotifications
@@ -341,6 +352,7 @@ export interface MainBridge {
 		account: AccountInfo,
 		basicNotes: BasicNote[]
 	) => Promise<Note[] | { error: FetchErrorObject }>;
+	getMissingTokenScopes: (account: AccountInfo) => Promise<string[]>;
 	markNotificationRead: (note: Note, account: AccountInfo) => void;
 	unsubscribeNotification: (note: Note, account: AccountInfo) => void;
 	resubscribeNotification: (note: Note, account: AccountInfo) => void;

@@ -17,6 +17,7 @@ import {
 	ActionGotNotes,
 	ActionAddConnectionError,
 	ActionAddAccountFetchError,
+	ActionSetAccountMissingTokenScopes,
 	ActionFetchBegin,
 	ActionFetchEnd,
 	ActionMarkAllNotesSeen,
@@ -65,6 +66,7 @@ const initialState: AppReduxState = {
 	notes: [],
 	errors: [],
 	accountsWithFetchErrors: [],
+	accountsMissingTokenScopes: {},
 	mutedRepos: [],
 	fetchingInProgress: false,
 	lastChecked: false,
@@ -110,18 +112,11 @@ function setAccountInvalid(
 	accountId: string,
 	isInvalid: boolean
 ): AccountInfo[] {
-	let accounts = allAccounts.filter((acc) => acc.id !== accountId);
-	const account = allAccounts.find((acc) => acc.id === accountId);
-	if (account) {
-		accounts = [
-			...accounts,
-			{
-				...account,
-				isInvalid,
-			},
-		];
-	}
-	return accounts;
+	// Keep the accounts in their original order so the account list does not
+	// shuffle when one of them fails.
+	return allAccounts.map((account) =>
+		account.id === accountId ? { ...account, isInvalid } : account
+	);
 }
 
 export function createReducer() {
@@ -137,7 +132,11 @@ export function createReducer() {
 				return {
 					...state,
 					isTokenInvalid: action.isInvalid,
-					accounts: setAccountInvalid(state.accounts, action.accountId, true),
+					accounts: setAccountInvalid(
+						state.accounts,
+						action.accountId,
+						action.isInvalid
+					),
 				};
 			case 'TOGGLE_LOGGING':
 				return { ...state, isLogging: action.isLogging };
@@ -166,6 +165,20 @@ export function createReducer() {
 					)
 						? state.accountsWithFetchErrors
 						: [...state.accountsWithFetchErrors, action.accountId],
+				};
+			case 'SET_ACCOUNT_MISSING_TOKEN_SCOPES':
+				if (
+					(state.accountsMissingTokenScopes[action.accountId] ?? []).join() ===
+					action.missingScopes.join()
+				) {
+					return state;
+				}
+				return {
+					...state,
+					accountsMissingTokenScopes: {
+						...state.accountsMissingTokenScopes,
+						[action.accountId]: action.missingScopes,
+					},
 				};
 			case 'CLEAR_ERRORS':
 				return Object.assign({}, state, { errors: [] });
@@ -307,8 +320,12 @@ export function createReducer() {
 			}
 			case 'SET_INITIAL_ACCOUNTS':
 			case 'SET_ACCOUNTS':
+				// Every account starts out valid again, so the invalid token notice
+				// must be cleared too or it would name no accounts. The fetch that
+				// follows will flag any account that is still invalid.
 				return {
 					...state,
+					isTokenInvalid: false,
 					accounts: setAllAccountsValid(action.accounts),
 				};
 			case 'SELECT_ACCOUNT':
@@ -592,6 +609,13 @@ export function addAccountFetchError(
 	accountId: string
 ): ActionAddAccountFetchError {
 	return { type: 'ADD_ACCOUNT_FETCH_ERROR', accountId };
+}
+
+export function setAccountMissingTokenScopes(
+	accountId: string,
+	missingScopes: string[]
+): ActionSetAccountMissingTokenScopes {
+	return { type: 'SET_ACCOUNT_MISSING_TOKEN_SCOPES', accountId, missingScopes };
 }
 
 export function fetchBegin(): ActionFetchBegin {

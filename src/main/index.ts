@@ -32,6 +32,7 @@ import dotEnv from 'dotenv';
 import {
 	listBasicNotificationsForAccount,
 	enrichNotificationsForAccount,
+	getMissingTokenScopes,
 	markNotficationAsRead,
 	unsubscribeFromNotification,
 	resubscribeToNotification,
@@ -379,6 +380,11 @@ ipcMain.handle(
 			return { error: encodeError(account.id, error as Error) };
 		}
 	}
+);
+
+ipcMain.handle(
+	'token-scopes-for-account:missing',
+	async (_event, account: AccountInfo) => getMissingTokenScopes(account)
 );
 
 ipcMain.handle(
