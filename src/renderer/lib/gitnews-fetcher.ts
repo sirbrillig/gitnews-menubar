@@ -23,6 +23,7 @@ import {
 	addConnectionError,
 	addAccountFetchError,
 	setIsTokenInvalid,
+	setAccountMissingTokenScopes,
 } from '../lib/reducer';
 import {
 	type AccountInfo,
@@ -214,6 +215,7 @@ export function createFetcher(): Middleware<unknown, AppReduxState> {
 									return;
 								}
 								allBasicNotes.push(...result);
+								checkTokenScopes(account, next);
 							})
 							.catch((err) => {
 								window.electronApi.logMessage(
@@ -395,6 +397,29 @@ async function getDemoNotifications(): Promise<Note[]> {
 		...createDemoNotifications(),
 	];
 	return currentDemoNotifications;
+}
+
+/**
+ * Warn about an account whose token can list notifications but is missing the
+ * scopes needed to load their details.
+ *
+ * This runs alongside the fetch rather than blocking it.
+ */
+function checkTokenScopes(account: AccountInfo, dispatch: AppDispatch) {
+	window.electronApi
+		.getMissingTokenScopes(account)
+		.then((missingScopes) => {
+			if (missingScopes.length > 0) {
+				window.electronApi.logMessage(
+					`Token for account "${account.name}" is missing scopes: ${missingScopes.join(', ')}`,
+					'warn'
+				);
+			}
+			dispatch(setAccountMissingTokenScopes(account.id, missingScopes));
+		})
+		.catch((err) => {
+			debug('Failed to check token scopes', err);
+		});
 }
 
 function dispatchAccountFetchError(

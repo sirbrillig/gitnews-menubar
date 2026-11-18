@@ -688,6 +688,70 @@ describe('reducer', function () {
 		});
 	});
 
+	describe('SET_TOKEN_INVALID', function () {
+		const accounts = [
+			{ id: 'first', name: 'First', isInvalid: false },
+			{ id: 'second', name: 'Second', isInvalid: false },
+		];
+
+		it('marks the account invalid without changing the account order', function () {
+			const action = {
+				type: 'SET_TOKEN_INVALID',
+				accountId: 'first',
+				isInvalid: true,
+			};
+			const result = reducer({ accounts }, action);
+			expect(result.isTokenInvalid).toBe(true);
+			expect(result.accounts).toEqual([
+				{ id: 'first', name: 'First', isInvalid: true },
+				{ id: 'second', name: 'Second', isInvalid: false },
+			]);
+		});
+	});
+
+	describe('SET_ACCOUNTS', function () {
+		it('clears the invalid token flag along with each account flag', function () {
+			const accounts = [{ id: 'first', name: 'First', isInvalid: true }];
+			const action = { type: 'SET_ACCOUNTS', accounts };
+			const result = reducer({ accounts, isTokenInvalid: true }, action);
+			expect(result.isTokenInvalid).toBe(false);
+			expect(result.accounts[0].isInvalid).toBe(false);
+		});
+	});
+
+	describe('SET_ACCOUNT_MISSING_TOKEN_SCOPES', function () {
+		it('is empty by default', function () {
+			const result = reducer(undefined, { type: 'UNKNOWN' });
+			expect(result.accountsMissingTokenScopes).toEqual({});
+		});
+
+		it('sets the missing scopes for the account', function () {
+			const action = {
+				type: 'SET_ACCOUNT_MISSING_TOKEN_SCOPES',
+				accountId: 'first',
+				missingScopes: ['repo'],
+			};
+			const result = reducer(
+				{ accountsMissingTokenScopes: { second: [] } },
+				action
+			);
+			expect(result.accountsMissingTokenScopes).toEqual({
+				first: ['repo'],
+				second: [],
+			});
+		});
+
+		it('returns the same state if the missing scopes have not changed', function () {
+			const state = { accountsMissingTokenScopes: { first: ['repo'] } };
+			const action = {
+				type: 'SET_ACCOUNT_MISSING_TOKEN_SCOPES',
+				accountId: 'first',
+				missingScopes: ['repo'],
+			};
+			expect(reducer(state, action)).toBe(state);
+		});
+	});
+
 	describe('ADD_CONNECTION_ERROR', function () {
 		it('adds the error string to the list of errors', function () {
 			const action = { type: 'ADD_CONNECTION_ERROR', error: 'foobar' };

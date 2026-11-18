@@ -6,6 +6,7 @@ import { doesTextMentionUser } from './mentions';
 import { getPlainTextExcerpt } from './excerpt';
 import { getGravatarUrl } from './gravatar';
 import { doDisplayNamesMatch } from './public-avatar';
+import { isPublicGithubServerUrl } from './server-url';
 import {
 	doesActivityExplainUpdate,
 	findReviewForUpdate,
@@ -103,11 +104,11 @@ function createOctokit(account: AccountInfo) {
  * Server.
  */
 export function isPublicGithubAccount(account: AccountInfo): boolean {
-	return getBaseUrlForServer(account) === undefined;
+	return isPublicGithubServerUrl(account.serverUrl);
 }
 
 function getBaseUrlForServer(account: AccountInfo): string | undefined {
-	if (!account.serverUrl || account.serverUrl === mainGithubApiUrl) {
+	if (isPublicGithubAccount(account)) {
 		return undefined;
 	}
 	// GitHub Enterprise Servers use this URL structure:
@@ -117,7 +118,7 @@ function getBaseUrlForServer(account: AccountInfo): string | undefined {
 }
 
 function getWebBaseUrl(account: AccountInfo): string {
-	if (!account.serverUrl || account.serverUrl === mainGithubApiUrl) {
+	if (isPublicGithubAccount(account)) {
 		return 'https://github.com';
 	}
 	return account.serverUrl.replace(/\/$/, '');
@@ -143,7 +144,7 @@ export async function markNotficationAsRead(
 		});
 	} catch (error) {
 		logMessage(
-			`Failed to mark notification read for ${path} (${note.url})`,
+			`Failed to mark notification read for ${path} (${note.url}): ${getRequestErrorDescription(error)}`,
 			'error'
 		);
 		return;
@@ -162,7 +163,7 @@ export async function unsubscribeFromNotification(
 		});
 	} catch (error) {
 		logMessage(
-			`Failed to unsubscribe from notification for ${path} (${note.url})`,
+			`Failed to unsubscribe from notification for ${path} (${note.url}): ${getRequestErrorDescription(error)}`,
 			'error'
 		);
 		return;
@@ -182,7 +183,7 @@ export async function resubscribeToNotification(
 		});
 	} catch (error) {
 		logMessage(
-			`Failed to resubscribe to notification for ${path} (${note.url})`,
+			`Failed to resubscribe to notification for ${path} (${note.url}): ${getRequestErrorDescription(error)}`,
 			'error'
 		);
 		return;
@@ -225,6 +226,51 @@ interface CommentData {
 // The login of the user who owns each account's token, keyed by account.
 const viewerLogins = new Map<string, string>();
 
+/**
+ * Return a short description of a failed request (eg: "404 Not Found") for
+ * the logs.
+ */
+function getRequestErrorDescription(error: unknown): string {
+	const { status, message } = (error ?? {}) as {
+		status?: number;
+		message?: string;
+	};
+	return [status, message].filter(Boolean).join(' ') || String(error);
+}
+
+// A classic token needs this scope to read notification details, since most
+// notifications are for private repos. The `notifications` scope alone can
+// list notifications but cannot read the issues and pull requests behind them.
+const requiredTokenScopes = ['repo'];
+
+/**
+ * Return the scopes required by the app that the account's token is missing.
+ *
+ * Only classic tokens report their scopes, so this returns an empty array for
+ * other kinds of tokens (like fine-grained tokens).
+ */
+export async function getMissingTokenScopes(
+	account: AccountInfo
+): Promise<string[]> {
+	const octokit = createOctokit(account);
+	let scopesHeader: string | undefined;
+	try {
+		const response = await octokit.request('GET /user');
+		scopesHeader = response.headers['x-oauth-scopes'];
+	} catch (error) {
+		logMessage(
+			`Failed to fetch token scopes for account ${account.name} (${account.id}): ${getRequestErrorDescription(error)}`,
+			'error'
+		);
+		return [];
+	}
+	if (typeof scopesHeader !== 'string') {
+		return [];
+	}
+	const scopes = scopesHeader.split(',').map((scope) => scope.trim());
+	return requiredTokenScopes.filter((scope) => !scopes.includes(scope));
+}
+
 function getViewerLoginCacheKey(account: AccountInfo): string {
 	return [account.id, account.serverUrl, account.apiKey].join('|');
 }
@@ -251,7 +297,7 @@ async function getViewerLogin(
 		}
 	} catch (error) {
 		logMessage(
-			`Failed to fetch user login for account ${account.name} (${account.id})`,
+			`Failed to fetch user login for account ${account.name} (${account.id}): ${getRequestErrorDescription(error)}`,
 			'error'
 		);
 	}
@@ -299,7 +345,7 @@ async function getUserProfile(
 			return null;
 		}
 		logMessage(
-			`Failed to fetch profile for user ${login} in account ${account.name} (${account.id})`,
+			`Failed to fetch profile for user ${login} in account ${account.name} (${account.id}): ${getRequestErrorDescription(error)}`,
 			'warn'
 		);
 	}
@@ -478,7 +524,7 @@ async function getCommentDataForNotification(
 		}
 	} catch (error) {
 		logMessage(
-			`Failed to fetch comment for ${commentPath} (${notification.subject.latest_comment_url ?? notification.subject.url})`,
+			`Failed to fetch comment for ${commentPath} (${notification.subject.latest_comment_url ?? notification.subject.url}): ${getRequestErrorDescription(error)}`,
 			'error'
 		);
 		return {
@@ -531,7 +577,7 @@ async function getReviewDataForNotification(
 		reviews = await getReviewsForPull(octokit, pullPath);
 	} catch (error) {
 		logMessage(
-			`Failed to fetch reviews for ${pullPath} (${notification.subject.url})`,
+			`Failed to fetch reviews for ${pullPath} (${notification.subject.url}): ${getRequestErrorDescription(error)}`,
 			'error'
 		);
 		return undefined;
@@ -632,7 +678,10 @@ async function getCommitForPull(
 		const response = await octokit.request(`GET ${commitPath}`, {});
 		return response.data;
 	} catch (error) {
-		logMessage(`Failed to fetch commit ${commitPath}`, 'error');
+		logMessage(
+			`Failed to fetch commit ${commitPath}: ${getRequestErrorDescription(error)}`,
+			'error'
+		);
 		return undefined;
 	}
 }
@@ -661,7 +710,7 @@ async function getTimelineDataForNotification(
 		items = await getRecentTimelineItems(octokit, paths.issuePath);
 	} catch (error) {
 		logMessage(
-			`Failed to fetch timeline for ${paths.issuePath} (${notification.subject.url})`,
+			`Failed to fetch timeline for ${paths.issuePath} (${notification.subject.url}): ${getRequestErrorDescription(error)}`,
 			'error'
 		);
 		return undefined;
@@ -740,7 +789,7 @@ async function getReviewCommentData(
 		)) as RawReviewComment[];
 	} catch (error) {
 		logMessage(
-			`Failed to fetch comments for review ${reviewId} in ${pullPath}`,
+			`Failed to fetch comments for review ${reviewId} in ${pullPath}: ${getRequestErrorDescription(error)}`,
 			'error'
 		);
 		return undefined;
@@ -784,7 +833,10 @@ async function isReviewCommentByUser(
 		const commentLogin = (response.data as RawReviewComment)?.user?.login;
 		return commentLogin?.toLowerCase() === login.toLowerCase();
 	} catch (error) {
-		logMessage(`Failed to fetch review comment ${commentPath}`, 'error');
+		logMessage(
+			`Failed to fetch review comment ${commentPath}: ${getRequestErrorDescription(error)}`,
+			'error'
+		);
 		return false;
 	}
 }
@@ -923,7 +975,7 @@ async function getSubjectDataForNotification(
 		subjectAuthorAvatar = subject.data.user?.avatar_url;
 	} catch (error) {
 		logMessage(
-			`Failed to fetch subject for ${subjectPath} (${notification.subject.url})`,
+			`Failed to fetch subject for ${subjectPath} (${notification.subject.url}): ${getRequestErrorDescription(error)}`,
 			'error'
 		);
 		return { noteState, noteMerged, noteDraft, subjectHtmlUrl, failed: true };
@@ -985,7 +1037,7 @@ async function getWorkflowRunDataForNotification(
 		runs = (response.data.workflow_runs ?? []) as RawWorkflowRun[];
 	} catch (error) {
 		logMessage(
-			`Failed to fetch workflow runs for ${notification.repository.full_name} branch ${title.branch}`,
+			`Failed to fetch workflow runs for ${notification.repository.full_name} branch ${title.branch}: ${getRequestErrorDescription(error)}`,
 			'error'
 		);
 	}

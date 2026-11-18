@@ -20,6 +20,7 @@ window.electronApi = {
 	isAutoLaunchEnabled: () => Promise.resolve(false),
 	listBasicNotificationsForAccount: jest.fn().mockResolvedValue([]),
 	enrichNotificationsForAccount: jest.fn().mockResolvedValue([]),
+	getMissingTokenScopes: jest.fn().mockResolvedValue([]),
 };
 
 const TEST_ACCOUNT = {
@@ -103,6 +104,7 @@ describe('createFetcher() — two-phase fetch', function () {
 		window.electronApi.enrichNotificationsForAccount = jest
 			.fn()
 			.mockResolvedValue([]);
+		window.electronApi.getMissingTokenScopes = jest.fn().mockResolvedValue([]);
 	});
 
 	describe('Phase 1 — list', function () {
@@ -128,6 +130,33 @@ describe('createFetcher() — two-phase fetch', function () {
 			expect(
 				window.electronApi.listBasicNotificationsForAccount
 			).toHaveBeenCalledWith(accounts[1]);
+		});
+	});
+
+	describe('token scopes', function () {
+		it('reports the scopes missing from an account that can list notifications', async function () {
+			window.electronApi.getMissingTokenScopes.mockResolvedValue(['repo']);
+			const { dispatch, next } = makeMiddleware(makeState());
+			dispatch({ type: 'GITNEWS_FETCH_NOTIFICATIONS' });
+			await flushPromises();
+			expect(window.electronApi.getMissingTokenScopes).toHaveBeenCalledWith(
+				TEST_ACCOUNT
+			);
+			expect(next).toHaveBeenCalledWith({
+				type: 'SET_ACCOUNT_MISSING_TOKEN_SCOPES',
+				accountId: TEST_ACCOUNT.id,
+				missingScopes: ['repo'],
+			});
+		});
+
+		it('does not check the scopes of an account that cannot list notifications', async function () {
+			window.electronApi.listBasicNotificationsForAccount.mockResolvedValue({
+				error: { status: 401, accountId: TEST_ACCOUNT.id },
+			});
+			const { dispatch } = makeMiddleware(makeState());
+			dispatch({ type: 'GITNEWS_FETCH_NOTIFICATIONS' });
+			await flushPromises();
+			expect(window.electronApi.getMissingTokenScopes).not.toHaveBeenCalled();
 		});
 	});
 

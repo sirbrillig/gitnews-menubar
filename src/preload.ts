@@ -32,6 +32,8 @@ const bridge: MainBridge = {
 		basicNotes: BasicNote[]
 	) =>
 		ipcRenderer.invoke('notifications-for-account:enrich', account, basicNotes),
+	getMissingTokenScopes: (account: AccountInfo) =>
+		ipcRenderer.invoke('token-scopes-for-account:missing', account),
 	markNotificationRead: (note: Note, account: AccountInfo) =>
 		ipcRenderer.invoke('mark-note-as-read', note, account),
 	unsubscribeNotification: (note: Note, account: AccountInfo) =>
