@@ -6,6 +6,7 @@ import { doesTextMentionUser } from './mentions';
 import { getPlainTextExcerpt } from './excerpt';
 import { getGravatarUrl } from './gravatar';
 import { doDisplayNamesMatch } from './public-avatar';
+import { isPublicGithubServerUrl } from './server-url';
 import {
 	doesActivityExplainUpdate,
 	findReviewForUpdate,
@@ -103,11 +104,11 @@ function createOctokit(account: AccountInfo) {
  * Server.
  */
 export function isPublicGithubAccount(account: AccountInfo): boolean {
-	return getBaseUrlForServer(account) === undefined;
+	return isPublicGithubServerUrl(account.serverUrl);
 }
 
 function getBaseUrlForServer(account: AccountInfo): string | undefined {
-	if (!account.serverUrl || account.serverUrl === mainGithubApiUrl) {
+	if (isPublicGithubAccount(account)) {
 		return undefined;
 	}
 	// GitHub Enterprise Servers use this URL structure:
@@ -117,7 +118,7 @@ function getBaseUrlForServer(account: AccountInfo): string | undefined {
 }
 
 function getWebBaseUrl(account: AccountInfo): string {
-	if (!account.serverUrl || account.serverUrl === mainGithubApiUrl) {
+	if (isPublicGithubAccount(account)) {
 		return 'https://github.com';
 	}
 	return account.serverUrl.replace(/\/$/, '');
