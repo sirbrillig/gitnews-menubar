@@ -1633,12 +1633,17 @@ header h1 {
 .update-available-notice__action {
 	flex-shrink: 0;
 	color: var(--bottom-bar-action-text-color);
-	background: none !important;
+	background-color: rgba(255, 255, 255, 0.15) !important;
 	border: none;
-	padding: 0 !important;
+	border-radius: 10px;
+	padding: 1px 10px !important;
 	font-size: inherit;
 	font-weight: bold;
 	cursor: pointer;
+}
+
+.update-available-notice__action:hover {
+	background-color: rgba(255, 255, 255, 0.25) !important;
 }
 
 .account-list {
