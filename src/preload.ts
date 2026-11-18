@@ -57,6 +57,9 @@ const bridge: MainBridge = {
 	checkForAppUpdate: () => ipcRenderer.invoke('app-update:check'),
 	downloadAppUpdate: () => ipcRenderer.invoke('app-update:download'),
 	installAppUpdate: () => ipcRenderer.send('app-update:install'),
+	isUpdateCheckEnabled: () => ipcRenderer.invoke('update-check:get'),
+	setUpdateCheckEnabled: (isEnabled: boolean) =>
+		ipcRenderer.invoke('update-check:set', isEnabled),
 	isBetaUpdatesEnabled: () => ipcRenderer.invoke('beta-updates:get'),
 	setBetaUpdatesEnabled: (isEnabled: boolean) =>
 		ipcRenderer.invoke('beta-updates:set', isEnabled),

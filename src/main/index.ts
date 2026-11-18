@@ -21,6 +21,8 @@ import {
 	removeAppStateItem,
 	isBetaUpdatesEnabled,
 	setBetaUpdatesEnabled,
+	isUpdateCheckEnabled,
+	setUpdateCheckEnabled,
 	isPublicAvatarMatchEnabled,
 	setPublicAvatarMatchEnabled,
 } from './lib/main-store';
@@ -317,6 +319,15 @@ ipcMain.handle('is-demo-mode:get', async () => {
 	return Boolean(process.env.GITNEWS_DEMO_MODE);
 });
 
+ipcMain.handle('update-check:get', async () => {
+	return isUpdateCheckEnabled();
+});
+
+ipcMain.handle('update-check:set', async (_event, isEnabled: unknown) => {
+	logMessage(`Update checking changed to ${isEnabled}`, 'info');
+	setUpdateCheckEnabled(Boolean(isEnabled));
+});
+
 ipcMain.handle('beta-updates:get', async () => {
 	return isBetaUpdatesEnabled();
 });
@@ -339,6 +350,9 @@ ipcMain.handle(
 );
 
 ipcMain.handle('app-update:check', async () => {
+	if (!isUpdateCheckEnabled()) {
+		return null;
+	}
 	try {
 		return await checkForAppUpdate(isBetaUpdatesEnabled());
 	} catch (error) {

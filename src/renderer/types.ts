@@ -380,7 +380,7 @@ export interface MainBridge {
 	importLowPriorityPatterns: () => Promise<string | null>;
 	/**
 	 * Resolve with the newest release this app can update to, or null if it is
-	 * already up to date.
+	 * already up to date or update checking is turned off.
 	 */
 	checkForAppUpdate: () => Promise<AppUpdate | null>;
 	/**
@@ -389,6 +389,8 @@ export interface MainBridge {
 	 */
 	downloadAppUpdate: () => Promise<{ error: string } | undefined>;
 	installAppUpdate: () => void;
+	isUpdateCheckEnabled: () => Promise<boolean>;
+	setUpdateCheckEnabled: (isEnabled: boolean) => Promise<void>;
 	isBetaUpdatesEnabled: () => Promise<boolean>;
 	setBetaUpdatesEnabled: (isEnabled: boolean) => Promise<void>;
 	isPublicAvatarMatchEnabled: () => Promise<boolean>;
