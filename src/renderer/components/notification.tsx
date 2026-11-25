@@ -33,7 +33,7 @@ import {
 	runWithViewTransition,
 	useVisibleViewTransitionName,
 } from '../lib/view-transitions';
-import { setNotePriority } from '../lib/reducer';
+import { removeNoteLowPriority, setNotePriority } from '../lib/reducer';
 
 const debug = debugFactory('gitnews-menubar');
 
@@ -293,16 +293,7 @@ export default function Notification({
 		} else if (choice === 'mark-low-priority') {
 			runWithViewTransition(() => dispatch(setNotePriority(note, 'low')));
 		} else if (choice === 'remove-low-priority') {
-			// Clearing the override is enough unless the automatic rules would make
-			// the note low priority again, in which case mark it normal priority.
-			const isAutomaticallyLowPriority = Boolean(
-				getLowPriorityReason(
-					{ ...noteAsUnread, gitnewsPriorityOverride: undefined },
-					lowPriorityOptions
-				)
-			);
-			const priority = isAutomaticallyLowPriority ? 'normal' : undefined;
-			runWithViewTransition(() => dispatch(setNotePriority(note, priority)));
+			runWithViewTransition(() => dispatch(removeNoteLowPriority(note)));
 		} else if (choice === 'mute') {
 			doMute();
 		} else if (choice === 'unmute') {

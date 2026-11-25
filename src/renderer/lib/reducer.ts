@@ -6,6 +6,8 @@ import {
 	hoursToMs,
 	isValidLowPriorityWindowHours,
 	DEFAULT_LOW_PRIORITY_WINDOW_HOURS,
+	getLowPriorityOptions,
+	getLowPriorityReason,
 } from '../lib/helpers';
 import {
 	AppReduxState,
@@ -34,6 +36,7 @@ import {
 	ActionInitSetAccounts,
 	ActionUnsubscribeNote,
 	ActionSetNotePriority,
+	ActionRemoveNoteLowPriority,
 	NotePriorityOverride,
 	ActionUndoUnsubscribeNote,
 	ActionDismissUnsubscribedNotice,
@@ -225,6 +228,15 @@ export function createReducer() {
 										: undefined,
 								}
 							: note
+					),
+				};
+			}
+			case 'REMOVE_NOTE_LOW_PRIORITY': {
+				const noteId = getNoteId(action.note);
+				return {
+					...state,
+					notes: state.notes.map((note) =>
+						getNoteId(note) === noteId ? withoutLowPriority(note, state) : note
 					),
 				};
 			}
@@ -489,6 +501,36 @@ export function createReducer() {
 	};
 }
 
+function withoutLowPriority(note: Note, state: AppReduxState): Note {
+	// Read notes are never low priority, so look at how the note would be shown
+	// once it is unread again.
+	const automaticReason = getLowPriorityReason(
+		{ ...note, unread: true, gitnewsPriorityOverride: undefined },
+		getLowPriorityOptions(state)
+	);
+	if (automaticReason === 'dismissed') {
+		// A normal priority would hide later activity that matches a pattern
+		// too, so forget the dismissal instead.
+		return {
+			...note,
+			gitnewsDismissedAt: undefined,
+			gitnewsDismissedReason: undefined,
+			gitnewsDismissedCommentUrl: undefined,
+			gitnewsPriorityOverride: undefined,
+		};
+	}
+	return {
+		...note,
+		gitnewsPriorityOverride: automaticReason
+			? {
+					priority: 'normal',
+					reason: note.api?.notification?.reason,
+					commentUrl: note.commentUrl,
+				}
+			: undefined,
+	};
+}
+
 function setPatternsForRepo(
 	patternsByRepo: Record<string, string[]>,
 	repoName: string,
@@ -546,6 +588,10 @@ export function setNotePriority(
 	priority?: NotePriorityOverride['priority']
 ): ActionSetNotePriority {
 	return { type: 'SET_NOTE_PRIORITY', note, priority };
+}
+
+export function removeNoteLowPriority(note: Note): ActionRemoveNoteLowPriority {
+	return { type: 'REMOVE_NOTE_LOW_PRIORITY', note };
 }
 
 export function unsubscribeNote(note: Note): ActionUnsubscribeNote {

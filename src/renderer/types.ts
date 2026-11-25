@@ -123,6 +123,16 @@ export type ActionSetNotePriority = {
 	 */
 	priority?: NotePriorityOverride['priority'];
 };
+/**
+ * Undo whatever makes the note low priority: if it is low priority only because
+ * it was dismissed, forget the dismissal (as if it had been marked read without
+ * de-prioritizing updates) so that later activity is judged by the other rules;
+ * otherwise set its priority to normal.
+ */
+export type ActionRemoveNoteLowPriority = {
+	type: 'REMOVE_NOTE_LOW_PRIORITY';
+	note: Note;
+};
 export type ActionUnsubscribeNote = { type: 'UNSUBSCRIBE_NOTE'; note: Note };
 export type ActionUndoUnsubscribeNote = {
 	type: 'UNDO_UNSUBSCRIBE_NOTE';
@@ -282,6 +292,7 @@ export type AppReduxAction =
 	| ActionImportLowPriorityPatterns
 	| ActionSetLowPriorityWindowHours
 	| ActionSetNotePriority
+	| ActionRemoveNoteLowPriority
 	| ActionSetGroupByRepoEnabled
 	| ActionSetDetectedMentionsFilterEnabled
 	| ActionDismissFeatureTip
