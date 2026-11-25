@@ -1,6 +1,10 @@
 /* globals describe, it, beforeEach */
 const { createReducer } = require('../src/renderer/lib/reducer');
-const { secsToMs } = require('../src/renderer/lib/helpers');
+const {
+	secsToMs,
+	getLowPriorityOptions,
+	getLowPriorityReason,
+} = require('../src/renderer/lib/helpers');
 
 const reducer = createReducer('');
 
@@ -314,6 +318,113 @@ describe('reducer', function () {
 			const action = { type: 'SET_NOTE_PRIORITY', note: prioritized[0] };
 			const result = reducer({ notes: prioritized }, action);
 			expect(result.notes[0].gitnewsPriorityOverride).toBeUndefined();
+		});
+	});
+
+	describe('REMOVE_NOTE_LOW_PRIORITY', function () {
+		const dismissedAt = Date.parse('2026-01-01T00:00:00Z');
+		const dismissedNote = {
+			id: 'a1',
+			unread: true,
+			title: 'Add a feature',
+			repositoryFullName: 'owner/repo',
+			commentUrl: 'https://example.com/comment/2',
+			commentExcerpt: 'Looks good',
+			updatedAt: '2026-01-01T01:00:00Z',
+			api: { notification: { reason: 'subscribed' } },
+			gitnewsDismissedAt: dismissedAt,
+			gitnewsDismissedReason: 'subscribed',
+			gitnewsDismissedCommentUrl: 'https://example.com/comment/1',
+		};
+		const state = {
+			isLowPriorityEnabled: true,
+			lowPriorityTitlePatterns: { 'owner/repo': ['^Chore'] },
+			lowPriorityCommentPatterns: { 'owner/repo': ['revert this'] },
+		};
+
+		it('forgets the dismissal instead of setting a priority if the note is low priority because it was dismissed', function () {
+			const action = { type: 'REMOVE_NOTE_LOW_PRIORITY', note: dismissedNote };
+			const result = reducer({ ...state, notes: [dismissedNote] }, action);
+			expect(result.notes[0].gitnewsDismissedAt).toBeUndefined();
+			expect(result.notes[0].gitnewsDismissedReason).toBeUndefined();
+			expect(result.notes[0].gitnewsDismissedCommentUrl).toBeUndefined();
+			expect(result.notes[0].gitnewsPriorityOverride).toBeUndefined();
+		});
+
+		it('forgets the dismissal of a read note', function () {
+			const note = { ...dismissedNote, unread: false };
+			const action = { type: 'REMOVE_NOTE_LOW_PRIORITY', note };
+			const result = reducer({ ...state, notes: [note] }, action);
+			expect(result.notes[0].gitnewsDismissedAt).toBeUndefined();
+			expect(result.notes[0].gitnewsPriorityOverride).toBeUndefined();
+		});
+
+		it('forgets the dismissal of a note manually marked low priority that was also dismissed', function () {
+			const note = {
+				...dismissedNote,
+				gitnewsPriorityOverride: { priority: 'low', reason: 'subscribed' },
+			};
+			const action = { type: 'REMOVE_NOTE_LOW_PRIORITY', note };
+			const result = reducer({ ...state, notes: [note] }, action);
+			expect(result.notes[0].gitnewsDismissedAt).toBeUndefined();
+			expect(result.notes[0].gitnewsPriorityOverride).toBeUndefined();
+		});
+
+		it('sets normal priority if the note is low priority because of a comment pattern', function () {
+			const note = {
+				...dismissedNote,
+				commentExcerpt: 'If you need to revert this pull request',
+			};
+			const action = { type: 'REMOVE_NOTE_LOW_PRIORITY', note };
+			const result = reducer({ ...state, notes: [note] }, action);
+			expect(result.notes[0].gitnewsDismissedAt).toBe(dismissedAt);
+			expect(result.notes[0].gitnewsPriorityOverride).toEqual({
+				priority: 'normal',
+				reason: 'subscribed',
+				commentUrl: 'https://example.com/comment/2',
+			});
+		});
+
+		it('sets normal priority if the note is low priority because of a title pattern', function () {
+			const note = { ...dismissedNote, title: 'Chore: update deps' };
+			const action = { type: 'REMOVE_NOTE_LOW_PRIORITY', note };
+			const result = reducer({ ...state, notes: [note] }, action);
+			expect(result.notes[0].gitnewsPriorityOverride.priority).toBe('normal');
+		});
+
+		it('clears a manual low priority if no automatic rule applies', function () {
+			const note = {
+				...dismissedNote,
+				gitnewsDismissedAt: undefined,
+				gitnewsPriorityOverride: { priority: 'low', reason: 'subscribed' },
+			};
+			const action = { type: 'REMOVE_NOTE_LOW_PRIORITY', note };
+			const result = reducer({ ...state, notes: [note] }, action);
+			expect(result.notes[0].gitnewsPriorityOverride).toBeUndefined();
+		});
+
+		it('lets a later comment that matches a pattern make the note low priority after forgetting the dismissal', function () {
+			const action = { type: 'REMOVE_NOTE_LOW_PRIORITY', note: dismissedNote };
+			const result = reducer({ ...state, notes: [dismissedNote] }, action);
+			const updated = {
+				...result.notes[0],
+				commentUrl: 'https://example.com/comment/3',
+				commentExcerpt: 'If you need to revert this pull request',
+				updatedAt: '2026-01-01T02:00:00Z',
+			};
+			expect(getLowPriorityReason(updated, getLowPriorityOptions(state))).toBe(
+				'comment'
+			);
+		});
+
+		it('leaves other notes alone', function () {
+			const other = { ...dismissedNote, id: 'a2' };
+			const action = { type: 'REMOVE_NOTE_LOW_PRIORITY', note: dismissedNote };
+			const result = reducer(
+				{ ...state, notes: [dismissedNote, other] },
+				action
+			);
+			expect(result.notes[1]).toBe(other);
 		});
 	});
 
